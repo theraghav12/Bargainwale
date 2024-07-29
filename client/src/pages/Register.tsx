@@ -1,18 +1,12 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
-// import axios from "axios";
-// import { baseUrl } from "../../main";
+import React, { ChangeEvent, useState } from "react";
+import { Link } from "react-router-dom";
 
 // icons
 import { CiMail } from "react-icons/ci";
-import { MdLockOutline } from "react-icons/md";
 
 // assets
-// import logo from "../../assets/logo.png";
 
 // components
-// import Loader from "../../component/outlet/Loader";
 
 interface FormData {
   name: string;
@@ -22,7 +16,6 @@ interface FormData {
 }
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -30,9 +23,6 @@ const Register: React.FC = () => {
   });
 
   const [isAgree, setIsAgree] = useState<boolean>(false);
-  const [agreeError, setAgreeError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [videoLoading, setVideoLoading] = useState<boolean>(true);
 
   function changeHandler(
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -165,16 +155,12 @@ const Register: React.FC = () => {
               </label>
             </div>
 
-            {agreeError.length > 0 && (
-              <span className="text-red-500">{agreeError}</span>
-            )}
-
             <button className="bg-[#004AAD] tracking-wider h-12 flex items-center justify-center text-[1.1rem] rounded-[8px] text-white font-bold text-richblack-900 px-[12px] py-[1rem] mt-2">
-              {loading ? (
+              {/* {loading ? (
                 <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-              ) : (
-                <span className="text-[1.2rem] font-Roboto">Continue</span>
-              )}
+              ) : ( */}
+              <span className="text-[1.2rem] font-Roboto">Continue</span>
+              {/* )} */}
             </button>
 
             <div className="flex gap-2 mt-2 justify-center items-center">
