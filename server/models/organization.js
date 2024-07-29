@@ -11,10 +11,6 @@ const orgSchema = mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "User"
     },
-    orders: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Order"
-    },
     inventory: {
         type: mongoose.Schema.ObjectId,
         ref: "Inventory"

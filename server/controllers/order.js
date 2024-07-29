@@ -1,5 +1,4 @@
 import Order from "../models/orders.js";
-import Inventory from "../models/inventory.js";
 
 const orderController = {
     createOrder: async (req, res) => {

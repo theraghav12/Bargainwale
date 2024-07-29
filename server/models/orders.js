@@ -71,6 +71,11 @@ const orderSchema = new mongoose.Schema({
     billedAt: {
         type: Date,
     },
+    organization: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Organization',
+        required: true,
+    },
 });
 
 // Method to calculate days since creation
