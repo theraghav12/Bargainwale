@@ -2,9 +2,8 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 //icons
-import { RiDashboardFill } from "react-icons/ri";
-import { FaConciergeBell } from "react-icons/fa";
-import { HiOutlineSpeakerphone } from "react-icons/hi";
+import { MdSpaceDashboard } from "react-icons/md";
+import { MdBorderColor } from "react-icons/md";
 import { MdOutlinePerson3 } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import { IoLogOutOutline } from "react-icons/io5";
@@ -37,7 +36,7 @@ const LeftNavbar = () => {
       <Navbar />
       <nav
         className={`fixed bg-white z-50 mt-[70px] h-[calc(100vh-70px)] border-r shadow-xl shadow-[#00000026] ${
-          isOpen ? "lg:w-[15%] duration-100" : "lg:w-[7%] duration-100"
+          isOpen ? "lg:w-[15%] duration-200" : "lg:w-[7%] duration-200"
         }`}
       >
         {/* sidebar for small screens */}
@@ -54,7 +53,7 @@ const LeftNavbar = () => {
                 } `}
                 to="/"
               >
-                <RiDashboardFill className="text-[2rem]" />
+                <MdSpaceDashboard className="text-[2rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -74,33 +73,13 @@ const LeftNavbar = () => {
                 } `}
                 to="/menu"
               >
-                <FaConciergeBell className="text-[2rem]" />
+                <MdBorderColor className="text-[2rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
                 >
                   Menu{" "}
                   <span className=" text-transparent">...__________..</span>
-                </span>
-              </Link>
-            </div>
-            <div>
-              <Link
-                className={`${
-                  location.pathname === "/marketing"
-                    ? "text-[#004AAD] bg-slate-100  "
-                    : "text-[#64748B]"
-                } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
-                  isOpen ? "px-5 mx-3 py-2.5  " : " p-4 "
-                } `}
-                to="/marketing"
-              >
-                <HiOutlineSpeakerphone className="text-[2rem]" />
-                <span
-                  onClick={handleToggle}
-                  className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
-                >
-                  Marketing <span className=" text-transparent ">_______</span>
                 </span>
               </Link>
             </div>
@@ -159,14 +138,14 @@ const LeftNavbar = () => {
           <FaChevronRight
             onClick={handleToggle}
             className={`absolute top-5 text-[2rem] cursor-pointer -right-4 bg-gray-300 p-2 rounded-full ${
-              isOpen ? " rotate-180" : " rotate-0"
+              isOpen ? " rotate-180 duration-200" : " rotate-0 duration-200"
             }`}
           />
 
           <div
             className={`flex w-full items-center flex-col justify-between text-[#64748B] text-[1.1rem] gap-20 mt-14`}
           >
-            <div className="flex flex-col  gap-1 ">
+            <div className="flex flex-col gap-1 ">
               <div>
                 <Link
                   onClick={handleScrollToTop}
@@ -175,11 +154,11 @@ const LeftNavbar = () => {
                       ? "text-[#004AAD] bg-slate-100  "
                       : "text-[#64748B]"
                   } flex gap-2 text-nowrap  items-center hover:text-[#004AAD] rounded-xl ${
-                    isOpen ? "px-5 mx-3 py-2.5 " : " p-4 "
+                    isOpen ? "mx-3 p-4" : " p-4 "
                   } `}
                   to="/"
                 >
-                  <RiDashboardFill />
+                  <MdSpaceDashboard className="text-[1.2rem]" />
                   <span
                     onClick={handleToggle}
                     className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -197,11 +176,11 @@ const LeftNavbar = () => {
                       ? "text-[#004AAD] bg-slate-100  "
                       : "text-[#64748B]"
                   } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
-                    isOpen ? "px-5 mx-3 py-2.5  " : " p-4 "
+                    isOpen ? "mx-3 p-4" : " p-4 "
                   } `}
                   to="/orders"
                 >
-                  <FaConciergeBell />
+                  <MdBorderColor className="text-[1.2rem]" />
                   <span
                     onClick={handleToggle}
                     className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -220,7 +199,7 @@ const LeftNavbar = () => {
                       ? "text-[#004AAD] bg-slate-100  "
                       : "text-[#64748B]"
                   } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
-                    isOpen ? "px-5 mx-3 py-2.5 " : " p-4 "
+                    isOpen ? "mx-3 p-4" : " p-4 "
                   } `}
                   to="/users"
                 >
@@ -237,33 +216,11 @@ const LeftNavbar = () => {
                 <Link
                   onClick={handleScrollToTop}
                   className={`${
-                    location.pathname === "/marketing"
-                      ? "text-[#004AAD] bg-slate-100  "
-                      : "text-[#64748B]"
-                  } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
-                    isOpen ? "px-5 mx-3 py-2.5  " : " p-4 "
-                  } `}
-                  to="/marketing"
-                >
-                  <HiOutlineSpeakerphone />
-                  <span
-                    onClick={handleToggle}
-                    className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
-                  >
-                    Marketing{" "}
-                    <span className=" text-transparent ">_______</span>
-                  </span>
-                </Link>
-              </div>
-              <div>
-                <Link
-                  onClick={handleScrollToTop}
-                  className={`${
                     location.pathname === "/setting"
                       ? "text-[#004AAD] bg-slate-100  "
                       : "text-[#64748B]"
                   } flex gap-2 text-nowrap  items-center hover:text-[#004AAD] rounded-xl ${
-                    isOpen ? "px-5 mx-3 py-2.5" : " p-4 "
+                    isOpen ? "mx-3 p-4" : " p-4 "
                   } `}
                   to="/setting"
                 >
@@ -279,7 +236,7 @@ const LeftNavbar = () => {
               <div className="hidden lg:block">
                 <div
                   className={`flex items-center text-nowrap  gap-3 text-red-500 hover:cursor-pointer ${
-                    isOpen ? "px-5 mx-3 py-2.5  " : " p-4 "
+                    isOpen ? "mx-3 p-4" : " p-4 "
                   }`}
                   // onClick={handleLogout}
                 >

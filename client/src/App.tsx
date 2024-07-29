@@ -1,20 +1,21 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
-import Home from "./Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LeftNavbar from "./components/outlet/LeftNavbar";
+import Dashboard from "./pages/Dashboard";
+import Orders from "./pages/Orders";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
 
         <Route path="/" element={<LeftNavbar />}>
-          <Route index element={<Home />} />
+          <Route index element={<Dashboard />} />
+          <Route path="/orders" element={<Orders />} />
         </Route>
       </Routes>
     </Router>

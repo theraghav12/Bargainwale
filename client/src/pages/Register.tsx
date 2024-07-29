@@ -11,7 +11,6 @@ import { CiMail } from "react-icons/ci";
 interface FormData {
   name: string;
   email: string;
-
   type: string;
 }
 
