@@ -1,17 +1,14 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const inventorySchema = new mongoose.Schema({
+const inventorySchema = mongoose.Schema({
     itemName: {
         type: String,
         required: true,
-        trim: true,
     },
-    itemNo: {
+    itemNumber: {
         type: String,
+        required: true,
         unique: true,
-        default: function () {
-            return `ITEM-${Math.floor(Math.random() * 1000000)}`;
-        },
     },
     itemDetails: {
         weightPerItem: {
@@ -23,6 +20,11 @@ const inventorySchema = new mongoose.Schema({
             enum: ['box', 'tin'],
             required: true,
         }],
+    },
+    quantity: {
+        type: Number,
+        required: true,
+        default: 0,
     },
 });
 
