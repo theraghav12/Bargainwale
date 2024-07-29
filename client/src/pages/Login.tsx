@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { ChangeEvent, useState } from "react";
+import { Link } from "react-router-dom";
 
 // icons
 import { CiMail } from "react-icons/ci";
@@ -24,12 +24,10 @@ const Login: React.FC = () => {
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
 
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [videoLoading, setVideoLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(false);
 
   function changeHandler(event: ChangeEvent<HTMLInputElement>) {
     setFormData((prevData) => ({
@@ -159,11 +157,11 @@ const Login: React.FC = () => {
             </div>
 
             <button className="bg-[#004AAD] h-12 flex items-center justify-center text-[1.1rem] rounded-[8px] text-white font-bold text-richblack-900 px-[12px] py-[1rem] mt-2">
-              {loading ? (
-                <div className="inline-block  h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-              ) : (
+              {/* {loading ? ( */}
+                {/* <div className="inline-block  h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div> */}
+              {/* ) : ( */}
                 <span>Log In</span>
-              )}
+              {/* )} */}
             </button>
 
             <div className="flex gap-2 mt-1 justify-center items-center">

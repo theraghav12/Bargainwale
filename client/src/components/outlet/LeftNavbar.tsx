@@ -1,11 +1,5 @@
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-// import { toast } from "react-toastify";
-
-//redux
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchRestaurantDetails } from "../../redux/restaurantData";
-// import type { RootState, AppDispatch } from "../../redux/store";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 //icons
 import { RiDashboardFill } from "react-icons/ri";
@@ -14,12 +8,9 @@ import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { MdOutlinePerson3 } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import { IoLogOutOutline } from "react-icons/io5";
-import { HiChevronUpDown } from "react-icons/hi2";
-import { FiPlus } from "react-icons/fi";
 import { FaChevronRight } from "react-icons/fa";
 
 // assets
-// import right from "../../assets/right.png";
 
 // components
 import Frame from "./Frame";
@@ -27,53 +18,12 @@ import Navbar from "./Navbar";
 
 const LeftNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem("id");
-  //   localStorage.removeItem("token");
-  //   toast.error("Successfully Logged Out");
-  //   navigate("/login");
-  // };
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
-  const [outlet, setoutlet] = useState(false);
-
-  const handleToggle1 = () => {
-    setoutlet(!outlet);
-  };
-
   const location = useLocation();
-
-  const data1 = [
-    {
-      name: "Foodoos",
-      id: "1234567",
-    },
-    {
-      name: "Foodoos",
-      id: "1234567",
-    },
-  ];
-
-  // const useAppDispatch = () => useDispatch<AppDispatch>();
-  // const dispatch = useAppDispatch();
-  // const { data } = useSelector((state: RootState) => state.resturantdata);
-  // console.log("restaurantData: ", data);
-
-  // const id: string | null = localStorage.getItem("id");
-
-  // useEffect(() => {
-  //   if (id) {
-  //     dispatch(fetchRestaurantDetails({ id }) as any);
-  //   }
-  //   if (!localStorage.getItem("token")) {
-  //     navigate("/login");
-  //   }
-  // }, [dispatch, id]);
 
   const handleScrollToTop = () => {
     window.scrollTo({
@@ -212,28 +162,6 @@ const LeftNavbar = () => {
               isOpen ? " rotate-180" : " rotate-0"
             }`}
           />
-
-          <div
-            className={`absolute top-[5.55rem] border border-[#757474]    w-[80%] h-fit rounded-xl bg-white opacity-100 ${
-              outlet ? "block" : "hidden"
-            }  ${isOpen ? "block" : "hidden"}`}
-          >
-            {data1?.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col   justify-between w-full  border-b border-[#706e6e] "
-              >
-                <div className="px-4 p-1 ">
-                  <p className="text-[#64748B] text-[.9rem]">{item.name}</p>
-                  <p className="text-[#4E4E4E] text-[.8rem]">Id: {item.id}</p>
-                </div>
-              </div>
-            ))}
-            <div className="flex items-center justify-cente gap-2 px-3 font-semibold text-[.9rem] py-1.5 bg-slate-200 rounded-xl rounded-t-none">
-              <FiPlus />
-              <p>Add Outlet</p>
-            </div>
-          </div>
 
           <div
             className={`flex w-full items-center flex-col justify-between text-[#64748B] text-[1.1rem] gap-20 mt-14`}

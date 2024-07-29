@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { CiSettings } from "react-icons/ci";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
@@ -7,7 +7,7 @@ import { IoLogOutOutline } from "react-icons/io5";
 // import { RootState } from "../../redux/store";
 
 const frame = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // const { data } = useSelector((state: RootState) => state.resturantdata);
 
