@@ -17,12 +17,12 @@ const orderSchema = new mongoose.Schema({
         },
         category: {
             type: String,
-            enum: ['cardboard box', 'tin'], // Add other categories if needed
+            enum: ['box', 'tin'],
             required: function () { return this.type === 'box'; },
         },
         oilType: {
             type: String,
-            enum: ['palmOil', 'vanaspatiOil', 'soybeanOil'], // Add other oil types if needed
+            enum: ['palmOil', 'vanaspatiOil', 'soybeanOil'],
             required: function () { return this.type === 'oil'; },
         },
     },
