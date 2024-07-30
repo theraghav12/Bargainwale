@@ -65,20 +65,20 @@ const LeftNavbar = () => {
             <div>
               <Link
                 className={`${
-                  location.pathname === "/menu"
+                  location.pathname === "/orders"
                     ? "text-[#004AAD] bg-slate-100  "
                     : "text-[#64748B]"
                 } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
                   isOpen ? "px-5 mx-3 py-2.5  " : " p-4 "
                 } `}
-                to="/menu"
+                to="/orders"
               >
                 <MdBorderColor className="text-[2rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
                 >
-                  Menu{" "}
+                  Orders{" "}
                   <span className=" text-transparent">...__________..</span>
                 </span>
               </Link>
