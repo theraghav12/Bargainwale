@@ -71,15 +71,6 @@ const Login: React.FC = () => {
 
   return (
     <>
-      {/* {videoLoading && <Loader />}
-      <video
-        className="fixed top-0 left-0 w-full h-full object-cover z-0 md:object-left-bottom"
-        src="https://s3groupsnackbae.s3.ap-south-1.amazonaws.com/1721141264218"
-        autoPlay
-        muted
-        loop
-        onLoadedData={() => setVideoLoading(false)}
-      ></video> */}
       <div
         className={`relative flex items-center justify-center px-[1rem] md:px-[10rem] w-full h-[100vh]`}
       >

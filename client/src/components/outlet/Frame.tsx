@@ -46,14 +46,14 @@ const frame = () => {
         <div className="flex flex-col p-2 border-b gap-1 border-[#aca9a9] text-[#64748B] ">
           <Link
             onClick={handlefram}
-            to="https://www.snackbae.in/termsCondition"
+            to="/"
             className="px-2  text-[1.1rem]  flex items-center justify-start  "
           >
             Terms & condition
           </Link>
           <Link
             onClick={handlefram}
-            to="https://www.snackbae.in/privacyPolicy"
+            to="/"
             className="px-2  text-[1.1rem]   flex items-center justify-start  "
           >
             Privacy Policy

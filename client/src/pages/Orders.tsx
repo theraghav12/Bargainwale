@@ -68,7 +68,7 @@ const Orders = () => {
 
   return (
     <>
-      <div className="relative top-[70px] lg:left-[7%] p-10">
+      <div className="relative top-[70px] lg:ml-[7%] p-10">
         <h1 className="text-start">Orders</h1>
         <div className="w-full flex flex-col sm:flex-row gap-10">
           <div className="w-[280px] flex flex-col justify-between p-6 rounded-lg shadow-md">
