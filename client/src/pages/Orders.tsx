@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { LuAsterisk } from "react-icons/lu";
+import OrdersTable from "../components/OrdersTable";
+import axios from "axios";
+import { API } from "../utils/API";
 
 interface OrderFormData {
   companyBargainDate: Date | null;
@@ -46,22 +49,42 @@ const Orders = () => {
     description: "",
     createdAt: new Date(),
     billedAt: undefined,
-    organization: "",
+    organization: "66a756651625f0a41547a9db",
   });
 
   const handleChange = (
-    // e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    // const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      // [name]: type === "checkbox" ? checked : value,
+      [event.target.name]: event.target.value,
     }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission logic
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `${API}/order`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: formData,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
     console.log(formData);
     setIsOpen(false);
   };
@@ -69,8 +92,8 @@ const Orders = () => {
   return (
     <>
       <div className="relative top-[70px] lg:ml-[7%] p-10">
-        <h1 className="text-start">Orders</h1>
-        <div className="w-full flex flex-col sm:flex-row gap-10">
+        <h1 className="text-start text-[2rem] font-semibold">Orders</h1>
+        <div className="w-full flex flex-col sm:flex-row gap-10 mt-2">
           <div className="w-[280px] flex flex-col justify-between p-6 rounded-lg shadow-md">
             <div>
               <h2 className="text-xl font-semibold mb-4">Place Your Order</h2>
@@ -84,7 +107,7 @@ const Orders = () => {
               Create An Order
             </button>
           </div>
-          <div className="w-[280px] flex flex-col justify-between p-6 rounded-lg shadow-md">
+          {/* <div className="w-[280px] flex flex-col justify-between p-6 rounded-lg shadow-md">
             <div>
               <h2 className="text-xl font-semibold mb-4">Get Order History</h2>
               <p className="mb-6">Get History about the orders in past</p>
@@ -95,8 +118,12 @@ const Orders = () => {
             >
               Order History
             </button>
-          </div>
+          </div> */}
         </div>
+        <h1 className="text-start text-[1.5rem] font-semibold mt-7">
+          Order History
+        </h1>
+        <OrdersTable />
       </div>
 
       {/* Create order form */}
@@ -281,7 +308,7 @@ const Orders = () => {
                       placeholder="Enter description"
                       name="description"
                       value={formData.description || ""}
-                      // onChange={handleChange}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="flex flex-row gap-5 mt-3">
