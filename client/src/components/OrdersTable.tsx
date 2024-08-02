@@ -34,7 +34,7 @@ const OrdersTable = () => {
   const dispatch: AppThunkDispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchData({ id: "66a756651625f0a41547a9db" }));
+    dispatch(fetchData({ id: "66ad2166736b9916dd42c23a" }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const OrdersTable = () => {
       .request(config)
       .then((response) => {
         console.log(JSON.stringify(response.data));
-        dispatch(fetchData({ id: "66a756651625f0a41547a9db" }));
+        dispatch(fetchData({ id: "66ad2166736b9916dd42c23a" }));
         toast.success("Status Updated");
       })
       .catch((error) => {
