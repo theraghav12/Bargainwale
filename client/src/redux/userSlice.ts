@@ -22,7 +22,9 @@ export const fetchData = createAsyncThunk<
   { rejectValue: any }
 >("organization", async ({ id }, thunkAPI) => {
   try {
-    const response = await axios.get(`${API}/organization/${id}`);
+    const response = await axios.get(
+      `${API}/organization/${id}`
+      );
     return response.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.response.data);

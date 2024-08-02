@@ -1,7 +1,10 @@
-import axios from "axios";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { GrNext, GrPrevious } from "react-icons/gr";
-import { API } from "../utils/API";
+import { AppThunkDispatch, fetchData } from "../redux/userSlice";
+import { RootState } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AiFillEdit } from "react-icons/ai";
+import { BsTrashFill } from "react-icons/bs";
 
 export interface Order {
   id: number;
@@ -29,13 +32,38 @@ const OrdersTable = () => {
   const [productList, setProductList] = useState<Order[]>([]);
   const [rowsLimit, setRowsLimit] = useState<number>(5);
   const [rowsToShow, setRowsToShow] = useState<Order[]>(
-    productList.slice(0, rowsLimit)
+    productList?.slice(0, rowsLimit)
   );
   const [customPagination, setCustomPagination] = useState<number[]>([]);
   const [totalPage, setTotalPage] = useState<number>(
     Math.ceil(productList?.length / rowsLimit)
   );
   const [currentPage, setCurrentPage] = useState<number>(0);
+
+  // const { data, loading, error } = useSelector(
+  //   (state: RootState) => state.userData
+  // );
+
+  const data = useSelector((state: RootState) => state.userData);
+
+  console.log(data);
+
+  const dispatch: AppThunkDispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchData({ id: "66a756651625f0a41547a9db" }));
+  }, [dispatch]);
+
+  // console.log(data);
+
+  // useEffect(() => {
+  //   if (data) {
+  //     // setProductList(data || []);
+  //   }
+  //   // if (isFirstLoad.current && categories.length > 0) {
+  //   //   setSelectedCategoryId(categories[0]._id);
+  //   //   isFirstLoad.current = false;
+  //   // }
+  // }, [data]);
 
   const nextPage = () => {
     const startIndex = rowsLimit * (currentPage + 1);
@@ -67,9 +95,9 @@ const OrdersTable = () => {
     const newRowsLimit = parseInt(e.target.value);
     setRowsLimit(newRowsLimit);
     setRowsToShow(productList.slice(0, newRowsLimit));
-    setTotalPage(Math.ceil(productList.length / newRowsLimit));
+    setTotalPage(Math.ceil(productList?.length / newRowsLimit));
     setCustomPagination(
-      Array(Math.ceil(productList.length / newRowsLimit)).fill(null)
+      Array(Math.ceil(productList?.length / newRowsLimit)).fill(null)
     );
     setCurrentPage(0);
   };
@@ -81,26 +109,15 @@ const OrdersTable = () => {
   }, [rowsLimit]);
 
   useEffect(() => {
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${API}/order/66a756651625f0a41547a9db`,
-    };
-    axios
-      .request(config)
-      .then((response) => {
-        // console.log(JSON.stringify(response.data));
-        setProductList(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+    if (data) {
+      setProductList(data.data.orders);
+    }
+  }, [data]);
 
   useEffect(() => {
-    if (productList.length > 0) {
+    if (productList?.length > 0) {
       setRowsToShow(productList.slice(0, rowsLimit));
-      setTotalPage(Math.ceil(productList.length / rowsLimit));
+      setTotalPage(Math.ceil(productList?.length / rowsLimit));
     }
   }, [productList, rowsLimit]);
 
@@ -130,6 +147,9 @@ const OrdersTable = () => {
                   <th className="py-5 px-8 text-[#64748B] sm:text-base font-bold whitespace-nowrap">
                     Status
                   </th>
+                  <th className="py-5 px-8 text-[#64748B] sm:text-base font-bold whitespace-nowrap">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -143,7 +163,10 @@ const OrdersTable = () => {
                     <td
                       className={`py-4 px-8 font-semibold text-base whitespace-nowrap`}
                     >
-                      {data?.companyBargainDate}
+                      {new Date(data?.companyBargainDate)
+                        .toLocaleDateString("en-GB")
+                        .split("/")
+                        .join("-")}
                     </td>
                     <td
                       className={`py-4 px-8 font-semibold text-base whitespace-nowrap`}
@@ -172,6 +195,12 @@ const OrdersTable = () => {
                       } py-4 px-8 font-semibold text-base whitespace-nowrap`}
                     >
                       {data?.status}
+                    </td>
+                    <td
+                      className={`py-4 px-8 flex flex-row gap-2 font-semibold text-base whitespace-nowrap`}
+                    >
+                      <AiFillEdit className="text-[1.2rem] text-blue-700 hover:cursor-pointer" />
+                      <BsTrashFill className="text-[1.2rem] text-red-500 hover:cursor-pointer" />
                     </td>
                   </tr>
                 ))}

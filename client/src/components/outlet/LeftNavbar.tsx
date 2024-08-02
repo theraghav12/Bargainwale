@@ -53,7 +53,7 @@ const LeftNavbar = () => {
                 } `}
                 to="/"
               >
-                <MdSpaceDashboard className="text-[2rem]" />
+                <MdSpaceDashboard className="text-[1.5rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -73,7 +73,7 @@ const LeftNavbar = () => {
                 } `}
                 to="/orders"
               >
-                <MdBorderColor className="text-[2rem]" />
+                <MdBorderColor className="text-[1.5rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -94,7 +94,7 @@ const LeftNavbar = () => {
                 } `}
                 to="/customer"
               >
-                <MdOutlinePerson3 className="text-[2rem]" />
+                <MdOutlinePerson3 className="text-[1.5rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
@@ -114,7 +114,7 @@ const LeftNavbar = () => {
                 } `}
                 to="/setting"
               >
-                <CiSettings className="text-[2rem]" />
+                <CiSettings className="text-[1.5rem]" />
                 <span
                   onClick={handleToggle}
                   className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
