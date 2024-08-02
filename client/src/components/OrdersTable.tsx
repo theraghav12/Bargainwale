@@ -208,8 +208,11 @@ const OrdersTable = () => {
                             } ${
                               order.status === "billed" && "text-purple-700"
                             } ${
-                              order.status === "payment pending" && "text-red-700"
-                            } ${order.status === "completed" && "text-green-700"}`}
+                              order.status === "payment pending" &&
+                              "text-red-700"
+                            } ${
+                              order.status === "completed" && "text-green-700"
+                            }`}
                           >
                             {order.status}
                           </span>
