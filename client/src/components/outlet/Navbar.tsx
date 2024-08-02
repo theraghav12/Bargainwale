@@ -16,7 +16,7 @@ const Navbar = () => {
   // const { data } = useSelector((state: RootState) => state.resturantdata);
 
   return (
-    <div className=" fixed bg-white z-50 w-full h-[70px] flex justify-between items-center px-[1rem] border-b shadow-xl py-[.5rem] shadow-[#00000026]">
+    <div className=" fixed bg-white z-50 w-full h-[70px] flex justify-between items-center px-[1rem] border-b shadow-lg py-[.5rem] shadow-[#00000026]">
       {/* logo */}
       <p>Logo</p>
 

@@ -4,6 +4,9 @@ import { LuAsterisk } from "react-icons/lu";
 import OrdersTable from "../components/OrdersTable";
 import axios from "axios";
 import { API } from "../utils/API";
+import { useDispatch } from "react-redux";
+import { AppThunkDispatch, fetchData } from "../redux/userSlice";
+import { toast } from "react-toastify";
 
 interface OrderFormData {
   companyBargainDate: Date | null;
@@ -30,6 +33,8 @@ interface OrderFormData {
 
 const Orders = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const dispatch: AppThunkDispatch = useDispatch();
 
   const [formData, setFormData] = useState<OrderFormData>({
     companyBargainDate: null,
@@ -80,6 +85,29 @@ const Orders = () => {
       .request(config)
       .then((response) => {
         console.log(JSON.stringify(response.data));
+        dispatch(fetchData({ id: "66a756651625f0a41547a9db" }));
+        setFormData({
+          companyBargainDate: null,
+          item: {
+            type: "oil",
+          },
+          companyBargainNo: "",
+          location: {
+            state: "",
+            city: "",
+          },
+          staticPrice: 0,
+          quantity: 0,
+          weightInMetrics: 0,
+          convertedWeightInGm: 0,
+          status: "created",
+          description: "",
+          createdAt: new Date(),
+          billedAt: undefined,
+          organization: "66a756651625f0a41547a9db",
+        });
+        setIsOpen(false);
+        toast.success("Order Created");
       })
       .catch((error) => {
         console.log(error);
@@ -313,21 +341,17 @@ const Orders = () => {
                   </div>
                   <div className="flex flex-row gap-5 mt-3">
                     <button
-                      type="button"
                       className="w-[50%] text-[1.1rem] rounded-[8px] border-2 font-bold text-richblack-900 px-[0.8rem] py-2"
                       onClick={() => setIsOpen(false)}
                     >
                       Cancel
                     </button>
-                    <button
-                      type="submit"
-                      className="w-[50%] bg-black text-[1.1rem] rounded-[8px] text-white font-bold text-richblack-900 px-[0.8rem] py-2 hover:bg-black/80"
-                    >
+                    <button className="w-[50%] bg-black text-[1.1rem] rounded-[8px] text-white font-bold text-richblack-900 px-[0.8rem] py-2 hover:bg-black/80">
                       {/* Uncomment and use loading state if needed */}
                       {/* {loading ? (
                                     <div className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
                                 ) : ( */}
-                      <span>Save</span>
+                      <span>Submit</span>
                       {/* )} */}
                     </button>
                   </div>
