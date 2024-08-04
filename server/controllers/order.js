@@ -13,27 +13,7 @@ const orderController = {
                 organization,
             });
             await order.save();
-
-            const inventoryCriteria = item.type === 'oil' ? 'Oil' : item.category;
-
-            const inventoryUpdate = await Inventory.findOneAndUpdate(
-                { itemName: inventoryCriteria },
-                {
-                    $inc: { quantity: quantity },
-                    $setOnInsert: {
-                        itemNumber: `INV${Date.now()}`,
-                        itemDetails: {
-                            weightPerItem: item.weightPerItem || 0,
-                            categories: [item.category || '']
-                        }
-                    }
-                },
-                {
-                    new: true,
-                    upsert: true
-                }
-            );
-            res.status(201).json({ message: 'Order created successfully', order, inventoryUpdate });
+            res.status(201).json({ message: 'Order created successfully', order });
         } catch (error) {
             console.log(error)
             res.status(400).json({ message: 'Error creating order', error });

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Inventory from "./inventory";
+import Inventory from "./inventory.js";
 
 const orderSchema = new mongoose.Schema({
     companyBargainDate: {
@@ -13,7 +13,6 @@ const orderSchema = new mongoose.Schema({
     item: {
         type: {
             type: String,
-            enum: ['oil', 'box', 'tin'],
             required: true,
         },
         category: {
@@ -23,8 +22,7 @@ const orderSchema = new mongoose.Schema({
         },
         oilType: {
             type: String,
-            enum: ['palmOil', 'vanaspatiOil', 'soybeanOil'],
-            required: function () { return this.type === 'oil'; },
+            required: true
         },
     },
     companyBargainNo: {
@@ -50,10 +48,6 @@ const orderSchema = new mongoose.Schema({
         required: true,
     },
     weightInMetrics: {
-        type: Number,
-        required: true,
-    },
-    convertedWeightInGm: {
         type: Number,
         required: true,
     },
@@ -100,7 +94,7 @@ orderSchema.methods.shouldShowPopup = function () {
 
 orderSchema.post('save', async function (doc, next) {
     try {
-        const { item, quantity, weightInMetrics, convertedWeightInGm, organization } = doc;
+        const { item, quantity, weightInMetrics, organization } = doc;
 
         let inventoryItem = await Inventory.findOne({
             'item.type': item.type,
@@ -112,14 +106,12 @@ orderSchema.post('save', async function (doc, next) {
         if (inventoryItem) {
             inventoryItem.quantity += quantity;
             inventoryItem.weightInMetrics += weightInMetrics;
-            inventoryItem.convertedWeightInGm += convertedWeightInGm;
             await inventoryItem.save();
         } else {
             inventoryItem = new Inventory({
                 item,
                 quantity,
                 weightInMetrics,
-                convertedWeightInGm,
                 organization
             });
             await inventoryItem.save();

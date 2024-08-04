@@ -4,7 +4,6 @@ const inventorySchema = mongoose.Schema({
     item: {
         type: {
             type: String,
-            enum: ['oil', 'box', 'tin'],
             required: true,
         },
         category: {
@@ -14,8 +13,7 @@ const inventorySchema = mongoose.Schema({
         },
         oilType: {
             type: String,
-            enum: ['palmOil', 'vanaspatiOil', 'soybeanOil'],
-            required: function () { return this.type === 'oil'; },
+            required: true
         },
     },
     quantity: {
@@ -23,10 +21,6 @@ const inventorySchema = mongoose.Schema({
         required: true,
     },
     weightInMetrics: {
-        type: Number,
-        required: true,
-    },
-    convertedWeightInGm: {
         type: Number,
         required: true,
     },

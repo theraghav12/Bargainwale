@@ -8,27 +8,26 @@ import { useDispatch } from "react-redux";
 import { AppThunkDispatch, fetchData } from "../redux/userSlice";
 import { toast } from "react-toastify";
 
-interface OrderFormData {
-  companyBargainDate: Date | null;
+export interface OrderFormData {
+  companyBargainDate?: string;
   item: {
-    type: "oil" | "box" | "tin";
+    type?: "oil" | "box" | "tin";
     category?: "box" | "tin";
     oilType?: "palmOil" | "vanaspatiOil" | "soybeanOil";
   };
-  companyBargainNo: string;
+  companyBargainNo?: string;
   location: {
-    state: string;
-    city: string;
+    state?: string;
+    city?: string;
   };
-  staticPrice: number;
-  quantity: number;
-  weightInMetrics: number;
-  convertedWeightInGm: number;
-  status: "created" | "billed" | "payment pending" | "completed";
+  staticPrice?: number;
+  quantity?: number;
+  weightInMetrics?: number;
+  status?: "created" | "billed" | "payment pending" | "completed";
   description?: string;
-  createdAt: Date;
+  createdAt?: Date;
   billedAt?: Date;
-  organization: string;
+  organization?: string;
 }
 
 const Orders = () => {
@@ -37,7 +36,7 @@ const Orders = () => {
   const dispatch: AppThunkDispatch = useDispatch();
 
   const [formData, setFormData] = useState<OrderFormData>({
-    companyBargainDate: null,
+    companyBargainDate: "",
     item: {
       type: "oil",
     },
@@ -49,7 +48,7 @@ const Orders = () => {
     staticPrice: 0,
     quantity: 0,
     weightInMetrics: 0,
-    convertedWeightInGm: 0,
+
     status: "created",
     description: "",
     createdAt: new Date(),
@@ -87,7 +86,7 @@ const Orders = () => {
         console.log(JSON.stringify(response.data));
         dispatch(fetchData({ id: "66ad2166736b9916dd42c23a" }));
         setFormData({
-          companyBargainDate: null,
+          companyBargainDate: "",
           item: {
             type: "oil",
           },
@@ -99,7 +98,6 @@ const Orders = () => {
           staticPrice: 0,
           quantity: 0,
           weightInMetrics: 0,
-          convertedWeightInGm: 0,
           status: "created",
           description: "",
           createdAt: new Date(),
@@ -281,7 +279,7 @@ const Orders = () => {
                     </div>
                   </div>
                   <div className="flex flex-row gap-4 mt-2">
-                    <div className="flex flex-col gap-1 w-1/2">
+                    <div className="flex flex-col gap-1 w-full">
                       <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
                         Weight in Metrics
                         <LuAsterisk className="text-sm text-[#C62828]" />
@@ -292,20 +290,6 @@ const Orders = () => {
                         placeholder="Enter weight in metrics"
                         name="weightInMetrics"
                         value={formData.weightInMetrics}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1 w-1/2">
-                      <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
-                        Converted Weight in GM
-                        <LuAsterisk className="text-sm text-[#C62828]" />
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
-                        placeholder="Enter converted weight in grams"
-                        name="convertedWeightInGm"
-                        value={formData.convertedWeightInGm}
                         onChange={handleChange}
                       />
                     </div>
