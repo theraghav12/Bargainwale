@@ -217,7 +217,7 @@ const OrdersTable = () => {
                             {order.status}
                           </span>
                           <AiFillEdit
-                            className="text-[1.2rem] text-blue-700 hover:cursor-pointer ml-2"
+                            className="text-[1.2rem] hover:cursor-pointer ml-2"
                             onClick={() => {
                               setEditingRowId(order._id);
                               setTempStatus(order.status);

@@ -1,30 +1,39 @@
 import mongoose from 'mongoose';
 
 const inventorySchema = mongoose.Schema({
-    itemName: {
-        type: String,
-        required: true,
-    },
-    itemNumber: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    itemDetails: {
-        weightPerItem: {
-            type: Number,
+    item: {
+        type: {
+            type: String,
+            enum: ['oil', 'box', 'tin'],
             required: true,
         },
-        categories: [{
+        category: {
             type: String,
             enum: ['box', 'tin'],
-            required: true,
-        }],
+            required: function () { return this.type === 'box'; },
+        },
+        oilType: {
+            type: String,
+            enum: ['palmOil', 'vanaspatiOil', 'soybeanOil'],
+            required: function () { return this.type === 'oil'; },
+        },
     },
     quantity: {
         type: Number,
         required: true,
-        default: 0,
+    },
+    weightInMetrics: {
+        type: Number,
+        required: true,
+    },
+    convertedWeightInGm: {
+        type: Number,
+        required: true,
+    },
+    organization: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Organization',
+        required: true,
     },
 });
 

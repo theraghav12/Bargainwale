@@ -195,20 +195,20 @@ const LeftNavbar = () => {
                 <Link
                   onClick={handleScrollToTop}
                   className={`${
-                    location.pathname === "/users"
+                    location.pathname === "/inventory"
                       ? "text-[#004AAD] bg-slate-100  "
                       : "text-[#64748B]"
                   } flex gap-2 text-nowrap items-center hover:text-[#004AAD] rounded-xl ${
                     isOpen ? "mx-3 p-4" : " p-4 "
                   } `}
-                  to="/users"
+                  to="/inventory"
                 >
                   <MdOutlinePerson3 />
                   <span
                     onClick={handleToggle}
                     className={` ${isOpen ? "block text-[.9rem]" : " hidden"}`}
                   >
-                    Users <span className=" text-transparent ">______</span>
+                    Inventory <span className=" text-transparent ">______</span>
                   </span>
                 </Link>
               </div>

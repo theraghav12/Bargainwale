@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import LeftNavbar from "./components/outlet/LeftNavbar";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
+import Inventory from "./pages/Inventory";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/" element={<LeftNavbar />}>
           <Route index element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/inventory" element={<Inventory />} />
         </Route>
       </Routes>
     </Router>
