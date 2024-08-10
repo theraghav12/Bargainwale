@@ -15,14 +15,18 @@ const orderSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        category: {
+        packaging: {
             type: String,
             enum: ['box', 'tin'],
             required: function () { return this.type === 'box'; },
         },
         oilType: {
             type: String,
-            required: true
+            required: true,
+        },
+        weight:{
+            type: Number,
+            required:true,
         },
     },
     companyBargainNo: {
@@ -70,6 +74,21 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Organization',
         required: true,
+    },
+    TransportLocation:{
+        state: {
+            type: String,
+            required: true,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+        
+    },
+    TransportType:{
+        type: String,
+        required:true,
     },
 });
 
