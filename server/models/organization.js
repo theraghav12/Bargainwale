@@ -11,10 +11,10 @@ const orgSchema = mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "User"
     },
-    inventory: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Inventory"
-    },
+    branches:{
+        type:mongoose.Schema.ObjectId,
+        
+    }
 });
 
 const Organization = mongoose.model("Organizations", orgSchema);

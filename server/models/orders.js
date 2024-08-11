@@ -44,22 +44,11 @@ const orderSchema = new mongoose.Schema({
             required: true,
         },
     },
-    staticPrice: {
-        type: Number,
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    weightInMetrics: {
-        type: Number,
-        required: true,
-    },
+
     status: {
         type: String,
-        enum: ['virtual billed', 'billed'],
-        default: 'virtual billed',
+        enum: ['Virtual Billed', 'Billed'],
+        default: 'Virtual Billed',
     },
     description: {
         type: String,
@@ -92,6 +81,19 @@ const orderSchema = new mongoose.Schema({
         required:true,
     },
 });
+function daysBetweenDates(companyBargainDate, currentDate) {
+    const oneDay = 1000 * 60 * 60 * 24; // Milliseconds in a day
+    const date1Ms = new Date(companyBargainDate).getTime();
+    const date2Ms = new Date(currentDate).getTime();
+
+    const differenceMs = Math.abs(date2Ms - date1Ms);
+    return Math.floor(differenceMs / oneDay);
+}
+
+// Method to calculate days since creation
+orderSchema.methods.getDaysSinceCreation = function () {
+    return daysBetweenDates(this.createdAt, new Date());
+};
 
 // Method to calculate days since creation
 orderSchema.methods.getDaysSinceCreation = function () {
@@ -100,13 +102,14 @@ orderSchema.methods.getDaysSinceCreation = function () {
     return days;
 };
 
+
 // Method to determine if popup should appear
 orderSchema.methods.shouldShowPopup = function () {
     const daysSinceCreation = this.getDaysSinceCreation();
-    if (this.status === 'created') {
+    if (this.status === 'Virtual Billed') {
         return daysSinceCreation >= 10;
     }
-    if (this.status === 'billed' && this.status === 'payment pending') {
+    if (this.status === 'Billed' ) {
         return daysSinceCreation >= 15;
     }
     return false;
