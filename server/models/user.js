@@ -49,5 +49,5 @@ userSchema.methods.generateRefreshToken = function () {
     );
 };
 
-const User = mongoose.model("Users", userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;
