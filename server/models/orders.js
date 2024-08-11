@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             required:true,
         },
+    
     },
     companyBargainNo: {
         type: String,
@@ -57,8 +58,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['created', 'billed', 'payment pending', 'completed'],
-        default: 'created',
+        enum: ['virtual billed', 'billed'],
+        default: 'virtual billed',
     },
     description: {
         type: String,

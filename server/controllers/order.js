@@ -11,6 +11,9 @@ const orderController = {
                 quantity,
                 staticPrice,
                 organization,
+                TransportLocation,
+                TransportType,
+                
             });
             await order.save();
             res.status(201).json({ message: 'Order created successfully', order });
