@@ -5,7 +5,11 @@ const inventoryItemSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    weightInMetrics: {
+    weight: {
+        type: Number,
+        required: true,
+    },
+    quantity: {
         type: Number,
         required: true,
     },
@@ -22,16 +26,11 @@ const inventorySchema = mongoose.Schema({
         required: true,
         default: [],  
     },
-    warehouseId: {
+    warehouse: {
         type: mongoose.Schema.ObjectId,
         ref: 'Warehouse',
         required: true,
     },
-    orderIds: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Order',
-        required: true,
-    }],
 });
 
 const Inventory = mongoose.model('Inventory', inventorySchema);

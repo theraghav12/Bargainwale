@@ -6,12 +6,8 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    currentDate: {
-        type: Date,
-        default: Date.now,
-    },
     item: {
-        type: {
+        name: {
             type: String,
             required: true,
         },
@@ -20,21 +16,23 @@ const orderSchema = new mongoose.Schema({
             enum: ['box', 'tin'],
             required: function () { return this.type === 'box'; },
         },
-        oilType: {
+        type: {
             type: String,
+        },
+        weight: {
+            type: Number,
             required: true,
         },
-        weight:{
+        quantity: {
             type: Number,
-            required:true,
+            required: true,
         },
-    
     },
     companyBargainNo: {
         type: String,
         required: true,
     },
-    location: {
+    sellerLocation: {
         state: {
             type: String,
             required: true,
@@ -44,8 +42,7 @@ const orderSchema = new mongoose.Schema({
             required: true,
         },
     },
-
-    status: {
+    billType: {
         type: String,
         enum: ['Virtual Billed', 'Billed'],
         default: 'Virtual Billed',
@@ -53,34 +50,22 @@ const orderSchema = new mongoose.Schema({
     description: {
         type: String,
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    billedAt: {
-        type: Date,
-    },
     organization: {
         type: mongoose.Schema.ObjectId,
         ref: 'Organization',
         required: true,
     },
-    TransportLocation:{
-        state: {
-            type: String,
-            required: true,
-        },
-        city: {
-            type: String,
-            required: true,
-        },
-        
+    warehouse: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Warehouse',
+        required: true,
     },
-    TransportType:{
+    TransportType: {
         type: String,
-        required:true,
+        required: true,
     },
-});
+}, { timestamps: true });
+
 function daysBetweenDates(companyBargainDate, currentDate) {
     const oneDay = 1000 * 60 * 60 * 24; // Milliseconds in a day
     const date1Ms = new Date(companyBargainDate).getTime();
@@ -109,7 +94,7 @@ orderSchema.methods.shouldShowPopup = function () {
     if (this.status === 'Virtual Billed') {
         return daysSinceCreation >= 10;
     }
-    if (this.status === 'Billed' ) {
+    if (this.status === 'Billed') {
         return daysSinceCreation >= 15;
     }
     return false;

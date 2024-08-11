@@ -13,10 +13,6 @@ const orgSchema = mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "User"
     },
-    branches:{
-        type:mongoose.Schema.ObjectId,
-
-    }
 });
 
 const Organization = mongoose.model("Organizations", orgSchema);

@@ -6,13 +6,24 @@ const warehouseSchema = mongoose.Schema({
         required: true
     },
     location: {
-        type: String,
-        required: true,
+        state: {
+            type: String,
+            required: true,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+
     },
-    inventoryId: {
+    inventory: {
         type: mongoose.Schema.ObjectId,
         ref: 'Inventory',
         required: true,
+    },
+    organization: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Organization"
     }
 });
 
