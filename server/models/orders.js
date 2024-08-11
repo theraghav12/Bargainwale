@@ -88,7 +88,7 @@ function daysBetweenDates(companyBargainDate, currentDate) {
 
     const differenceMs = Math.abs(date2Ms - date1Ms);
     return Math.floor(differenceMs / oneDay);
-}
+};
 
 // Method to calculate days since creation
 orderSchema.methods.getDaysSinceCreation = function () {

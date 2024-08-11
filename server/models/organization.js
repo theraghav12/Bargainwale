@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 
 const orgSchema = mongoose.Schema({
     name: {
-        type: String
+        type: String,
+        required:true
     },
     email: {
-        type: String
+        type: String,
+        required:true
     },
     users: {
         type: mongoose.Schema.ObjectId,
@@ -13,7 +15,7 @@ const orgSchema = mongoose.Schema({
     },
     branches:{
         type:mongoose.Schema.ObjectId,
-        
+
     }
 });
 
