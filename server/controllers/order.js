@@ -1,4 +1,3 @@
-import Inventory from "../models/inventory.js";
 import Order from "../models/orders.js";
 
 const orderController = {

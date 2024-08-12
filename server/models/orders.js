@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Inventory from "./inventory.js";
 
 const orderSchema = new mongoose.Schema({
     companyBargainDate: {
@@ -100,35 +99,35 @@ orderSchema.methods.shouldShowPopup = function () {
     return false;
 };
 
-orderSchema.post('save', async function (doc, next) {
-    try {
-        const { item, quantity, weightInMetrics, organization } = doc;
+// orderSchema.post('save', async function (doc, next) {
+//     try {
+//         const { item, quantity, weightInMetrics, organization } = doc;
 
-        let inventoryItem = await Inventory.findOne({
-            'item.type': item.type,
-            'item.category': item.category,
-            'item.oilType': item.oilType,
-            organization
-        });
+//         let inventoryItem = await Inventory.findOne({
+//             'item.type': item.type,
+//             'item.category': item.category,
+//             'item.oilType': item.oilType,
+//             organization
+//         });
 
-        if (inventoryItem) {
-            inventoryItem.quantity += quantity;
-            inventoryItem.weightInMetrics += weightInMetrics;
-            await inventoryItem.save();
-        } else {
-            inventoryItem = new Inventory({
-                item,
-                quantity,
-                weightInMetrics,
-                organization
-            });
-            await inventoryItem.save();
-        }
-        next();
-    } catch (err) {
-        next(err);
-    }
-});
+//         if (inventoryItem) {
+//             inventoryItem.quantity += quantity;
+//             inventoryItem.weightInMetrics += weightInMetrics;
+//             await inventoryItem.save();
+//         } else {
+//             inventoryItem = new Inventory({
+//                 item,
+//                 quantity,
+//                 weightInMetrics,
+//                 organization
+//             });
+//             await inventoryItem.save();
+//         }
+//         next();
+//     } catch (err) {
+//         next(err);
+//     }
+// });
 
 const Order = mongoose.model('Order', orderSchema);
 export default Order;

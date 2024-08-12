@@ -4,7 +4,7 @@ import cors from "cors";
 import connectDB from "./db/index.js";
 import userRoutes from "./routes/user.js";
 import orderRoutes from "./routes/order.js";
-import inventoryRoutes from "./routes/inventory.js";
+import inventoryRoutes from "./routes/warehouse.js";
 import orgRoutes from "./routes/organization.js";
 
 dotenv.config();
