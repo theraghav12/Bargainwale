@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import Inventory from "./pages/Inventory";
 import MasterPage from "./pages/Master";
-import CategoryDropdown from "./pages/Category";
+import CreateOrder from "./pages/CreateOrder";
 
 const App = () => {
   return (
@@ -20,8 +20,8 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="/master" element={<MasterPage />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/create" element={<CreateOrder />} />
           <Route path="/inventory" element={<Inventory />} />
-          <Route path="/test" element={<CategoryDropdown />} />
         </Route>
       </Routes>
     </Router>

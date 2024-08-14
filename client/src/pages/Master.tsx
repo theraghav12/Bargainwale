@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import CategoryDropdown from "./Category";
 
 const MasterPage = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [states, setStates] = useState([
+    // List of states and cities
     {
       name: "Andhra Pradesh",
       cities: ["Visakhapatnam", "Vijayawada", "Guntur"],
@@ -47,7 +49,8 @@ const MasterPage = () => {
   };
 
   const handleGoTo = () => {
-    alert(`You have selected ${selectedCity}, ${selectedState}`);
+    localStorage.setItem("state", selectedState);
+    localStorage.setItem("city", selectedCity);
   };
 
   return (
@@ -91,14 +94,19 @@ const MasterPage = () => {
           </select>
         </div>
       )}
-      {selectedCity && (
-        <button
-          onClick={handleGoTo}
-          className="mt-6 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Go To  About Page
-        </button>
-      )}
+      {
+        selectedCity && (
+          <CategoryDropdown state={selectedState} city={selectedCity} />
+        )
+        // : (
+        //   <button
+        //     onClick={handleGoTo}
+        //     className="mt-6 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        //   >
+        //     Go To About Page
+        //   </button>
+        // )
+      }
     </div>
   );
 };
