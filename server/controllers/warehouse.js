@@ -34,17 +34,41 @@ const warehouseController = {
         .json({ message: "Error retrieving warehouse items", error });
     }
   },
+  getWarehouseByFilter: async (req, res) => {
+    try {
+      const { name, state, city } = req.query;
+
+      let filter = {};
+
+      if (name) {
+        filter.name = name;
+      }
+      if (state) {
+        filter["location.state"] = state;
+      }
+      if (city) {
+        filter["location.city"] = city;
+      }
+      const warehouses = await Warehouse.find(filter);
+
+      if (warehouses.length === 0) {
+        return res.status(404).json({ message: "No warehouses found matching the criteria." });
+      }
+      res.status(200).json({ warehouses });
+    } catch (error) {
+      res.status(500).json({ message: "Error retrieving warehouse", error });
+    }
+  },
+
   getWarehouseById: async (req, res) => {
     try {
       const warehouse = await Warehouse.findById(req.params.id);
       if (!warehouse) {
-        return res.status(404).json({ message: "Warehouse item not found" });
+        return res.status(404).json({ message: "Warehouse not found" });
       }
       res.status(200).json(warehouse);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error retrieving warehouse item", error });
+      res.status(500).json({ message: "Error retrieving warehouse ", error });
     }
   },
   updateWarehouse: async (req, res) => {
@@ -55,7 +79,8 @@ const warehouseController = {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      const { name, weight, quantity, billType, state, city, itemName} = req.body;
+      const { name, weight, quantity, billType, state, city, itemName } =
+        req.body;
 
       if (state) {
         warehouse.state = state;
