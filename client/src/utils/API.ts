@@ -1,1 +1,1 @@
-export const API = "https://finance-o02q.onrender.com/api";
+export const API = "http://localhost:3000/api";

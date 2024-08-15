@@ -13,21 +13,22 @@ const CreateOrder = () => {
   const [formData, setFormData] = useState<OrderFormData>({
     companyBargainDate: "",
     item: {
-      type: "oil",
+      name:"",
+      packaging:"",
+      type:"",
+      staticPrice:0,
+      quantity:0,
+      weight:0
     },
     companyBargainNo: "",
-    location: {
+    sellerLocation: {
       state: "",
       city: "",
     },
-    staticPrice: 0,
-    quantity: 0,
-    weightInMetrics: 0,
-
+    transportLocation:"",
+    transportType:"",
     status: "created",
-    description: "",
-    createdAt: new Date(),
-    billedAt: undefined,
+    description: "", 
     warehouse: warehouse,
     organization: "66ad2166736b9916dd42c23a",
   });
@@ -39,11 +40,36 @@ const CreateOrder = () => {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [event.target.name]: event.target.value,
-    }));
+    const { name, value } = event.target;
+  
+    setFormData((prevData) => {
+      if (name === "locationState" || name === "locationCity") {
+        return {
+          ...prevData,
+          sellerLocation: {
+            ...prevData.sellerLocation,
+            [name === "locationState" ? "state" : "city"]: value,
+          },
+        };
+      }
+  
+      if (name === "name" || name === "packaging" || name === "type" || name === "staticPrice" || name === "quantity" || name === "weight") {
+        return {
+          ...prevData,
+          item: {
+            ...prevData.item,
+            [name]: value,
+          },
+        };
+      }
+
+      return {
+        ...prevData,
+        [name]: value,
+      };
+    });
   };
+  
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +83,7 @@ const CreateOrder = () => {
       },
       data: formData,
     };
-
+  console.log(config);
     axios
       .request(config)
       .then((response) => {
@@ -66,22 +92,24 @@ const CreateOrder = () => {
         setFormData({
           companyBargainDate: "",
           item: {
-            type: "oil",
+            name:"",
+            packaging:"",
+            type:"",
+            staticPrice:0,
+            quantity:0,
+            weight:0
           },
           companyBargainNo: "",
-          location: {
+          sellerLocation: {
             state: "",
             city: "",
           },
-          staticPrice: 0,
-          quantity: 0,
-          weightInMetrics: 0,
+          transportLocation:"",
+          transportType:"",
           status: "created",
-          description: "",
-          createdAt: new Date(),
-          billedAt: undefined,
-          warehouse: "",
-          organization: "66a756651625f0a41547a9db",
+          description: "", 
+          warehouse: warehouse,
+          organization: "66ad2166736b9916dd42c23a",
         });
         toast.success("Order Created");
       })
@@ -144,12 +172,12 @@ const CreateOrder = () => {
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="State"
                     name="locationState"
-                    value={formData.location.state}
+                    value={formData.sellerLocation.state}
                     onChange={(e) =>
                       setFormData((prevData) => ({
                         ...prevData,
                         location: {
-                          ...prevData.location,
+                          ...prevData.sellerLocation,
                           state: e.target.value,
                         },
                       }))
@@ -166,12 +194,12 @@ const CreateOrder = () => {
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="City"
                     name="locationCity"
-                    value={formData.location.city}
+                    value={formData.sellerLocation.city}
                     onChange={(e) =>
                       setFormData((prevData) => ({
                         ...prevData,
                         location: {
-                          ...prevData.location,
+                          ...prevData.sellerLocation,
                           city: e.target.value,
                         },
                       }))
@@ -179,10 +207,73 @@ const CreateOrder = () => {
                   />
                 </div>
               </div>
+              
               <div className="flex flex-row gap-4 mt-2">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
-                    Static Price
+                    Item Name
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="string"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter Item Name"
+                    name="name"
+                    value={formData.item.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Item Type
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="string"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter item type"
+                    name="type"
+                    value={formData.item.type}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-4 mt-2">
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Item Packaging
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="string"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter item packaging"
+                    name="packaging"
+                    value={formData.item.packaging}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Item Weight
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter item weight"
+                    name="weight"
+                    value={formData.item.weight}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-4 mt-2">
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Item Static Price
                     <LuAsterisk className="text-sm text-[#C62828]" />
                   </label>
                   <input
@@ -190,13 +281,13 @@ const CreateOrder = () => {
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="Enter static price"
                     name="staticPrice"
-                    value={formData.staticPrice}
+                    value={formData.item.staticPrice}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
-                    Quantity
+                    Item Quantity
                     <LuAsterisk className="text-sm text-[#C62828]" />
                   </label>
                   <input
@@ -204,11 +295,12 @@ const CreateOrder = () => {
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="Enter quantity"
                     name="quantity"
-                    value={formData.quantity}
+                    value={formData.item.quantity}
                     onChange={handleChange}
                   />
                 </div>
               </div>
+
               <div className="flex flex-row gap-4 mt-2">
                 <div className="flex flex-col gap-1 w-full">
                   <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
@@ -221,6 +313,38 @@ const CreateOrder = () => {
                     placeholder="Enter weight in metrics"
                     name="weightInMetrics"
                     value={formData.weightInMetrics}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row gap-4 mt-2">
+                <div className="flex flex-col gap-1 w-full">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Transport Location
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="string"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter transport location"
+                    name="transportLocation"
+                    value={formData.transportLocation}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row gap-4 mt-2">
+                <div className="flex flex-col gap-1 w-full">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Transport Type
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="string"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter transport type"
+                    name="transportType"
+                    value={formData.transportType}
                     onChange={handleChange}
                   />
                 </div>

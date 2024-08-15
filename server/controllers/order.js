@@ -3,21 +3,23 @@ import Order from "../models/orders.js";
 const orderController = {
     createOrder: async (req, res) => {
         try {
-            const { item, quantity, staticPrice, organization, ...rest } = req.body;
+            const { item, quantity, staticPrice, organization, transportLocation,
+                transportType, ...rest } = req.body;
+            console.log(req.body);
             const order = new Order({
                 ...rest,
                 item,
                 quantity,
                 staticPrice,
                 organization,
-                TransportLocation,
-                TransportType,
+                transportLocation,
+                transportType,
                 
             });
             await order.save();
             res.status(201).json({ message: 'Order created successfully', order });
         } catch (error) {
-            console.log(error)
+            console.log(error)  
             res.status(400).json({ message: 'Error creating order', error });
         }
     },

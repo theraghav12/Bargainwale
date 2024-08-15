@@ -6,23 +6,24 @@ export interface CategoryDropdownProps {
 export interface OrderFormData {
   companyBargainDate?: string;
   item: {
-    type?: "oil" | "box" | "tin";
-    category?: "box" | "tin";
-    oilType?: "palmOil" | "vanaspatiOil" | "soybeanOil";
+    name?: "oil" | "cement" | "brick"|"";
+    packaging?: "box" | "tin"|"";
+    type?: "palmOil" | "vanaspatiOil" | "soybeanOil"|"";
+    staticPrice?: number;
+    quantity?: number;
+    weight?:number;
   };
   companyBargainNo?: string;
-  location: {
+  sellerLocation: {
     state?: string;
     city?: string;
   };
-  staticPrice?: number;
-  quantity?: number;
   weightInMetrics?: number;
+  transportLocation?:string;
+  transportType?:string;
   status?: "created" | "billed" | "payment pending" | "completed";
   description?: string;
-  createdAt?: Date;
-  billedAt?: Date;
-  warehouse?: string | null;
+  warehouse?: string|null;
   organization?: string;
 }
 

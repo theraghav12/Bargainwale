@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
         packaging: {
             type: String,
             enum: ['box', 'tin'],
-            required: function () { return this.type === 'box'; },
+            default:'box',
         },
         type: {
             type: String,
@@ -21,6 +21,10 @@ const orderSchema = new mongoose.Schema({
         weight: {
             type: Number,
             required: true,
+        },
+        staticPrice:{
+            type:Number,
+            required:true
         },
         quantity: {
             type: Number,
@@ -40,11 +44,17 @@ const orderSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
+
     },
     billType: {
         type: String,
         enum: ['Virtual Billed', 'Billed'],
         default: 'Virtual Billed',
+    },
+    status:{
+        type: String,
+        enum:['created','payment pending','billed', 'completed'],
+        default:'created',
     },
     description: {
         type: String,
@@ -59,9 +69,13 @@ const orderSchema = new mongoose.Schema({
         ref: 'Warehouse',
         required: true,
     },
-    TransportType: {
+    transportType: {
         type: String,
         required: true,
+    },
+    transportLocation:{
+        type:String,
+        required:true,
     },
 }, { timestamps: true });
 
@@ -90,10 +104,10 @@ orderSchema.methods.getDaysSinceCreation = function () {
 // Method to determine if popup should appear
 orderSchema.methods.shouldShowPopup = function () {
     const daysSinceCreation = this.getDaysSinceCreation();
-    if (this.status === 'Virtual Billed') {
+    if (this.status === 'payment pending') {
         return daysSinceCreation >= 10;
     }
-    if (this.status === 'Billed') {
+    if (this.status === 'created') {
         return daysSinceCreation >= 15;
     }
     return false;
