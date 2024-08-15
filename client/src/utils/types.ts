@@ -22,5 +22,13 @@ export interface OrderFormData {
   description?: string;
   createdAt?: Date;
   billedAt?: Date;
+  warehouse?: string | null;
   organization?: string;
+}
+
+export interface Warehouse {
+  _id: string;
+  name: string;
+  state: string;
+  city: string;
 }

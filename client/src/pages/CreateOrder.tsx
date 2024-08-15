@@ -9,6 +9,7 @@ import { useState } from "react";
 import { OrderFormData } from "../utils/types";
 
 const CreateOrder = () => {
+  const warehouse = localStorage.getItem("warehouse");
   const [formData, setFormData] = useState<OrderFormData>({
     companyBargainDate: "",
     item: {
@@ -27,6 +28,7 @@ const CreateOrder = () => {
     description: "",
     createdAt: new Date(),
     billedAt: undefined,
+    warehouse: warehouse,
     organization: "66ad2166736b9916dd42c23a",
   });
 
@@ -78,6 +80,7 @@ const CreateOrder = () => {
           description: "",
           createdAt: new Date(),
           billedAt: undefined,
+          warehouse: "",
           organization: "66a756651625f0a41547a9db",
         });
         toast.success("Order Created");
@@ -218,6 +221,22 @@ const CreateOrder = () => {
                     placeholder="Enter weight in metrics"
                     name="weightInMetrics"
                     value={formData.weightInMetrics}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row gap-4 mt-2">
+                <div className="flex flex-col gap-1 w-full">
+                  <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
+                    Warehouse
+                    <LuAsterisk className="text-sm text-[#C62828]" />
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
+                    placeholder="Enter weight in metrics"
+                    name="warehouse"
+                    value={formData.warehouse}
                     onChange={handleChange}
                   />
                 </div>
