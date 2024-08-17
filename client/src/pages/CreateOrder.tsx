@@ -32,7 +32,7 @@ const CreateOrder = () => {
     warehouse: warehouse,
     organization: "66ad2166736b9916dd42c23a",
   });
-
+console.log(formData)
   const dispatch: AppThunkDispatch = useDispatch();
 
   const handleChange = (
@@ -43,12 +43,12 @@ const CreateOrder = () => {
     const { name, value } = event.target;
   
     setFormData((prevData) => {
-      if (name === "locationState" || name === "locationCity") {
+      if (name === "state" || name === "city") {
         return {
           ...prevData,
           sellerLocation: {
             ...prevData.sellerLocation,
-            [name === "locationState" ? "state" : "city"]: value,
+            [name]: value,
           },
         };
       }
@@ -171,17 +171,9 @@ const CreateOrder = () => {
                     type="text"
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="State"
-                    name="locationState"
+                    name="state"
                     value={formData.sellerLocation.state}
-                    onChange={(e) =>
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        location: {
-                          ...prevData.sellerLocation,
-                          state: e.target.value,
-                        },
-                      }))
-                    }
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="flex flex-col gap-1 w-1/2">
@@ -193,17 +185,9 @@ const CreateOrder = () => {
                     type="text"
                     className="w-full py-2 px-4 mt-2 focus:outline-none border-2 border-[#00000033] rounded-[8px] text-[1.1rem]"
                     placeholder="City"
-                    name="locationCity"
+                    name="city"
                     value={formData.sellerLocation.city}
-                    onChange={(e) =>
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        location: {
-                          ...prevData.sellerLocation,
-                          city: e.target.value,
-                        },
-                      }))
-                    }
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -305,7 +289,7 @@ const CreateOrder = () => {
                 <div className="flex flex-col gap-1 w-full">
                   <label className="flex flex-row items-center text-[#0F172A] text-[1.2rem] font-Roboto">
                     Weight in Metrics
-                    <LuAsterisk className="text-sm text-[#C62828]" />
+                    {/* <LuAsterisk className="text-sm text-[#C62828]" /> */}
                   </label>
                   <input
                     type="number"
