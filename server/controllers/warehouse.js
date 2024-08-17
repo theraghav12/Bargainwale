@@ -16,6 +16,7 @@ const warehouseController = {
       await warehouse.save();
       res.status(201).json({
         message: "Warehouse created successfully",
+        warehouse
       });
     } catch (error) {
       res.status(400).json({
