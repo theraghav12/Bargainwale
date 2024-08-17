@@ -35,16 +35,17 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    sellerName:{
+        type:String,
+        required:true,
+    },
     sellerLocation: {
-        state: {
-            type: String,
-            required: true,
-        },
-        city: {
-            type: String,
-            required: true,
-        },
-
+        type: String,
+        required: true,
+    },
+    sellerContact: {
+        type: String,
+        required: true,
     },
     billType: {
         type: String,

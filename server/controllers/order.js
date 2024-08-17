@@ -1,20 +1,31 @@
 import Order from "../models/orders.js";
+import axios from 'axios'
 
 const orderController = {
     createOrder: async (req, res) => {
         try {
-            const { item, quantity, staticPrice, organization, transportLocation,
-                transportType, ...rest } = req.body;
+            const { name, packaging, type ,weight, quantity, staticPrice, companyBargainNo, state, city, billType, status, description, organization, warehouse, transportLocation, transportType} = req.body;
             console.log(req.body);
             const order = new Order({
-                ...rest,
-                item,
-                quantity,
-                staticPrice,
+                item:{
+                    name,
+                    packaging,
+                    type,
+                    weight,
+                    staticPrice,
+                    quantity
+                },
+                companyBargainNo,
+                sellerName,
+                sellerLocation,
+                sellerContact,
+                billType,
+                status,
+                description,
                 organization,
+                warehouse,
                 transportLocation,
-                transportType,
-                
+                transportType,  
             });
             await order.save();
             res.status(201).json({ message: 'Order created successfully', order });
