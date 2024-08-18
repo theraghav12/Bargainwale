@@ -1,36 +1,38 @@
 import mongoose from "mongoose";
+const itemSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    packaging: {
+        type: String,
+        enum: ['box', 'tin'],
+        default: 'box',
+    },
+    type: {
+        type: String,
+    },
+    weight: {
+        type: Number,
+        required: true,
+    },
+    staticPrice: {
+        type: Number,
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+    },
+});
 
 const orderSchema = new mongoose.Schema({
     companyBargainDate: {
         type: Date,
         required: true,
     },
-    item: {
-        name: {
-            type: String,
-            required: true,
-        },
-        packaging: {
-            type: String,
-            enum: ['box', 'tin'],
-            default:'box',
-        },
-        type: {
-            type: String,
-        },
-        weight: {
-            type: Number,
-            required: true,
-        },
-        staticPrice:{
-            type:Number,
-            required:true
-        },
-        quantity: {
-            type: Number,
-            required: true,
-        },
-    },
+    items: [itemSchema],  // Changed from single item to an array of items
+    
     companyBargainNo: {
         type: String,
         required: true,

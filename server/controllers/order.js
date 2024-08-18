@@ -6,17 +6,8 @@ import Warehouse from "../models/warehouse.js";
 const orderController = {
     createOrder: async (req, res) => {
         try {
-            const { name, packaging, type ,weight, quantity, staticPrice, companyBargainNo, state, city, billType, status, description, organization, warehouse, transportLocation, transportType} = req.body;
-            console.log(req.body);
-            const order = new Order({
-                item:{
-                    name,
-                    packaging,
-                    type,
-                    weight,
-                    staticPrice,
-                    quantity
-                },
+            const {
+                items, // Array of items
                 companyBargainNo,
                 sellerName,
                 sellerLocation,
@@ -27,8 +18,26 @@ const orderController = {
                 organization,
                 warehouse,
                 transportLocation,
-                transportType,  
+                transportType
+            } = req.body;
+
+            console.log(req.body);
+
+            const order = new Order({
+                items,  // Array of items
+                companyBargainNo,
+                sellerName,
+                sellerLocation,
+                sellerContact,
+                billType,
+                status,
+                description,
+                organization,
+                warehouse,
+                transportLocation,
+                transportType,
             });
+
             await order.save();
 
             // Update the corresponding warehouse inventory
@@ -41,6 +50,10 @@ const orderController = {
             const processItem = (inventoryArray) => {
                 return inventoryArray.find((i) => i.itemName === name);
             };
+        for (const item of items) {
+            const { name, weight, quantity } = item;
+        
+    
 
             if (billType === "Virtual Billed") {
                 let existingVirtualInventoryItem = processItem(warehouseDocument.virtualInventory);
@@ -76,10 +89,12 @@ const orderController = {
                     existingBilledInventoryItem.quantity += quantity;
                 }
             }
+            }
 
             await warehouseDocument.save();
 
             res.status(201).json({ message: 'Order created successfully', order });
+        
 
         } catch (error) {
             console.log(error)
@@ -102,7 +117,9 @@ const orderController = {
             if (!warehouse) {
               return res.status(404).json({ message: "Warehouse not found" });
             }
-      
+        for (const item of order.items) {
+                const { name, quantity } = item;
+
             const processItem = (inventoryArray) => {
               return inventoryArray.find((i) => i.itemName === itemName);
             };
@@ -140,6 +157,7 @@ const orderController = {
             } else {
               return res.status(400).json({ message: "Invalid billType provided" });
             }
+        }
       
             await warehouse.save();
       
