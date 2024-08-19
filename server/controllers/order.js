@@ -1,12 +1,14 @@
 import Order from "../models/orders.js";
-import axios from 'axios'
+//import axios from 'axios'
 import Warehouse from "../models/warehouse.js";
 
 
 const orderController = {
     createOrder: async (req, res) => {
+        console.log('Company Bargain Date:', req.body.companyBargainDate);
         try {
             const {
+                companyBargainDate,
                 items, // Array of items
                 companyBargainNo,
                 sellerName,
@@ -24,7 +26,8 @@ const orderController = {
             console.log(req.body);
 
             const order = new Order({
-                items,  // Array of items
+                companyBargainDate: new Date(companyBargainDate),
+                items,
                 companyBargainNo,
                 sellerName,
                 sellerLocation,
@@ -37,8 +40,12 @@ const orderController = {
                 transportLocation,
                 transportType,
             });
+            
 
             await order.save();
+            console.log('Warehouse ID:', warehouse);  // Log the warehouse ID being searched
+
+
 
             // Update the corresponding warehouse inventory
             let warehouseDocument = await Warehouse.findById(warehouse);
@@ -47,8 +54,8 @@ const orderController = {
                 return res.status(404).json({ message: 'Warehouse not found' });
             }
 
-            const processItem = (inventoryArray) => {
-                return inventoryArray.find((i) => i.itemName === name);
+            const processItem = (inventoryArray,itemName) => {
+                return inventoryArray.find((i) => i.itemName === itemName);
             };
         for (const item of items) {
             const { name, weight, quantity } = item;
@@ -56,7 +63,7 @@ const orderController = {
     
 
             if (billType === "Virtual Billed") {
-                let existingVirtualInventoryItem = processItem(warehouseDocument.virtualInventory);
+                let existingVirtualInventoryItem = processItem(warehouseDocument.virtualInventory,name);
                 if (!existingVirtualInventoryItem) {
                     warehouseDocument.virtualInventory.push({
                         itemName: name,
@@ -72,8 +79,8 @@ const orderController = {
                     existingVirtualInventoryItem.quantity += quantity;
                 }
             } else {
-                let existingVirtualInventoryItem = processItem(warehouseDocument.virtualInventory);
-                let existingBilledInventoryItem = processItem(warehouseDocument.billedInventory);
+                let existingVirtualInventoryItem = processItem(warehouseDocument.virtualInventory,name);
+                let existingBilledInventoryItem = processItem(warehouseDocument.billedInventory,name);
 
                 if (!existingBilledInventoryItem) {
                     return res.status(400).json({
@@ -121,7 +128,7 @@ const orderController = {
                 const { name, quantity } = item;
 
             const processItem = (inventoryArray) => {
-              return inventoryArray.find((i) => i.itemName === itemName);
+              return inventoryArray.find((i) => i.itemName === name);
             };
       
             if (billType === "Virtual") {
