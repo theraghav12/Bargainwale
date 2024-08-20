@@ -200,12 +200,52 @@ const orderController = {
     },
     updateOrder: async (req, res) => {
         try {
-            const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const { items } = req.body;
+
+            const order = await Order.findById(req.params.id);
             if (!order) {
                 return res.status(404).json({ message: 'Order not found' });
             }
+
+            // Update item quantities
+            for (const updatedItem of items) {
+                const existingItem = order.items.find(item => item.name === updatedItem.name);
+
+                if (existingItem) {
+                    // Adjust the quantity difference in warehouse
+                    const quantityDifference = updatedItem.quantity - existingItem.quantity;
+                    const warehouseDocument = await Warehouse.findById(order.warehouse);
+
+                    if (!warehouseDocument) {
+                        return res.status(404).json({ message: 'Warehouse not found' });
+                    }
+
+                    const processItem = (inventoryArray) => {
+                        return inventoryArray.find((i) => i.itemName === updatedItem.name);
+                    };
+
+                    if (order.billType === "Virtual Billed") {
+                        const virtualItem = processItem(warehouseDocument.virtualInventory);
+                        if (virtualItem) {
+                            virtualItem.quantity += quantityDifference;
+                        }
+                    } else {
+                        const billedItem = processItem(warehouseDocument.billedInventory);
+                        if (billedItem) {
+                            billedItem.quantity += quantityDifference;
+                        }
+                    }
+
+                    await warehouseDocument.save();
+                    existingItem.quantity = updatedItem.quantity;
+                }
+            }
+
+            await order.save();
+
             res.status(200).json({ message: 'Order updated successfully', order });
         } catch (error) {
+            console.log(error);
             res.status(400).json({ message: 'Error updating order', error });
         }
     },
