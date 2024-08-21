@@ -249,6 +249,70 @@ const orderController = {
             res.status(400).json({ message: 'Error updating order', error });
         }
     },
+    updateOrderBillType: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { items } = req.body;
+    
+            const order = await Order.findById(id);
+    
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+    
+            let warehouseDocument = await Warehouse.findById(order.warehouse);
+    
+            if (!warehouseDocument) {
+                return res.status(404).json({ message: 'Warehouse not found' });
+            }
+    
+            items.forEach((updatedItem) => {
+                const { name, quantity, billType } = updatedItem;
+    
+                const existingOrderItem = order.items.find(item => item.name === name);
+                const existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(i => i.itemName === name);
+                const existingBilledInventoryItem = warehouseDocument.billedInventory.find(i => i.itemName === name);
+    
+                if (!existingOrderItem) {
+                    return res.status(400).json({ message: `Item ${name} not found in order` });
+                }
+    
+                if (billType === "Virtual Billed") {
+                    if (quantity > existingVirtualInventoryItem.quantity) {
+                        return res.status(400).json({ message: `Not enough quantity in virtual inventory for ${name}` });
+                    }
+    
+                    existingVirtualInventoryItem.quantity -= quantity;
+                    if (existingBilledInventoryItem) {
+                        existingBilledInventoryItem.quantity += quantity;
+                    } else {
+                        warehouseDocument.billedInventory.push({
+                            itemName: name,
+                            weight: existingOrderItem.weight,
+                            quantity: quantity,
+                        });
+                    }
+                
+                } else {
+                    return res.status(400).json({ message: `Invalid bill type for item ${name}` });
+                }
+    
+                existingOrderItem.quantity -= quantity;
+                if (existingOrderItem.quantity === 0) {
+                    const index = order.items.indexOf(existingOrderItem);
+                    order.items.splice(index, 1);
+                }
+            });
+    
+            await order.save();
+            await warehouseDocument.save();
+    
+            res.status(200).json({ message: 'Order updated successfully', order });
+        } catch (error) {
+            res.status(400).json({ message: 'Error updating order', error });
+        }
+    }
+    
     
 };
 
