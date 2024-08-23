@@ -18,7 +18,7 @@ const orderController = {
         warehouse,
         transportLocation,
         transportType,
-        paymentDays = [21],
+        paymentDays = 21,
         reminderDays = [7, 3, 1],
       } = req.body;
 
@@ -307,7 +307,7 @@ const orderController = {
         const daysUntilDue = Math.floor(
           (dueDate - today) / (1000 * 60 * 60 * 24)
         );
-
+        console.log(daysUntilDue);
         if (order.reminderDays.includes(daysUntilDue)) {
           pendingReminders.push(order.sellerContact);
         }

@@ -3,7 +3,7 @@ import sender from "../config/emailConfig.js";
 import orderController from "../controllers/order.js";
 
 const setUpJobs = () => {
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("* 23 * * *", async () => {
     try {
       const emailsToNotify = await orderController.fetchPendingRemindersToday();
 
