@@ -25,6 +25,8 @@ app.use(inventoryRoutes);
 
 app.use(orgRoutes);
 
+app.use(bookingRoutes);
+
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);
     setUpJobs();

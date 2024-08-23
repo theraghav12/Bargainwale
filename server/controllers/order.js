@@ -309,7 +309,7 @@ const orderController = {
         );
         console.log(daysUntilDue);
         if (order.reminderDays.includes(daysUntilDue)) {
-          pendingReminders.push(order.sellerContact);
+          pendingReminders.push(order);
         }
       });
 
