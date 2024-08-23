@@ -24,6 +24,9 @@ const itemSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    billedQuantity: {
+        type:Number,
+    },
 });
 
 const orderSchema = new mongoose.Schema({
