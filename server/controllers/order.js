@@ -303,10 +303,10 @@ const orderController = {
                     existingOrderItem.quantity -= quantity;
                     existingOrderItem.billedQuantity = (existingOrderItem.billedQuantity || 0) + quantity;
     
-                    if (existingOrderItem.quantity === 0) {
-                        const index = order.items.indexOf(existingOrderItem);
-                        order.items.splice(index, 1);
+                    if (existingOrderItem.quantity < 0) {
+                        existingOrderItem.quantity = 0;  // Set to zero instead of removing the item
                     }
+                    
                 } else {
                     return res.status(400).json({ message: `Invalid bill type for item ${name}` });
                 }
