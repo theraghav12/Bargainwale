@@ -100,7 +100,38 @@ const bookingSchema = new mongoose.Schema({
           },
         },
       },
+      virtualInventoryQuantities: [
+        {
+            itemName: {
+                type: String,
+                required: true,
+            },
+            quantity: {
+                type: Number,
+                required: true,
+            },
+        },
+    ],
+    billedInventoryQuantities: [
+        {
+            itemName: {
+                type: String,
+                required: true,
+            },
+            quantity: {
+                type: Number,
+                required: true,
+            },
+        },
+    ],
+      description: {
+        type: String,
+    },
+  },{ timestamps: true });
+
+    // Create and export the model
+    const Booking = mongoose.model('Booking', bookingSchema);
+    export default Booking;
     
     
 
-})

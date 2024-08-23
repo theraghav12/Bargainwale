@@ -249,7 +249,7 @@ const orderController = {
             res.status(400).json({ message: 'Error updating order', error });
         }
     },
-    updateBillTypePartWise : async (req, res) => {
+    updateBillTypePartWise: async (req, res) => {
         try {
             const { id } = req.params; // Order ID
             const { items } = req.body; // Array of items with name, quantity, and billType
@@ -266,7 +266,7 @@ const orderController = {
                 return res.status(404).json({ message: 'Warehouse not found' });
             }
     
-            items.forEach(updatedItem => {
+            for (const updatedItem of items) {
                 const { name, quantity, billType } = updatedItem;
     
                 // Find the existing order item
@@ -287,7 +287,7 @@ const orderController = {
                         return res.status(400).json({ message: `Not enough quantity in virtual inventory for ${name}` });
                     }
     
-                    // Update quantities
+                    // Update warehouse inventory quantities
                     existingVirtualInventoryItem.quantity -= quantity;
                     if (existingBilledInventoryItem) {
                         existingBilledInventoryItem.quantity += quantity;
@@ -299,7 +299,7 @@ const orderController = {
                         });
                     }
     
-                    // Update order item quantity
+                    // Update order item quantities
                     existingOrderItem.quantity -= quantity;
                     existingOrderItem.billedQuantity = (existingOrderItem.billedQuantity || 0) + quantity;
     
@@ -310,7 +310,7 @@ const orderController = {
                 } else {
                     return res.status(400).json({ message: `Invalid bill type for item ${name}` });
                 }
-            });
+            }
     
             await order.save();
             await warehouseDocument.save();
