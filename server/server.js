@@ -6,6 +6,7 @@ import userRoutes from "./routes/user.js";
 import orderRoutes from "./routes/order.js";
 import inventoryRoutes from "./routes/warehouse.js";
 import orgRoutes from "./routes/organization.js";
+import setUpJobs from "./utils/jobs.js";
 
 dotenv.config();
 
@@ -25,4 +26,5 @@ app.use(orgRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);
+    setUpJobs();
 });
