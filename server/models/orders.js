@@ -25,6 +25,9 @@ const itemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  billedQuantity: {
+    type: Number,
+  },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -103,6 +106,13 @@ function daysBetweenDates(date1, date2) {
   const differenceMs = Math.abs(date2Ms - date1Ms);
   return Math.floor(differenceMs / oneDay);
 }
+
+// Method to calculate days since creation
+orderSchema.methods.getDaysSinceCreation = function () {
+    const now = new Date();
+    const days = Math.ceil((now - this.createdAt) / (1000 * 60 * 60 * 24));
+    return days;
+};
 
 // Method to calculate days since creation
 orderSchema.methods.getDaysSinceCreation = function () {
