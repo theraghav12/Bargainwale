@@ -4,7 +4,7 @@ import orderController from "../controllers/order.js";
 import bookingController from "../controllers/booking.js";
 
 const setUpJobs = () => {
-  cron.schedule("* 23 * * *", async () => {
+  cron.schedule("* 22 * * *", async () => {
     try {
       const ordersToNotify = await orderController.fetchPendingRemindersToday();
       console.log(ordersToNotify);
@@ -193,7 +193,7 @@ const setUpJobs = () => {
       console.error("Error fetching pending reminders:", error);
     }
   });
-  cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("* 22 * * *", async () => {
     try {
       const bookingsToNotify =await bookingController.fetchPendingRemindersToday();
       // console.log("Hellloooooo   ",bookingsToNotify);
