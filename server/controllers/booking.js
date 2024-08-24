@@ -16,6 +16,8 @@ const bookingController = {
         virtualInventoryQuantities,
         billedInventoryQuantities,
         description,
+        status, // Default status
+        reminderDays = [7, 3, 1], // Default reminder days
       } = req.body;
 
       const booking = new Booking({
@@ -30,6 +32,8 @@ const bookingController = {
         virtualInventoryQuantities,
         billedInventoryQuantities,
         description,
+        status,
+        reminderDays,
       });
 
       await booking.save();
@@ -47,19 +51,15 @@ const bookingController = {
           );
           if (existingVirtualItem) {
             if (existingVirtualItem.quantity < virtualItem.quantity) {
-              return res
-                .status(400)
-                .json({
-                  message: `Not enough quantity in virtual inventory for ${virtualItem.itemName}`,
-                });
+              return res.status(400).json({
+                message: `Not enough quantity in virtual inventory for ${virtualItem.itemName}`,
+              });
             }
             existingVirtualItem.quantity -= virtualItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${virtualItem.itemName} not found in virtual inventory`,
-              });
+            return res.status(400).json({
+              message: `Item ${virtualItem.itemName} not found in virtual inventory`,
+            });
           }
         }
 
@@ -70,19 +70,15 @@ const bookingController = {
           );
           if (existingBilledItem) {
             if (existingBilledItem.quantity < billedItem.quantity) {
-              return res
-                .status(400)
-                .json({
-                  message: `Not enough quantity in billed inventory for ${billedItem.itemName}`,
-                });
+              return res.status(400).json({
+                message: `Not enough quantity in billed inventory for ${billedItem.itemName}`,
+              });
             }
             existingBilledItem.quantity -= billedItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${billedItem.itemName} not found in billed inventory`,
-              });
+            return res.status(400).json({
+              message: `Item ${billedItem.itemName} not found in billed inventory`,
+            });
           }
         }
 
@@ -126,29 +122,25 @@ const bookingController = {
         items,
         virtualInventoryQuantities,
         billedInventoryQuantities,
+        status,
+        reminderDays,
       } = req.body;
-      const booking = await Booking.findById(req.params.id);
 
+      const booking = await Booking.findById(req.params.id);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
 
       // Update booking details
-      if (deliveryOption) {
-        booking.deliveryOption = deliveryOption;
-      }
-      if (deliveryAddress) {
-        booking.deliveryAddress = deliveryAddress;
-      }
-      if (items) {
-        booking.items = items;
-      }
-      if (virtualInventoryQuantities) {
+      if (deliveryOption) booking.deliveryOption = deliveryOption;
+      if (deliveryAddress) booking.deliveryAddress = deliveryAddress;
+      if (items) booking.items = items;
+      if (virtualInventoryQuantities)
         booking.virtualInventoryQuantities = virtualInventoryQuantities;
-      }
-      if (billedInventoryQuantities) {
+      if (billedInventoryQuantities)
         booking.billedInventoryQuantities = billedInventoryQuantities;
-      }
+      if (status) booking.status = status;
+      if (reminderDays) booking.reminderDays = reminderDays;
 
       await booking.save();
 
@@ -166,11 +158,9 @@ const bookingController = {
           if (existingVirtualItem) {
             existingVirtualItem.quantity -= virtualItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${virtualItem.itemName} not found in warehouse`,
-              });
+            return res.status(400).json({
+              message: `Item ${virtualItem.itemName} not found in warehouse`,
+            });
           }
         }
 
@@ -182,11 +172,9 @@ const bookingController = {
           if (existingBilledItem) {
             existingBilledItem.quantity -= billedItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${billedItem.itemName} not found in warehouse`,
-              });
+            return res.status(400).json({
+              message: `Item ${billedItem.itemName} not found in warehouse`,
+            });
           }
         }
 
@@ -224,11 +212,9 @@ const bookingController = {
           if (existingVirtualItem) {
             existingVirtualItem.quantity += virtualItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${virtualItem.itemName} not found in warehouse`,
-              });
+            return res.status(400).json({
+              message: `Item ${virtualItem.itemName} not found in warehouse`,
+            });
           }
         }
 
@@ -239,11 +225,9 @@ const bookingController = {
           if (existingBilledItem) {
             existingBilledItem.quantity += billedItem.quantity;
           } else {
-            return res
-              .status(400)
-              .json({
-                message: `Item ${billedItem.itemName} not found in warehouse`,
-              });
+            return res.status(400).json({
+              message: `Item ${billedItem.itemName} not found in warehouse`,
+            });
           }
         }
 
@@ -253,6 +237,35 @@ const bookingController = {
       res.status(200).json({ message: "Booking deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Error deleting booking", error });
+    }
+  },
+
+  fetchPendingRemindersToday: async (req, res) => {
+    try {
+      const today = new Date();
+      const bookings = await Booking.find({ status: "payment pending" });
+        if (!bookings || bookings.length === 0) {
+          console.log("No bookings found with status 'payment pending'.");
+          return res.status(200).json([]);
+        }
+      const pendingReminders = [];
+
+      bookings.forEach((booking) => {
+        const companyBargainDate = new Date(booking.companyBargainDate);
+        const dueDate = new Date(companyBargainDate);
+        dueDate.setDate(dueDate.getDate() + booking.validity);
+
+        const daysUntilDue = Math.floor(
+          (dueDate - today) / (1000 * 60 * 60 * 24)
+        );
+        if (booking.reminderDays.includes(daysUntilDue)) {
+          pendingReminders.push(booking);
+        }
+      });
+      return pendingReminders;
+    } catch (error) {
+        console.log(error);
+        return [];
     }
   },
 };

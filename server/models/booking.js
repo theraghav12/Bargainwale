@@ -42,92 +42,104 @@ const buyerSchema = new mongoose.Schema({
 
 
 })
-const bookingSchema = new mongoose.Schema({
+const bookingSchema = new mongoose.Schema(
+  {
     companyBargainDate: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     companyBargainNo: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-    buyer:[buyerSchema],
+    buyer: buyerSchema,
     items: [itemSchema],
 
-    validity:{
-        type: String,
-        required: true,
+    validity: {
+      type: Number,
+      default: 21, // Default payment days
     },
 
-      deliveryOption: {
+    deliveryOption: {
+      type: String,
+      enum: ["Pickup", "Delivery"],
+      required: true,
+    },
+    warehouse: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Warehouse",
+      required: function () {
+        return this.deliveryOption === "Pickup";
+      },
+    },
+    deliveryAddress: {
+      addressLine1: {
         type: String,
-        enum: ["Pickup", "Delivery"],
-        required: true,
-      },
-      warehouse: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Warehouse",
         required: function () {
-          return this.deliveryOption === "Pickup";
+          return this.deliveryOption === "Delivery";
         },
       },
-      deliveryAddress: {
-        addressLine1: {
-          type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
-        },
-        addressLine2: {
-          type: String,
-        },
-        city: {
-          type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
-        },
-        state: {
-          type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
-        },
-        pinCode: {
-          type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
+      addressLine2: {
+        type: String,
+      },
+      city: {
+        type: String,
+        required: function () {
+          return this.deliveryOption === "Delivery";
         },
       },
-      virtualInventoryQuantities: [
-        {
-            itemName: {
-                type: String,
-                required: true,
-            },
-            quantity: {
-                type: Number,
-                required: true,
-            },
+      state: {
+        type: String,
+        required: function () {
+          return this.deliveryOption === "Delivery";
         },
+      },
+      pinCode: {
+        type: String,
+        required: function () {
+          return this.deliveryOption === "Delivery";
+        },
+      },
+    },
+    virtualInventoryQuantities: [
+      {
+        itemName: {
+          type: String,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+      },
     ],
     billedInventoryQuantities: [
-        {
-            itemName: {
-                type: String,
-                required: true,
-            },
-            quantity: {
-                type: Number,
-                required: true,
-            },
+      {
+        itemName: {
+          type: String,
+          required: true,
         },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+      },
     ],
-      description: {
-        type: String,
+    description: {
+      type: String,
     },
-  },{ timestamps: true });
+    status: {
+      type: String,
+      enum: ["created", "payment pending", "billed", "completed"],
+      default: "created",
+    },
+    reminderDays: {
+      type: [Number],
+      default: [7, 3, 1], // Default reminder days
+    },
+  },
+  { timestamps: true }
+);
 
     // Create and export the model
     const Booking = mongoose.model('Booking', bookingSchema);
