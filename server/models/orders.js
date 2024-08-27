@@ -2,34 +2,31 @@ import mongoose from "mongoose";
 
 const itemSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
+      type: String,
+      required: true,
   },
   packaging: {
-    type: String,
-    enum: ["box", "tin"],
-    default: "box",
-  },
+      type: String,
+      enum: ['box', 'tin',''],
+      default: 'box',
+  },//
   type: {
-    type: String,
+      type: String,
   },
   weight: {
-    type: Number,
-    required: true,
+      type: Number,
+      required: true,
   },
   staticPrice: {
-    type: Number,
-    required: true,
+      type: Number,
+      required: true,
   },
   quantity: {
     type: Number,
     required: true,
-  },
-  billedQuantity: {
-    type: Number,
-  },
+},
+  
 });
-
 const orderSchema = new mongoose.Schema(
   {
     companyBargainDate: {
@@ -38,7 +35,7 @@ const orderSchema = new mongoose.Schema(
     },
 
     items: [itemSchema], // Array of items
-
+    
     companyBargainNo: {
       type: String,
       required: true,

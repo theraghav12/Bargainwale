@@ -1,47 +1,32 @@
 import mongoose from "mongoose";
 const itemSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    packaging: {
-        type: String,
-        enum: ['box', 'tin'],
-        default: 'box',
-    },
-    type: {
-        type: String,
-    },
-    weight: {
-        type: Number,
-        required: true,
-    },
-    staticPrice: {
-        type: Number,
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    
+  name: {
+      type: String,
+      required: true,
+  },
+  //item id
+  packaging: {
+      type: String,
+      enum: ['box', 'tin'],
+      default: 'box',
+  },//size of box
+  type: {
+      type: String,
+  },
+  weight: {
+      type: Number,
+      required: true,
+  },
+  staticPrice: {
+      type: Number,
+      required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+},
+  
 });
-const buyerSchema = new mongoose.Schema({
-    buyer:{
-        type:String,
-        required:true,
-    },
-    buyerLocation: {
-        type: String,
-        required: true,
-    },
-    buyerContact: {
-        type: String,
-        required: true,
-    },
-
-
-})
 const bookingSchema = new mongoose.Schema(
   {
     companyBargainDate: {
@@ -63,6 +48,8 @@ const bookingSchema = new mongoose.Schema(
     deliveryOption: {
       type: String,
       enum: ["Pickup", "Delivery"],
+      //for
+      //exw
       required: true,
     },
     warehouse: {
@@ -100,6 +87,7 @@ const bookingSchema = new mongoose.Schema(
           return this.deliveryOption === "Delivery";
         },
       },
+
     },
     virtualInventoryQuantities: [
       {

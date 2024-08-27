@@ -19,6 +19,7 @@ const warehouseSchema = mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Organization",
   },
+  //warehousemanager
   virtualInventory: {
     type: [
       {
