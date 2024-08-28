@@ -12,6 +12,8 @@ const transportSchema = new mongoose.Schema({
         required: true,
     },
     transportAgency:{
+        type:String,
+        required:true,
         
     },
-})
+});

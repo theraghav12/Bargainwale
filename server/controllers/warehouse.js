@@ -5,13 +5,14 @@ const warehouseController = {
     try {
       const virtualInventory = [];
       const billedInventory = [];
-      const { name, location, organization } = req.body;
+      const { name, location, organization,warehouseManager } = req.body;
       const warehouse = new Warehouse({
         name,
         location,
         organization,
         virtualInventory,
         billedInventory,
+        warehouseManager,
       });
       await warehouse.save();
       res.status(201).json({

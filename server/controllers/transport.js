@@ -1,0 +1,81 @@
+import Transport from '../models/transport.js';
+
+const transportController = {
+  // Create a new transport
+  createTransport: async (req, res) => {
+    try {
+      const { transport, transportType, transportContact, transportAgency } = req.body;
+
+      const newTransport = new Transport({
+        transport,
+        transportType,
+        transportContact,
+        transportAgency,
+      });
+
+      await newTransport.save();
+      res.status(201).json({ message: 'Transport created successfully', transport: newTransport });
+    } catch (error) {
+      res.status(400).json({ message: 'Error creating transport', error });
+    }
+  },
+
+  // Get all transports
+  getAllTransports: async (req, res) => {
+    try {
+      const transports = await Transport.find();
+      res.status(200).json(transports);
+    } catch (error) {
+      res.status(500).json({ message: 'Error retrieving transports', error });
+    }
+  },
+
+  // Get a transport by ID
+  getTransportById: async (req, res) => {
+    try {
+      const transport = await Transport.findById(req.params.id);
+      if (!transport) {
+        return res.status(404).json({ message: 'Transport not found' });
+      }
+      res.status(200).json(transport);
+    } catch (error) {
+      res.status(500).json({ message: 'Error retrieving transport', error });
+    }
+  },
+
+  // Update a transport by ID
+  updateTransport: async (req, res) => {
+    try {
+      const { transport, transportType, transportContact, transportAgency } = req.body;
+
+      const updatedTransport = await Transport.findByIdAndUpdate(
+        req.params.id,
+        { transport, transportType, transportContact, transportAgency },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedTransport) {
+        return res.status(404).json({ message: 'Transport not found' });
+      }
+
+      res.status(200).json({ message: 'Transport updated successfully', transport: updatedTransport });
+    } catch (error) {
+      res.status(400).json({ message: 'Error updating transport', error });
+    }
+  },
+
+  // Delete a transport by ID
+  deleteTransport: async (req, res) => {
+    try {
+      const deletedTransport = await Transport.findByIdAndDelete(req.params.id);
+      if (!deletedTransport) {
+        return res.status(404).json({ message: 'Transport not found' });
+      }
+      res.status(200).json({ message: 'Transport deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting transport', error });
+    }
+  },
+};
+
+export default transportController;

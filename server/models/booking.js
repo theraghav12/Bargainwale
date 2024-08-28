@@ -7,15 +7,16 @@ const itemSchema = new mongoose.Schema({
   //item id
   packaging: {
       type: String,
-      enum: ['box', 'tin'],
-      default: 'box',
+      
   },//size of box
+  size:{
+    type: String,
+  },
   type: {
       type: String,
   },
   weight: {
-      type: Number,
-      required: true,
+      type: Number,   
   },
   staticPrice: {
       type: Number,

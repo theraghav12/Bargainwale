@@ -4,9 +4,11 @@ const buyerSchema = new mongoose.Schema({
         required:true,
     },
     buyerCompany:{
+      type: String,
+      required:true,
 
     },
-    BuyerdeliveryAddress: {
+    buyerdeliveryAddress: {
         addressLine1: {
           type: String,
           required: function () {
@@ -40,15 +42,15 @@ const buyerSchema = new mongoose.Schema({
         required: true,
     },
     buyerEmail:{
-
+      type: String,
+      required:true,
     },
     buyerGstno:{
-
+      type: String,
+      required:true,
     },
     buyerGooglemaps:{
-
-    }
-    
-
+      type: String,
+    },
 
 });

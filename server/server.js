@@ -8,6 +8,10 @@ import inventoryRoutes from "./routes/warehouse.js";
 import orgRoutes from "./routes/organization.js";
 import setUpJobs from "./utils/jobs.js";
 import bookingRoutes from "./routes/booking.js";
+import transportRoutes from './routes/transportRoutes.js';
+import manufacturerRoutes from './routes/manufacturerRoutes.js';
+import buyerRoutes from './routes/buyerRoutes.js';
+import itemRoutes from './routes/itemRoutes.js';
 
 dotenv.config();
 
@@ -26,6 +30,14 @@ app.use(inventoryRoutes);
 app.use(orgRoutes);
 
 app.use(bookingRoutes);
+
+app.use(manufacturerRoutes);
+
+app.use( buyerRoutes);
+
+app.use(itemRoutes);
+
+app.use(transportRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);

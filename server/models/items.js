@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 const itemSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -8,6 +9,7 @@ const itemSchema = new mongoose.Schema({
         enum: ['box', 'tin',''],
         default: 'box',
     },//id
+    
     type: {
         type: String,
     },
@@ -18,6 +20,11 @@ const itemSchema = new mongoose.Schema({
     staticPrice: {
         type: Number,
         required: true,
+    },
+    itemId: {
+        type: String,
+        unique: true,  // This makes the itemId field unique
+        default: uuidv4, 
     },
     
     

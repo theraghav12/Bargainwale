@@ -7,9 +7,11 @@ const itemSchema = new mongoose.Schema({
   },
   packaging: {
       type: String,
-      enum: ['box', 'tin',''],
-      default: 'box',
+      
   },//
+  size:{
+    type: String,
+  },
   type: {
       type: String,
   },

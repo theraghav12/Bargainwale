@@ -1,15 +1,49 @@
-const sellerSchema = new mongoose.Schema({
-    seller:{
-        //catigory
+const manufacturerSchema = new mongoose.Schema({
+    manufacturer:{
         type:String,
         required:true,
     },
-    sellerLocation: {
+    manufacturerCompany:{
+      type: String,
+      required:true,
+
+    },
+    manufacturerdeliveryAddress: {
+        addressLine1: {
+          type: String,
+          
+        },
+        addressLine2: {
+          type: String,
+        },
+        city: {
+          type: String,
+          
+        },
+        state: {
+          type: String,
+          
+        },
+        pinCode: {
+          type: String,
+          
+        },
+      },
+    manufacturerContact: {
         type: String,
         required: true,
     },
-    sellerContact: {
-        type: String,
-        required: true,
+    manufacturerEmail:{
+      type: String,
+      required:true,
     },
-})
+    manufacturerGstno:{
+      type: String,
+      required:true,
+    },
+    manufacturerGooglemaps:{
+      type: String,    
+
+    },
+
+});

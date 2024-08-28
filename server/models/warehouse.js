@@ -20,6 +20,10 @@ const warehouseSchema = mongoose.Schema({
     ref: "Organization",
   },
   //warehousemanager
+  warehouseManager:{
+    type: String,
+      
+  },
   virtualInventory: {
     type: [
       {
