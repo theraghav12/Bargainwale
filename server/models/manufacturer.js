@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const manufacturerSchema = new mongoose.Schema({
     manufacturer:{
         type:String,
@@ -47,3 +48,6 @@ const manufacturerSchema = new mongoose.Schema({
     },
 
 });
+const Manufacturer = mongoose.model('Manufacturer', manufacturerSchema);
+    export default Manufacturer;
+    

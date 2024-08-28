@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const transportSchema = new mongoose.Schema({
     transport:{
         type:String,
@@ -17,3 +18,6 @@ const transportSchema = new mongoose.Schema({
         
     },
 });
+const Transport = mongoose.model('Transport', transportSchema);
+    export default Transport;
+    

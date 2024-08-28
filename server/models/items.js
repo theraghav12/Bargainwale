@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import mongoose from "mongoose";
 const itemSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -29,3 +30,6 @@ const itemSchema = new mongoose.Schema({
     
     
 });
+const Item = mongoose.model('Item', itemSchema);
+    export default Item;
+    

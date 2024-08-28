@@ -8,10 +8,10 @@ import inventoryRoutes from "./routes/warehouse.js";
 import orgRoutes from "./routes/organization.js";
 import setUpJobs from "./utils/jobs.js";
 import bookingRoutes from "./routes/booking.js";
-import transportRoutes from './routes/transportRoutes.js';
-import manufacturerRoutes from './routes/manufacturerRoutes.js';
-import buyerRoutes from './routes/buyerRoutes.js';
-import itemRoutes from './routes/itemRoutes.js';
+import transportRoutes from './routes/transport.js';
+import manufacturerRoutes from './routes/manufacturer.js';
+import buyerRoutes from './routes/buyer.js';
+import itemRoutes from './routes/items.js';
 
 dotenv.config();
 

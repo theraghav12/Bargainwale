@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import buyerSchema from './buyer.js';
+
 const itemSchema = new mongoose.Schema({
   name: {
       type: String,

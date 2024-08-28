@@ -1,4 +1,4 @@
-import Item from "../models/item.js"; // Assuming the model is saved as item.js
+import Item from "../models/items.js"; // Assuming the model is saved as item.js
 
 const itemController = {
   // Create a new item

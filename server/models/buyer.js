@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const buyerSchema = new mongoose.Schema({
     buyer:{
         type:String,
@@ -54,3 +55,7 @@ const buyerSchema = new mongoose.Schema({
     },
 
 });
+const Buyer = mongoose.model('Buyer', buyerSchema);
+    //export default Buyer;
+    export default buyerSchema;
+    
