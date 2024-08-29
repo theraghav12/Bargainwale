@@ -128,6 +128,10 @@ const bookingSchema = new mongoose.Schema(
       type: [Number],
       default: [7, 3, 1], // Default reminder days
     },
+    validity: {
+      type: Date,
+      required: true,
+    },
   },
   { timestamps: true }
 );
