@@ -1,17 +1,16 @@
-import Buyer from "../models/buyer.js"; // Importing the Buyer model
+import Buyer from "../models/buyer.js";
 
 const buyerController = {
-  // Create a new buyer
   createBuyer: async (req, res) => {
     try {
-      const { 
-        buyer, 
-        buyerCompany, 
-        buyerdeliveryAddress, 
-        buyerContact, 
-        buyerEmail, 
-        buyerGstno, 
-        buyerGooglemaps 
+      const {
+        buyer,
+        buyerCompany,
+        buyerdeliveryAddress,
+        buyerContact,
+        buyerEmail,
+        buyerGstno,
+        buyerGooglemaps,
       } = req.body;
 
       const newBuyer = new Buyer({
@@ -21,18 +20,16 @@ const buyerController = {
         buyerContact,
         buyerEmail,
         buyerGstno,
-        buyerGooglemaps
+        buyerGooglemaps,
       });
 
       await newBuyer.save();
-
-      res.status(201).json({ message: "Buyer created successfully", buyer: newBuyer });
+      res.status(201).json({ message: "Buyer created successfully", newBuyer });
     } catch (error) {
       res.status(400).json({ message: "Error creating buyer", error });
     }
   },
 
-  // Get all buyers
   getAllBuyers: async (req, res) => {
     try {
       const buyers = await Buyer.find();
@@ -42,7 +39,6 @@ const buyerController = {
     }
   },
 
-  // Get a buyer by ID
   getBuyerById: async (req, res) => {
     try {
       const buyer = await Buyer.findById(req.params.id);
@@ -55,57 +51,52 @@ const buyerController = {
     }
   },
 
-  // Update a buyer by ID
   updateBuyer: async (req, res) => {
     try {
-      const { 
-        buyer, 
-        buyerCompany, 
-        buyerdeliveryAddress, 
-        buyerContact, 
-        buyerEmail, 
-        buyerGstno, 
-        buyerGooglemaps 
+      const {
+        buyer,
+        buyerCompany,
+        buyerdeliveryAddress,
+        buyerContact,
+        buyerEmail,
+        buyerGstno,
+        buyerGooglemaps,
       } = req.body;
 
-      const updatedBuyer = await Buyer.findByIdAndUpdate(
-        req.params.id,
-        {
-          buyer,
-          buyerCompany,
-          buyerdeliveryAddress,
-          buyerContact,
-          buyerEmail,
-          buyerGstno,
-          buyerGooglemaps
-        },
-        { new: true } // Return the updated document
-      );
-
-      if (!updatedBuyer) {
+      const buyerToUpdate = await Buyer.findById(req.params.id);
+      if (!buyerToUpdate) {
         return res.status(404).json({ message: "Buyer not found" });
       }
 
-      res.status(200).json({ message: "Buyer updated successfully", buyer: updatedBuyer });
+      // Update the buyer details
+      if (buyer) buyerToUpdate.buyer = buyer;
+      if (buyerCompany) buyerToUpdate.buyerCompany = buyerCompany;
+      if (buyerdeliveryAddress) buyerToUpdate.buyerdeliveryAddress = buyerdeliveryAddress;
+      if (buyerContact) buyerToUpdate.buyerContact = buyerContact;
+      if (buyerEmail) buyerToUpdate.buyerEmail = buyerEmail;
+      if (buyerGstno) buyerToUpdate.buyerGstno = buyerGstno;
+      if (buyerGooglemaps) buyerToUpdate.buyerGooglemaps = buyerGooglemaps;
+
+      await buyerToUpdate.save();
+      res.status(200).json({ message: "Buyer updated successfully", buyerToUpdate });
     } catch (error) {
       res.status(400).json({ message: "Error updating buyer", error });
     }
   },
 
-  // Delete a buyer by ID
   deleteBuyer: async (req, res) => {
     try {
-      const deletedBuyer = await Buyer.findByIdAndDelete(req.params.id);
-
-      if (!deletedBuyer) {
+      const buyerToDelete = await Buyer.findById(req.params.id);
+      if (!buyerToDelete) {
         return res.status(404).json({ message: "Buyer not found" });
       }
 
-      res.status(200).json({ message: "Buyer deleted successfully", buyer: deletedBuyer });
+      await Buyer.findByIdAndDelete(req.params.id);
+      res.status(200).json({ message: "Buyer deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Error deleting buyer", error });
     }
-  }
+  },
 };
 
 export default buyerController;

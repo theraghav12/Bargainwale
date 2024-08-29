@@ -7,7 +7,7 @@ const bookingController = {
       const {
         companyBargainDate,
         companyBargainNo,
-        buyer,
+        
         items,
         validity,
         deliveryOption,
@@ -23,7 +23,7 @@ const bookingController = {
       const booking = new Booking({
         companyBargainDate: new Date(companyBargainDate),
         companyBargainNo,
-        buyer,
+        
         items,
         validity,
         deliveryOption,

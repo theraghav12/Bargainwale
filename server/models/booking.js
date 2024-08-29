@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import buyerSchema from './buyer.js';
+
 
 const itemSchema = new mongoose.Schema({
   name: {
@@ -40,7 +40,7 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    buyer: buyerSchema,
+    
     items: [itemSchema],
 
     validity: {

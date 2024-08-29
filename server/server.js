@@ -33,7 +33,7 @@ app.use(bookingRoutes);
 
 app.use(manufacturerRoutes);
 
-app.use( buyerRoutes);
+app.use(buyerRoutes);
 
 app.use(itemRoutes);
 
