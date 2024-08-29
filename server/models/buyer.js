@@ -12,30 +12,22 @@ const buyerSchema = new mongoose.Schema({
     buyerdeliveryAddress: {
         addressLine1: {
           type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
+          
         },
         addressLine2: {
           type: String,
         },
         city: {
           type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
+          
         },
         state: {
           type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
+          
         },
         pinCode: {
           type: String,
-          required: function () {
-            return this.deliveryOption === "Delivery";
-          },
+          
         },
       },
     buyerContact: {

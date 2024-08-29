@@ -1,4 +1,4 @@
-import Buyer from "../models/buyer.js"; // Assuming the model is saved as buyer.js
+import Buyer from "../models/buyer.js"; // Importing the Buyer model
 
 const buyerController = {
   // Create a new buyer
@@ -13,7 +13,7 @@ const buyerController = {
         buyerGstno, 
         buyerGooglemaps 
       } = req.body;
-      
+
       const newBuyer = new Buyer({
         buyer,
         buyerCompany,
@@ -79,7 +79,7 @@ const buyerController = {
           buyerGstno,
           buyerGooglemaps
         },
-        { new: true } // This returns the updated document
+        { new: true } // Return the updated document
       );
 
       if (!updatedBuyer) {
