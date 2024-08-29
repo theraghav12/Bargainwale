@@ -4,18 +4,18 @@ import buyerController from '../controllers/buyer.js';
 const router = express.Router();
 
 // Route to create a new buyer
-router.post('/buyers', buyerController.createBuyer);
+router.post('/api/buyers', buyerController.createBuyer);
 
 // Route to get all buyers
-router.get('/buyers', buyerController.getAllBuyers);
+router.get('/api/buyers', buyerController.getAllBuyers);
 
 // Route to get a specific buyer by ID
-router.get('/buyers/:id', buyerController.getBuyerById);
+router.get('/api/buyers/:id', buyerController.getBuyerById);
 
 // Route to update a specific buyer by ID
-router.put('/buyers/:id', buyerController.updateBuyer);
+router.put('/api/buyers/:id', buyerController.updateBuyer);
 
 // Route to delete a specific buyer by ID
-router.delete('/buyers/:id', buyerController.deleteBuyer);
+router.delete('/api/buyers/:id', buyerController.deleteBuyer);
 
 export default router;

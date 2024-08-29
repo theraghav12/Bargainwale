@@ -4,18 +4,18 @@ import transportController from '../controllers/transport.js';
 const router = express.Router();
 
 // Route to create a new transport
-router.post('/transports', transportController.createTransport);
+router.post('/api/transports', transportController.createTransport);
 
 // Route to get all transports
-router.get('/transports', transportController.getAllTransports);
+router.get('/api/transports', transportController.getAllTransports);
 
 // Route to get a specific transport by ID
-router.get('/transports/:id', transportController.getTransportById);
+router.get('/api/transports/:id', transportController.getTransportById);
 
 // Route to update a specific transport by ID
-router.put('/transports/:id', transportController.updateTransport);
+router.put('/api/transports/:id', transportController.updateTransport);
 
 // Route to delete a specific transport by ID
-router.delete('/transports/:id', transportController.deleteTransport);
+router.delete('/api/transports/:id', transportController.deleteTransport);
 
 export default router;
