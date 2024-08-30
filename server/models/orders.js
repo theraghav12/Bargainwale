@@ -1,34 +1,6 @@
 import mongoose from "mongoose";
 
-const itemSchema = new mongoose.Schema({
-  name: {
-      type: String,
-      required: true,
-  },
-  packaging: {
-      type: String,
-      
-  },//
-  size:{
-    type: String,
-  },
-  type: {
-      type: String,
-  },
-  weight: {
-      type: Number,
-      required: true,
-  },
-  staticPrice: {
-      type: Number,
-      required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-},
-  
-});
+
 const orderSchema = new mongoose.Schema(
   {
     companyBargainDate: {
@@ -36,24 +8,15 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    items: [itemSchema], // Array of items
-    
     companyBargainNo: {
       type: String,
       required: true,
     },
-    sellerName: {
-      type: String,
-      required: true,
-    },
-    sellerLocation: {
-      type: String,
-      required: true,
-    },
-    sellerContact: {
-      type: String,
-      required: true,
-    },
+    items: [{
+      item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+      quantity: { type: Number, required: true }
+    }],
+    
     billType: {
       type: String,
       enum: ["Virtual Billed", "Billed"],
@@ -64,9 +27,7 @@ const orderSchema = new mongoose.Schema(
       enum: ["created", "payment pending", "billed", "completed"],
       default: "created",
     },
-    description: {
-      type: String,
-    },
+    
     organization: {
       type: mongoose.Schema.ObjectId,
       ref: "Organization",
@@ -74,16 +35,18 @@ const orderSchema = new mongoose.Schema(
     },
     warehouse: {
       type: mongoose.Schema.ObjectId,
-      ref: "Warehouse",
+      ref: "Warehouse",  // Reference to Warehouse schema
       required: true,
     },
-    transportType: {
-      type: String,
+    manufacturer: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Manufacturer",  // Reference to Manufacturer schema
       required: true,
     },
-    transportLocation: {
+    transportCatigory: {
       type: String,
       required: true,
+      //depo
     },
     paymentDays: {
       type: Number,
@@ -92,6 +55,9 @@ const orderSchema = new mongoose.Schema(
     reminderDays: {
       type: [Number],
       default: [7, 3, 1], // Default reminder days
+    },
+    description: {
+      type: String,
     },
   },
   { timestamps: true }
