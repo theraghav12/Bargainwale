@@ -6,6 +6,10 @@ const purchaseController = {
     try {
       const { warehouseId, transporterId, orderId, items } = req.body;
 
+      const warehouseDocument = await Warehouse.findById(warehouseId);
+      if (!warehouseDocument) {
+        return res.status(404).json({ message: "Warehouse not found" });
+      }
       const newPurchase = new Purchase({
         warehouseId,
         transporterId,
@@ -14,11 +18,6 @@ const purchaseController = {
       });
 
       await newPurchase.save();
-
-      const warehouseDocument = await Warehouse.findById(warehouseId);
-      if (!warehouseDocument) {
-        return res.status(404).json({ message: "Warehouse not found" });
-      }
 
       for (const item of items) {
         const { itemId, quantity } = item;
