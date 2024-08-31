@@ -21,28 +21,37 @@ const purchaseController = {
       }
 
       for (const item of items) {
-        const { name, quantity } = item;
+        const { itemId, quantity } = item;
 
-        const existingVirtualInventoryItem =
-          warehouseDocument.virtualInventory.find((i) => i.itemName === name);
+        const virtualInventoryItem = warehouseDocument.virtualInventory.find(
+          (i) => i.itemId.toString() === itemId.toString()
+        );
 
-        const existingBilledInventoryItem =
-          warehouseDocument.billedInventory.find((i) => i.itemName === name);
+        const billedInventoryItem = warehouseDocument.billedInventory.find(
+          (i) => i.itemId.toString() === itemId.toString()
+        );
 
-        if (existingVirtualInventoryItem) {
-            if (existingVirtualInventoryItem.quantity>=quantity) {
-                existingVirtualInventoryItem.quantity -= quantity;
-                existingBilledInventoryItem.quantity += quantity;
-            } else{
-                res.status(400).json({
-                    success: false,
-                    message: 'Buying more than what is there in virtual inventory'
-                });
+        if (virtualInventoryItem) {
+          if (virtualInventoryItem.quantity >= quantity) {
+            virtualInventoryItem.quantity -= quantity;
+            if (billedInventoryItem) {
+              billedInventoryItem.quantity += quantity;
+            } else {
+              warehouseDocument.billedInventory.push({
+                itemId,
+                quantity,
+              });
             }
+          } else {
+            return res.status(400).json({
+              success: false,
+              message: "Buying more than what is there in virtual inventory",
+            });
+          }
         } else {
           return res.status(400).json({
             success: false,
-            message: `Purchasing item '${name}' that is not in virtual inventory`,
+            message: `Purchasing item that is not in virtual inventory`,
           });
         }
       }
@@ -123,25 +132,27 @@ const purchaseController = {
       }
 
       for (const item of purchase.items) {
-        const { name, quantity } = item;
+        const { itemId, quantity } = item;
 
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => i.itemName === name
-        );
-        const billedInventoryItem = warehouse.billedInventory.find(
-          (i) => i.itemName === name
+          (i) => i.itemId.toString() === itemId.toString()
         );
 
-        if (virtualInventoryItem) {
+        const billedInventoryItem = warehouse.billedInventory.find(
+          (i) => i.itemId.toString() === itemId.toString()
+        );
+
+        if (virtualInventoryItem && billedInventoryItem) {
           virtualInventoryItem.quantity += quantity;
           billedInventoryItem.quantity -= quantity;
         } else {
           return res.status(400).json({
             success: false,
-            message: `Item '${name}' is not in virtual inventory`,
+            message: `Item is not in the correct inventory`,
           });
         }
       }
+
       await warehouse.save();
 
       await Purchase.findByIdAndDelete(req.params.id);

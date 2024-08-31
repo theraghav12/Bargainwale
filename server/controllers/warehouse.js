@@ -5,7 +5,7 @@ const warehouseController = {
     try {
       const virtualInventory = [];
       const billedInventory = [];
-      const { name, location, organization,warehouseManager } = req.body;
+      const { name, location, organization, warehouseManager } = req.body;
       const warehouse = new Warehouse({
         name,
         location,
@@ -17,7 +17,7 @@ const warehouseController = {
       await warehouse.save();
       res.status(201).json({
         message: "Warehouse created successfully",
-        warehouse
+        warehouse,
       });
     } catch (error) {
       res.status(400).json({
@@ -26,16 +26,18 @@ const warehouseController = {
       });
     }
   },
+
   getAllWarehouses: async (req, res) => {
     try {
-      const warehouse = await Warehouse.find();
-      res.status(200).json(warehouse);
+      const warehouses = await Warehouse.find();
+      res.status(200).json(warehouses);
     } catch (error) {
       res
         .status(500)
         .json({ message: "Error retrieving warehouse items", error });
     }
   },
+
   getWarehouseByFilter: async (req, res) => {
     try {
       const { name, state, city } = req.query;
@@ -72,9 +74,10 @@ const warehouseController = {
       }
       res.status(200).json(warehouse);
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving warehouse ", error });
+      res.status(500).json({ message: "Error retrieving warehouse", error });
     }
   },
+
   updateWarehouse: async (req, res) => {
     try {
       let warehouse = await Warehouse.findById(req.params.id);
@@ -105,7 +108,8 @@ const warehouseController = {
       res.status(400).json({ message: "Error updating warehouse", error });
     }
   },
-  updateInventoryItem: async (req, res) => {
+
+  addInventoryItem: async (req, res) => {
     try {
       let warehouse = await Warehouse.findById(req.params.id);
 
@@ -113,16 +117,16 @@ const warehouseController = {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      const { itemName, weight, quantity, billType } = req.body;
+      const { itemId, quantity, billType } = req.body;
 
-      if (!itemName || !weight || !quantity || !billType) {
+      if (!itemId || !quantity || !billType) {
         return res
           .status(400)
           .json({ message: "Incomplete inventory item details" });
       }
 
       const processItem = (inventoryArray) => {
-        return inventoryArray.find((i) => i.itemName === itemName);
+        return inventoryArray.find((i) => i.itemId.toString() === itemId);
       };
 
       if (billType === "Virtual Billed") {
@@ -131,13 +135,11 @@ const warehouseController = {
         );
         if (!existingVirtualInventoryItem) {
           warehouse.virtualInventory.push({
-            itemName,
-            weight,
+            itemId,
             quantity,
           });
           warehouse.billedInventory.push({
-            itemName,
-            weight,
+            itemId,
             quantity: 0,
           });
         } else {
@@ -179,10 +181,11 @@ const warehouseController = {
         .json({ message: "Error adding/updating inventory item", error });
     }
   },
+
   deleteInventoryItem: async (req, res) => {
     try {
       const { warehouseId } = req.params;
-      const { itemName, billType, quantity } = req.body;
+      const { itemId, billType, quantity } = req.body;
 
       const warehouse = await Warehouse.findById(warehouseId);
 
@@ -191,7 +194,7 @@ const warehouseController = {
       }
 
       const processItem = (inventoryArray) => {
-        return inventoryArray.find((i) => i.itemName === itemName);
+        return inventoryArray.find((i) => i.itemId.toString() === itemId);
       };
 
       if (billType === "Virtual") {
@@ -240,6 +243,7 @@ const warehouseController = {
         .json({ message: "Error updating inventory item quantity", error });
     }
   },
+
   deleteWarehouse: async (req, res) => {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);

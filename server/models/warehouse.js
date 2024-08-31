@@ -19,20 +19,15 @@ const warehouseSchema = mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Organization",
   },
-  //warehousemanager
-  warehouseManager:{
+  warehouseManager: {
     type: String,
-      
   },
   virtualInventory: {
     type: [
       {
-        itemName: {
-          type: String,
-          required: true,
-        },
-        weight: {
-          type: Number,
+        itemId: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Item",
           required: true,
         },
         quantity: {
@@ -47,12 +42,9 @@ const warehouseSchema = mongoose.Schema({
   billedInventory: {
     type: [
       {
-        itemName: {
-          type: String,
-          required: true,
-        },
-        weight: {
-          type: Number,
+        itemId: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Item",
           required: true,
         },
         quantity: {
