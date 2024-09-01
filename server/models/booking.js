@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-
-
 const bookingSchema = new mongoose.Schema(
   {
     BargainDate: {
@@ -12,10 +10,12 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    items: [{
-      item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
-      quantity: { type: Number, required: true }
-    }],
+    items: [
+      {
+        item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+        quantity: { type: Number, required: true },
+      },
+    ],
     validity: {
       type: Number,
       default: 21, // Default payment days
@@ -43,7 +43,7 @@ const bookingSchema = new mongoose.Schema(
 
     buyer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Buyer",  // Reference to Manufacturer schema
+      ref: "Buyer", // Reference to Manufacturer schema
       required: true,
     },
     deliveryAddress: {
@@ -74,7 +74,6 @@ const bookingSchema = new mongoose.Schema(
           return this.deliveryOption === "Delivery";
         },
       },
-
     },
     virtualInventoryQuantities: [
       {
@@ -102,18 +101,13 @@ const bookingSchema = new mongoose.Schema(
     ],
     status: {
       type: String,
-      enum: ["created", "payment pending", "billed", "completed"],
+      enum: ["created", "partially paid", "billed"],
       default: "created",
     },
     reminderDays: {
       type: [Number],
       default: [7, 3, 1], // Default reminder days
     },
-    validity: {
-      type: Date,
-      required: true,
-    },
-
     description: {
       type: String,
     },
@@ -121,9 +115,6 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-    // Create and export the model
-    const Booking = mongoose.model('Booking', bookingSchema);
-    export default Booking;
-    
-    
-
+// Create and export the model
+const Booking = mongoose.model("Booking", bookingSchema);
+export default Booking;

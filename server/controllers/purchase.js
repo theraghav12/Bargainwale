@@ -1,33 +1,89 @@
 import Purchase from "../models/purchase.js";
 import Warehouse from "../models/warehouse.js";
+import Order from "../models/orders.js";
 
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
       const { warehouseId, transporterId, orderId, items } = req.body;
 
+      // Fetch the warehouse and order documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
-      const newPurchase = new Purchase({
-        warehouseId,
-        transporterId,
-        orderId,
-        items,
-      });
 
-      await newPurchase.save();
+      const orderDocument = await Order.findById(orderId).populate(
+        "items.item"
+      );
+      if (!orderDocument) {
+        return res.status(404).json({ message: "Order not found" });
+      }
 
+      if (orderDocument.status === "billed") {
+        return res.status(400).json({
+          success: false,
+          message: "Purchase cannot be created for a fully billed order",
+        });
+      }
+
+      // Retrieve all previous purchases for this order
+      const previousPurchases = await Purchase.find({ orderId });
+      const previousPurchaseQuantities = {};
+
+      for (const purchase of previousPurchases) {
+        for (const item of purchase.items) {
+          if (!previousPurchaseQuantities[item.itemId]) {
+            previousPurchaseQuantities[item.itemId] = 0;
+          }
+          previousPurchaseQuantities[item.itemId] += item.quantity;
+        }
+      }
+
+      let isPartiallyPaid = false;
+      let isFullyPaid = true;
+
+      // Process each item in the purchase
       for (const item of items) {
         const { itemId, quantity } = item;
 
+        // Find the order item
+        const orderItem = orderDocument.items.find(
+          (i) => i.item._id.toString() === itemId.toString()
+        );
+
+        if (!orderItem) {
+          return res.status(400).json({
+            success: false,
+            message: `Item not found in order`,
+          });
+        }
+
+        // Calculate the total quantity purchased so far for this item
+        const totalPurchasedQuantity =
+          (previousPurchaseQuantities[itemId] || 0) + quantity;
+
+        // Check if the purchase quantity exceeds the order quantity
+        if (totalPurchasedQuantity > orderItem.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Item ${itemId} is being purchased more than what was ordered`,
+          });
+        }
+
+        // Determine the status of the order based on purchases
+        if (totalPurchasedQuantity < orderItem.quantity) {
+          isPartiallyPaid = true;
+          isFullyPaid = false;
+        }
+
+        // Adjust virtual and billed inventory
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.itemId.toString() === itemId.toString()
+          (i) => i.item._id.toString() === itemId
         );
 
         const billedInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.itemId.toString() === itemId.toString()
+          (i) => i.item._id.toString() === itemId
         );
 
         if (virtualInventoryItem) {
@@ -44,7 +100,8 @@ const purchaseController = {
           } else {
             return res.status(400).json({
               success: false,
-              message: "Buying more than what is there in virtual inventory",
+              message:
+                "Buying more than what is available in virtual inventory",
             });
           }
         } else {
@@ -55,7 +112,24 @@ const purchaseController = {
         }
       }
 
+      // Update the order status based on payment
+      if (isFullyPaid && !isPartiallyPaid) {
+        orderDocument.status = "billed";
+      } else if (isPartiallyPaid) {
+        orderDocument.status = "partially paid";
+      }
+      await orderDocument.save();
       await warehouseDocument.save();
+
+      // Create and save the new purchase
+      const newPurchase = new Purchase({
+        warehouseId,
+        transporterId,
+        orderId,
+        items,
+      });
+
+      await newPurchase.save();
 
       res.status(201).json({
         success: true,
