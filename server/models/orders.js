@@ -48,6 +48,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
       //depo
     },
+    
     paymentDays: {
       type: Number,
       default: 21, // Default payment days

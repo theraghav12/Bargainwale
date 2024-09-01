@@ -1,48 +1,21 @@
 import mongoose from "mongoose";
 
 
-const itemSchema = new mongoose.Schema({
-  name: {
-      type: String,
-      required: true,
-  },
-  //item id
-  packaging: {
-      type: String,
-      
-  },//size of box
-  size:{
-    type: String,
-  },
-  type: {
-      type: String,
-  },
-  weight: {
-      type: Number,   
-  },
-  staticPrice: {
-      type: Number,
-      required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-},
-  
-});
+
 const bookingSchema = new mongoose.Schema(
   {
-    companyBargainDate: {
+    BargainDate: {
       type: Date,
       required: true,
     },
-    companyBargainNo: {
+    BargainNo: {
       type: String,
       required: true,
     },
-    
-    items: [itemSchema],
-
+    items: [{
+      item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+      quantity: { type: Number, required: true }
+    }],
     validity: {
       type: Number,
       default: 21, // Default payment days
@@ -59,8 +32,19 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Warehouse",
       required: function () {
-        return this.deliveryOption === "Pickup";
+        return this.deliveryOption === "Pickup" || "Delivery";
       },
+    },
+    organization: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Organization",
+      required: true,
+    },
+
+    buyer: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Buyer",  // Reference to Manufacturer schema
+      required: true,
     },
     deliveryAddress: {
       addressLine1: {
@@ -116,9 +100,6 @@ const bookingSchema = new mongoose.Schema(
         },
       },
     ],
-    description: {
-      type: String,
-    },
     status: {
       type: String,
       enum: ["created", "payment pending", "billed", "completed"],
@@ -131,6 +112,10 @@ const bookingSchema = new mongoose.Schema(
     validity: {
       type: Date,
       required: true,
+    },
+
+    description: {
+      type: String,
     },
   },
   { timestamps: true }
