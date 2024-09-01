@@ -1,6 +1,7 @@
 import Purchase from "../models/purchase.js";
 import Warehouse from "../models/warehouse.js";
 import Order from "../models/orders.js";
+import Transport from "../models/transport.js";
 
 const purchaseController = {
   createPurchase: async (req, res) => {
@@ -147,7 +148,11 @@ const purchaseController = {
 
   getAllPurchases: async (req, res) => {
     try {
-      const purchases = await Purchase.find();
+      const purchases = await Purchase.find()
+        .populate("warehouseId") // Populates the warehouse details
+        .populate("transporterId") // Populates the transporter details
+        .populate("orderId") // Populates the order details
+        .populate("items.itemId"); // Populates the item details in the items array
 
       res.status(200).json({
         success: true,
@@ -164,7 +169,11 @@ const purchaseController = {
 
   getPurchaseById: async (req, res) => {
     try {
-      const purchase = await Purchase.findById(req.params.id);
+      const purchase = await Purchase.findById(req.params.id)
+        .populate("warehouseId") // Populates the warehouse details
+        .populate("transporterId") // Populates the transporter details
+        .populate("orderId") // Populates the order details
+        .populate("items.itemId"); // Populates the item details in the items array
 
       if (!purchase) {
         return res.status(404).json({

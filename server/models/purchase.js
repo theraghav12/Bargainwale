@@ -22,7 +22,7 @@ const purchaseSchema = new mongoose.Schema(
     },
     transporterId: {
       type: mongoose.Schema.ObjectId,
-      ref: "Transporter",
+      ref: "Transport",
     },
     orderId: {
       type: mongoose.Schema.ObjectId,
