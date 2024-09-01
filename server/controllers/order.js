@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Order from "../models/orders.js";
 import Warehouse from "../models/warehouse.js";
 import Item from "../models/items.js";
+
 const orderController = {
   createOrder: async (req, res) => {
     try {
@@ -73,18 +74,18 @@ const orderController = {
 
         if (billType === "Virtual Billed") {
           let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-            (i) => i.item && i.item.toString() === item._id.toString()
+            (i) => i.item && i.item.toString() === itemId.toString()
           );
 
           if (!existingVirtualInventoryItem) {
             warehouseDocument.virtualInventory.push({
-              item: item._id,
+              item: itemId,
               quantity,
               weight,
               itemName,
             });
             warehouseDocument.billedInventory.push({
-              item: item._id,
+              item: itemId,
               quantity: 0,
               weight,
               itemName,
@@ -94,10 +95,10 @@ const orderController = {
           }
         } else if (billType === "Billed") {
           let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-            (i) => i.item && i.item.toString() === item._id.toString()
+            (i) => i.item && i.item.toString() === itemId.toString()
           );
           let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
-            (i) => i.item && i.item.toString() === item._id.toString()
+            (i) => i.item && i.item.toString() === itemId.toString()
           );
 
           if (!existingBilledInventoryItem) {
@@ -135,9 +136,6 @@ const orderController = {
       });
     }
   },
-
-
-
 
   getAllOrders: async (req, res) => {
     try {

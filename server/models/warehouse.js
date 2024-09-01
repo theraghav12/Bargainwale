@@ -22,40 +22,22 @@ const warehouseSchema = mongoose.Schema({
   warehouseManager: {
     type: String,
   },
-  virtualInventory: {
-    type: [
-      {
-        itemId: {
-          type: mongoose.Schema.ObjectId,
-          ref: "Item",
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
-    required: true,
-    default: [],
-  },
-  billedInventory: {
-    type: [
-      {
-        itemId: {
-          type: mongoose.Schema.ObjectId,
-          ref: "Item",
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
-    required: true,
-    default: [],
-  },
+  virtualInventory: [
+    {
+      item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+      quantity: { type: Number, required: true },
+      weight: Number,
+      itemName: String,
+    },
+  ],
+  billedInventory: [
+    {
+      item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+      quantity: { type: Number, required: true },
+      weight: Number,
+      itemName: String,
+    },
+  ],
 });
 
 const Warehouse = mongoose.model("Warehouse", warehouseSchema);
