@@ -199,7 +199,7 @@ const purchaseController = {
     try {
       const purchases = await Purchase.find()
         .populate("warehouseId") // Populates the warehouse details
-        .populate("transporterId") // Populates the transporter details
+        // .populate("transporterId") // Populates the transporter details
         .populate("orderId") // Populates the order details
         .populate("items.item"); // Populates the item details in the items array
 
