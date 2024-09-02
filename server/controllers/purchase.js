@@ -80,36 +80,86 @@ const purchaseController = {
 
         // Adjust virtual and billed inventory
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item._id.toString() === itemId
+          (i) => i.item.toString() === itemId.toString()
         );
 
-        const billedInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.item._id.toString() === itemId
+        const soldInventoryItem = warehouseDocument.soldInventory.find(
+          (i) => i.item.toString() === itemId.toString()
         );
 
-        if (virtualInventoryItem) {
-          if (virtualInventoryItem.quantity >= quantity) {
-            virtualInventoryItem.quantity -= quantity;
+        let billedInventoryItem = warehouseDocument.billedInventory.find(
+          (i) => i.item.toString() === itemId.toString()
+        );
+
+        if (soldInventoryItem) {
+          if (soldInventoryItem.virtualQuantity >= quantity) {
+            soldInventoryItem.virtualQuantity -= quantity;
+
             if (billedInventoryItem) {
               billedInventoryItem.quantity += quantity;
             } else {
               warehouseDocument.billedInventory.push({
-                itemId,
+                item: itemId,
                 quantity,
+              });
+            }
+          } else {
+            const remainingQuantity =
+              quantity - soldInventoryItem.virtualQuantity;
+            soldInventoryItem.virtualQuantity = 0;
+
+            if (billedInventoryItem) {
+              billedInventoryItem.quantity += remainingQuantity;
+            } else {
+              warehouseDocument.billedInventory.push({
+                item: itemId,
+                quantity: remainingQuantity,
+              });
+            }
+
+            if (virtualInventoryItem) {
+              if (virtualInventoryItem.quantity >= remainingQuantity) {
+                virtualInventoryItem.quantity -= remainingQuantity;
+              } else {
+                return res.status(400).json({
+                  success: false,
+                  message:
+                    "Buying more than what is available in virtual inventory",
+                });
+              }
+            } else {
+              return res.status(400).json({
+                success: false,
+                message: `Purchasing item that is not in virtual inventory`,
+              });
+            }
+          }
+        } else {
+          if (virtualInventoryItem) {
+            if (virtualInventoryItem.quantity >= quantity) {
+              virtualInventoryItem.quantity -= quantity;
+
+              if (billedInventoryItem) {
+                billedInventoryItem.quantity += quantity;
+              } else {
+                warehouseDocument.billedInventory.push({
+                  item: itemId,
+                  quantity,
+                });
+              }
+            } else {
+              return res.status(400).json({
+                success: false,
+                message:
+                  "Buying more than what is available in virtual inventory",
               });
             }
           } else {
             return res.status(400).json({
               success: false,
-              message:
-                "Buying more than what is available in virtual inventory",
+              message: `Purchasing item that is not in virtual inventory`,
             });
           }
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: `Purchasing item that is not in virtual inventory`,
-          });
         }
       }
 
@@ -145,14 +195,13 @@ const purchaseController = {
       });
     }
   },
-
   getAllPurchases: async (req, res) => {
     try {
       const purchases = await Purchase.find()
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("orderId") // Populates the order details
-        .populate("items.itemId"); // Populates the item details in the items array
+        .populate("items.item"); // Populates the item details in the items array
 
       res.status(200).json({
         success: true,
@@ -173,7 +222,7 @@ const purchaseController = {
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("orderId") // Populates the order details
-        .populate("items.itemId"); // Populates the item details in the items array
+        .populate("items.item"); // Populates the item details in the items array
 
       if (!purchase) {
         return res.status(404).json({
@@ -217,27 +266,77 @@ const purchaseController = {
         const { itemId, quantity } = item;
 
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => i.itemId.toString() === itemId.toString()
+          (i) => i.item.toString() === itemId.toString()
         );
 
         const billedInventoryItem = warehouse.billedInventory.find(
-          (i) => i.itemId.toString() === itemId.toString()
+          (i) => i.item.toString() === itemId.toString()
         );
 
-        if (virtualInventoryItem && billedInventoryItem) {
-          virtualInventoryItem.quantity += quantity;
+        if (billedInventoryItem) {
           billedInventoryItem.quantity -= quantity;
+          if (billedInventoryItem.quantity === 0) {
+            warehouse.billedInventory = warehouse.billedInventory.filter(
+              (i) => i.item.toString() !== itemId.toString()
+            );
+          }
+          if (virtualInventoryItem) {
+            virtualInventoryItem.quantity += quantity;
+          } else {
+            warehouse.virtualInventory.push({
+              item: itemId,
+              quantity,
+            });
+          }
         } else {
-          return res.status(400).json({
-            success: false,
-            message: `Item is not in the correct inventory`,
-          });
+          if (virtualInventoryItem) {
+            virtualInventoryItem.quantity += quantity;
+          } else {
+            warehouse.virtualInventory.push({
+              item: itemId,
+              quantity,
+            });
+          }
         }
       }
 
-      await warehouse.save();
+      const order = await Order.findById(purchase.orderId);
+      if (order) {
+        const remainingPurchases = await Purchase.find({
+          orderId: purchase.orderId,
+        });
+
+        let isPartiallyPaid = false;
+        let isFullyPaid = true;
+
+        for (const purchase of remainingPurchases) {
+          for (const item of purchase.items) {
+            const orderItem = order.items.find(
+              (i) => i.item._id.toString() === item.itemId.toString()
+            );
+            if (orderItem) {
+              const totalPurchasedQuantity =
+                (previousPurchaseQuantities[item.itemId] || 0) + item.quantity;
+              if (totalPurchasedQuantity < orderItem.quantity) {
+                isPartiallyPaid = true;
+                isFullyPaid = false;
+              }
+            }
+          }
+        }
+
+        if (isFullyPaid && !isPartiallyPaid) {
+          order.status = "billed";
+        } else if (isPartiallyPaid) {
+          order.status = "partially paid";
+        } else {
+          order.status = "not paid";
+        }
+        await order.save();
+      }
 
       await Purchase.findByIdAndDelete(req.params.id);
+      await warehouse.save();
 
       res.status(200).json({
         success: true,

@@ -12,7 +12,8 @@ import transportRoutes from './routes/transport.js';
 import manufacturerRoutes from './routes/manufacturer.js';
 import buyerRoutes from './routes/buyer.js';
 import itemRoutes from './routes/items.js';
-import purchaseRoutes from './routes/purchase.js'
+import purchaseRoutes from './routes/purchase.js';
+import saleRoutes from "./routes/sale.js";
 
 dotenv.config();
 
@@ -41,6 +42,8 @@ app.use(itemRoutes);
 app.use(transportRoutes);
 
 app.use(purchaseRoutes);
+
+app.use(saleRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);

@@ -24,7 +24,11 @@ const warehouseSchema = mongoose.Schema({
   },
   virtualInventory: [
     {
-      item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+      item: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+        required: true,
+      },
       quantity: { type: Number, required: true },
       weight: Number,
       itemName: String,
@@ -32,10 +36,25 @@ const warehouseSchema = mongoose.Schema({
   ],
   billedInventory: [
     {
-      item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+      item: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+        required: true,
+      },
       quantity: { type: Number, required: true },
       weight: Number,
       itemName: String,
+    },
+  ],
+  soldInventory: [
+    {
+      item: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+        required: true,
+      },
+      billedQuantity: { type: Number, default: 0 }, 
+      virtualQuantity: { type: Number, default: 0 }, 
     },
   ],
 });

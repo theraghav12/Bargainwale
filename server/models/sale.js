@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import crypto from "crypto";
 
-const purchasedItemSchema = new mongoose.Schema({
+const soldItemSchema = new mongoose.Schema({
   itemId: {
     type: mongoose.Schema.ObjectId,
     required: true,
-    ref: "Item", // Assuming you have an Item model
+    ref: "Item", 
   },
   quantity: {
     type: Number,
@@ -13,7 +13,7 @@ const purchasedItemSchema = new mongoose.Schema({
   },
 });
 
-const purchaseSchema = new mongoose.Schema(
+const saleSchema = new mongoose.Schema(
   {
     warehouseId: {
       type: mongoose.Schema.ObjectId,
@@ -22,12 +22,12 @@ const purchaseSchema = new mongoose.Schema(
     },
     transporterId: {
       type: mongoose.Schema.ObjectId,
-      ref: "Transportgit",
+      ref: "Transport",
     },
-    orderId: {
+    bookingId: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "Order",
+      ref: "Booking", 
     },
     invoiceNumber: {
       type: String,
@@ -37,20 +37,20 @@ const purchaseSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    items: [purchasedItemSchema],
+    items: [soldItemSchema],
   },
   { timestamps: true }
 );
 
-purchaseSchema.pre("save", function (next) {
+saleSchema.pre("save", function (next) {
   const randomString = crypto.randomBytes(4).toString("hex");
 
   this.invoiceNumber = `${Date.now() + 5.5 * 60 * 60 * 1000}-${
-    this.orderId
+    this.bookingId
   }-${randomString}`;
 
   next();
 });
 
-const Purchase = mongoose.model("Purchase", purchaseSchema);
-export default Purchase;
+const Sale = mongoose.model("Sale", saleSchema);
+export default Sale;

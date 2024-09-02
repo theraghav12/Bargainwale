@@ -14,6 +14,8 @@ const bookingSchema = new mongoose.Schema(
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
         quantity: { type: Number, required: true },
+        virtualQuantity: { type: Number, required: true },
+        billedQuantity: { type: Number, required: true },
       },
     ],
     validity: {
@@ -75,33 +77,9 @@ const bookingSchema = new mongoose.Schema(
         },
       },
     },
-    virtualInventoryQuantities: [
-      {
-        itemName: {
-          type: String,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
-    billedInventoryQuantities: [
-      {
-        itemName: {
-          type: String,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
     status: {
       type: String,
-      enum: ["created", "partially paid", "billed"],
+      enum: ["created", "partially sold", "fully sold"],
       default: "created",
     },
     reminderDays: {

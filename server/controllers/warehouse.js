@@ -3,16 +3,15 @@ import Warehouse from "../models/warehouse.js";
 const warehouseController = {
   createWarehouse: async (req, res) => {
     try {
-      const virtualInventory = [];
-      const billedInventory = [];
       const { name, location, organization, warehouseManager } = req.body;
       const warehouse = new Warehouse({
         name,
         location,
         organization,
-        virtualInventory,
-        billedInventory,
         warehouseManager,
+        virtualInventory: [],
+        billedInventory: [],
+        soldInventory: [],
       });
       await warehouse.save();
       res.status(201).json({
@@ -21,7 +20,7 @@ const warehouseController = {
       });
     } catch (error) {
       res.status(400).json({
-        message: "Error creating warehouse item",
+        message: "Error creating warehouse",
         error,
       });
     }
@@ -32,9 +31,7 @@ const warehouseController = {
       const warehouses = await Warehouse.find();
       res.status(200).json(warehouses);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error retrieving warehouse items", error });
+      res.status(500).json({ message: "Error retrieving warehouses", error });
     }
   },
 
@@ -62,7 +59,7 @@ const warehouseController = {
       }
       res.status(200).json({ warehouses });
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving warehouse", error });
+      res.status(500).json({ message: "Error retrieving warehouses", error });
     }
   },
 
@@ -126,7 +123,7 @@ const warehouseController = {
       }
 
       const processItem = (inventoryArray) => {
-        return inventoryArray.find((i) => i.itemId.toString() === itemId);
+        return inventoryArray.find((i) => i.item.toString() === itemId);
       };
 
       if (billType === "Virtual Billed") {
@@ -135,11 +132,11 @@ const warehouseController = {
         );
         if (!existingVirtualInventoryItem) {
           warehouse.virtualInventory.push({
-            itemId,
+            item: itemId,
             quantity,
           });
           warehouse.billedInventory.push({
-            itemId,
+            item: itemId,
             quantity: 0,
           });
         } else {
@@ -169,6 +166,29 @@ const warehouseController = {
         }
       }
 
+      // Update soldInventory
+      const updateSoldInventory = (itemId, billedQuantity, virtualQuantity) => {
+        const existingSoldItem = warehouse.soldInventory.find(
+          (i) => i.item.toString() === itemId
+        );
+        if (!existingSoldItem) {
+          warehouse.soldInventory.push({
+            item: itemId,
+            billedQuantity,
+            virtualQuantity,
+          });
+        } else {
+          existingSoldItem.billedQuantity += billedQuantity;
+          existingSoldItem.virtualQuantity += virtualQuantity;
+        }
+      };
+
+      updateSoldInventory(
+        itemId,
+        billType === "Billed" ? quantity : 0,
+        billType === "Virtual" ? quantity : 0
+      );
+
       await warehouse.save();
 
       res.status(200).json({
@@ -194,7 +214,7 @@ const warehouseController = {
       }
 
       const processItem = (inventoryArray) => {
-        return inventoryArray.find((i) => i.itemId.toString() === itemId);
+        return inventoryArray.find((i) => i.item.toString() === itemId);
       };
 
       if (billType === "Virtual") {
@@ -212,6 +232,14 @@ const warehouseController = {
           });
         }
         existingVirtualInventoryItem.quantity -= quantity;
+
+        // Update soldInventory
+        const soldItem = warehouse.soldInventory.find(
+          (i) => i.item.toString() === itemId
+        );
+        if (soldItem) {
+          soldItem.virtualQuantity -= quantity;
+        }
       } else if (billType === "Billed") {
         const existingBilledInventoryItem = processItem(
           warehouse.billedInventory
@@ -227,6 +255,14 @@ const warehouseController = {
           });
         }
         existingBilledInventoryItem.quantity -= quantity;
+
+        // Update soldInventory
+        const soldItem = warehouse.soldInventory.find(
+          (i) => i.item.toString() === itemId
+        );
+        if (soldItem) {
+          soldItem.billedQuantity -= quantity;
+        }
       } else {
         return res.status(400).json({ message: "Invalid billType provided" });
       }
@@ -248,11 +284,11 @@ const warehouseController = {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);
       if (!warehouse) {
-        return res.status(404).json({ message: "Warehouse item not found" });
+        return res.status(404).json({ message: "Warehouse not found" });
       }
-      res.status(200).json({ message: "Warehouse item deleted successfully" });
+      res.status(200).json({ message: "Warehouse deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Error deleting warehouse item", error });
+      res.status(500).json({ message: "Error deleting warehouse", error });
     }
   },
 };
