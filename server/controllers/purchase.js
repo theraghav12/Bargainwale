@@ -198,10 +198,10 @@ const purchaseController = {
   getAllPurchases: async (req, res) => {
     try {
       const purchases = await Purchase.find()
-        .populate("warehouseId") // Populates the warehouse details
-        // .populate("transporterId") // Populates the transporter details
-        .populate("orderId") // Populates the order details
-        .populate("items.item"); // Populates the item details in the items array
+        // .populate("warehouseId") // Populates the warehouse details
+        // // .populate("transporterId") // Populates the transporter details
+        // .populate("orderId") // Populates the order details
+        // .populate("items.item"); // Populates the item details in the items array
 
       res.status(200).json({
         success: true,
