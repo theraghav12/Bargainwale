@@ -27,9 +27,8 @@ const warehouseSchema = mongoose.Schema({
       item: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
-        required: true,
       },
-      quantity: { type: Number, required: true },
+      quantity: { type: Number },
       weight: Number,
       itemName: String,
     },
@@ -39,9 +38,8 @@ const warehouseSchema = mongoose.Schema({
       item: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
-        required: true,
       },
-      quantity: { type: Number, required: true },
+      quantity: { type: Number },
       weight: Number,
       itemName: String,
     },
@@ -51,7 +49,6 @@ const warehouseSchema = mongoose.Schema({
       item: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
-        required: true,
       },
       billedQuantity: { type: Number, default: 0 }, 
       virtualQuantity: { type: Number, default: 0 }, 
