@@ -83,7 +83,7 @@ const warehouseController = {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      const { name, state, city } = req.body;
+      const { name, state, city, warehouseManager } = req.body;
 
       if (state) {
         warehouse.location.state = state;
