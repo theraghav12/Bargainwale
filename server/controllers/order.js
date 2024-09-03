@@ -257,6 +257,68 @@ const orderController = {
       res.status(400).json({ message: "Error updating order", error });
     }
   },
+    deleteOrder: async (req, res) => {
+      try {
+        const { orderId } = req.params;
+        console.log('Received orderId:', orderId);
+  
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+          return res.status(400).json({ message: 'Invalid orderId format' });
+        }
+  
+        // Find the order to be deleted
+        const order = await Order.findById(orderId).populate('warehouse');
+  
+        if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+        }
+  
+        const { items, billType, warehouse } = order;
+  
+        // Adjust the inventory in the warehouse
+        for (const { item, quantity } of items) {
+          const virtualInventoryItem = warehouse.virtualInventory.find(
+            (i) => i.item && i.item.toString() === item.toString()
+          );
+          const billedInventoryItem = warehouse.billedInventory.find(
+            (i) => i.item && i.item.toString() === item.toString()
+          );
+  
+          if (billType === 'Virtual Billed') {
+            if (virtualInventoryItem) {
+              virtualInventoryItem.quantity -= quantity;
+              if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
+            }
+          } else if (billType === 'Billed') {
+            if (billedInventoryItem) {
+              billedInventoryItem.quantity -= quantity;
+              if (billedInventoryItem.quantity < 0) billedInventoryItem.quantity = 0;
+              // Optionally, you could move excess quantity back to virtual inventory if needed
+              if (virtualInventoryItem) {
+                virtualInventoryItem.quantity += quantity;
+              }
+            }
+          }
+        }
+  
+        await warehouse.save();
+  
+        // Delete the order
+        await Order.findByIdAndDelete(orderId);
+  
+        res.status(200).json({ message: 'Order deleted successfully' });
+      } catch (error) {
+        console.error('Error deleting order:', error.message || error);
+        res.status(400).json({
+          message: 'Error deleting order',
+          error: {
+            message: error.message || 'An error occurred',
+            stack: error.stack, // Optional: include stack trace for more details
+          },
+        });
+      }
+    },
+  
 
   fetchPendingRemindersToday: async () => {
     try {

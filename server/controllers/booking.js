@@ -161,8 +161,15 @@ const bookingController = {
 
   getAllBookings: async (req, res) => {
     try {
-      const bookings = await Booking.find(); // Retrieve all bookings
+      const bookings = await Booking.find()
+      
+      .populate('items')
+      .populate('warehouse')
+      .populate("organization")
+      .populate("buyer");
+   // Retrieve all bookings
       res.status(200).json(bookings);
+
     } catch (error) {
       console.error("Error retrieving bookings:", error.message || error);
       res.status(500).json({
