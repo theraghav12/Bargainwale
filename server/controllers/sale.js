@@ -173,7 +173,7 @@ const saleController = {
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("bookingId") // Populates the booking details
-        .populate("items.item"); // Populates the item details in the items array
+        .populate("items.itemId");// Populates the item details in the items array
 
       res.status(200).json({
         success: true,
@@ -194,7 +194,7 @@ const saleController = {
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("bookingId") // Populates the booking details
-        .populate("items.item"); // Populates the item details in the items array
+        .populate("items.itemId"); // Populates the item details in the items array
 
       if (!sale) {
         return res.status(404).json({
@@ -279,7 +279,7 @@ const saleController = {
         } else if (isPartiallySold) {
           booking.status = "partially sold";
         } else {
-          booking.status = "not sold";
+          booking.status = "created";
         }
         await booking.save();
       }

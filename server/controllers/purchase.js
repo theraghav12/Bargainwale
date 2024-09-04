@@ -330,7 +330,7 @@ const purchaseController = {
         } else if (isPartiallyPaid) {
           order.status = "partially paid";
         } else {
-          order.status = "not paid";
+          order.status = "created";
         }
         await order.save();
       }
