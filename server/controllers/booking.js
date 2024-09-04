@@ -190,7 +190,7 @@ const bookingController = {
       const booking = await Booking.findById(req.params.id)
         .populate("items.item")
         .populate("warehouse")
-        .populate("organization")
+        //.populate("organization")
         .populate("buyer");
 
       if (!booking) {
