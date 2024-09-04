@@ -163,9 +163,11 @@ const bookingController = {
     try {
       const bookings = await Booking.find()
       
+
+      
       .populate('items')
       .populate('warehouse')
-      .populate("organization")
+      
       .populate("buyer");
    // Retrieve all bookings
       res.status(200).json(bookings);
