@@ -95,19 +95,18 @@ const purchaseController = {
           if (soldInventoryItem.virtualQuantity >= quantity) {
             soldInventoryItem.virtualQuantity -= quantity;
 
-            if (billedInventoryItem) {
-              billedInventoryItem.quantity += quantity;
+            if (soldInventoryItem.billedQuantity) {
+              soldInventoryItem.billedQuantity += quantity;
             } else {
-              warehouseDocument.billedInventory.push({
+              soldInventoryItem.billedQuantity.push({
                 item: itemId,
                 quantity,
               });
             }
           } else {
-            const remainingQuantity =
-              quantity - soldInventoryItem.virtualQuantity;
+            const remainingQuantity = quantity - soldInventoryItem.virtualQuantity;
+            soldInventoryItem.billedQuantity += soldInventoryItem.virtualQuantity;
             soldInventoryItem.virtualQuantity = 0;
-
             if (billedInventoryItem) {
               billedInventoryItem.quantity += remainingQuantity;
             } else {
