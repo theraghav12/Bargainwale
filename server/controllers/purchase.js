@@ -6,7 +6,7 @@ import Transport from "../models/transport.js";
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
-      const { warehouseId, transporterId, orderId, items } = req.body;
+      const { warehouseId, transporterId, orderId, items, invoiceDate } = req.body;
 
       // Fetch the warehouse and order documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
@@ -177,6 +177,7 @@ const purchaseController = {
         transporterId,
         orderId,
         items,
+        invoiceDate
       });
 
       await newPurchase.save();
@@ -197,10 +198,10 @@ const purchaseController = {
   getAllPurchases: async (req, res) => {
     try {
       const purchases = await Purchase.find()
-        // .populate("warehouseId") // Populates the warehouse details
-        // // .populate("transporterId") // Populates the transporter details
-        // .populate("orderId") // Populates the order details
-        // .populate("items.item"); // Populates the item details in the items array
+        .populate("warehouseId")
+        .populate("transporterId")
+        .populate("orderId")
+        .populate("items.itemId");
 
       res.status(200).json({
         success: true,

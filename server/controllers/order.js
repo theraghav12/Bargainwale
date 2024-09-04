@@ -63,7 +63,8 @@ const orderController = {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      for (const { item: itemId, quantity } of orderItems) {
+      for (let { item: itemId, quantity } of orderItems) {
+        quantity = Number(quantity);
         const item = await Item.findById(itemId);
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
@@ -140,7 +141,7 @@ const orderController = {
   getAllOrders: async (req, res) => {
     try {
       const orders = await Order.find()
-        .populate('items')
+        .populate('items.item')
         .populate('warehouse')
         .populate('manufacturer');
       res.status(200).json(orders);

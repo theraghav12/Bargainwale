@@ -45,7 +45,7 @@ const bookingController = {
         }
 
         // Check if the quantity is valid
-        if (virtualQuantity + billedQuantity !== quantity) {
+        if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
           return res
             .status(400)
             .json({ message: `Quantity mismatch for item: ${itemId}` });
@@ -162,14 +162,10 @@ const bookingController = {
   getAllBookings: async (req, res) => {
     try {
       const bookings = await Booking.find()
-      
-
-      
-      .populate('items')
-      .populate('warehouse')
-      
-      .populate("buyer");
-   // Retrieve all bookings
+        .populate('items.item')
+        .populate('warehouse')
+        .populate("buyer");
+      // Retrieve all bookings
       res.status(200).json(bookings);
 
     } catch (error) {
