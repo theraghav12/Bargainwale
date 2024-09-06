@@ -6,19 +6,29 @@ import Transport from "../models/transport.js";
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
-      const { warehouseId, transporterId, orderId, items, invoiceDate } = req.body;
+      const { warehouseId, transporterId, orderId, items, invoiceDate } =
+        req.body;
 
-      // Fetch the warehouse and order documents
-      const warehouseDocument = await Warehouse.findById(warehouseId);
-      if (!warehouseDocument) {
-        return res.status(404).json({ message: "Warehouse not found" });
+      // Fetch the warehouse for the current purchase
+      const currentWarehouse = await Warehouse.findById(warehouseId);
+      if (!currentWarehouse) {
+        return res.status(404).json({ message: "Current Warehouse not found" });
       }
 
+      // Fetch the order document
       const orderDocument = await Order.findById(orderId).populate(
         "items.item"
       );
       if (!orderDocument) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Fetch the warehouse from the order
+      const orderWarehouse = await Warehouse.findById(
+        orderDocument.warehouseId
+      );
+      if (!orderWarehouse) {
+        return res.status(404).json({ message: "Order's Warehouse not found" });
       }
 
       if (orderDocument.status === "billed") {
@@ -78,87 +88,40 @@ const purchaseController = {
           isFullyPaid = false;
         }
 
-        // Adjust virtual and billed inventory
-        const virtualInventoryItem = warehouseDocument.virtualInventory.find(
+        // Adjust virtual inventory in order's warehouse and billed inventory in current warehouse
+        const virtualInventoryItem = orderWarehouse.virtualInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
-        const soldInventoryItem = warehouseDocument.soldInventory.find(
+        let billedInventoryItem = currentWarehouse.billedInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
-        let billedInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.item.toString() === itemId.toString()
-        );
+        // Handle the inventory transfer
+        if (virtualInventoryItem) {
+          if (virtualInventoryItem.quantity >= quantity) {
+            virtualInventoryItem.quantity -= quantity; // Reduce virtual quantity in the order's warehouse
 
-        if (soldInventoryItem) {
-          if (soldInventoryItem.virtualQuantity >= quantity) {
-            soldInventoryItem.virtualQuantity -= quantity;
-
-            if (soldInventoryItem.billedQuantity) {
-              soldInventoryItem.billedQuantity += quantity;
+            // Increase billed quantity in the current warehouse
+            if (billedInventoryItem) {
+              billedInventoryItem.quantity += quantity;
             } else {
-              soldInventoryItem.billedQuantity.push({
+              currentWarehouse.billedInventory.push({
                 item: itemId,
                 quantity,
               });
             }
           } else {
-            const remainingQuantity = quantity - soldInventoryItem.virtualQuantity;
-            soldInventoryItem.billedQuantity += soldInventoryItem.virtualQuantity;
-            soldInventoryItem.virtualQuantity = 0;
-            if (billedInventoryItem) {
-              billedInventoryItem.quantity += remainingQuantity;
-            } else {
-              warehouseDocument.billedInventory.push({
-                item: itemId,
-                quantity: remainingQuantity,
-              });
-            }
-
-            if (virtualInventoryItem) {
-              if (virtualInventoryItem.quantity >= remainingQuantity) {
-                virtualInventoryItem.quantity -= remainingQuantity;
-              } else {
-                return res.status(400).json({
-                  success: false,
-                  message:
-                    "Buying more than what is available in virtual inventory",
-                });
-              }
-            } else {
-              return res.status(400).json({
-                success: false,
-                message: `Purchasing item that is not in virtual inventory`,
-              });
-            }
-          }
-        } else {
-          if (virtualInventoryItem) {
-            if (virtualInventoryItem.quantity >= quantity) {
-              virtualInventoryItem.quantity -= quantity;
-
-              if (billedInventoryItem) {
-                billedInventoryItem.quantity += quantity;
-              } else {
-                warehouseDocument.billedInventory.push({
-                  item: itemId,
-                  quantity,
-                });
-              }
-            } else {
-              return res.status(400).json({
-                success: false,
-                message:
-                  "Buying more than what is available in virtual inventory",
-              });
-            }
-          } else {
             return res.status(400).json({
               success: false,
-              message: `Purchasing item that is not in virtual inventory`,
+              message: `Insufficient virtual inventory in order's warehouse for item ${itemId}`,
             });
           }
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: `Item ${itemId} not found in virtual inventory of order's warehouse`,
+          });
         }
       }
 
@@ -169,7 +132,8 @@ const purchaseController = {
         orderDocument.status = "partially paid";
       }
       await orderDocument.save();
-      await warehouseDocument.save();
+      await orderWarehouse.save(); // Save updates to order's warehouse
+      await currentWarehouse.save(); // Save updates to the current warehouse
 
       // Create and save the new purchase
       const newPurchase = new Purchase({
@@ -177,7 +141,7 @@ const purchaseController = {
         transporterId,
         orderId,
         items,
-        invoiceDate
+        invoiceDate,
       });
 
       await newPurchase.save();
@@ -254,89 +218,107 @@ const purchaseController = {
         });
       }
 
-      const warehouse = await Warehouse.findById(purchase.warehouseId);
-      if (!warehouse) {
+      // Fetch the warehouse where the items were billed
+      const billedWarehouse = await Warehouse.findById(purchase.warehouseId);
+      if (!billedWarehouse) {
         return res.status(404).json({
           success: false,
-          message: "Warehouse not found",
+          message: "Billed warehouse not found",
         });
       }
 
+      // Fetch the warehouse from the associated order where virtual inventory was reduced
+      const order = await Order.findById(purchase.orderId).populate(
+        "warehouseId"
+      );
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+      const orderWarehouse = order.warehouseId;
+
+      // Loop through each item in the purchase and adjust inventory accordingly
       for (const item of purchase.items) {
         const { itemId, quantity } = item;
 
-        const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => i.item.toString() === itemId.toString()
-        );
-
-        const billedInventoryItem = warehouse.billedInventory.find(
+        // Adjust the billed warehouse inventory
+        const billedInventoryItem = billedWarehouse.billedInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
         if (billedInventoryItem) {
           billedInventoryItem.quantity -= quantity;
-          if (billedInventoryItem.quantity === 0) {
-            warehouse.billedInventory = warehouse.billedInventory.filter(
-              (i) => i.item.toString() !== itemId.toString()
-            );
+          if (billedInventoryItem.quantity <= 0) {
+            billedWarehouse.billedInventory =
+              billedWarehouse.billedInventory.filter(
+                (i) => i.item.toString() !== itemId.toString()
+              );
           }
-          if (virtualInventoryItem) {
-            virtualInventoryItem.quantity += quantity;
-          } else {
-            warehouse.virtualInventory.push({
-              item: itemId,
-              quantity,
-            });
-          }
+        }
+
+        // Adjust the order's warehouse virtual inventory
+        const orderVirtualInventoryItem = orderWarehouse.virtualInventory.find(
+          (i) => i.item.toString() === itemId.toString()
+        );
+
+        if (orderVirtualInventoryItem) {
+          orderVirtualInventoryItem.quantity += quantity;
         } else {
-          if (virtualInventoryItem) {
-            virtualInventoryItem.quantity += quantity;
-          } else {
-            warehouse.virtualInventory.push({
-              item: itemId,
-              quantity,
-            });
-          }
+          // If the item doesn't exist in virtualInventory, add it back
+          orderWarehouse.virtualInventory.push({
+            item: itemId,
+            quantity,
+          });
         }
       }
 
-      const order = await Order.findById(purchase.orderId);
-      if (order) {
-        const remainingPurchases = await Purchase.find({
-          orderId: purchase.orderId,
-        });
+      // Check the remaining purchases for the order to update its status
+      const remainingPurchases = await Purchase.find({
+        orderId: purchase.orderId,
+      });
 
-        let isPartiallyPaid = false;
-        let isFullyPaid = true;
+      let isPartiallyPaid = false;
+      let isFullyPaid = true;
 
-        for (const purchase of remainingPurchases) {
-          for (const item of purchase.items) {
-            const orderItem = order.items.find(
-              (i) => i.item._id.toString() === item.itemId.toString()
-            );
-            if (orderItem) {
-              const totalPurchasedQuantity =
-                (previousPurchaseQuantities[item.itemId] || 0) + item.quantity;
-              if (totalPurchasedQuantity < orderItem.quantity) {
-                isPartiallyPaid = true;
-                isFullyPaid = false;
-              }
-            }
+      const previousPurchaseQuantities = {};
+
+      for (const remainingPurchase of remainingPurchases) {
+        for (const remainingItem of remainingPurchase.items) {
+          if (!previousPurchaseQuantities[remainingItem.itemId]) {
+            previousPurchaseQuantities[remainingItem.itemId] = 0;
           }
+          previousPurchaseQuantities[remainingItem.itemId] +=
+            remainingItem.quantity;
         }
-
-        if (isFullyPaid && !isPartiallyPaid) {
-          order.status = "billed";
-        } else if (isPartiallyPaid) {
-          order.status = "partially paid";
-        } else {
-          order.status = "created";
-        }
-        await order.save();
       }
 
+      for (const orderItem of order.items) {
+        const totalPurchasedQuantity =
+          previousPurchaseQuantities[orderItem.item._id.toString()] || 0;
+
+        if (totalPurchasedQuantity < orderItem.quantity) {
+          isPartiallyPaid = true;
+          isFullyPaid = false;
+        }
+      }
+
+      if (isFullyPaid && !isPartiallyPaid) {
+        order.status = "billed";
+      } else if (isPartiallyPaid) {
+        order.status = "partially paid";
+      } else {
+        order.status = "created";
+      }
+      await order.save();
+
+      // Save changes to both warehouses
+      await orderWarehouse.save();
+      await billedWarehouse.save();
+
+      // Finally, delete the purchase
       await Purchase.findByIdAndDelete(req.params.id);
-      await warehouse.save();
 
       res.status(200).json({
         success: true,
