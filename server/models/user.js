@@ -3,20 +3,27 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const userSchema = mongoose.Schema({
+    clerkId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     name: {
         type: String
     },
     email: {
         type: String
     },
-    role: {
-        type: String,
-        required: true,
-        enum: ["Admin", "Accountant", "Approver"]
+    phone: {
+        type: String
     },
+    // role: {
+    //     type: String,
+    //     required: true,
+    //     enum: ["Admin", "Accountant", "Approver"]
+    // },
     password: {
         type: String,
-        required: true
     }
 });
 

@@ -13,7 +13,7 @@ const orgController = {
     },
     getAllOrganizations: async (req, res) => {
         try {
-            const organizations = await Organization.find().populate('users').populate('inventory');
+            const organizations = await Organization.find();
             res.status(200).json(organizations);
         } catch (error) {
             res.status(500).json({ message: 'Error retrieving organizations', error });

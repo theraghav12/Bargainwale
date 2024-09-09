@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet } from "react-router-dom";
+import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { IconButton } from "@material-tailwind/react";
 import {
@@ -9,10 +9,25 @@ import {
 } from "@/widgets/layout";
 import routes from "@/routes";
 import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
 
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user?.organizationMemberships?.length > 0) {
+      localStorage.setItem(
+        "organizationId",
+        user?.organizationMemberships[0]?.id
+      );
+    } else if (user?.organizationMemberships?.length === 0) {
+      navigate("/auth/create-organization");
+    }
+  }, [user]);
 
   return (
     <>

@@ -5,7 +5,7 @@ import {
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
-  ShoppingBagIcon
+  ShoppingBagIcon,
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { OrderTable } from "./pages/orders/OrderHistory";
@@ -21,6 +21,7 @@ import { TbReceiptRupee } from "react-icons/tb";
 import { Purchase } from "./pages/purchase/Purchase";
 import PurchaseHistory from "./pages/purchase/PurchaseHistory";
 import SalesHistory from "./pages/sales/SalesHistory";
+import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -97,10 +98,14 @@ export const routes = [
     layout: "auth",
     pages: [
       {
-        icon: <ServerStackIcon {...icon} />,
         name: "sign in",
         path: "/sign-in",
         element: <SignIn />,
+      },
+      {
+        name: "create organization",
+        path: "/create-organization",
+        element: <CreateOrganizationPage />,
       },
       // {
       //   icon: <RectangleStackIcon {...icon} />,

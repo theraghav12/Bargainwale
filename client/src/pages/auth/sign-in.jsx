@@ -1,16 +1,62 @@
-import { RedirectToSignIn, SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
+import { API_BASE_URL } from "@/services/api";
+import {
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+  useClerk,
+  useOrganizationList,
+} from "@clerk/clerk-react";
 import { Spinner } from "@material-tailwind/react";
+import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { organizations } = useOrganizationList();
+
+  console.log(user);
 
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard/home");
-    }
+    const userValidation = async () => {
+      try {
+        if (user) {
+          const response = await axios.post(`${API_BASE_URL}/checkUser`, {
+            clerkId: user.id,
+          });
+          if (response.status === 200) {
+            toast.success("Signed In!");
+            if (user.organizationMemberships.length === 0) {
+              navigate("/auth/create-organization");
+            } else {
+              navigate("/dashboard/home");
+            }
+          }
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          await axios.post(`${API_BASE_URL}/register`, {
+            clerkId: user.id,
+            name: user.fullName || user.firstName,
+            email: user.emailAddresses[0].emailAddress,
+          });
+
+          toast.success("User registered successfully!");
+          if (user.organizationMemberships.length === 0) {
+            navigate("/create-organization");
+          } else {
+            navigate("/dashboard/home");
+          }
+        } else {
+          console.log(err);
+        }
+      }
+    };
+    userValidation();
   }, [user, navigate]);
 
   return (
