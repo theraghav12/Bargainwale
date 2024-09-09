@@ -21,6 +21,10 @@ const purchaseController = {
         return res.status(404).json({ message: "Order not found" });
       }
 
+      const orderWarehouse = await Warehouse.findById(
+        Order.findById(orderId).warehouse
+      );
+
       if (orderDocument.status === "billed") {
         return res.status(400).json({
           success: false,
@@ -79,7 +83,7 @@ const purchaseController = {
         }
 
         // Adjust virtual and billed inventory
-        const virtualInventoryItem = warehouseDocument.virtualInventory.find(
+        const virtualInventoryItem = orderWarehouse.virtualInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
