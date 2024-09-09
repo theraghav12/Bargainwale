@@ -83,7 +83,7 @@ const purchaseController = {
         }
 
         // Adjust virtual and billed inventory
-        const virtualInventoryItem = orderWarehouse.virtualInventory.find(
+        const virtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
