@@ -47,7 +47,7 @@ const saleController = {
       // Process each item in the sale
       for (const item of items) {
         let { itemId, quantity } = item;
-        quantity=Numer(quantity);
+        quantity=Number(quantity);
         // Find the booking item
         const bookingItem = bookingDocument.items.find(
           (i) => i.item._id.toString() === itemId.toString()
