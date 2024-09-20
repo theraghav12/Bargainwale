@@ -147,171 +147,191 @@ const ItemForm = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-6 gap-2">
-          <Input
-            name="name"
-            label="Item Name"
-            type="text"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-          <Select
-            name="packaging"
-            label="Packaging"
-            value={form.packaging}
-            onChange={(value) => handleChange(value, "packaging")}
-          >
-            <Option value="box">Box</Option>
-            <Option value="tin">Tin</Option>
-          </Select>
-          <Input
-            name="type"
-            label="Type"
-            type="text"
-            value={form.type}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="weight"
-            label="Weight"
-            type="number"
-            value={form.weight}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="staticPrice"
-            label="Static Price"
-            type="number"
-            value={form.staticPrice}
-            onChange={handleChange}
-            required
-          />
-          <Button color="blue" type="submit">
-            {loading ? <Spinner /> : <span>Add Item</span>}
-          </Button>
-        </div>
-      </form>
+    <>
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Items
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
 
-      {/* Items Table */}
-      <div className="w-full overflow-x-scroll mt-8">
-        {items?.length > 0 ? (
-          <table className="w-full bg-white">
-            <thead>
-              <tr className="grid grid-cols-6">
-                <th className="py-2 px-4 border-b text-start">Name</th>
-                <th className="py-2 px-4 border-b text-start">Packaging</th>
-                <th className="py-2 px-4 border-b text-start">Type</th>
-                <th className="py-2 px-4 border-b text-start">Weight</th>
-                <th className="py-2 px-4 border-b text-start">Static Price</th>
-                <th className="py-2 px-4 border-b text-start">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items?.map((item) => (
-                <tr key={item._id} className="grid grid-cols-6">
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="name"
-                        type="text"
-                        value={item.name}
-                        onChange={(e) => handleItemChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.name}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Select
-                        name="packaging"
-                        value={item.packaging}
-                        onChange={(value) =>
-                          handleItemChange(value, item._id, "packaging")
-                        }
-                      >
-                        <Option value="box">Box</Option>
-                        <Option value="tin">Tin</Option>
-                      </Select>
-                    ) : (
-                      <span>{item.packaging}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="type"
-                        type="text"
-                        value={item.type}
-                        onChange={(e) => handleItemChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.type}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="weight"
-                        type="number"
-                        value={item.weight}
-                        onChange={(e) => handleItemChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.weight}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="staticPrice"
-                        type="number"
-                        value={item.staticPrice}
-                        onChange={(e) => handleItemChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.staticPrice}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b flex gap-2">
-                    {item.isEditing ? (
-                      <IconButton
-                        color="green"
-                        onClick={() => toggleEditing(item._id)}
-                      >
-                        Save
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        color="blue"
-                        onClick={() => toggleEditing(item._id)}
-                      >
-                        <FaEdit />
-                      </IconButton>
-                    )}
-                    <IconButton
-                      color="red"
-                      onClick={() => handleDelete(item._id)}
-                    >
-                      <FaTrashAlt />
-                    </IconButton>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <Typography className="text-xl text-center font-bold">
-            No Items!
-          </Typography>
-        )}
+        <div className="p-10">
+          {/* Items Table */}
+          <div className="w-full overflow-x-scroll mt-8">
+            {items?.length > 0 ? (
+              <table className="w-full bg-white">
+                <thead>
+                  <tr className="grid grid-cols-6">
+                    <th className="py-2 px-4 border-b text-start">Name</th>
+                    <th className="py-2 px-4 border-b text-start">Packaging</th>
+                    <th className="py-2 px-4 border-b text-start">Type</th>
+                    <th className="py-2 px-4 border-b text-start">Weight</th>
+                    <th className="py-2 px-4 border-b text-start">
+                      Static Price
+                    </th>
+                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items?.map((item) => (
+                    <tr key={item._id} className="grid grid-cols-6">
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="name"
+                            type="text"
+                            value={item.name}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.name}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Select
+                            name="packaging"
+                            value={item.packaging}
+                            onChange={(value) =>
+                              handleItemChange(value, item._id, "packaging")
+                            }
+                          >
+                            <Option value="box">Box</Option>
+                            <Option value="tin">Tin</Option>
+                          </Select>
+                        ) : (
+                          <span>{item.packaging}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="type"
+                            type="text"
+                            value={item.type}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.type}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="weight"
+                            type="number"
+                            value={item.weight}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.weight}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="staticPrice"
+                            type="number"
+                            value={item.staticPrice}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.staticPrice}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b flex gap-2">
+                        {item.isEditing ? (
+                          <IconButton
+                            color="green"
+                            onClick={() => toggleEditing(item._id)}
+                          >
+                            Save
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            color="blue"
+                            onClick={() => toggleEditing(item._id)}
+                          >
+                            <FaEdit />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          color="red"
+                          onClick={() => handleDelete(item._id)}
+                        >
+                          <FaTrashAlt />
+                        </IconButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <Typography className="text-xl text-center font-bold">
+                No Items!
+              </Typography>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+      
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Items
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
+
+        <div className="p-10">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-6 gap-2">
+              <Input
+                name="name"
+                label="Item Name"
+                type="text"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+              <Select
+                name="packaging"
+                label="Packaging"
+                value={form.packaging}
+                onChange={(value) => handleChange(value, "packaging")}
+              >
+                <Option value="box">Box</Option>
+                <Option value="tin">Tin</Option>
+              </Select>
+              <Input
+                name="type"
+                label="Type"
+                type="text"
+                value={form.type}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="weight"
+                label="Weight"
+                type="number"
+                value={form.weight}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="staticPrice"
+                label="Static Price"
+                type="number"
+                value={form.staticPrice}
+                onChange={handleChange}
+                required
+              />
+              <Button color="blue" type="submit">
+                {loading ? <Spinner /> : <span>Add Item</span>}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 };
 

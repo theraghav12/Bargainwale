@@ -4,15 +4,14 @@ import {
   CardHeader,
   CardBody,
   Typography,
-  Input,
   Button,
-  Spinner,
   Tabs,
   TabsHeader,
   Tab,
   TabsBody,
   TabPanel,
 } from "@material-tailwind/react";
+import { MasterSidenav } from "@/widgets/layout";
 import {
   createWarehouse,
   fetchWarehouse,
@@ -28,6 +27,33 @@ import BuyerForm from "@/components/master/BuyerForm";
 import ManufacturerForm from "@/components/master/ManufacturerForm";
 
 export function WarehouseMaster() {
+  const [selectedComponent, setSelectedComponent] = useState("warehouse");
+
+  const data = [
+    { label: "Warehouse", value: "warehouse" },
+    { label: "Add Items", value: "addItems" },
+    { label: "Add Transportation", value: "addTransportation" },
+    { label: "Add Buyer", value: "addBuyer" },
+    { label: "Add Manufacturer", value: "addManufacturer" },
+  ];
+
+  const renderComponent = () => {
+    switch (selectedComponent) {
+      case "warehouse":
+        return <WarehouseForm />;
+      case "addItems":
+        return <ItemForm />;
+      case "addTransportation":
+        return <TransportForm />;
+      case "addBuyer":
+        return <BuyerForm />;
+      case "addManufacturer":
+        return <ManufacturerForm />;
+      default:
+        return null;
+    }
+  };
+
   const states = Object.keys(statesAndCities);
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -82,7 +108,6 @@ export function WarehouseMaster() {
         "Existing warehouse selected. Proceeding with the selected warehouse."
       );
       const response = await getWarehouseById(selectedWarehouseID);
-      console.log(response._id);
       localStorage.setItem("warehouse", response._id);
       navigate("/dashboard/orders");
     } else {
@@ -91,7 +116,6 @@ export function WarehouseMaster() {
         name: warehouseName,
         location: { state: selectedState, city: selectedCity },
       });
-      console.log(response.warehouse._id);
       localStorage.setItem("warehouse", response.warehouse._id);
       navigate("/orders");
     }
@@ -107,184 +131,39 @@ export function WarehouseMaster() {
     localStorage.removeItem("warehouse");
   };
 
-  const data = [
-    {
-      label: "Warehouse",
-      value: "warehouse",
-      desc: `Manage warehouse.`,
-    },
-    {
-      label: "Add Items",
-      value: "addItems",
-      desc: `Add new items`,
-    },
-    {
-      label: "Add Transportation",
-      value: "addTransportation",
-      desc: `Manage transportation details`,
-    },
-    {
-      label: "Add Buyer",
-      value: "addBuyer",
-      desc: `Manage buyer details`,
-    },
-    {
-      label: "Add Manufacturer",
-      value: "addManufacturer",
-      desc: `Manage manufacturer details`,
-    },
-  ];
+  //  const getCurrentSectionTitle = () => {
+  //    switch (selectedComponent) {
+  //      case "warehouse":
+  //        return "Warehouse ";
+  //      case "addItems":
+  //        return "Items ";
+  //      case "addTransportation":
+  //        return "Transportation ";
+  //      case "addBuyer":
+  //        return "Buyer ";
+  //      case "addManufacturer":
+  //        return "Manufacturer ";
+  //      default:
+  //        return "Warehouse ";
+  //    }
+  //  };
 
   return (
-    <Card className="mt-12 mb-8">
-      <CardHeader
-        variant="gradient"
-        color="gray"
-        className="mb-8 p-6 flex justify-between items-center"
-      >
-        <Typography variant="h6" color="white">
-          Master
-        </Typography>
-      </CardHeader>
-      <Tabs className="px-4" value="warehouse">
-        <TabsHeader>
-          {data.map(({ label, value }) => (
-            <Tab key={value} value={value}>
-              {label}
-            </Tab>
-          ))}
-        </TabsHeader>
-        <TabsBody>
-          {data.map(({ value, desc }) => (
-            <TabPanel className="min-h-[50vh]" key={value} value={value}>
-              <Typography variant="h6" className="mb-4">
-                {desc}
-              </Typography>
-              {value === "warehouse" && <WarehouseForm />}
-              {value === "addItems" && <ItemForm />}
-              {value === "addTransportation" && <TransportForm />}
-              {value === "addBuyer" && <BuyerForm />}
-              {value === "addManufacturer" && <ManufacturerForm />}
-            </TabPanel>
-          ))}
-        </TabsBody>
-      </Tabs>
-      {/* <CardBody>
-        <div className="flex flex-col gap-6">
-          {loading ? (
-            <div className="flex justify-center items-center">
-              <Spinner color="blue" size="lg" />
-            </div>
-          ) : currentWarehouse ? (
-            <div>
-              <Typography variant="small" className="mb-2">
-                Current Selected Warehouse
-              </Typography>
-              <Typography variant="body1" className="mb-2">
-                Name: {currentWarehouse.name}
-              </Typography>
-              <Typography variant="body1" className="mb-4">
-                Location: {currentWarehouse.location.state},{" "}
-                {currentWarehouse.location.city}
-              </Typography>
-              <Button
-                variant="gradient"
-                color="red"
-                onClick={handleChangeWarehouse}
-              >
-                Change Warehouse
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div>
-                <Typography variant="small" className="mb-2">
-                  Select State
-                </Typography>
-                <select
-                  className="border rounded-md px-3 py-2"
-                  value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
-                >
-                  <option value="">Select State</option>
-                  {states.map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
+    <div className="flex">
+      <div className="fixed w-[20%] p-5">
+        <MasterSidenav onSelect={setSelectedComponent} />
+      </div>
 
-              <div>
-                <Typography variant="small" className="mb-2">
-                  Select City
-                </Typography>
-                <select
-                  className="border rounded-md px-3 py-2"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedState}
-                >
-                  <option value="">Select City</option>
-                  {statesAndCities[selectedState]?.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <Typography variant="small" className="mb-2">
-                  Warehouse Name
-                </Typography>
-                <Input
-                  type="text"
-                  value={warehouseName}
-                  onChange={(e) => setWarehouseName(e.target.value)}
-                  placeholder="Enter or select a warehouse"
-                  disabled={!selectedCity}
-                />
-                {filteredWarehouses?.length > 0 && (
-                  <div className="mt-2">
-                    <Typography variant="small" className="mb-2">
-                      Select Existing Warehouse
-                    </Typography>
-                    <select
-                      className="border rounded-md px-3 py-2 w-full"
-                      value={selectedWarehouseID}
-                      onChange={(e) => {
-                        const selectedOption = filteredWarehouses.find(
-                          (warehouse) => warehouse._id === e.target.value
-                        );
-                        setWarehouseName(selectedOption?.name || "");
-                        setSelectedWarehouseID(e.target.value);
-                      }}
-                    >
-                      <option value="">Select a Warehouse</option>
-                      {filteredWarehouses.map((warehouse) => (
-                        <option key={warehouse._id} value={warehouse._id}>
-                          {warehouse.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              <Button
-                variant="gradient"
-                color="blue"
-                onClick={handleWarehouseSubmit}
-                disabled={!selectedState || !selectedCity || !warehouseName}
-              >
-                Proceed
-              </Button>
-            </>
-          )}
-        </div>
-      </CardBody> */}
-    </Card>
+      <div className="w-full ml-[19%] px-5">
+        {/* <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-12 mb-8">
+          <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+            {getCurrentSectionTitle()}
+            <span className="text-[1.5rem] text-black">/ Available</span>
+          </h1> */}
+          <div className="p-10">{renderComponent()}</div>
+        {/* </div> */}
+      </div>
+    </div>
   );
 }
 

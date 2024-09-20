@@ -8,6 +8,7 @@ import "../public/css/tailwind.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClerkProvider } from "@clerk/clerk-react";
+import "./global.css";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

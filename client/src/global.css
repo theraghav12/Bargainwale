@@ -1,0 +1,40 @@
+.shadow-inner-custom {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* For WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 8px;
+    /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5);
+    /* Thumb color */
+    border-radius: 10px;
+    /* Rounded corners for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.7);
+    /* Thumb color on hover */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    /* "auto" or "thin" */
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+    /* Thumb color and track color */
+}
+
+/* On hover for Firefox */
+*::-webkit-scrollbar-thumb:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.7) transparent;
+    /* Thumb color on hover */
+}

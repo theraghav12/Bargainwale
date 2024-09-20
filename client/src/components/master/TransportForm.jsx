@@ -143,145 +143,163 @@ const TransportForm = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-5 gap-2">
-          <Input
-            name="transport"
-            label="Transport Name"
-            type="text"
-            value={form.transport}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="transportType"
-            label="Transport Type"
-            type="text"
-            value={form.transportType}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="transportContact"
-            label="Transport Contact"
-            type="tel"
-            value={form.transportContact}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="transportAgency"
-            label="Transport Agency"
-            type="text"
-            value={form.transportAgency}
-            onChange={handleChange}
-            required
-          />
-          <Button color="blue" type="submit">
-            {loading ? <Spinner /> : <span>Add Transport</span>}
-          </Button>
-        </div>
-      </form>
+    <>
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Transportation
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
 
-      {/* Transport Table */}
-      <div className="mt-8">
-        {transport?.length > 0 ? (
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b text-start">Transport</th>
-                <th className="py-2 px-4 border-b text-start">Type</th>
-                <th className="py-2 px-4 border-b text-start">Contact</th>
-                <th className="py-2 px-4 border-b text-start">Agency</th>
-                <th className="py-2 px-4 border-b text-start">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transport?.map((item) => (
-                <tr key={item._id}>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="transport"
-                        type="text"
-                        value={item.transport}
-                        onChange={(e) => handleUpdateChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.transport}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="transportType"
-                        type="text"
-                        value={item.transportType}
-                        onChange={(e) => handleUpdateChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.transportType}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="transportContact"
-                        type="tel"
-                        value={item.transportContact}
-                        onChange={(e) => handleUpdateChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.transportContact}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {item.isEditing ? (
-                      <Input
-                        name="transportAgency"
-                        type="text"
-                        value={item.transportAgency}
-                        onChange={(e) => handleUpdateChange(e, item._id)}
-                      />
-                    ) : (
-                      <span>{item.transportAgency}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b flex gap-2">
-                    {item.isEditing ? (
-                      <IconButton
-                        color="green"
-                        onClick={() => toggleEditing(item._id)}
-                      >
-                        Save
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        color="blue"
-                        onClick={() => toggleEditing(item._id)}
-                      >
-                        <FaEdit />
-                      </IconButton>
-                    )}
-                    <IconButton
-                      color="red"
-                      onClick={() => handleDelete(item._id)}
-                    >
-                      <FaTrashAlt />
-                    </IconButton>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <Typography className="text-xl text-center font-bold">
-            No Transport!
-          </Typography>
-        )}
+        <div className="p-10">
+          {/* Transport Table */}
+          <div className="mt-8">
+            {transport?.length > 0 ? (
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-start">Transport</th>
+                    <th className="py-2 px-4 border-b text-start">Type</th>
+                    <th className="py-2 px-4 border-b text-start">Contact</th>
+                    <th className="py-2 px-4 border-b text-start">Agency</th>
+                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transport?.map((item) => (
+                    <tr key={item._id}>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="transport"
+                            type="text"
+                            value={item.transport}
+                            onChange={(e) => handleUpdateChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.transport}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="transportType"
+                            type="text"
+                            value={item.transportType}
+                            onChange={(e) => handleUpdateChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.transportType}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="transportContact"
+                            type="tel"
+                            value={item.transportContact}
+                            onChange={(e) => handleUpdateChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.transportContact}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isEditing ? (
+                          <Input
+                            name="transportAgency"
+                            type="text"
+                            value={item.transportAgency}
+                            onChange={(e) => handleUpdateChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.transportAgency}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b flex gap-2">
+                        {item.isEditing ? (
+                          <IconButton
+                            color="green"
+                            onClick={() => toggleEditing(item._id)}
+                          >
+                            Save
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            color="blue"
+                            onClick={() => toggleEditing(item._id)}
+                          >
+                            <FaEdit />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          color="red"
+                          onClick={() => handleDelete(item._id)}
+                        >
+                          <FaTrashAlt />
+                        </IconButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <Typography className="text-xl text-center font-bold">
+                No Transport!
+              </Typography>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Transportation
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
+
+        <div className="p-10">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-5 gap-2">
+              <Input
+                name="transport"
+                label="Transport Name"
+                type="text"
+                value={form.transport}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="transportType"
+                label="Transport Type"
+                type="text"
+                value={form.transportType}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="transportContact"
+                label="Transport Contact"
+                type="tel"
+                value={form.transportContact}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="transportAgency"
+                label="Transport Agency"
+                type="text"
+                value={form.transportAgency}
+                onChange={handleChange}
+                required
+              />
+              <Button color="blue" type="submit">
+                {loading ? <Spinner /> : <span>Add Transport</span>}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 };
 

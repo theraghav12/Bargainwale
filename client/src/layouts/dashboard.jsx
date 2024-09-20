@@ -1,20 +1,14 @@
 import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { IconButton } from "@material-tailwind/react";
-import {
-  Sidenav,
-  DashboardNavbar,
-  Configurator,
-  Footer,
-} from "@/widgets/layout";
+import { DashboardNavbar, Footer } from "@/widgets/layout";
+import SecondNavbar from "@/widgets/layout/SecNavbar";
 import routes from "@/routes";
-import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
+import { setOpenConfigurator } from "@/context";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 
 export function Dashboard() {
-  const [controller, dispatch] = useMaterialTailwindController();
-  const { sidenavType } = controller;
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -31,39 +25,42 @@ export function Dashboard() {
 
   return (
     <>
-      <div className="min-h-screen bg-blue-gray-50/50">
-        <Sidenav
-          routes={routes}
-          brandImg={
-            sidenavType === "dark"
-              ? "/img/logo-ct.png"
-              : "/img/logo-ct-dark.png"
-          }
-        />
-        <div className="p-4 xl:ml-24">
-          <DashboardNavbar />
-          <Configurator />
-          <IconButton
-            size="lg"
-            color="white"
-            className="fixed bottom-8 right-8 z-40 rounded-full shadow-blue-gray-900/10"
-            ripple={false}
-            onClick={() => setOpenConfigurator(dispatch, true)}
-          >
-            <Cog6ToothIcon className="h-5 w-5" />
-          </IconButton>
-          <Routes>
-            {routes.map(
-              ({ layout, pages }) =>
-                layout === "dashboard" &&
-                pages.map(({ path, element }) => (
-                  <Route exact path={path} element={element} />
-                ))
-            )}
-          </Routes>
-          <Outlet />
-          <div className="text-blue-gray-600">
-            <Footer />
+      <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
+        {/* Navbar at the top */}
+        <DashboardNavbar />
+
+        {/* Second Navbar below the main one */}
+        <SecondNavbar />
+
+        <div className="flex flex-1 mt-28">
+          <div className="flex-1">
+            {/* Configurator Button */}
+            <IconButton
+              size="lg"
+              color="white"
+              className="fixed bottom-8 right-8 z-40 rounded-full shadow-blue-gray-900/10"
+              ripple={false}
+              onClick={() => setOpenConfigurator(dispatch, true)}
+            >
+              <Cog6ToothIcon className="h-5 w-5" />
+            </IconButton>
+
+            {/* Main content */}
+            <Routes>
+              {routes.map(
+                ({ layout, pages }) =>
+                  layout === "dashboard" &&
+                  pages.map(({ path, element }) => (
+                    <Route key={path} exact path={path} element={element} />
+                  ))
+              )}
+            </Routes>
+            <Outlet />
+
+            {/* Footer */}
+            <div className="text-blue-gray-600">
+              <Footer />
+            </div>
           </div>
         </div>
       </div>
