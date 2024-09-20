@@ -16,6 +16,7 @@ import {
   updateWarehouse,
   deleteWarehouse,
 } from "@/services/warehouseService";
+import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 
 const WarehouseForm = () => {
   const [loading, setLoading] = useState(false);
@@ -177,17 +178,20 @@ const WarehouseForm = () => {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-5">
-                    <th className="py-2 px-4 border-b text-start">Name</th>
-                    <th className="py-2 px-4 border-b text-start">State</th>
-                    <th className="py-2 px-4 border-b text-start">City</th>
-                    <th className="py-2 px-4 border-b text-start">Manager</th>
-                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                    <th className="py-2 px-4 text-start">Name</th>
+                    <th className="py-2 px-4 text-start">State</th>
+                    <th className="py-2 px-4 text-start">City</th>
+                    <th className="py-2 px-4 text-start">Manager</th>
+                    <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="flex flex-col gap-2">
                   {warehouses?.map((warehouse) => (
-                    <tr key={warehouse._id} className="grid grid-cols-5">
-                      <td className="py-2 px-4 border-b">
+                    <tr
+                      key={warehouse._id}
+                      className="grid grid-cols-5 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                    >
+                      <td className="py-2 px-4">
                         {warehouse.isEditing ? (
                           <Input
                             name="name"
@@ -201,7 +205,7 @@ const WarehouseForm = () => {
                           <span>{warehouse.name}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {warehouse.isEditing ? (
                           <Input
                             name="state"
@@ -215,7 +219,7 @@ const WarehouseForm = () => {
                           <span>{warehouse.location.state}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {warehouse.isEditing ? (
                           <Input
                             name="city"
@@ -229,7 +233,7 @@ const WarehouseForm = () => {
                           <span>{warehouse.location.city}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {warehouse.isEditing ? (
                           <Input
                             name="warehouseManager"
@@ -243,7 +247,7 @@ const WarehouseForm = () => {
                           <span>{warehouse.warehouseManager || "N/A"}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b flex gap-2">
+                      <td className="py-2 px-4 flex gap-2">
                         {warehouse.isEditing ? (
                           <IconButton
                             color="green"
@@ -252,19 +256,25 @@ const WarehouseForm = () => {
                             Save
                           </IconButton>
                         ) : (
-                          <IconButton
-                            color="blue"
+                          <button
                             onClick={() => toggleEditing(warehouse._id)}
+                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                           >
-                            <FaEdit />
-                          </IconButton>
+                            <AiOutlineEdit />
+                          </button>
                         )}
-                        <IconButton
+                        <button
+                          onClick={() => handleDelete(warehouse._id)}
+                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
+                        >
+                          <AiOutlineDelete />
+                        </button>
+                        {/* <IconButton
                           color="red"
                           onClick={() => handleDelete(warehouse._id)}
                         >
                           <FaTrashAlt />
-                        </IconButton>
+                        </IconButton> */}
                       </td>
                     </tr>
                   ))}
