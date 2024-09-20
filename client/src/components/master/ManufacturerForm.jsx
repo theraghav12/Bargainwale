@@ -177,271 +177,295 @@ const ManufacturerForm = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-6 gap-2">
-          <Input
-            name="manufacturer"
-            label="Manufacturer Name"
-            type="text"
-            value={form.manufacturer}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="manufacturerCompany"
-            label="Company Name"
-            type="text"
-            value={form.manufacturerCompany}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="addressLine1"
-            label="Address Line 1"
-            type="text"
-            value={form.addressLine1}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="addressLine2"
-            label="Address Line 2"
-            type="text"
-            value={form.addressLine2}
-            onChange={handleChange}
-          />
-          <Input
-            name="city"
-            label="City"
-            type="text"
-            value={form.city}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="state"
-            label="State"
-            type="text"
-            value={form.state}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="pinCode"
-            label="Pin Code"
-            type="text"
-            value={form.pinCode}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="manufacturerContact"
-            label="Contact Number"
-            type="text"
-            value={form.manufacturerContact}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="manufacturerEmail"
-            label="Email"
-            type="email"
-            value={form.manufacturerEmail}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="manufacturerGstno"
-            label="GST Number"
-            type="text"
-            value={form.manufacturerGstno}
-            onChange={handleChange}
-          />
-          <Button color="blue" type="submit">
-            {loading ? <Spinner /> : <span>Add Manufacturer</span>}
-          </Button>
-        </div>
-      </form>
+    <>
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Manufacturer
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
 
-      {/* Manufacturers Table */}
-      <div className="mt-8">
-        {manufacturer?.length > 0 ? (
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr className="grid grid-cols-7">
-                <th className="py-2 px-4 border-b text-start">
-                  Manufacturer Name
-                </th>
-                <th className="py-2 px-4 border-b text-start">Company</th>
-                <th className="py-2 px-4 border-b text-start">Address</th>
-                <th className="py-2 px-4 border-b text-start">Contact</th>
-                <th className="py-2 px-4 border-b text-start">Email</th>
-                <th className="py-2 px-4 border-b text-start">GST Number</th>
-                <th className="py-2 px-4 border-b text-start">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {manufacturer?.map((man) => (
-                <tr key={man._id} className="grid grid-cols-7">
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <input
-                        name="manufacturer"
-                        type="text"
-                        placeholder="Manufacturer Name"
-                        value={man.manufacturer}
-                        className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                        onChange={(e) => handleItemChange(e, man._id)}
-                      />
-                    ) : (
-                      <span>{man.manufacturer}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <input
-                        name="manufacturerCompany"
-                        type="text"
-                        placeholder="Manufacturer Company"
-                        value={man.manufacturerCompany}
-                        className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                        onChange={(e) => handleItemChange(e, man._id)}
-                      />
-                    ) : (
-                      <span>{man.manufacturerCompany}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <div className="flex flex-col gap-1">
-                        <input
-                          name="addressLine1"
-                          type="text"
-                          placeholder="Address Line 1"
-                          value={man.manufacturerdeliveryAddress?.addressLine1}
-                          className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                          onChange={(e) => handleItemChange(e, man._id)}
-                        />
-                        <input
-                          name="addressLine2"
-                          type="text"
-                          placeholder="Address Line 2"
-                          value={man.manufacturerdeliveryAddress?.addressLine2}
-                          className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                          onChange={(e) => handleItemChange(e, man._id)}
-                        />
-                        <input
-                          name="city"
-                          type="text"
-                          placeholder="City"
-                          value={man.manufacturerdeliveryAddress?.city}
-                          className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                          onChange={(e) => handleItemChange(e, man._id)}
-                        />
-                        <input
-                          name="state"
-                          type="text"
-                          placeholder="State"
-                          value={man.manufacturerdeliveryAddress?.state}
-                          className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                          onChange={(e) => handleItemChange(e, man._id)}
-                        />
-                        <input
-                          name="pinCode"
-                          type="text"
-                          placeholder="Pincode"
-                          value={man.manufacturerdeliveryAddress?.pinCode}
-                          className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                          onChange={(e) => handleItemChange(e, man._id)}
-                        />
-                      </div>
-                    ) : (
-                      <span>
-                        {man.manufacturerdeliveryAddress?.addressLine1}{" "}
-                        {man.manufacturerdeliveryAddress?.addressLine2}{" "}
-                        {man.manufacturerdeliveryAddress?.city}{" "}
-                        {man.manufacturerdeliveryAddress?.state}{" "}
-                        {man.manufacturerdeliveryAddress?.pinCode}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <input
-                        name="manufacturerContact"
-                        type="text"
-                        placeholder="Manufacturer Contact'"
-                        value={man.manufacturerContact}
-                        className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                        onChange={(e) => handleItemChange(e, man._id)}
-                      />
-                    ) : (
-                      <span>{man.manufacturerContact}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <input
-                        name="manufacturerEmail"
-                        type="email"
-                        placeholder="Manufacturer Email"
-                        value={man.manufacturerEmail}
-                        className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                        onChange={(e) => handleItemChange(e, man._id)}
-                      />
-                    ) : (
-                      <span>{man.manufacturerEmail}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {man.isEditing ? (
-                      <input
-                        name="manufacturerGstno"
-                        type="text"
-                        placeholder="Manufacturer GST No."
-                        value={man.manufacturerGstno}
-                        className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
-                        onChange={(e) => handleItemChange(e, man._id)}
-                      />
-                    ) : (
-                      <span>{man.manufacturerGstno}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b flex gap-2">
-                    {man.isEditing ? (
-                      <IconButton
-                        color="green"
-                        onClick={() => toggleEditing(man._id)}
-                      >
-                        Save
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        color="blue"
-                        onClick={() => toggleEditing(man._id)}
-                      >
-                        <FaEdit />
-                      </IconButton>
-                    )}
-                    <IconButton
-                      color="red"
-                      onClick={() => handleDelete(man._id)}
-                    >
-                      <FaTrashAlt />
-                    </IconButton>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <Typography className="text-xl text-center font-bold">
-            No Manufacturers!
-          </Typography>
-        )}
+        <div className="p-10">
+          {/* Manufacturers Table */}
+          <div className="mt-8">
+            {manufacturer?.length > 0 ? (
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr className="grid grid-cols-7">
+                    <th className="py-2 px-4 border-b text-start">
+                      Manufacturer Name
+                    </th>
+                    <th className="py-2 px-4 border-b text-start">Company</th>
+                    <th className="py-2 px-4 border-b text-start">Address</th>
+                    <th className="py-2 px-4 border-b text-start">Contact</th>
+                    <th className="py-2 px-4 border-b text-start">Email</th>
+                    <th className="py-2 px-4 border-b text-start">
+                      GST Number
+                    </th>
+                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {manufacturer?.map((man) => (
+                    <tr key={man._id} className="grid grid-cols-7">
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <input
+                            name="manufacturer"
+                            type="text"
+                            placeholder="Manufacturer Name"
+                            value={man.manufacturer}
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            onChange={(e) => handleItemChange(e, man._id)}
+                          />
+                        ) : (
+                          <span>{man.manufacturer}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <input
+                            name="manufacturerCompany"
+                            type="text"
+                            placeholder="Manufacturer Company"
+                            value={man.manufacturerCompany}
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            onChange={(e) => handleItemChange(e, man._id)}
+                          />
+                        ) : (
+                          <span>{man.manufacturerCompany}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <div className="flex flex-col gap-1">
+                            <input
+                              name="addressLine1"
+                              type="text"
+                              placeholder="Address Line 1"
+                              value={
+                                man.manufacturerdeliveryAddress?.addressLine1
+                              }
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              onChange={(e) => handleItemChange(e, man._id)}
+                            />
+                            <input
+                              name="addressLine2"
+                              type="text"
+                              placeholder="Address Line 2"
+                              value={
+                                man.manufacturerdeliveryAddress?.addressLine2
+                              }
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              onChange={(e) => handleItemChange(e, man._id)}
+                            />
+                            <input
+                              name="city"
+                              type="text"
+                              placeholder="City"
+                              value={man.manufacturerdeliveryAddress?.city}
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              onChange={(e) => handleItemChange(e, man._id)}
+                            />
+                            <input
+                              name="state"
+                              type="text"
+                              placeholder="State"
+                              value={man.manufacturerdeliveryAddress?.state}
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              onChange={(e) => handleItemChange(e, man._id)}
+                            />
+                            <input
+                              name="pinCode"
+                              type="text"
+                              placeholder="Pincode"
+                              value={man.manufacturerdeliveryAddress?.pinCode}
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              onChange={(e) => handleItemChange(e, man._id)}
+                            />
+                          </div>
+                        ) : (
+                          <span>
+                            {man.manufacturerdeliveryAddress?.addressLine1}{" "}
+                            {man.manufacturerdeliveryAddress?.addressLine2}{" "}
+                            {man.manufacturerdeliveryAddress?.city}{" "}
+                            {man.manufacturerdeliveryAddress?.state}{" "}
+                            {man.manufacturerdeliveryAddress?.pinCode}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <input
+                            name="manufacturerContact"
+                            type="text"
+                            placeholder="Manufacturer Contact'"
+                            value={man.manufacturerContact}
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            onChange={(e) => handleItemChange(e, man._id)}
+                          />
+                        ) : (
+                          <span>{man.manufacturerContact}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <input
+                            name="manufacturerEmail"
+                            type="email"
+                            placeholder="Manufacturer Email"
+                            value={man.manufacturerEmail}
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            onChange={(e) => handleItemChange(e, man._id)}
+                          />
+                        ) : (
+                          <span>{man.manufacturerEmail}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {man.isEditing ? (
+                          <input
+                            name="manufacturerGstno"
+                            type="text"
+                            placeholder="Manufacturer GST No."
+                            value={man.manufacturerGstno}
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            onChange={(e) => handleItemChange(e, man._id)}
+                          />
+                        ) : (
+                          <span>{man.manufacturerGstno}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b flex gap-2">
+                        {man.isEditing ? (
+                          <IconButton
+                            color="green"
+                            onClick={() => toggleEditing(man._id)}
+                          >
+                            Save
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            color="blue"
+                            onClick={() => toggleEditing(man._id)}
+                          >
+                            <FaEdit />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          color="red"
+                          onClick={() => handleDelete(man._id)}
+                        >
+                          <FaTrashAlt />
+                        </IconButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <Typography className="text-xl text-center font-bold">
+                No Manufacturers!
+              </Typography>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
+          Manufacturer
+          <span className="text-[1.5rem] text-black">/ Available</span>
+        </h1>
+
+        <div className="p-10">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-6 gap-2">
+              <Input
+                name="manufacturer"
+                label="Manufacturer Name"
+                type="text"
+                value={form.manufacturer}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="manufacturerCompany"
+                label="Company Name"
+                type="text"
+                value={form.manufacturerCompany}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="addressLine1"
+                label="Address Line 1"
+                type="text"
+                value={form.addressLine1}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="addressLine2"
+                label="Address Line 2"
+                type="text"
+                value={form.addressLine2}
+                onChange={handleChange}
+              />
+              <Input
+                name="city"
+                label="City"
+                type="text"
+                value={form.city}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="state"
+                label="State"
+                type="text"
+                value={form.state}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="pinCode"
+                label="Pin Code"
+                type="text"
+                value={form.pinCode}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="manufacturerContact"
+                label="Contact Number"
+                type="text"
+                value={form.manufacturerContact}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="manufacturerEmail"
+                label="Email"
+                type="email"
+                value={form.manufacturerEmail}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="manufacturerGstno"
+                label="GST Number"
+                type="text"
+                value={form.manufacturerGstno}
+                onChange={handleChange}
+              />
+              <Button color="blue" type="submit">
+                {loading ? <Spinner /> : <span>Add Manufacturer</span>}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 };
 
