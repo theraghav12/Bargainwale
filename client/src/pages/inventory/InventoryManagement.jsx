@@ -20,6 +20,8 @@ import {
 } from "@/services/warehouseService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { MasterSidenav } from "@/widgets/layout";
+import InventorySidenav from "@/widgets/layout/InventorySidenav";
 
 export function InventoryManagement() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
@@ -165,67 +167,79 @@ export function InventoryManagement() {
   };
 
   return (
-    <Card className="mt-12 mb-8">
-      <CardHeader
-        variant="gradient"
-        color="gray"
-        className="p-6 flex justify-between items-center"
-      >
-        <Typography variant="h6" color="white">
-          Inventory Management
-        </Typography>
-        <div className="w-72">
-          <Tabs value="app">
-            <TabsHeader>
-              <Tab value="app" onClick={() => setSelectedTab("virtual")}>
+    <div className="flex">
+      <div className="fixed w-[20%] p-5">
+        <InventorySidenav />
+      </div>
+
+      <div className="w-full ml-[19%] px-5">
+        <div className="w-full mt-12 mb-8">
+          <Tabs value="virtual">
+            <TabsHeader className="bg-[#7E8B90]">
+              <Tab value="virtual" onClick={() => setSelectedTab("virtual")}>
                 Virtual
               </Tab>
-              <Tab value="message" onClick={() => setSelectedTab("billed")}>
+              <Tab value="billed" onClick={() => setSelectedTab("billed")}>
                 Billed
+              </Tab>
+              <Tab
+                value="order virtual"
+                onClick={() => setSelectedTab("order virtual")}
+              >
+                Order Virtual
+              </Tab>
+              <Tab
+                value="booking virtual"
+                onClick={() => setSelectedTab("booking virtual")}
+              >
+                Booking Virtual
               </Tab>
             </TabsHeader>
           </Tabs>
         </div>
-      </CardHeader>
-      <CardBody className="h-[50vh]">
-        <div>
-          {warehouses?.length > 0 && (
-            <Select
-              name="warehouse"
-              label="Warehouse"
-              value={selectedWarehouse}
-              onChange={(value) => setSelectedWarehouse(value)}
-            >
-              {warehouses?.map((warehouse) => (
-                <Option value={warehouse._id}>{warehouse.name}</Option>
-              ))}
-            </Select>
-          )}
-        </div>
 
-        {currentWarehouse !== null ? (
-          loading ? (
-            <div className="flex justify-center items-center">
-              <Spinner color="blue" size="lg" />
+        <Card>
+          <CardBody>
+            <div>
+              {warehouses?.length > 0 && (
+                <Select
+                  name="warehouse"
+                  label="Warehouse"
+                  value={selectedWarehouse}
+                  onChange={(value) => setSelectedWarehouse(value)}
+                >
+                  {warehouses?.map((warehouse) => (
+                    <Option value={warehouse._id}>{warehouse.name}</Option>
+                  ))}
+                </Select>
+              )}
             </div>
-          ) : currentWarehouse !== "" ? (
-            selectedTab === "virtual" ? (
-              renderInventoryTable("virtual")
+
+            {currentWarehouse !== null ? (
+              loading ? (
+                <div className="flex justify-center items-center">
+                  <Spinner color="blue" size="lg" />
+                </div>
+              ) : currentWarehouse !== "" ? (
+                selectedTab === "virtual" ? (
+                  renderInventoryTable("virtual")
+                ) : (
+                  renderInventoryTable("billed")
+                )
+              ) : (
+                <Typography variant="body2" className="mt-5 text-center">
+                  No warehouse selected.
+                </Typography>
+              )
             ) : (
-              renderInventoryTable("billed")
-            )
-          ) : (
-            <Typography variant="body2" className="mt-5 text-center">
-              No warehouse selected.
-            </Typography>
-          )
-        ) : (
-          <Typography variant="body2" className="mt-5 text-center">
-            No warehouse selected.
-          </Typography>
-        )}
-      </CardBody>
-    </Card>
+              <Typography variant="body2" className="mt-5 text-center">
+                No warehouse selected.
+              </Typography>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 }
 
