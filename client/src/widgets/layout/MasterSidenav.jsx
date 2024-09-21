@@ -12,14 +12,6 @@ export function MasterSidenav({ onSelect }) {
     transparent: "bg-transparent",
   };
 
-  const { user } = useUser();
-
-  useEffect(() => {
-    if (!user) {
-      // Handle redirection if not signed in
-    }
-  }, [user]);
-
   const sidenavData = [
     {
       heading: "Warehouse",

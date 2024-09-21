@@ -1,9 +1,15 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useMaterialTailwindController } from "@/context";
+import { getWarehouses } from "@/services/warehouseService";
+import { Link } from "react-router-dom";
 
-export function InventorySidenav() {
+export function InventorySidenav({
+  warehouses,
+  selectedWarehouse,
+  setSelectedWarehouse,
+}) {
   const [controller] = useMaterialTailwindController();
   const { sidenavType } = controller;
   const sidenavTypes = {
@@ -11,53 +17,26 @@ export function InventorySidenav() {
     white: "bg-white shadow-sm",
     transparent: "bg-transparent",
   };
+  // const [warehouses, setWarehouses] = useState();
 
-  const { user } = useUser();
+  // const fetchWarehouses = async () => {
+  //   try {
+  //     const response = await getWarehouses();
+  //     setWarehouses(response);
+  //   } catch (err) {
+  //     console.log("Error:", err);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchWarehouses();
+  // }, []);
 
   useEffect(() => {
-    if (!user) {
-      // Handle redirection if not signed in
+    if (warehouses?.length > 0 && !selectedWarehouse) {
+      setSelectedWarehouse(warehouses[0]._id);
     }
-  }, [user]);
-
-  const sidenavData = [
-    {
-      heading: "Warehouse",
-      links: [
-        { title: "Warehouse available", link: "warehouse" },
-        { title: "Create warehouse", link: "warehouse" },
-      ],
-    },
-    {
-      heading: "Items",
-      links: [
-        { title: "Items available", link: "addItems" },
-        { title: "Add Item", link: "addItems" },
-      ],
-    },
-    {
-      heading: "Transportation",
-      links: [
-        { title: "Transport available", link: "addTransportation" },
-        { title: "Add transport", link: "addTransportation" },
-      ],
-    },
-    {
-      heading: "Buyers",
-      links: [
-        { title: "Buyers available", link: "addBuyer" },
-        { title: "Add buyer", link: "addBuyer" },
-      ],
-    },
-    {
-      heading: "Manufacturer",
-      links: [
-        { title: "Manufacturer available", link: "addManufacturer" },
-        { title: "Add manufacturer", link: "addManufacturer" },
-      ],
-    },
-    // Additional items if needed...
-  ];
+  }, [warehouses, selectedWarehouse, setSelectedWarehouse]);
 
   return (
     <>
@@ -65,28 +44,32 @@ export function InventorySidenav() {
         className={`${sidenavTypes[sidenavType]} flex flex-col w-full h-[70vh] rounded-md border border-blue-gray-200`}
       >
         <div className="my-4 text-center">
-          <h1 className="text-[1.3rem] font-bold mt-2">Menu</h1>
+          <h1 className="text-[1.3rem] font-bold mt-2">Inventory</h1>
         </div>
         <div className="flex-grow m-4 flex flex-col items-center overflow-y-auto">
-          <ul className="mb-4 flex flex-col gap-5 list-disc text-[#38454A] text-[1.1rem]">
-            {sidenavData.map((item) => (
-              <li key={item.heading}>
-                <p className="font-semibold mb-2">{item.heading}</p>
-                <ul className="ml-5 flex flex-col gap-2 list-disc text-[#565656] text-[1rem]">
-                  {item.links.map((subitem) => (
-                    <li
-                      key={subitem.title}
-                      className="hover:underline transition-all"
-                    >
-                      <button onClick={() => onSelect(subitem.link)}>
-                        {subitem.title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+          <ul className="w-full mb-4 flex flex-col items-center gap-2 text-[#38454A] text-[1.1rem]">
+            {warehouses?.map((item) => (
+              <li
+                key={item._id}
+                className={`w-[90%] ${
+                  item._id === selectedWarehouse
+                    ? "bg-[#EAEAEA]"
+                    : "bg-[#F9F9F9]"
+                } rounded-md px-2 py-1 cursor-pointer`}
+                onClick={() => setSelectedWarehouse(item._id)}
+              >
+                {item.name}
               </li>
             ))}
           </ul>
+          <div className="w-[90%] mt-2 flex flex-col items-center gap-2">
+            <p className="text-[#717171]">
+              Would like to setup a new warehouse ?
+            </p>
+            <Link to="/dashboard/home" className="w-full bg-[#FF0000] text-white text-center rounded-md px-2 py-1">
+              CREATE A WAREHOUSE
+            </Link>
+          </div>
         </div>
       </aside>
       <div
