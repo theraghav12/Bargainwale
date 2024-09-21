@@ -17,6 +17,7 @@ import {
   deleteWarehouse,
 } from "@/services/warehouseService";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import mapsIcon from "../../assets/maps.svg";
 
 const WarehouseForm = () => {
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,7 @@ const WarehouseForm = () => {
     state: "",
     city: "",
     warehouseManager: "",
+    googleMapsLink: "",
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -297,7 +299,7 @@ const WarehouseForm = () => {
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-5 gap-2">
+            <div className="flex">
               <Input
                 name="name"
                 label="Warehouse Name"
@@ -306,6 +308,8 @@ const WarehouseForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex flex-row gap-4">
               <Input
                 name="state"
                 label="State"
@@ -322,6 +326,8 @@ const WarehouseForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex flex-row">
               <Input
                 name="warehouseManager"
                 label="Warehouse Manager"
@@ -329,6 +335,23 @@ const WarehouseForm = () => {
                 value={form.warehouseManager}
                 onChange={handleChange}
               />
+            </div>
+            <div className="relative flex items-center">
+              <img
+                src={mapsIcon}
+                className="absolute left-3 w-5 h-5 pointer-events-none"
+                alt="Map Icon"
+              />
+              <input
+                name="googleMapsLink"
+                type="text"
+                value={form.googleMapsLink}
+                onChange={handleChange}
+                className="pl-10 h-[40px] border-2 border-gray-300 rounded-md"
+                placeholder="Google Maps Link"
+              />
+            </div>
+            <div>
               <Button color="blue" type="submit">
                 {loading ? <Spinner /> : <span>Add Warehouse</span>}
               </Button>

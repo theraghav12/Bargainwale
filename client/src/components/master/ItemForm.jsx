@@ -16,6 +16,7 @@ import {
   getItems,
   updateItem,
 } from "@/services/masterService";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
@@ -161,20 +162,21 @@ const ItemForm = () => {
               <table className="w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-6">
-                    <th className="py-2 px-4 border-b text-start">Name</th>
-                    <th className="py-2 px-4 border-b text-start">Packaging</th>
-                    <th className="py-2 px-4 border-b text-start">Type</th>
-                    <th className="py-2 px-4 border-b text-start">Weight</th>
-                    <th className="py-2 px-4 border-b text-start">
-                      Static Price
-                    </th>
-                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                    <th className="py-2 px-4 text-start">Name</th>
+                    <th className="py-2 px-4 text-start">Packaging</th>
+                    <th className="py-2 px-4 text-start">Type</th>
+                    <th className="py-2 px-4 text-start">Weight</th>
+                    <th className="py-2 px-4 text-start">Static Price</th>
+                    <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="flex flex-col gap-2">
                   {items?.map((item) => (
-                    <tr key={item._id} className="grid grid-cols-6">
-                      <td className="py-2 px-4 border-b">
+                    <tr
+                      key={item._id}
+                      className="grid grid-cols-6 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                    >
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="name"
@@ -186,7 +188,7 @@ const ItemForm = () => {
                           <span>{item.name}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Select
                             name="packaging"
@@ -202,7 +204,7 @@ const ItemForm = () => {
                           <span>{item.packaging}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="type"
@@ -214,7 +216,7 @@ const ItemForm = () => {
                           <span>{item.type}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="weight"
@@ -226,7 +228,7 @@ const ItemForm = () => {
                           <span>{item.weight}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="staticPrice"
@@ -238,7 +240,7 @@ const ItemForm = () => {
                           <span>{item.staticPrice}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b flex gap-2">
+                      <td className="py-2 px-4 flex gap-2">
                         {item.isEditing ? (
                           <IconButton
                             color="green"
@@ -247,19 +249,19 @@ const ItemForm = () => {
                             Save
                           </IconButton>
                         ) : (
-                          <IconButton
-                            color="blue"
+                          <button
                             onClick={() => toggleEditing(item._id)}
+                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                           >
-                            <FaEdit />
-                          </IconButton>
+                            <AiOutlineEdit />
+                          </button>
                         )}
-                        <IconButton
-                          color="red"
+                        <button
                           onClick={() => handleDelete(item._id)}
+                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                         >
-                          <FaTrashAlt />
-                        </IconButton>
+                          <AiOutlineDelete />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -273,16 +275,16 @@ const ItemForm = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
           Items
-          <span className="text-[1.5rem] text-black">/ Available</span>
+          <span className="text-[1.5rem] text-black">/ Create</span>
         </h1>
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-6 gap-2">
+            <div className="flex">
               <Input
                 name="name"
                 label="Item Name"
@@ -291,6 +293,8 @@ const ItemForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Select
                 name="packaging"
                 label="Packaging"
@@ -308,6 +312,8 @@ const ItemForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="weight"
                 label="Weight"
@@ -324,6 +330,8 @@ const ItemForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex">
               <Button color="blue" type="submit">
                 {loading ? <Spinner /> : <span>Add Item</span>}
               </Button>

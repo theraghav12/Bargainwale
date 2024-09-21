@@ -16,6 +16,7 @@ import {
   getManufacturer,
   updateManufacturer,
 } from "@/services/masterService";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const ManufacturerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -191,23 +192,22 @@ const ManufacturerForm = () => {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-7">
-                    <th className="py-2 px-4 border-b text-start">
-                      Manufacturer Name
-                    </th>
-                    <th className="py-2 px-4 border-b text-start">Company</th>
-                    <th className="py-2 px-4 border-b text-start">Address</th>
-                    <th className="py-2 px-4 border-b text-start">Contact</th>
-                    <th className="py-2 px-4 border-b text-start">Email</th>
-                    <th className="py-2 px-4 border-b text-start">
-                      GST Number
-                    </th>
-                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                    <th className="py-2 px-4 text-start">Manufacturer Name</th>
+                    <th className="py-2 px-4 text-start">Company</th>
+                    <th className="py-2 px-4 text-start">Address</th>
+                    <th className="py-2 px-4 text-start">Contact</th>
+                    <th className="py-2 px-4 text-start">Email</th>
+                    <th className="py-2 px-4 text-start">GST Number</th>
+                    <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="flex flex-col gap-2">
                   {manufacturer?.map((man) => (
-                    <tr key={man._id} className="grid grid-cols-7">
-                      <td className="py-2 px-4 border-b">
+                    <tr
+                      key={man._id}
+                      className="grid grid-cols-7 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                    >
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <input
                             name="manufacturer"
@@ -221,7 +221,7 @@ const ManufacturerForm = () => {
                           <span>{man.manufacturer}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <input
                             name="manufacturerCompany"
@@ -235,7 +235,7 @@ const ManufacturerForm = () => {
                           <span>{man.manufacturerCompany}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
@@ -293,7 +293,7 @@ const ManufacturerForm = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <input
                             name="manufacturerContact"
@@ -307,7 +307,7 @@ const ManufacturerForm = () => {
                           <span>{man.manufacturerContact}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <input
                             name="manufacturerEmail"
@@ -321,7 +321,7 @@ const ManufacturerForm = () => {
                           <span>{man.manufacturerEmail}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {man.isEditing ? (
                           <input
                             name="manufacturerGstno"
@@ -335,7 +335,7 @@ const ManufacturerForm = () => {
                           <span>{man.manufacturerGstno}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b flex gap-2">
+                      <td className="py-2 px-4 flex gap-2">
                         {man.isEditing ? (
                           <IconButton
                             color="green"
@@ -344,19 +344,19 @@ const ManufacturerForm = () => {
                             Save
                           </IconButton>
                         ) : (
-                          <IconButton
-                            color="blue"
+                          <button
                             onClick={() => toggleEditing(man._id)}
+                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                           >
-                            <FaEdit />
-                          </IconButton>
+                            <AiOutlineEdit />
+                          </button>
                         )}
-                        <IconButton
-                          color="red"
+                        <button
                           onClick={() => handleDelete(man._id)}
+                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                         >
-                          <FaTrashAlt />
-                        </IconButton>
+                          <AiOutlineDelete />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -374,12 +374,12 @@ const ManufacturerForm = () => {
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
           Manufacturer
-          <span className="text-[1.5rem] text-black">/ Available</span>
+          <span className="text-[1.5rem] text-black">/ Create</span>
         </h1>
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-6 gap-2">
+            <div className="flex gap-4">
               <Input
                 name="manufacturer"
                 label="Manufacturer Name"
@@ -404,6 +404,8 @@ const ManufacturerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="addressLine2"
                 label="Address Line 2"
@@ -427,6 +429,8 @@ const ManufacturerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="pinCode"
                 label="Pin Code"
@@ -451,6 +455,8 @@ const ManufacturerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="manufacturerGstno"
                 label="GST Number"
@@ -458,6 +464,8 @@ const ManufacturerForm = () => {
                 value={form.manufacturerGstno}
                 onChange={handleChange}
               />
+            </div>
+            <div className="flex gap-4">
               <Button color="blue" type="submit">
                 {loading ? <Spinner /> : <span>Add Manufacturer</span>}
               </Button>

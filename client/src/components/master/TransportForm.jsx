@@ -14,6 +14,7 @@ import {
   getTransport,
   updateTransport,
 } from "@/services/masterService";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const TransportForm = () => {
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ const TransportForm = () => {
   };
 
   const toggleEditing = async (id) => {
-    const transportToEdit = items.find((item) => item._id === id);
+    const transportToEdit = transport.find((item) => item._id === id);
     if (transportToEdit.isEditing) {
       try {
         const data = {
@@ -156,18 +157,21 @@ const TransportForm = () => {
             {transport?.length > 0 ? (
               <table className="min-w-full bg-white">
                 <thead>
-                  <tr>
-                    <th className="py-2 px-4 border-b text-start">Transport</th>
-                    <th className="py-2 px-4 border-b text-start">Type</th>
-                    <th className="py-2 px-4 border-b text-start">Contact</th>
-                    <th className="py-2 px-4 border-b text-start">Agency</th>
-                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                  <tr className="grid grid-cols-5">
+                    <th className="py-2 px-4 text-start">Transport</th>
+                    <th className="py-2 px-4 text-start">Type</th>
+                    <th className="py-2 px-4 text-start">Contact</th>
+                    <th className="py-2 px-4 text-start">Agency</th>
+                    <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="flex flex-col gap-2">
                   {transport?.map((item) => (
-                    <tr key={item._id}>
-                      <td className="py-2 px-4 border-b">
+                    <tr
+                      key={item._id}
+                      className="grid grid-cols-5 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                    >
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="transport"
@@ -179,7 +183,7 @@ const TransportForm = () => {
                           <span>{item.transport}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="transportType"
@@ -191,7 +195,7 @@ const TransportForm = () => {
                           <span>{item.transportType}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="transportContact"
@@ -203,7 +207,7 @@ const TransportForm = () => {
                           <span>{item.transportContact}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
                             name="transportAgency"
@@ -215,7 +219,7 @@ const TransportForm = () => {
                           <span>{item.transportAgency}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b flex gap-2">
+                      <td className="py-2 px-4 flex gap-2">
                         {item.isEditing ? (
                           <IconButton
                             color="green"
@@ -224,19 +228,19 @@ const TransportForm = () => {
                             Save
                           </IconButton>
                         ) : (
-                          <IconButton
-                            color="blue"
+                          <button
                             onClick={() => toggleEditing(item._id)}
+                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                           >
-                            <FaEdit />
-                          </IconButton>
+                            <AiOutlineEdit />
+                          </button>
                         )}
-                        <IconButton
-                          color="red"
+                        <button
                           onClick={() => handleDelete(item._id)}
+                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                         >
-                          <FaTrashAlt />
-                        </IconButton>
+                          <AiOutlineDelete />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -254,12 +258,12 @@ const TransportForm = () => {
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
           Transportation
-          <span className="text-[1.5rem] text-black">/ Available</span>
+          <span className="text-[1.5rem] text-black">/ Create</span>
         </h1>
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-5 gap-2">
+            <div className="flex">
               <Input
                 name="transport"
                 label="Transport Name"
@@ -268,6 +272,8 @@ const TransportForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="transportType"
                 label="Transport Type"
@@ -284,6 +290,8 @@ const TransportForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex">
               <Input
                 name="transportAgency"
                 label="Transport Agency"
@@ -292,6 +300,8 @@ const TransportForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex">
               <Button color="blue" type="submit">
                 {loading ? <Spinner /> : <span>Add Transport</span>}
               </Button>

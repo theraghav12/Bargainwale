@@ -16,6 +16,7 @@ import {
   getBuyer,
   updateBuyer,
 } from "@/services/masterService";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const BuyerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -195,23 +196,22 @@ const BuyerForm = () => {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-7">
-                    <th className="py-2 px-4 border-b text-start">
-                      Buyer Name
-                    </th>
-                    <th className="py-2 px-4 border-b text-start">Company</th>
-                    <th className="py-2 px-4 border-b text-start">Address</th>
-                    <th className="py-2 px-4 border-b text-start">Contact</th>
-                    <th className="py-2 px-4 border-b text-start">Email</th>
-                    <th className="py-2 px-4 border-b text-start">
-                      GST Number
-                    </th>
-                    <th className="py-2 px-4 border-b text-start">Actions</th>
+                    <th className="py-2 px-4 text-start">Buyer Name</th>
+                    <th className="py-2 px-4 text-start">Company</th>
+                    <th className="py-2 px-4 text-start">Address</th>
+                    <th className="py-2 px-4 text-start">Contact</th>
+                    <th className="py-2 px-4 text-start">Email</th>
+                    <th className="py-2 px-4 text-start">GST Number</th>
+                    <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="flex flex-col gap-2">
                   {buyers?.map((buyer) => (
-                    <tr key={buyer._id} className="grid grid-cols-7">
-                      <td className="py-2 px-4 border-b">
+                    <tr
+                      key={buyer._id}
+                      className="grid grid-cols-7 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                    >
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <input
                             name="buyer"
@@ -225,7 +225,7 @@ const BuyerForm = () => {
                           <span>{buyer.buyer}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <input
                             name="buyerCompany"
@@ -239,7 +239,7 @@ const BuyerForm = () => {
                           <span>{buyer.buyerCompany}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
@@ -293,7 +293,7 @@ const BuyerForm = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <input
                             name="buyerContact"
@@ -307,7 +307,7 @@ const BuyerForm = () => {
                           <span>{buyer.buyerContact}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <input
                             name="buyerEmail"
@@ -321,7 +321,7 @@ const BuyerForm = () => {
                           <span>{buyer.buyerEmail}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-4">
                         {buyer.isEditing ? (
                           <input
                             name="buyerGstno"
@@ -335,7 +335,7 @@ const BuyerForm = () => {
                           <span>{buyer.buyerGstno}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b flex gap-2">
+                      <td className="py-2 px-4 flex gap-2">
                         {buyer.isEditing ? (
                           <IconButton
                             color="green"
@@ -344,19 +344,19 @@ const BuyerForm = () => {
                             Save
                           </IconButton>
                         ) : (
-                          <IconButton
-                            color="blue"
+                          <button
                             onClick={() => toggleEditing(buyer._id)}
+                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                           >
-                            <FaEdit />
-                          </IconButton>
+                            <AiOutlineEdit />
+                          </button>
                         )}
-                        <IconButton
-                          color="red"
+                        <button
                           onClick={() => handleDelete(buyer._id)}
+                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                         >
-                          <FaTrashAlt />
-                        </IconButton>
+                          <AiOutlineDelete />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -374,12 +374,12 @@ const BuyerForm = () => {
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
           Buyers
-          <span className="text-[1.5rem] text-black">/ Available</span>
+          <span className="text-[1.5rem] text-black">/ Create</span>
         </h1>
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-6 gap-2">
+            <div className="flex gap-4">
               <Input
                 name="buyer"
                 label="Buyer Name"
@@ -404,6 +404,8 @@ const BuyerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="addressLine2"
                 label="Address Line 2"
@@ -427,6 +429,8 @@ const BuyerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="pinCode"
                 label="Pin Code"
@@ -451,6 +455,8 @@ const BuyerForm = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div className="flex gap-4">
               <Input
                 name="buyerGstno"
                 label="GST Number"
@@ -466,6 +472,8 @@ const BuyerForm = () => {
                 value={form.buyerGooglemaps}
                 onChange={handleChange}
               />
+            </div>
+            <div className="flex gap-4">
               <Button color="blue" type="submit">
                 {loading ? <Spinner /> : <span>Add Buyer</span>}
               </Button>
