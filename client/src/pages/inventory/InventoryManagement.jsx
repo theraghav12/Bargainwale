@@ -1,27 +1,17 @@
 import React, { useState, useEffect } from "react";
 import {
-  Card,
-  CardHeader,
-  CardBody,
   Typography,
-  Button,
   Spinner,
-  Input,
   Tabs,
   TabsHeader,
   Tab,
-  Select,
-  Option,
 } from "@material-tailwind/react";
-import {
-  getWarehouseById,
-  getWarehouses,
-  updateInventory,
-} from "@/services/warehouseService";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { MasterSidenav } from "@/widgets/layout";
+
+// components
 import InventorySidenav from "@/widgets/layout/InventorySidenav";
+
+// api services
+import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 
 export function InventoryManagement() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
@@ -93,9 +83,9 @@ export function InventoryManagement() {
             </div>
           </div>
         ) : (
-          <Typography variant="body2">
+          <p className="p-5 text-[#717171]">
             No items in {tableTitle.toLowerCase()}.
-          </Typography>
+          </p>
         )}
       </div>
     );
