@@ -29,7 +29,6 @@ const CreateBookingForm = ({ fetchBookings }) => {
     warehouse: "",
     deliveryOption: "",
     buyer: "",
-    deliveryOption: "",
     deliveryAddress: {
       addressLine1: "",
       addressLine2: "",
