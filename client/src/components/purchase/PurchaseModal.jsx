@@ -8,8 +8,6 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
-import { createOrder, getOrders } from "@/services/orderService";
 import {
   getItems,
   getManufacturer,
