@@ -2,18 +2,15 @@ import {
   Button,
   Input,
   Spinner,
-  IconButton,
   Select,
   Option,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import {
-  getItems,
-  getManufacturer,
-  getTransport,
-} from "@/services/masterService";
-import { fetchWarehouse, getWarehouses } from "@/services/warehouseService";
+
+// api services
+import { getTransport } from "@/services/masterService";
+import { getWarehouses } from "@/services/warehouseService";
 import { createPurchase } from "@/services/purchaseService";
 
 const PurchaseModal = ({ setModal, order, fetchOrder }) => {

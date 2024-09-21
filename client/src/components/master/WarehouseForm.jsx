@@ -9,13 +9,16 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+// api services
 import {
   createWarehouse,
   getWarehouses,
   updateWarehouse,
   deleteWarehouse,
 } from "@/services/warehouseService";
+
+// icons
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import mapsIcon from "../../assets/maps.svg";
 

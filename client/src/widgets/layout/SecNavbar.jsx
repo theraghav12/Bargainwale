@@ -5,7 +5,6 @@ function Dropdown({ label, links }) {
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
 
-  // Check if the current location matches the path of any link in the dropdown
   const isActive = links.some((link) => link.to === location.pathname);
 
   return (

@@ -1,6 +1,4 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
 import { useMaterialTailwindController } from "@/context";
 
 export function MasterSidenav({ onSelect }) {

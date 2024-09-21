@@ -1,12 +1,16 @@
 import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
-import { Cog6ToothIcon } from "@heroicons/react/24/solid";
-import { IconButton } from "@material-tailwind/react";
-import { DashboardNavbar, Footer } from "@/widgets/layout";
-import SecondNavbar from "@/widgets/layout/SecNavbar";
 import routes from "@/routes";
 import { setOpenConfigurator } from "@/context";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
+
+// components
+import { DashboardNavbar, Footer } from "@/widgets/layout";
+import SecondNavbar from "@/widgets/layout/SecNavbar";
+
+// icons
+import { Cog6ToothIcon } from "@heroicons/react/24/solid";
+import { IconButton } from "@material-tailwind/react";
 
 export function Dashboard() {
   const { user } = useUser();

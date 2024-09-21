@@ -7,13 +7,16 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+// api services
 import {
   createTransport,
   deleteTransport,
   getTransport,
   updateTransport,
 } from "@/services/masterService";
+
+// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const TransportForm = () => {

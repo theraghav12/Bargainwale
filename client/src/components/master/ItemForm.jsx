@@ -9,13 +9,16 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+// api services
 import {
   createItem,
   deleteItem,
   getItems,
   updateItem,
 } from "@/services/masterService";
+
+// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const ItemForm = () => {

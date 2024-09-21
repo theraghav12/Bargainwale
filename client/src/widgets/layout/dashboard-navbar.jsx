@@ -1,40 +1,20 @@
 import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import {
-  Navbar,
-  Typography,
-  Button,
-  IconButton,
-  Breadcrumbs,
-  Input,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Avatar,
-  Dialog,
-} from "@material-tailwind/react";
-import {
-  UserCircleIcon,
-  Cog6ToothIcon,
-  BellIcon,
-  ClockIcon,
-  CreditCardIcon,
-  Bars3Icon,
-  BuildingOfficeIcon,
-  MagnifyingGlassIcon, // Icon for Organization Profile
-} from "@heroicons/react/24/solid";
+import { Navbar, IconButton, Dialog } from "@material-tailwind/react";
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
   setOpenSidenav,
 } from "@/context";
+import { OrganizationProfile, SignedIn, UserButton } from "@clerk/clerk-react";
+
+// icons
 import {
-  OrganizationProfile,
-  RedirectToOrganizationProfile,
-  SignedIn,
-  UserButton,
-} from "@clerk/clerk-react";
+  Cog6ToothIcon,
+  Bars3Icon,
+  BuildingOfficeIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();

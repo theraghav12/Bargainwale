@@ -8,6 +8,8 @@ import {
   Button,
   IconButton,
 } from "@material-tailwind/react";
+
+// icons
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export function Navbar({ brandName, routes, action }) {

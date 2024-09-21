@@ -3,19 +3,20 @@ import {
   Input,
   Spinner,
   IconButton,
-  Select,
-  Option,
   Typography,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+// api services
 import {
   createManufacturer,
   deleteManufacturer,
   getManufacturer,
   updateManufacturer,
 } from "@/services/masterService";
+
+// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const ManufacturerForm = () => {

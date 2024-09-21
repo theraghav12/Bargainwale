@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
 import { useMaterialTailwindController } from "@/context";
-import { getWarehouses } from "@/services/warehouseService";
 import { Link } from "react-router-dom";
 
 export function InventorySidenav({
@@ -17,20 +15,6 @@ export function InventorySidenav({
     white: "bg-white shadow-sm",
     transparent: "bg-transparent",
   };
-  // const [warehouses, setWarehouses] = useState();
-
-  // const fetchWarehouses = async () => {
-  //   try {
-  //     const response = await getWarehouses();
-  //     setWarehouses(response);
-  //   } catch (err) {
-  //     console.log("Error:", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchWarehouses();
-  // }, []);
 
   useEffect(() => {
     if (warehouses?.length > 0 && !selectedWarehouse) {
@@ -66,7 +50,10 @@ export function InventorySidenav({
             <p className="text-[#717171]">
               Would like to setup a new warehouse ?
             </p>
-            <Link to="/dashboard/home" className="w-full bg-[#FF0000] text-white text-center rounded-md px-2 py-1">
+            <Link
+              to="/dashboard/home"
+              className="w-full bg-[#FF0000] text-white text-center rounded-md px-2 py-1"
+            >
               CREATE A WAREHOUSE
             </Link>
           </div>

@@ -8,7 +8,8 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
+
+// api services
 import { createOrder, getOrders } from "@/services/orderService";
 import {
   getItems,
@@ -16,6 +17,10 @@ import {
   getTransport,
 } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
+
+
+// icons
+import { FaPlus, FaTrashAlt } from "react-icons/fa";
 
 const CreateOrderForm = ({ fetchOrdersData }) => {
   const [loading, setLoading] = useState(false);
