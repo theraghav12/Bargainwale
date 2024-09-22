@@ -20,7 +20,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
-import excel from "../../assets/excel.png";
+import excel from "../../assets/excel.svg";
 import CreateOrderForm from "@/components/orders/CreateOrder";
 import { MdDeleteOutline } from "react-icons/md";
 import { getBookings } from "@/services/bookingService";
@@ -178,18 +178,31 @@ export function OrderTable() {
   };
 
   return (
-    <div className="mt-12 mb-8 flex flex-col gap-12">
-      <Card>
-        <CardHeader
-          variant="gradient"
-          color="gray"
-          className="p-6 flex justify-between items-center"
-        >
-          <Typography variant="h6" color="white">
-            Manage Orders
-          </Typography>
-        </CardHeader>
-        <div className="sticky top-[0px] z-[100] mb-5 bg-white">
+    <div className="mt-8 mb-8 flex flex-col gap-12">
+      <div className="px-7">
+        <div className="flex flex-row justify-between">
+          <div>
+            <button
+              onClick={handleDownloadExcel}
+              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
+            >
+              <img className="w-5" src={excel} />
+              Download as Excel
+            </button>
+          </div>
+          <div className="flex flex-row gap-4">
+            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              Delete
+            </button>
+            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              Edit
+            </button>
+            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              PUBLISH
+            </button>
+          </div>
+        </div>
+        <div className="mt-4 mb-5 bg-white border-[2px] border-[#737373]">
           <CreateOrderForm fetchOrdersData={fetchOrders} />
         </div>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -241,13 +254,6 @@ export function OrderTable() {
                 className="border rounded px-2 py-2"
               />
             </div>
-            <Button
-              onClick={handleDownloadExcel}
-              className="w-fit px-8 flex flex-row items-center justify-center gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </Button>
           </div>
           {loading ? (
             <Typography className="text-center text-blue-gray-600">
@@ -441,7 +447,7 @@ export function OrderTable() {
             </Typography>
           )}
         </CardBody>
-      </Card>
+      </div>
       {showEditOrderForm && selectedOrder && (
         <EditOrderForm
           close={() => setShowEditOrderForm(false)}

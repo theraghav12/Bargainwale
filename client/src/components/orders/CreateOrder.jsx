@@ -18,9 +18,9 @@ import {
 } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
 
-
 // icons
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
+import { TbTriangleInvertedFilled } from "react-icons/tb";
 
 const CreateOrderForm = ({ fetchOrdersData }) => {
   const [loading, setLoading] = useState(false);
@@ -192,8 +192,8 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
       >
         <div className="flex flex-col gap-4">
           {form.items.map((item, index) => (
-            <div key={index} className="grid grid-cols-3 gap-2">
-              {itemsOptions?.length > 0 && (
+            <div key={index} className="flex justify-between">
+              {/* {itemsOptions?.length > 0 && (
                 <Select
                   name="itemId"
                   label={`Select Item ${index + 1}`}
@@ -212,26 +212,99 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
                     </Option>
                   ))}
                 </Select>
-              )}
-              <Input
-                name="quantity"
-                label="Quantity"
-                type="number"
-                value={item.quantity}
-                onChange={(e) =>
-                  handleFormChange(index, "items", {
-                    ...item,
-                    quantity: e.target.value,
-                  })
-                }
-                min={1}
-                required
-              />
-              {index > 0 && (
-                <IconButton color="red" onClick={() => handleRemoveItem(index)}>
-                  <FaTrashAlt />
-                </IconButton>
-              )}
+              )} */}
+              <div className="w-fit flex gap-5 items-center">
+                <label
+                  htmlFor="companyBargainNo"
+                  className="text-[#38454A] text-[1rem]"
+                >
+                  Company Bargain No.
+                </label>
+                <input
+                  name="companyBargainNo"
+                  type="text"
+                  value={form.companyBargainNo}
+                  onChange={(e) =>
+                    handleFormChange(0, "companyBargainNo", e.target.value)
+                  }
+                  required
+                  placeholder="Company Bargain No."
+                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                />
+              </div>
+
+              <div className="flex gap-5 items-center">
+                <label
+                  htmlFor="iphoneSelect"
+                  className="text-[#38454A] text-[1rem]"
+                >
+                  Supplier
+                </label>
+                <div className="relative w-[180px]">
+                  <select
+                    id="iphoneSelect"
+                    name="iphoneSelect"
+                    // value={selectedValue}
+                    // onChange={(e) => handleSelectChange(e.target.value)}
+                    className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                  >
+                    <option value="">Choose an option</option>
+                    <option
+                      value="option1"
+                      className="bg-white hover:bg-gray-100"
+                    >
+                      Option 1
+                    </option>
+                    <option
+                      value="option2"
+                      className="bg-white hover:bg-gray-100"
+                    >
+                      Option 2
+                    </option>
+                    <option
+                      value="option3"
+                      className="bg-white hover:bg-gray-100"
+                    >
+                      Option 3
+                    </option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-fit flex gap-5 items-center">
+                <label
+                  htmlFor="quantity"
+                  className="text-[#38454A] text-[1rem]"
+                >
+                  Quantity
+                </label>
+                <input
+                  name="quantity"
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleFormChange(index, "items", {
+                      ...item,
+                      quantity: e.target.value,
+                    })
+                  }
+                  min={1}
+                  required
+                  placeholder="Quantity"
+                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                />
+                {index > 0 && (
+                  <IconButton
+                    color="red"
+                    onClick={() => handleRemoveItem(index)}
+                  >
+                    <FaTrashAlt />
+                  </IconButton>
+                )}
+              </div>
             </div>
           ))}
 
@@ -255,17 +328,6 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
               }
               required
             />
-            <Input
-              name="companyBargainNo"
-              label="Company Bargain No."
-              type="text"
-              value={form.companyBargainNo}
-              onChange={(e) =>
-                handleFormChange(0, "companyBargainNo", e.target.value)
-              }
-              required
-            />
-
             {warehouseOptions.length > 0 && (
               <Select
                 name="manufacturer"

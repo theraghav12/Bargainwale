@@ -66,14 +66,6 @@ function SecondNavbar() {
         { name: "Order History", to: "/orders/history" },
       ],
     },
-    {
-      label: "Settings",
-      links: [
-        { name: "Settings", to: "/settings" },
-        { name: "User Management", to: "/settings/users" },
-        { name: "Billing", to: "/settings/billing" },
-      ],
-    },
   ];
 
   return (
