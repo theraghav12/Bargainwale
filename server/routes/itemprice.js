@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/api/add", priceController.addPrice);
 
-router.get("/api/warehouse/:warehouseId", priceController.getPricesByWarehouse);
+router.get("/api/warehouseprices/:warehouseId", priceController.getPricesByWarehouse);
 
 export default router;
