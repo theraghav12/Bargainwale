@@ -108,7 +108,7 @@ const bookingController = {
         billedInventoryItem.quantity -= billedQuantity;
         billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
 
-        // Add to sold inventory
+        
         const soldInventoryItem = warehouseDocument.soldInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString()
         );
