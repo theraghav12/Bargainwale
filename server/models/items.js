@@ -1,30 +1,46 @@
 import { v4 as uuidv4 } from 'uuid';
 import mongoose from "mongoose";
 const itemSchema = new mongoose.Schema({
-    name: {
+    flavor:{
+      type: String,
+      required: true,  
+    },
+    material:{
+        type: Number,
+        required: true,
+    },
+    materialdescription: {
         type: String,
         required: true,
     },
+    netweight: {
+        type: Number,
+        required: true,
+    },
+    grossweight:{
+        type:Number,
+    },
+    gst:{
+        typer:Number,
+    },
+
     packaging: {
         type: String,
-        enum: ['box', 'tin',''],
+        enum: ['box', 'tin','jar'],
         default: 'box',
     },//id
     
-    type: {
+    packsize: {
         type: String,
     },
-    weight: {
-        type: Number,
-        required: true,
-    },
+    
     staticPrice: {
         type: Number,
-        required: true,
+        
     },
     itemId: {
         type: String,
-        unique: true,  // This makes the itemId field unique
+        unique: true,  
         default: uuidv4, 
     },
     
