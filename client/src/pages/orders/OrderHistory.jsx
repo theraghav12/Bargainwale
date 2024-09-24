@@ -202,10 +202,10 @@ export function OrderTable() {
             </button>
           </div>
         </div>
-        <div className="mt-4 mb-5 bg-white border-[2px] border-[#737373]">
+        <div className="w-full">
           <CreateOrderForm fetchOrdersData={fetchOrders} />
         </div>
-        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+        {/* <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <Typography variant="h5" className="sm:ml-8 mb-4">
             Order History
           </Typography>
@@ -357,7 +357,7 @@ export function OrderTable() {
                                 <ChevronDownIcon className="h-5 w-5" />
                               )}
                             </IconButton>
-                            {/* <Button
+                            <Button
                               color="blue"
                               onClick={() => {
                                 setSelectedOrder(order);
@@ -365,7 +365,7 @@ export function OrderTable() {
                               }}
                             >
                               Edit
-                            </Button> */}
+                            </Button>
                             {!hasFutureBookings(order, bookings) && (
                               <Tooltip content="Delete Order">
                                 <span className="w-fit h-fit">
@@ -446,14 +446,14 @@ export function OrderTable() {
               No orders found
             </Typography>
           )}
-        </CardBody>
+        </CardBody> */}
       </div>
-      {showEditOrderForm && selectedOrder && (
+      {/* {showEditOrderForm && selectedOrder && (
         <EditOrderForm
           close={() => setShowEditOrderForm(false)}
           order={selectedOrder}
         />
-      )}
+      )} */}
     </div>
   );
 }
