@@ -32,6 +32,7 @@ const itemSchema = new mongoose.Schema({
     
     packsize: {
         type: String,
+        
     },
     
     staticPrice: {
