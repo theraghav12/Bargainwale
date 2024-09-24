@@ -1,28 +1,31 @@
-import Item from "../models/items.js"; // Assuming the model is saved as item.js
+import Item from "../models/items.js"; 
 
 const itemController = {
   // Create a new item
   createItem: async (req, res) => {
     try {
-      const { name, packaging, type, weight, staticPrice } = req.body;
-      
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice } = req.body;
+
       const newItem = new Item({
-        name,
+        flavor,
+        material,
+        materialdescription,
+        netweight,
+        grossweight,
+        gst,
         packaging,
-        type,
-        weight,
-        staticPrice
+        packsize,
+        staticPrice,
+        itemId: uuidv4(), 
       });
 
       await newItem.save();
-
       res.status(201).json({ message: "Item created successfully", item: newItem });
     } catch (error) {
       res.status(400).json({ message: "Error creating item", error });
     }
   },
 
-  // Get all items
   getAllItems: async (req, res) => {
     try {
       const items = await Item.find();
@@ -32,7 +35,6 @@ const itemController = {
     }
   },
 
-  // Get an item by ID
   getItemById: async (req, res) => {
     try {
       const item = await Item.findById(req.params.id);
@@ -45,21 +47,24 @@ const itemController = {
     }
   },
 
-  // Update an item by ID
   updateItem: async (req, res) => {
     try {
-      const { name, packaging, type, weight, staticPrice } = req.body;
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice } = req.body;
 
       const updatedItem = await Item.findByIdAndUpdate(
         req.params.id,
         {
-          name,
+          flavor,
+          material,
+          materialdescription,
+          netweight,
+          grossweight,
+          gst,
           packaging,
-          type,
-          weight,
+          packsize,
           staticPrice,
         },
-        { new: true } // This returns the updated document
+        { new: true } 
       );
 
       if (!updatedItem) {
@@ -72,7 +77,6 @@ const itemController = {
     }
   },
 
-  // Delete an item by ID
   deleteItem: async (req, res) => {
     try {
       const deletedItem = await Item.findByIdAndDelete(req.params.id);
