@@ -38,17 +38,6 @@ export function Dashboard() {
 
         <div className="flex flex-1 mt-28">
           <div className="flex-1">
-            {/* Configurator Button */}
-            <IconButton
-              size="lg"
-              color="white"
-              className="fixed bottom-8 right-8 z-40 rounded-full shadow-blue-gray-900/10"
-              ripple={false}
-              onClick={() => setOpenConfigurator(dispatch, true)}
-            >
-              <Cog6ToothIcon className="h-5 w-5" />
-            </IconButton>
-
             {/* Main content */}
             <Routes>
               {routes.map(

@@ -13,7 +13,7 @@ import InventorySidenav from "@/widgets/layout/InventorySidenav";
 // api services
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 
-export function InventoryManagement() {
+export function Inventory() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("virtual");
@@ -155,4 +155,4 @@ export function InventoryManagement() {
   );
 }
 
-export default InventoryManagement;
+export default Inventory;

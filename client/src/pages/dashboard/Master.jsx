@@ -26,7 +26,7 @@ import WarehouseForm from "@/components/master/WarehouseForm";
 import BuyerForm from "@/components/master/BuyerForm";
 import ManufacturerForm from "@/components/master/ManufacturerForm";
 
-export function WarehouseMaster() {
+export function Master() {
   const [selectedComponent, setSelectedComponent] = useState("warehouse");
 
   const data = [
@@ -167,4 +167,4 @@ export function WarehouseMaster() {
   );
 }
 
-export default WarehouseMaster;
+export default Master;

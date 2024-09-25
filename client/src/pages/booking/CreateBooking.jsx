@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import {
   Button,
   Input,
@@ -6,59 +9,42 @@ import {
   Select,
   Option,
 } from "@material-tailwind/react";
-import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-
-// api services
-import { createOrder, getOrders } from "@/services/orderService";
-import {
-  getItems,
-  getManufacturer,
-  getTransport,
-} from "@/services/masterService";
-import { getWarehouses } from "@/services/warehouseService";
-
-// icons
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { getBuyer, getItems } from "@/services/masterService";
+import { getWarehouses, getWarehouseById } from "@/services/warehouseService";
+import { createBooking } from "@/services/bookingService";
 import { LuAsterisk } from "react-icons/lu";
+import { TbTriangleInvertedFilled } from "react-icons/tb";
 
-const CreateOrder = ({ fetchOrdersData }) => {
+// Add state for selected warehouse data
+const CreateBooking = ({ fetchBookings }) => {
   const [loading, setLoading] = useState(false);
-  const [orders, setOrders] = useState([]);
   const [itemsOptions, setItemsOptions] = useState([]);
-  const [transportOptions, setTransportOptions] = useState([]);
-  const [manufacturerOptions, setManufacturerOptions] = useState([]);
+  const [buyerOptions, setBuyerOptions] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [form, setForm] = useState({
-    items: [{ itemId: "", quantity: null }],
-    transportCatigory: "",
-    companyBargainNo: "",
-    companyBargainDate: "",
-    manufacturer: "",
-    paymentDays: "",
+    items: [{ item: "", quantity: 0, virtualQuantity: 0, billedQuantity: 0 }],
+    BargainDate: "",
+    BargainNo: "",
+    validity: "",
     description: "",
-    billType: "Virtual Billed",
     warehouse: "",
+    deliveryOption: "",
+    buyer: "",
+    deliveryAddress: {
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      pinCode: "",
+    },
   });
 
   useEffect(() => {
-    fetchOrders();
     fetchItemsOptions();
-    fetchTransportOptions();
-    fetchManufacturerOptions();
     fetchWarehouseOptions();
+    fetchBuyerOptions();
   }, []);
-
-  const fetchOrders = async () => {
-    try {
-      const response = await getOrders();
-      setOrders(response);
-    } catch (error) {
-      toast.error("Error fetching orders!");
-      console.error(error);
-    }
-  };
 
   const fetchItemsOptions = async () => {
     try {
@@ -66,26 +52,6 @@ const CreateOrder = ({ fetchOrdersData }) => {
       setItemsOptions(response);
     } catch (error) {
       toast.error("Error fetching items!");
-      console.error(error);
-    }
-  };
-
-  const fetchTransportOptions = async () => {
-    try {
-      const response = await getTransport();
-      setTransportOptions(response);
-    } catch (error) {
-      toast.error("Error fetching transport options!");
-      console.error(error);
-    }
-  };
-
-  const fetchManufacturerOptions = async () => {
-    try {
-      const response = await getManufacturer();
-      setManufacturerOptions(response);
-    } catch (error) {
-      toast.error("Error fetching manufacturers!");
       console.error(error);
     }
   };
@@ -100,6 +66,33 @@ const CreateOrder = ({ fetchOrdersData }) => {
     }
   };
 
+  const fetchBuyerOptions = async () => {
+    try {
+      const response = await getBuyer();
+      setBuyerOptions(response);
+    } catch (error) {
+      toast.error("Error fetching buyers!");
+      console.error(error);
+    }
+  };
+
+  const fetchWarehouseData = async (warehouseId) => {
+    try {
+      const response = await getWarehouseById(warehouseId);
+      console.log(response);
+      setSelectedWarehouse(response);
+    } catch (error) {
+      toast.error("Error fetching warehouse data!");
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (form.warehouse) {
+      fetchWarehouseData(form.warehouse);
+    }
+  }, [form.warehouse]);
+
   const calculateDaysDifference = (date1, date2) => {
     const diffTime = Math.abs(new Date(date2) - new Date(date1));
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -109,33 +102,34 @@ const CreateOrder = ({ fetchOrdersData }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const paymentDays = calculateDaysDifference(
-        form.companyBargainDate,
-        form.paymentDays
-      );
+      const validity = calculateDaysDifference(form.BargainDate, form.validity);
       const updatedForm = {
         ...form,
-        paymentDays,
-        organization: "64d22f5a8b3b9f47a3b0e7f1",
+        validity,
+        organization: "66d56a1c8fd16e15f878ff6c",
       };
       console.log(updatedForm);
 
-      // const response = await createOrder(updatedForm);
-      // toast.success("Order added successfully!");
+      const response = await createBooking(updatedForm);
+      console.log(response);
+      toast.success("Booking added successfully!");
       // setForm({
-      //   items: [{ itemId: "", quantity: 1 }],
+      //   items: [
+      //     { item: "", quantity: 1, virtualQuantity: 0, billedQuantity: 0 },
+      //   ],
       //   transportCatigory: "",
-      //   companyBargainNo: "",
-      //   companyBargainDate: "",
+      //   BargainDate: "",
+      //   BargainNo: "",
       //   manufacturer: "",
-      //   paymentDays: null,
+      //   validity: null,
       //   description: "",
+      //   billType: "",
       //   warehouse: "",
       //   organization: "",
       // });
-      // fetchOrdersData();
+      fetchBookings();
     } catch (error) {
-      toast.error("Error adding order!");
+      toast.error("Error adding booking!");
       console.error(error);
     } finally {
       setLoading(false);
@@ -144,58 +138,48 @@ const CreateOrder = ({ fetchOrdersData }) => {
 
   const handleFormChange = (index, fieldName, value) => {
     if (fieldName === "items") {
-      // Update specific item in the items array
       const updatedItems = [...form.items];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        [fieldName]: value, // Update the specific field in the item
-      };
+      updatedItems[index] = value;
       setForm((prevData) => ({
         ...prevData,
-        items: updatedItems, // Update items in form state
+        items: updatedItems,
       }));
-    } else if (
-      fieldName === "companyBargainDate" ||
-      fieldName === "paymentDays"
-    ) {
-      // For date fields, format them before updating
-      const formattedDate = value.split("T")[0]; // Assuming the value is in ISO format
+    } else if (fieldName === "BargainDate") {
+      const formattedDate = value.split("T")[0];
       setForm((prevData) => ({
         ...prevData,
-        [fieldName]: formattedDate, // Dynamically update date fields
+        BargainDate: formattedDate,
+      }));
+    } else if (fieldName === "validity") {
+      const formattedDate = value.split("T")[0];
+      setForm((prevData) => ({
+        ...prevData,
+        validity: formattedDate,
+      }));
+    } else if (fieldName.includes("deliveryAddress")) {
+      const addressField = fieldName.split(".")[1];
+      setForm((prevData) => ({
+        ...prevData,
+        deliveryAddress: {
+          ...prevData.deliveryAddress,
+          [addressField]: value,
+        },
       }));
     } else {
-      // Update other form fields
       setForm((prevData) => ({
         ...prevData,
-        [fieldName]: value, // General form update for non-date, non-item fields
+        [fieldName]: value,
       }));
     }
-  };
-
-  const handleAddRow = () => {
-    setForm((prevData) => ({
-      ...prevData,
-      items: [
-        ...prevData.items,
-        {
-          itemId: "",
-          quantity: null,
-          packaging: "",
-          costPrice: "",
-          gst: "",
-          transport: "",
-          transportCost: "",
-          netAmount: "",
-        },
-      ],
-    }));
   };
 
   const handleAddItem = () => {
     setForm((prevData) => ({
       ...prevData,
-      items: [...prevData.items, { itemId: "", quantity: null }],
+      items: [
+        ...prevData.items,
+        { item: "", quantity: 0, virtualQuantity: 0, billedQuantity: 0 },
+      ],
     }));
   };
 
@@ -240,26 +224,6 @@ const CreateOrder = ({ fetchOrdersData }) => {
           >
             <div className="flex flex-col gap-4">
               <div className="flex justify-between">
-                {/* {itemsOptions?.length > 0 && (
-                <Select
-                  name="itemId"
-                  label={`Select Item ${index + 1}`}
-                  value={item.itemId}
-                  onChange={(value) =>
-                    handleFormChange(index, "items", {
-                      ...item,
-                      itemId: value,
-                    })
-                  }
-                  required
-                >
-                  {itemsOptions?.map((option) => (
-                    <Option key={option._id} value={option._id}>
-                      {option.name}
-                    </Option>
-                  ))}
-                </Select>
-              )} */}
                 <div className="w-fit flex gap-5 items-center">
                   <label
                     htmlFor="companyBargainNo"
@@ -313,38 +277,6 @@ const CreateOrder = ({ fetchOrdersData }) => {
                   </div>
                 </div>
 
-                <div className="flex gap-5 items-center">
-                  <label
-                    htmlFor="manufacturer"
-                    className="flex text-[#38454A] text-[1rem]"
-                  >
-                    Manufacturer
-                    <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
-                  </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="manufacturer"
-                      name="manufacturer"
-                      value={form.manufacturer}
-                      onChange={(e) =>
-                        handleFormChange(0, "manufacturer", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Manufacturer</option>
-                      {manufacturerOptions.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.manufacturer}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="w-fit flex gap-5 items-center">
                   <label
                     htmlFor="companyBargainDate"
@@ -369,7 +301,7 @@ const CreateOrder = ({ fetchOrdersData }) => {
               <div className="flex gap-10">
                 <div className="flex gap-5 items-center">
                   <label
-                    htmlFor="transportCatigory"
+                    htmlFor="transportCategory"
                     className="flex text-[#38454A] text-[1rem]"
                   >
                     Transport Category
@@ -377,11 +309,11 @@ const CreateOrder = ({ fetchOrdersData }) => {
                   </label>
                   <div className="relative w-[200px]">
                     <select
-                      id="transportCatigory"
-                      name="transportCatigory"
-                      value={form.transportCatigory}
+                      id="transportCategory"
+                      name="transportCategory"
+                      value={form.transportCategory}
                       onChange={(e) =>
-                        handleFormChange(0, "transportCatigory", e.target.value)
+                        handleFormChange(0, "transportCategory", e.target.value)
                       }
                       className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                       required
@@ -414,38 +346,6 @@ const CreateOrder = ({ fetchOrdersData }) => {
                     required
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
                   />
-                </div>
-
-                <div className="w-fit flex gap-5 items-center">
-                  <label
-                    htmlFor="quantity"
-                    className="text-[#38454A] text-[1rem]"
-                  >
-                    Quantity
-                  </label>
-                  <input
-                    name="quantity"
-                    type="number"
-                    // value={item.quantity}
-                    onChange={(e) =>
-                      handleFormChange(index, "items", {
-                        ...item,
-                        quantity: e.target.value,
-                      })
-                    }
-                    min={1}
-                    required
-                    placeholder="Quantity"
-                    className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                  />
-                  {/* {index > 0 && (
-                  <IconButton
-                    color="red"
-                    onClick={() => handleRemoveItem(index)}
-                  >
-                    <FaTrashAlt />
-                  </IconButton>
-                )} */}
                 </div>
 
                 <div className="w-fit flex gap-5 items-center">
@@ -484,7 +384,7 @@ const CreateOrder = ({ fetchOrdersData }) => {
               </div>
             </div>
           </form>
-          
+
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto border-collapse">
@@ -503,7 +403,7 @@ const CreateOrder = ({ fetchOrdersData }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {form.items.map((item, index) => (
+                  {/* {form.items.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
                       <td className="py-4 text-center">
                         {form.companyBargainNo}
@@ -518,7 +418,7 @@ const CreateOrder = ({ fetchOrdersData }) => {
                       <td className="py-4 text-center">{form.transportCost}</td>
                       <td className="py-4 text-center">{item.netAmount}</td>
                     </tr>
-                  ))}
+                  ))} */}
                 </tbody>
               </table>
             </div>
@@ -529,4 +429,4 @@ const CreateOrder = ({ fetchOrdersData }) => {
   );
 };
 
-export default CreateOrder;
+export default CreateBooking;

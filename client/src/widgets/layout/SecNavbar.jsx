@@ -69,24 +69,24 @@ function Dropdown({ label, links }) {
 
 function SecondNavbar() {
   const navItems = [
-    { label: "Home", links: [{ name: "Home", to: "/dashboard/analytics" }] },
-    { label: "Master", links: [{ name: "Master", to: "/dashboard/home" }] },
+    { label: "Home", links: [{ name: "Home", to: "/dashboard" }] },
+    { label: "Master", links: [{ name: "Master", to: "/master" }] },
     {
       label: "Inventory",
-      links: [{ name: "Inventory", to: "/dashboard/inventory" }],
+      links: [{ name: "Inventory", to: "/inventory" }],
     },
     {
       label: "Orders",
       links: [
-        { name: "Create Order", to: "/dashboard/orders" },
+        { name: "Create Order", to: "/orders/create" },
         { name: "Order History", to: "/orders/history" },
       ],
     },
     {
       label: "Bookings",
       links: [
-        { name: "Create Booking", to: "/dashboard/bookings" },
-        { name: "Booking History", to: "/orders/history" },
+        { name: "Create Booking", to: "/bookings/create" },
+        { name: "Booking History", to: "/bookings/history" },
       ],
     },
   ];
