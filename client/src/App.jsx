@@ -4,7 +4,7 @@ import { Purchase } from "./pages/purchase/Purchase";
 import { Sales } from "./pages/sales/Sales";
 import { DashboardNavbar, Footer } from "./widgets/layout";
 import SecondNavbar from "./widgets/layout/SecNavbar";
-import CreateOrder from "./components/orders/CreateOrder";
+import CreateOrder from "./pages/orders/CreateOrder";
 import Master from "./pages/dashboard/Master";
 import Inventory from "./pages/inventory/InventoryManagement";
 import { Home } from "./pages/dashboard";
@@ -23,10 +23,7 @@ function App() {
           <Routes>
             {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
             <Route path="/auth/*" element={<Auth />} />
-            <Route
-              path="*"
-              element={<Navigate to="/dashboard" replace />}
-            />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/master" element={<Master />} />
             <Route path="/inventory" element={<Inventory />} />

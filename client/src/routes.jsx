@@ -22,7 +22,7 @@ import { Purchase } from "./pages/purchase/Purchase";
 import PurchaseHistory from "./pages/purchase/PurchaseHistory";
 import SalesHistory from "./pages/sales/SalesHistory";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
-import CreateOrder from "./components/orders/CreateOrder";
+import CreateOrder from "./pages/orders/CreateOrder";
 
 const icon = {
   className: "w-5 h-5 text-inherit",

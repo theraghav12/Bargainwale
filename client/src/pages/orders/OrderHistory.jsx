@@ -356,12 +356,6 @@ export function OrderHistory() {
                             <tr className="bg-gray-100 border-t-2 border-t-[#898989]">
                               <td colSpan="11">
                                 <div className="p-4 border-t border-blue-gray-200">
-                                  <Typography
-                                    variant="h6"
-                                    className="mb-4 px-8"
-                                  >
-                                    Items
-                                  </Typography>
                                   <table className="min-w-full table-auto border-collapse">
                                     <thead>
                                       <tr>
@@ -374,7 +368,7 @@ export function OrderHistory() {
                                         ].map((header) => (
                                           <th
                                             key={header}
-                                            className="py-4 text-center w-[200px] border-t-2 border-t-[#898989]"
+                                            className="py-4 text-center w-[200px]"
                                           >
                                             {header}
                                           </th>
