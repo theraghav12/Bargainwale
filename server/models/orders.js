@@ -65,13 +65,7 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Manufacturer",  // Reference to Manufacturer schema
       required: true,
-    },
-    transportCatigory: {
-      type: String,
-      required: true,
-      //depo
-    },
-    
+    },    
     paymentDays: {
       type: Number,
       default: 21, // Default payment days
