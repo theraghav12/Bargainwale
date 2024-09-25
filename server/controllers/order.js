@@ -9,9 +9,7 @@ const orderController = {
       const {
         companyBargainDate,
         items,
-        contNumber,
-        baseRate,
-        taxpaidAmount,
+        
         inco,
         companyBargainNo,
         billType,
@@ -47,9 +45,7 @@ const orderController = {
       const order = new Order({
         companyBargainDate: new Date(companyBargainDate),
         items: orderItems,
-        contNumber,
-        baseRate,
-        taxpaidAmount,
+        
         inco,
         companyBargainNo,
         billType,

@@ -20,16 +20,22 @@ const orderSchema = new mongoose.Schema(
         enum: ["rack", "depot", "plant"],
         default: "rack",
       },
+      baseRate:{
+        type:Number,
+      },
+      taxpaidAmount:{
+        type:Number,
+      },
+      contNumber:{
+        type:Number,
+      }, 
+
     }],
-    contNumber:{
-      type:Number,
-    }, 
-    baseRate:{
-      type:Number,
-    },
-    taxpaidAmount:{
-      type:Number,
-    },
+    
+   totalAmount:{
+    type: Number,
+    
+   },
     inco:{
       type:String,
       enum:["EXW","FOR"],
