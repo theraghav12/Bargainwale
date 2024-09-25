@@ -1,5 +1,4 @@
 import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
-import routes from "@/routes";
 import { setOpenConfigurator } from "@/context";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
@@ -38,18 +37,6 @@ export function Dashboard() {
 
         <div className="flex flex-1 mt-28">
           <div className="flex-1">
-            {/* Main content */}
-            <Routes>
-              {routes.map(
-                ({ layout, pages }) =>
-                  layout === "dashboard" &&
-                  pages.map(({ path, element }) => (
-                    <Route key={path} exact path={path} element={element} />
-                  ))
-              )}
-            </Routes>
-            <Outlet />
-
             {/* Footer */}
             <div className="text-blue-gray-600">
               <Footer />

@@ -4,7 +4,7 @@ const itemController = {
   // Create a new item
   createItem: async (req, res) => {
     try {
-      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice } = req.body;
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice,warehouse } = req.body;
 
       const newItem = new Item({
         flavor,
@@ -16,6 +16,8 @@ const itemController = {
         packaging,
         packsize,
         staticPrice,
+        warehouse,
+
        
       });
 
@@ -47,6 +49,20 @@ const itemController = {
       res.status(500).json({ message: "Error retrieving item", error });
     }
   },
+  getItemByWarehouseId: async (req, res) => {
+    try {
+      const { warehouseId } = req.params;
+      const items = await Item.find({ warehouse: warehouseId }); // Assuming warehouse is stored as a reference or ID
+
+      if (items.length === 0) {
+        return res.status(404).json({ message: "No items found for the specified warehouse" });
+      }
+
+      res.status(200).json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Error retrieving items by warehouse", error });
+    }
+  },
 
   updateItem: async (req, res) => {
     try {
@@ -64,6 +80,7 @@ const itemController = {
           packaging,
           packsize,
           staticPrice,
+          warehouse,
         },
         { new: true } 
       );

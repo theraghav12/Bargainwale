@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Dashboard, Auth } from "@/layouts";
-import { Purchase } from "./pages/purchase/Purchase";
-import { Sales } from "./pages/sales/Sales";
+import { Auth } from "@/layouts";
+import CreatePurchase from "./pages/purchase/CreatePurchase";
 import { DashboardNavbar, Footer } from "./widgets/layout";
 import SecondNavbar from "./widgets/layout/SecNavbar";
 import CreateOrder from "./pages/orders/CreateOrder";
@@ -31,6 +30,7 @@ function App() {
             <Route path="/orders/history" element={<OrderHistory />} />
             <Route path="/bookings/create" element={<CreateBooking />} />
             <Route path="/bookings/history" element={<BookingHistory />} />
+            <Route path="/purchase/create" element={<CreatePurchase />} />
             {/* <Route path="/dashboard/" element={<Dashboard />}>
               <Route path="/dashboard/purchase/create" element={<Purchase />} />
               <Route path="/dashboard/sales/create" element={<Sales />} />

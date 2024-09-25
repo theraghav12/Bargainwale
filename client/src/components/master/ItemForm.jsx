@@ -87,7 +87,14 @@ const ItemForm = () => {
       toast.success("Item added successfully!");
       setForm({
         name: "",
+        flavor: "",
+        material: "",
+        materialdescription: "",
+        netweight: "",
+        grossweight: "",
+        gst: "",
         packaging: "",
+        packsize: "",
         type: "",
         weight: "",
         staticPrice: "",
@@ -164,11 +171,16 @@ const ItemForm = () => {
             {items?.length > 0 ? (
               <table className="w-full bg-white">
                 <thead>
-                  <tr className="grid grid-cols-6">
+                  <tr className="grid grid-cols-11">
                     <th className="py-2 px-4 text-start">Name</th>
+                    <th className="py-2 px-4 text-start">Flavor</th>
+                    <th className="py-2 px-4 text-start">Material</th>
+                    <th className="py-2 px-4 text-start">Material Desc.</th>
+                    <th className="py-2 px-4 text-start">Net Weight</th>
+                    <th className="py-2 px-4 text-start">Gross Weight</th>
+                    <th className="py-2 px-4 text-start">GST</th>
                     <th className="py-2 px-4 text-start">Packaging</th>
-                    <th className="py-2 px-4 text-start">Type</th>
-                    <th className="py-2 px-4 text-start">Weight</th>
+                    <th className="py-2 px-4 text-start">Pack Size</th>
                     <th className="py-2 px-4 text-start">Static Price</th>
                     <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
@@ -177,7 +189,7 @@ const ItemForm = () => {
                   {items?.map((item) => (
                     <tr
                       key={item._id}
-                      className="grid grid-cols-6 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                      className="grid grid-cols-11 items-center border border-[#7F7F7F] rounded-md shadow-md"
                     >
                       <td className="py-2 px-4">
                         {item.isEditing ? (
@@ -193,6 +205,78 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
+                          <Input
+                            name="flavor"
+                            type="text"
+                            value={item.flavor}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.flavor}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <Input
+                            name="material"
+                            type="text"
+                            value={item.material}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.material}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <Input
+                            name="materialdescription"
+                            type="text"
+                            value={item.materialdescription}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.materialdescription}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <Input
+                            name="netweight"
+                            type="text"
+                            value={item.netweight}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.netweight}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <Input
+                            name="grossweight"
+                            type="text"
+                            value={item.grossweight}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.grossweight}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <Input
+                            name="gst"
+                            type="text"
+                            value={item.gst}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                          />
+                        ) : (
+                          <span>{item.gst}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
                           <Select
                             name="packaging"
                             value={item.packaging}
@@ -202,6 +286,7 @@ const ItemForm = () => {
                           >
                             <Option value="box">Box</Option>
                             <Option value="tin">Tin</Option>
+                            <Option value="jar">Jar</Option>
                           </Select>
                         ) : (
                           <span>{item.packaging}</span>
@@ -210,25 +295,13 @@ const ItemForm = () => {
                       <td className="py-2 px-4">
                         {item.isEditing ? (
                           <Input
-                            name="type"
+                            name="packsize"
                             type="text"
-                            value={item.type}
+                            value={item.packsize}
                             onChange={(e) => handleItemChange(e, item._id)}
                           />
                         ) : (
-                          <span>{item.type}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="weight"
-                            type="number"
-                            value={item.weight}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.weight}</span>
+                          <span>{item.packsize}</span>
                         )}
                       </td>
                       <td className="py-2 px-4">

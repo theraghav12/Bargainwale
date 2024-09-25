@@ -12,6 +12,8 @@ router.get('/api/items', itemController.getAllItems);
 // Route to get a specific item by ID
 router.get('/api/items/:id', itemController.getItemById);
 
+router.get('/api/items/warehouse/:warehouseId', itemController.getItemByWarehouseId);
+
 // Route to update a specific item by ID
 router.put('/api/items/:id', itemController.updateItem);
 

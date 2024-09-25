@@ -11,6 +11,7 @@ const bookingController = {
         BargainDate,
         BargainNo,
         items,
+        inco,
         validity,
         deliveryOption,
         warehouse: warehouseId,
@@ -32,6 +33,7 @@ const bookingController = {
         quantity,
         virtualQuantity,
         billedQuantity,
+        pickup,
       } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res
@@ -45,17 +47,18 @@ const bookingController = {
         }
 
         // Check if the quantity is valid
-        if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
-          return res
-            .status(400)
-            .json({ message: `Quantity mismatch for item: ${itemId}` });
-        }
+       // if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
+       //   return res
+       //     .status(400)
+       //     .json({ message: `Quantity mismatch for item: ${itemId}` });
+       // }
 
         orderItems.push({
           item: itemId,
           quantity,
           virtualQuantity,
           billedQuantity,
+          pickup,
         });
       }
 
@@ -75,22 +78,23 @@ const bookingController = {
         quantity,
         virtualQuantity,
         billedQuantity,
+        pickup,
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
         );
         if (!virtualInventoryItem) {
           return res.status(400).json({
             message: `Item not found in virtual inventory: ${itemId}`,
           });
         }
-        if (virtualQuantity > virtualInventoryItem.quantity) {
-          return res.status(400).json({
-            message: `Not enough quantity in virtual inventory for item: ${itemId}`,
-          });
-        }
+        //if (virtualQuantity > virtualInventoryItem.quantity) {
+        //  return res.status(400).json({
+        //    message: `Not enough quantity in virtual inventory for item: ${itemId}`,
+        //  });
+       // }
         virtualInventoryItem.quantity -= virtualQuantity;
-        virtualInventoryUpdates.push({ itemId, quantity: virtualQuantity });
+        virtualInventoryUpdates.push({ itemId,pickup, quantity: virtualQuantity });
 
         const billedInventoryItem = warehouseDocument.billedInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString()
@@ -100,17 +104,17 @@ const bookingController = {
             .status(400)
             .json({ message: `Item not found in billed inventory: ${itemId}` });
         }
-        if (billedQuantity > billedInventoryItem.quantity) {
-          return res.status(400).json({
-            message: `Not enough quantity in billed inventory for item: ${itemId}`,
-          });
-        }
-        billedInventoryItem.quantity -= billedQuantity;
-        billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
+        //if (billedQuantity > billedInventoryItem.quantity) {
+        //  return res.status(400).json({
+        //    message: `Not enough quantity in billed inventory for item: ${itemId}`,
+        //  });
+        //}
+       // billedInventoryItem.quantity -= billedQuantity;
+       // billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
 
         
         const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
         );
         if (soldInventoryItem) {
           soldInventoryItem.billedQuantity += billedQuantity;
@@ -121,6 +125,7 @@ const bookingController = {
             item: itemId,
             billedQuantity,
             virtualQuantity,
+            pickup,
           });
         }
         soldInventoryUpdates.push({ itemId, billedQuantity, virtualQuantity });
@@ -134,6 +139,7 @@ const bookingController = {
         BargainNo,
         items: orderItems,
         validity,
+        inco,
         deliveryOption,
         warehouse: warehouseId,
         organization,
@@ -164,7 +170,7 @@ const bookingController = {
       const bookings = await Booking.find()
         .populate('items.item')
         .populate('warehouse')
-        .populate("buyer");
+        .populate("buyer")
       // Retrieve all bookings
       res.status(200).json(bookings);
 
@@ -186,6 +192,7 @@ const bookingController = {
       const booking = await Booking.findById(req.params.id)
         .populate("items.item")
         .populate("warehouse")
+
         //.populate("organization")
         .populate("buyer");
 
@@ -246,6 +253,7 @@ const bookingController = {
         quantity,
         virtualQuantity,
         billedQuantity,
+        pickup
       } of booking.items) {
         const virtualInventoryItem = warehouse.virtualInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString()
@@ -260,7 +268,7 @@ const bookingController = {
         }
 
         const billedInventoryItem = warehouse.billedInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
+          (i) => i.item && i.item.toString() === itemId.toString()  && i.pickup===pickup
         );
         if (billedInventoryItem) {
           billedInventoryItem.quantity += billedQuantity;

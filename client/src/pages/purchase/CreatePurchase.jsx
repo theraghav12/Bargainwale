@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 // api services
-import { getBuyer, getItems, getManufacturer } from "@/services/masterService";
+import { getItems, getManufacturer } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
 
 // icons
@@ -13,32 +13,26 @@ import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 import { createOrder } from "@/services/orderService";
 
-const CreateBooking = () => {
+const CreatePurchase = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
-  const [buyerOptions, setBuyerOptions] = useState([]);
+  const [manufacturerOptions, setManufacturerOptions] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
 
   const [form, setForm] = useState({
     items: [],
-    BargainNo: "",
-    BargainDate: "",
-    buyer: "",
+    inco: "",
+    companyBargainNo: "",
+    companyBargainDate: "",
+    manufacturer: "",
+    paymentDays: "",
     description: "",
     warehouse: "",
-    deliveryOption: "",
-    deliveryAddress: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      pinCode: "",
-    },
   });
 
   useEffect(() => {
     fetchItemsOptions();
-    fetchBuyerOptions();
+    fetchManufacturerOptions();
     fetchWarehouseOptions();
   }, []);
 
@@ -52,10 +46,10 @@ const CreateBooking = () => {
     }
   };
 
-  const fetchBuyerOptions = async () => {
+  const fetchManufacturerOptions = async () => {
     try {
-      const response = await getBuyer();
-      setBuyerOptions(response);
+      const response = await getManufacturer();
+      setManufacturerOptions(response);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
       console.error(error);
@@ -235,23 +229,43 @@ const CreateBooking = () => {
           >
             <div className="flex flex-col gap-4">
               <div className="flex justify-between">
+                {/* {itemsOptions?.length > 0 && (
+                <Select
+                  name="itemId"
+                  label={`Select Item ${index + 1}`}
+                  value={item.itemId}
+                  onChange={(value) =>
+                    handleFormChange(index, "items", {
+                      ...item,
+                      itemId: value,
+                    })
+                  }
+                  required
+                >
+                  {itemsOptions?.map((option) => (
+                    <Option key={option._id} value={option._id}>
+                      {option.name}
+                    </Option>
+                  ))}
+                </Select>
+              )} */}
                 <div className="w-fit flex gap-5 items-center">
                   <label
-                    htmlFor="BargainNo"
+                    htmlFor="companyBargainNo"
                     className="flex text-[#38454A] text-[1rem]"
                   >
-                    Bargain No.
+                    Company Bargain No.
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
                   <input
-                    name="BargainNo"
+                    name="companyBargainNo"
                     type="text"
-                    value={form.BargainNo}
+                    value={form.companyBargainNo}
                     onChange={(e) =>
-                      handleFormChange(0, "BargainNo", e.target.value)
+                      handleFormChange(0, "companyBargainNo", e.target.value)
                     }
                     required
-                    placeholder="Bargain No."
+                    placeholder="Company Bargain No."
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                   />
                 </div>
@@ -290,27 +304,27 @@ const CreateBooking = () => {
 
                 <div className="flex gap-5 items-center">
                   <label
-                    htmlFor="buyer"
+                    htmlFor="manufacturer"
                     className="flex text-[#38454A] text-[1rem]"
                   >
-                    Buyer
+                    Manufacturer
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
                   <div className="relative w-[200px]">
                     <select
-                      id="buyer"
-                      name="buyer"
-                      value={form.buyer}
+                      id="manufacturer"
+                      name="manufacturer"
+                      value={form.manufacturer}
                       onChange={(e) =>
-                        handleFormChange(0, "buyer", e.target.value)
+                        handleFormChange(0, "manufacturer", e.target.value)
                       }
                       className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                       required
                     >
-                      <option value="">Select Buyer</option>
-                      {buyerOptions?.map((option) => (
+                      <option value="">Select Manufacturer</option>
+                      {manufacturerOptions?.map((option) => (
                         <option key={option._id} value={option._id}>
-                          {option.buyer}
+                          {option.manufacturer}
                         </option>
                       ))}
                     </select>
@@ -322,18 +336,18 @@ const CreateBooking = () => {
 
                 <div className="w-fit flex gap-5 items-center">
                   <label
-                    htmlFor="BargainDate"
+                    htmlFor="companyBargainDate"
                     className="flex text-[#38454A] text-[1rem]"
                   >
-                    Bargain Date
+                    Company Bargain Date
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
                   <input
-                    name="BargainDate"
+                    name="companyBargainDate"
                     type="date"
-                    value={form.BargainDate}
+                    value={form.companyBargainDate}
                     onChange={(e) =>
-                      handleFormChange(0, "BargainDate", e.target.value)
+                      handleFormChange(0, "companyBargainDate", e.target.value)
                     }
                     required
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
@@ -360,6 +374,35 @@ const CreateBooking = () => {
                     required
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
                   />
+                </div>
+
+                <div className="flex gap-5 items-center">
+                  <label
+                    htmlFor="inco"
+                    className="flex text-[#38454A] text-[1rem]"
+                  >
+                    Inco
+                    <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+                  </label>
+                  <div className="relative w-[200px]">
+                    <select
+                      id="inco"
+                      name="inco"
+                      value={form.inco}
+                      onChange={(e) =>
+                        handleFormChange(0, "inco", e.target.value)
+                      }
+                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                      required
+                    >
+                      <option value="">Select Inco</option>
+                      <option value="EXW">EXW</option>
+                      <option value="FOR">FOR</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="w-fit flex gap-5 items-center">
@@ -403,25 +446,27 @@ const CreateBooking = () => {
             <div className="overflow-x-auto">
               <table className="max-w-full table-auto border-collapse">
                 <thead>
-                  <tr>
-                    <th className="py-4 text-center w-[200px]">CBN</th>
-                    <th className="py-4 text-center w-[200px]">CBD</th>
-                    <th className="py-4 text-center w-[200px]">Item</th>
-                    <th className="py-4 text-center w-[200px]">Quantity</th>
-                    <th className="py-4 text-center w-[200px]">Pickup</th>
-                    <th className="py-4 text-center w-[200px]">Cont. No.</th>
-                    <th className="py-4 text-center w-[200px]">Base Rate</th>
-                    <th className="py-4 text-center w-[200px]">
-                      Tax Paid Amount
-                    </th>
-                    <th className="py-4 text-center w-[200px]">Payment Date</th>
-                    <th className="py-4 text-center w-[200px]">Description</th>
-                    <th className="py-4 text-center w-[200px]">Action</th>
+                  <tr className="grid grid-cols-12">
+                    <th className="py-4 text-center">CBN</th>
+                    <th className="py-4 text-center">CBD</th>
+                    <th className="py-4 text-center">Item</th>
+                    <th className="py-4 text-center">Quantity</th>
+                    <th className="py-4 text-center">Pickup</th>
+                    <th className="py-4 text-center">Cont. No.</th>
+                    <th className="py-4 text-center">Base Rate</th>
+                    <th className="py-4 text-center">Tax Paid Amount</th>
+                    <th className="py-4 text-center">Inco</th>
+                    <th className="py-4 text-center">Payment Date</th>
+                    <th className="py-4 text-center">Description</th>
+                    <th className="py-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
-                    <tr key={index} className="border-t-2 border-t-[#898989]">
+                    <tr
+                      key={index}
+                      className="grid grid-cols-12 border-t-2 border-t-[#898989]"
+                    >
                       <td className="py-4 text-center">
                         {form.companyBargainNo}
                       </td>
@@ -518,6 +563,7 @@ const CreateBooking = () => {
                         />
                       </td>
                       <td className="py-4 text-center">{item.taxpaidAmount}</td>
+                      <td className="py-4 text-center">{form.inco}</td>
                       <td className="py-4 text-center">{form.paymentDays}</td>
                       <td className="py-4 text-center">{form.description}</td>
                       <td className="py-4 flex justify-center">
@@ -542,4 +588,4 @@ const CreateBooking = () => {
   );
 };
 
-export default CreateBooking;
+export default CreatePurchase;

@@ -446,26 +446,26 @@ const CreateOrder = () => {
             <div className="overflow-x-auto">
               <table className="max-w-full table-auto border-collapse">
                 <thead>
-                  <tr>
-                    <th className="py-4 text-center w-[200px]">CBN</th>
-                    <th className="py-4 text-center w-[200px]">CBD</th>
-                    <th className="py-4 text-center w-[200px]">Item</th>
-                    <th className="py-4 text-center w-[200px]">Quantity</th>
-                    <th className="py-4 text-center w-[200px]">Pickup</th>
-                    <th className="py-4 text-center w-[200px]">Cont. No.</th>
-                    <th className="py-4 text-center w-[200px]">Base Rate</th>
-                    <th className="py-4 text-center w-[200px]">
+                  <tr className="grid grid-cols-12">
+                    <th className="py-4 text-center">CBN</th>
+                    <th className="py-4 text-center">CBD</th>
+                    <th className="py-4 text-center">Item</th>
+                    <th className="py-4 text-center">Quantity</th>
+                    <th className="py-4 text-center">Pickup</th>
+                    <th className="py-4 text-center">Cont. No.</th>
+                    <th className="py-4 text-center">Base Rate</th>
+                    <th className="py-4 text-center">
                       Tax Paid Amount
                     </th>
-                    <th className="py-4 text-center w-[200px]">Inco</th>
-                    <th className="py-4 text-center w-[200px]">Payment Date</th>
-                    <th className="py-4 text-center w-[200px]">Description</th>
-                    <th className="py-4 text-center w-[200px]">Action</th>
+                    <th className="py-4 text-center">Inco</th>
+                    <th className="py-4 text-center">Payment Date</th>
+                    <th className="py-4 text-center">Description</th>
+                    <th className="py-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
-                    <tr key={index} className="border-t-2 border-t-[#898989]">
+                    <tr key={index} className="grid grid-cols-12 border-t-2 border-t-[#898989]">
                       <td className="py-4 text-center">
                         {form.companyBargainNo}
                       </td>
