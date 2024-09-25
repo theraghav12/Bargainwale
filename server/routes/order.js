@@ -7,7 +7,7 @@ router.post('/api/order', orderController.createOrder);
 router.get('/api/order', orderController.getAllOrders);
 router.get('/api/order/:id', orderController.getOrderById);
 router.put('/api/order/:id', orderController.updateOrder);
-router.put('/api/order/:id/bill-type', orderController.updateBillTypePartWise);
 router.delete('/api/order/:orderId', orderController.deleteOrder);
 
 export default router;
+// router.put('/api/order/:id/bill-type', orderController.updateBillTypePartWise);

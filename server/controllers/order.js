@@ -77,6 +77,10 @@ const orderController = {
         let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
         );
+
+        let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
+          (i) => i.item && i.item.toString() === itemId.toString()
+        );
  
         if (!existingVirtualInventoryItem) {
           warehouseDocument.virtualInventory.push({
@@ -86,15 +90,16 @@ const orderController = {
             // itemName,
             pickup
           });
+        } else {
+          existingVirtualInventoryItem.quantity += quantity;
+        }
+        if(!existingBilledInventoryItem){
           warehouseDocument.billedInventory.push({
             item: itemId,
             quantity: 0,
             // weight,
             // itemName,
-            pickup
           });
-        } else {
-          existingVirtualInventoryItem.quantity += quantity;
         }
         // } else if (billType === "Billed") {
         //   let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
@@ -280,9 +285,9 @@ const orderController = {
         const { items, billType, warehouse } = order;
   
         // Adjust the inventory in the warehouse
-        for (const { item, quantity } of items) {
+        for (const { item, quantity, pickup } of items) {
           const virtualInventoryItem = warehouse.virtualInventory.find(
-            (i) => i.item && i.item.toString() === item.toString()
+            (i) => i.item && i.item.toString() === item.toString() && i.pickup===pickup
           );
           const billedInventoryItem = warehouse.billedInventory.find(
             (i) => i.item && i.item.toString() === item.toString()
