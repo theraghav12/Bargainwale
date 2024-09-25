@@ -7,28 +7,45 @@ function Dropdown({ label, links }) {
 
   const isActive = links.some((link) => link.to === location.pathname);
 
+  // Determine if there are dropdown links
+  const hasDropdownLinks = links.length > 1;
+
   return (
     <li
       className="relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <NavLink
-        to={links[0].to}
-        className={({ isActive: linkActive }) =>
-          `text-[#38454A] text-md font-medium ${
-            linkActive || isActive
+      {/* If there are dropdown links, use a span; otherwise, use NavLink */}
+      {hasDropdownLinks ? (
+        <span
+          className={`text-[#38454A] text-md font-medium cursor-pointer ${
+            isActive
               ? "text-black border-b-2 border-b-black"
               : "hover:text-black hover:border-b hover:border-b-2 hover:border-b-black"
-          } transition-all transition-colors`
-        }
-      >
-        {label}
-      </NavLink>
+          } transition-all transition-colors`}
+        >
+          {label}
+        </span>
+      ) : (
+        <NavLink
+          to={links[0].to}
+          className={({ isActive: linkActive }) =>
+            `text-[#38454A] text-md font-medium ${
+              linkActive
+                ? "text-black border-b-2 border-b-black"
+                : "hover:text-black hover:border-b hover:border-b-2 hover:border-b-black"
+            } transition-all transition-colors`
+          }
+        >
+          {label}
+        </NavLink>
+      )}
 
-      {isHovered && links.length > 1 && (
+      {/* Render the dropdown if there are multiple links */}
+      {isHovered && hasDropdownLinks && (
         <ul className="absolute top-full bg-white shadow-lg rounded-md w-48 py-2">
-          {links.slice(1).map((link) => (
+          {links.map((link) => (
             <li key={link.name}>
               <NavLink
                 to={link.to}
@@ -61,9 +78,15 @@ function SecondNavbar() {
     {
       label: "Orders",
       links: [
-        { name: "Orders", to: "/dashboard/orders" },
-        { name: "Create Order", to: "/orders/create" },
+        { name: "Create Order", to: "/dashboard/orders" },
         { name: "Order History", to: "/orders/history" },
+      ],
+    },
+    {
+      label: "Bookings",
+      links: [
+        { name: "Create Booking", to: "/dashboard/bookings" },
+        { name: "Booking History", to: "/orders/history" },
       ],
     },
   ];

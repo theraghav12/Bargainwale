@@ -21,6 +21,7 @@ import { getWarehouses } from "@/services/warehouseService";
 // icons
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { LuAsterisk } from "react-icons/lu";
 
 const CreateOrderForm = ({ fetchOrdersData }) => {
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
   const [manufacturerOptions, setManufacturerOptions] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [form, setForm] = useState({
-    items: [{ itemId: "", quantity: 0 }],
+    items: [{ itemId: "", quantity: null }],
     transportCatigory: "",
     companyBargainNo: "",
     companyBargainDate: "",
@@ -119,20 +120,20 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
       };
       console.log(updatedForm);
 
-      const response = await createOrder(updatedForm);
-      toast.success("Order added successfully!");
-      setForm({
-        items: [{ itemId: "", quantity: 1 }],
-        transportCatigory: "",
-        companyBargainNo: "",
-        companyBargainDate: "",
-        manufacturer: "",
-        paymentDays: null,
-        description: "",
-        warehouse: "",
-        organization: "",
-      });
-      fetchOrdersData();
+      // const response = await createOrder(updatedForm);
+      // toast.success("Order added successfully!");
+      // setForm({
+      //   items: [{ itemId: "", quantity: 1 }],
+      //   transportCatigory: "",
+      //   companyBargainNo: "",
+      //   companyBargainDate: "",
+      //   manufacturer: "",
+      //   paymentDays: null,
+      //   description: "",
+      //   warehouse: "",
+      //   organization: "",
+      // });
+      // fetchOrdersData();
     } catch (error) {
       toast.error("Error adding order!");
       console.error(error);
@@ -143,36 +144,58 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
 
   const handleFormChange = (index, fieldName, value) => {
     if (fieldName === "items") {
+      // Update specific item in the items array
       const updatedItems = [...form.items];
-      updatedItems[index] = value;
+      updatedItems[index] = {
+        ...updatedItems[index],
+        [fieldName]: value, // Update the specific field in the item
+      };
       setForm((prevData) => ({
         ...prevData,
-        items: updatedItems,
+        items: updatedItems, // Update items in form state
       }));
-    } else if (fieldName === "companyBargainDate") {
-      const formattedDate = value.split("T")[0];
+    } else if (
+      fieldName === "companyBargainDate" ||
+      fieldName === "paymentDays"
+    ) {
+      // For date fields, format them before updating
+      const formattedDate = value.split("T")[0]; // Assuming the value is in ISO format
       setForm((prevData) => ({
         ...prevData,
-        companyBargainDate: formattedDate,
-      }));
-    } else if (fieldName === "paymentDays") {
-      const formattedDate = value.split("T")[0];
-      setForm((prevData) => ({
-        ...prevData,
-        paymentDays: formattedDate,
+        [fieldName]: formattedDate, // Dynamically update date fields
       }));
     } else {
+      // Update other form fields
       setForm((prevData) => ({
         ...prevData,
-        [fieldName]: value,
+        [fieldName]: value, // General form update for non-date, non-item fields
       }));
     }
+  };
+
+  const handleAddRow = () => {
+    setForm((prevData) => ({
+      ...prevData,
+      items: [
+        ...prevData.items,
+        {
+          itemId: "",
+          quantity: null,
+          packaging: "",
+          costPrice: "",
+          gst: "",
+          transport: "",
+          transportCost: "",
+          netAmount: "",
+        },
+      ],
+    }));
   };
 
   const handleAddItem = () => {
     setForm((prevData) => ({
       ...prevData,
-      items: [...prevData.items, { itemId: "", quantity: 1 }],
+      items: [...prevData.items, { itemId: "", quantity: null }],
     }));
   };
 
@@ -185,15 +208,14 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
   };
 
   return (
-    <div>
+    <>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 p-5 bg-white shadow-md rounded-xl"
+        className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
       >
         <div className="flex flex-col gap-4">
-          {form.items.map((item, index) => (
-            <div key={index} className="flex justify-between">
-              {/* {itemsOptions?.length > 0 && (
+          <div className="flex justify-between">
+            {/* {itemsOptions?.length > 0 && (
                 <Select
                   name="itemId"
                   label={`Select Item ${index + 1}`}
@@ -213,100 +235,210 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
                   ))}
                 </Select>
               )} */}
-              <div className="w-fit flex gap-5 items-center">
-                <label
-                  htmlFor="companyBargainNo"
-                  className="text-[#38454A] text-[1rem]"
-                >
-                  Company Bargain No.
-                </label>
-                <input
-                  name="companyBargainNo"
-                  type="text"
-                  value={form.companyBargainNo}
-                  onChange={(e) =>
-                    handleFormChange(0, "companyBargainNo", e.target.value)
-                  }
-                  required
-                  placeholder="Company Bargain No."
-                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                />
-              </div>
+            <div className="w-fit flex gap-5 items-center">
+              <label
+                htmlFor="companyBargainNo"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Company Bargain No.
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <input
+                name="companyBargainNo"
+                type="text"
+                value={form.companyBargainNo}
+                onChange={(e) =>
+                  handleFormChange(0, "companyBargainNo", e.target.value)
+                }
+                required
+                placeholder="Company Bargain No."
+                className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+              />
+            </div>
 
-              <div className="flex gap-5 items-center">
-                <label
-                  htmlFor="iphoneSelect"
-                  className="text-[#38454A] text-[1rem]"
+            <div className="flex gap-5 items-center">
+              <label
+                htmlFor="warehouse"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Warehouse
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <div className="relative w-[180px]">
+                <select
+                  id="warehouse"
+                  name="warehouse"
+                  value={form.warehouse}
+                  onChange={(e) =>
+                    handleFormChange(0, "warehouse", e.target.value)
+                  }
+                  className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                  required
                 >
-                  Supplier
-                </label>
-                <div className="relative w-[180px]">
-                  <select
-                    id="iphoneSelect"
-                    name="iphoneSelect"
-                    // value={selectedValue}
-                    // onChange={(e) => handleSelectChange(e.target.value)}
-                    className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                  >
-                    <option value="">Choose an option</option>
-                    <option
-                      value="option1"
-                      className="bg-white hover:bg-gray-100"
-                    >
-                      Option 1
+                  <option value="">Select Warehouse</option>
+                  {warehouseOptions.map((option) => (
+                    <option key={option._id} value={option._id}>
+                      {option.name}
                     </option>
-                    <option
-                      value="option2"
-                      className="bg-white hover:bg-gray-100"
-                    >
-                      Option 2
-                    </option>
-                    <option
-                      value="option3"
-                      className="bg-white hover:bg-gray-100"
-                    >
-                      Option 3
-                    </option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                  </div>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
                 </div>
               </div>
+            </div>
 
-              <div className="w-fit flex gap-5 items-center">
-                <label
-                  htmlFor="quantity"
-                  className="text-[#38454A] text-[1rem]"
-                >
-                  Quantity
-                </label>
-                <input
-                  name="quantity"
-                  type="number"
-                  value={item.quantity}
+            <div className="flex gap-5 items-center">
+              <label
+                htmlFor="manufacturer"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Manufacturer
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <div className="relative w-[200px]">
+                <select
+                  id="manufacturer"
+                  name="manufacturer"
+                  value={form.manufacturer}
                   onChange={(e) =>
-                    handleFormChange(index, "items", {
-                      ...item,
-                      quantity: e.target.value,
-                    })
+                    handleFormChange(0, "manufacturer", e.target.value)
                   }
-                  min={1}
+                  className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                   required
-                  placeholder="Quantity"
-                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                />
-                {index > 0 && (
+                >
+                  <option value="">Select Manufacturer</option>
+                  {manufacturerOptions.map((option) => (
+                    <option key={option._id} value={option._id}>
+                      {option.manufacturer}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                </div>
+              </div>
+            </div>
+
+            <div className="w-fit flex gap-5 items-center">
+              <label
+                htmlFor="companyBargainDate"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Company Bargain Date
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <input
+                name="companyBargainDate"
+                type="date"
+                value={form.companyBargainDate}
+                onChange={(e) =>
+                  handleFormChange(0, "companyBargainDate", e.target.value)
+                }
+                required
+                className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-10">
+            <div className="flex gap-5 items-center">
+              <label
+                htmlFor="transportCatigory"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Transport Category
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <div className="relative w-[200px]">
+                <select
+                  id="transportCatigory"
+                  name="transportCatigory"
+                  value={form.transportCatigory}
+                  onChange={(e) =>
+                    handleFormChange(0, "transportCatigory", e.target.value)
+                  }
+                  className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                  required
+                >
+                  <option value="">Select Transport</option>
+                  <option value="Depo">Depo</option>
+                  <option value="Rack">Rack</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                </div>
+              </div>
+            </div>
+
+            <div className="w-fit flex gap-5 items-center">
+              <label
+                htmlFor="paymentDays"
+                className="flex text-[#38454A] text-[1rem]"
+              >
+                Payment Date
+                <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+              </label>
+              <input
+                name="paymentDays"
+                type="date"
+                value={form.paymentDays}
+                onChange={(e) =>
+                  handleFormChange(0, "paymentDays", e.target.value)
+                }
+                required
+                className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
+              />
+            </div>
+
+            <div className="w-fit flex gap-5 items-center">
+              <label htmlFor="quantity" className="text-[#38454A] text-[1rem]">
+                Quantity
+              </label>
+              <input
+                name="quantity"
+                type="number"
+                // value={item.quantity}
+                onChange={(e) =>
+                  handleFormChange(index, "items", {
+                    ...item,
+                    quantity: e.target.value,
+                  })
+                }
+                min={1}
+                required
+                placeholder="Quantity"
+                className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+              />
+              {/* {index > 0 && (
                   <IconButton
                     color="red"
                     onClick={() => handleRemoveItem(index)}
                   >
                     <FaTrashAlt />
                   </IconButton>
-                )}
-              </div>
+                )} */}
             </div>
-          ))}
+
+            <div className="w-fit flex gap-5 items-center">
+              <label
+                htmlFor="description"
+                className="text-[#38454A] text-[1rem]"
+              >
+                Description
+              </label>
+              <input
+                name="description"
+                type="text"
+                value={form.description}
+                onChange={(e) =>
+                  handleFormChange(0, "description", e.target.value)
+                }
+                className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                placeholder="Description"
+              />
+            </div>
+          </div>
 
           <Button
             color="green"
@@ -317,102 +449,46 @@ const CreateOrderForm = ({ fetchOrdersData }) => {
             <FaPlus /> Add Another Item
           </Button>
 
-          <div className="grid grid-cols-4 gap-2">
-            <Input
-              name="companyBargainDate"
-              label="Company Bargain Date"
-              type="date"
-              value={form.companyBargainDate}
-              onChange={(e) =>
-                handleFormChange(0, "companyBargainDate", e.target.value)
-              }
-              required
-            />
-            {warehouseOptions.length > 0 && (
-              <Select
-                name="manufacturer"
-                label="Select Warehouse"
-                value={form.warehouse}
-                onChange={(value) => handleFormChange(0, "warehouse", value)}
-                required
-              >
-                {warehouseOptions.map((option) => (
-                  <Option key={option._id} value={option._id}>
-                    {option.name}
-                  </Option>
-                ))}
-              </Select>
-            )}
-
-            {manufacturerOptions.length > 0 && (
-              <Select
-                name="manufacturer"
-                label="Select Manufacturer"
-                value={form.manufacturer}
-                onChange={(value) => handleFormChange(0, "manufacturer", value)}
-                required
-              >
-                {manufacturerOptions.map((option) => (
-                  <Option key={option._id} value={option._id}>
-                    {option.manufacturer}
-                  </Option>
-                ))}
-              </Select>
-            )}
-
-            {/* <Select
-              name="billType"
-              label="Select Bill Type"
-              value={form.billType}
-              onChange={(value) => handleFormChange(0, "billType", value)}
-              required
-            >
-              <Option value="Virtual Billed">Virtual Billed</Option>
-              <Option value="Billed">Billed</Option>
-            </Select> */}
-          </div>
-
           <div className="grid grid-cols-5 gap-2">
-            <Select
-              name="transportCatigory"
-              label="Select Transport Category"
-              value={form.transportCatigory}
-              onChange={(value) =>
-                handleFormChange(0, "transportCatigory", value)
-              }
-              required
-            >
-              <Option value="Depo">Depo</Option>
-              <Option value="Rack">Rack</Option>
-            </Select>
-
-            <Input
-              name="paymentDays"
-              label="Payment Date"
-              type="date"
-              value={form.paymentDays}
-              onChange={(e) =>
-                handleFormChange(0, "paymentDays", e.target.value)
-              }
-              min={1}
-              required
-            />
-            <Input
-              name="description"
-              label="Description"
-              type="text"
-              value={form.description}
-              onChange={(e) =>
-                handleFormChange(0, "description", e.target.value)
-              }
-            />
             <Button color="blue" type="submit">
               {loading ? <Spinner /> : <span>Add Order</span>}
             </Button>
           </div>
         </div>
       </form>
-    </div>
+      <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr>
+                <th className="py-4 text-center w-[200px]">Item Code</th>
+                <th className="py-4 text-center w-[200px]">Quantity</th>
+                <th className="py-4 text-center w-[200px]">Packaging</th>
+                <th className="py-4 text-center w-[200px]">Cost Price</th>
+                <th className="py-4 text-center w-[200px]">GST</th>
+                <th className="py-4 text-center w-[200px]">Transport</th>
+                <th className="py-4 text-center w-[200px]">Transport Cost</th>
+                <th className="py-4 text-center w-[200px]">Net Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {form.items.map((item, index) => (
+                <tr key={index} className="border-t-2 border-t-[#898989]">
+                  <td className="py-4 text-center">{form.companyBargainNo}</td>
+                  <td className="py-4 text-center">{item.quantity}</td>
+                  <td className="py-4 text-center">{item.packaging}</td>
+                  <td className="py-4 text-center">{item.costPrice}</td>
+                  <td className="py-4 text-center">{item.gst}</td>
+                  <td className="py-4 text-center">{form.transportCatigory}</td>
+                  <td className="py-4 text-center">{form.transportCost}</td>
+                  <td className="py-4 text-center">{item.netAmount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>{" "}
+    </>
   );
 };
 

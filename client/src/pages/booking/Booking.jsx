@@ -14,11 +14,11 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
-import excel from "../../assets/excel.png";
 import { deleteBooking, getBookings } from "@/services/bookingService";
 import { EditOrderForm } from "@/components/orders/EditOrder";
 import CreateBookingForm from "@/components/bookings/CreateBooking";
 import { MdDeleteOutline } from "react-icons/md";
+import excel from "../../assets/excel.svg";
 
 export function Booking() {
   const [showBookingForm, setBookingForm] = useState(false);
@@ -233,21 +233,34 @@ export function Booking() {
   };
 
   return (
-    <div className="mt-12 mb-8 flex flex-col gap-12">
-      <Card>
-        <CardHeader
-          variant="gradient"
-          color="gray"
-          className="mb-8 p-6 flex justify-between items-center"
-        >
-          <Typography variant="h6" color="white">
-            Booking History
-          </Typography>
-        </CardHeader>
-        <div className="sticky top-[0px] z-[100] mb-5 bg-white">
+    <div className="mt-8 mb-8 flex flex-col gap-12">
+      <div className="px-7">
+        <div className="flex flex-row justify-between">
+          <div>
+            <button
+              onClick={handleDownloadExcel}
+              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
+            >
+              <img className="w-5" src={excel} />
+              Download as Excel
+            </button>
+          </div>
+          <div className="flex flex-row gap-4">
+            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              Delete
+            </button>
+            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              Edit
+            </button>
+            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+              PUBLISH
+            </button>
+          </div>
+        </div>
+        <div className="w-full">
           <CreateBookingForm fetchBookings={fetchBookings} />
         </div>
-        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+        {/* <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <div className="mb-4 flex flex-row gap-4 px-8 justify-between">
             <div className="flex gap-4">
               <select
@@ -357,17 +370,19 @@ export function Booking() {
                         </td>
                         <td className={className}>
                           <Typography className="text-xs font-semibold text-center text-blue-gray-600">
-                            {booking.buyer?.buyerdeliveryAddress.addressLine1 &&
-                              booking.buyer?.buyerdeliveryAddress.addressLine1 +
-                                ", "}
-                            {booking.buyer?.buyerdeliveryAddress.addressLine2 &&
-                              booking.buyer?.buyerdeliveryAddress.addressLine2 +
-                                ", "}
-                            {booking.buyer?.buyerdeliveryAddress.city &&
-                              booking.buyer?.buyerdeliveryAddress.city + ", "}
-                            {booking.buyer?.buyerdeliveryAddress.state &&
-                              booking.buyer?.buyerdeliveryAddress.state + ", "}
-                            {booking.buyer?.buyerdeliveryAddress.pinCode}
+                            {booking.buyer?.buyerdeliveryAddress
+                              ?.addressLine1 &&
+                              booking.buyer?.buyerdeliveryAddress
+                                ?.addressLine1 + ", "}
+                            {booking.buyer?.buyerdeliveryAddress
+                              ?.addressLine2 &&
+                              booking.buyer?.buyerdeliveryAddress
+                                ?.addressLine2 + ", "}
+                            {booking.buyer?.buyerdeliveryAddress?.city &&
+                              booking.buyer?.buyerdeliveryAddress?.city + ", "}
+                            {booking.buyer?.buyerdeliveryAddress?.state &&
+                              booking.buyer?.buyerdeliveryAddress?.state + ", "}
+                            {booking.buyer?.buyerdeliveryAddress?.pinCode}
                           </Typography>
                         </td>
                         <td className={className}>
@@ -494,37 +509,10 @@ export function Booking() {
                                           ? item.billedQuantity
                                           : "0"}
                                       </td>
-                                      {/* <td className="bbooking-b bbooking-blue-gray-50 py-3 px-5 text-center">
-                                              {item.quantity > 0 && (
-                                                <>
-                                                <input
-                                                  type="number"
-                                                  value={transferQuantities[item.name] || ''}
-                                                  onChange={(e) => handleTransferQuantityChange(item.name, e.target.value, item.quantity)}
-                                                  className="bbooking rounded px-2 py-1 w-[300px]"
-                                                />
-                                                {quantityErrors[item.name] && (
-                                                    <Typography variant="small" className="text-red-600 mt-1">
-                                                      {quantityErrors[item.name]}
-                                                    </Typography>
-                                                )}
-                                              </>
-                                            )}
-                                          </td> */}
                                     </tr>
                                   ))}
                                 </tbody>
                               </table>
-                              {/* <div className="mt-4 flex justify-end">
-                                      <Button
-                                      variant="gradient"
-                                      color="green"
-                                      onClick={() => handleTransferSubmit(booking)}
-                                      disabled={hasErrors}
-                                    >
-                                      Submit Transfer
-                                    </Button>
-                                  </div> */}
                             </div>
                           </td>
                         </tr>
@@ -539,14 +527,14 @@ export function Booking() {
               No bookings found
             </Typography>
           )}
-        </CardBody>
-      </Card>
-      {showEditBookingForm && selectedBooking && (
+        </CardBody> */}
+      </div>
+      {/* {showEditBookingForm && selectedBooking && (
         <EditOrderForm
           close={() => setShowEditbookingForm(false)}
           booking={selectedBooking}
         />
-      )}
+      )} */}
     </div>
   );
 }
