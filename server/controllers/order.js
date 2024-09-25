@@ -8,7 +8,7 @@ const orderController = {
     try {
       const {
         companyBargainDate,
-        items, // Expect items to be an array of { itemId: <ObjectId>, quantity: <Number> }
+        items,
         companyBargainNo,
         billType,
         status,
@@ -27,7 +27,7 @@ const orderController = {
 
       const orderItems = [];
 
-      for (const { itemId, quantity } of items) {
+      for (const { itemId, quantity,pickup } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res.status(400).json({ message: `Invalid itemId format: ${itemId}` });
         }
@@ -37,7 +37,7 @@ const orderController = {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
 
-        orderItems.push({ item: item._id, quantity });
+        orderItems.push({ item: item._id, quantity, pickup });
       }
 
       const order = new Order({
@@ -56,72 +56,74 @@ const orderController = {
       });
 
       await order.save();
-      console.log("Warehouse ID:", warehouseId);
+      // console.log("Warehouse ID:", warehouseId);
 
       let warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      for (let { item: itemId, quantity } of orderItems) {
+      for (let { item: itemId, quantity, pickup } of orderItems) {
         quantity = Number(quantity);
         const item = await Item.findById(itemId);
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
 
-        const weight = item.weight; // Assuming weight is a property of Item schema
-        const itemName = item.name;  // Assuming name is a property of Item schema
+        // const weight = item.grossweight; 
+        // const itemName = item.materialdescription;  
 
-        if (billType === "Virtual Billed") {
-          let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-            (i) => i.item && i.item.toString() === itemId.toString()
-          );
-
-          if (!existingVirtualInventoryItem) {
-            warehouseDocument.virtualInventory.push({
-              item: itemId,
-              quantity,
-              weight,
-              itemName,
-            });
-            warehouseDocument.billedInventory.push({
-              item: itemId,
-              quantity: 0,
-              weight,
-              itemName,
-            });
-          } else {
-            existingVirtualInventoryItem.quantity += quantity;
-          }
-        } else if (billType === "Billed") {
-          let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-            (i) => i.item && i.item.toString() === itemId.toString()
-          );
-          let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
-            (i) => i.item && i.item.toString() === itemId.toString()
-          );
-
-          if (!existingBilledInventoryItem) {
-            return res.status(400).json({
-              message: "Billing for inventory item that is not virtual",
-            });
-          } else {
-            if (!existingVirtualInventoryItem) {
-              return res.status(400).json({
-                message: "Virtual inventory item not found",
-              });
-            }
-
-            if (quantity > existingVirtualInventoryItem.quantity) {
-              return res.status(400).json({
-                message: "Billing more than what is available in virtual inventory",
-              });
-            }
-            existingVirtualInventoryItem.quantity -= quantity;
-            existingBilledInventoryItem.quantity += quantity;
-          }
+        // if (billType === "Virtual Billed") {
+        let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
+        );
+ 
+        if (!existingVirtualInventoryItem) {
+          warehouseDocument.virtualInventory.push({
+            item: itemId,
+            quantity,
+            // weight,
+            // itemName,
+            pickup
+          });
+          warehouseDocument.billedInventory.push({
+            item: itemId,
+            quantity: 0,
+            // weight,
+            // itemName,
+            pickup
+          });
+        } else {
+          existingVirtualInventoryItem.quantity += quantity;
         }
+        // } else if (billType === "Billed") {
+        //   let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
+        //     (i) => i.item && i.item.toString() === itemId.toString()
+        //   );
+        //   let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
+        //     (i) => i.item && i.item.toString() === itemId.toString()
+        //   );
+
+        //   if (!existingBilledInventoryItem) {
+        //     return res.status(400).json({
+        //       message: "Billing for inventory item that is not virtual",
+        //     });
+        //   } else {
+        //     if (!existingVirtualInventoryItem) {
+        //       return res.status(400).json({
+        //         message: "Virtual inventory item not found",
+        //       });
+        //     }
+
+        //     if (quantity > existingVirtualInventoryItem.quantity) {
+        //       return res.status(400).json({
+        //         message: "Billing more than what is available in virtual inventory",
+        //       });
+        //     }
+        //     existingVirtualInventoryItem.quantity -= quantity;
+        //     existingBilledInventoryItem.quantity += quantity;
+        //   }
+        // }
       }
 
       await warehouseDocument.save();
@@ -180,84 +182,85 @@ const orderController = {
     }
   },
 
-  updateBillTypePartWise: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { items } = req.body;
+  // updateBillTypePartWise: async (req, res) => {
+  //   try {
+  //     const { id } = req.params;
+  //     const { items } = req.body;
 
-      const order = await Order.findById(id).populate('items');
+  //     const order = await Order.findById(id).populate('items');
 
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
+  //     if (!order) {
+  //       return res.status(404).json({ message: "Order not found" });
+  //     }
 
-      let warehouseDocument = await Warehouse.findById(order.warehouse);
+  //     let warehouseDocument = await Warehouse.findById(order.warehouse);
 
-      if (!warehouseDocument) {
-        return res.status(404).json({ message: "Warehouse not found" });
-      }
+  //     if (!warehouseDocument) {
+  //       return res.status(404).json({ message: "Warehouse not found" });
+  //     }
 
-      for (const updatedItem of items) {
-        const { itemId, quantity, billType } = updatedItem;
+  //     for (const updatedItem of items) {
+  //       const { itemId, quantity, billType } = updatedItem;
 
-        const existingOrderItem = order.items.find(
-          (item) => item._id.toString() === itemId.toString()
-        );
-        if (!existingOrderItem) {
-          return res
-            .status(400)
-            .json({ message: `Item not found in order` });
-        }
+  //       const existingOrderItem = order.items.find(
+  //         (item) => item._id.toString() === itemId.toString()
+  //       );
+  //       if (!existingOrderItem) {
+  //         return res
+  //           .status(400)
+  //           .json({ message: `Item not found in order` });
+  //       }
 
-        const existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
-        );
-        const existingBilledInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
-        );
+  //       const existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
+  //         (i) => i.item && i.item.toString() === itemId.toString()
+  //       );
+  //       const existingBilledInventoryItem = warehouseDocument.billedInventory.find(
+  //         (i) => i.item && i.item.toString() === itemId.toString()
+  //       );
 
-        if (billType === "Virtual Billed") {
-          if (!existingVirtualInventoryItem) {
-            return res
-              .status(400)
-              .json({ message: `Item not found in virtual inventory` });
-          }
-          if (quantity > existingVirtualInventoryItem.quantity) {
-            return res.status(400).json({
-              message: `Not enough quantity in virtual inventory for item`,
-            });
-          }
+  //       if (billType === "Virtual Billed") {
+  //         if (!existingVirtualInventoryItem) {
+  //           return res
+  //             .status(400)
+  //             .json({ message: `Item not found in virtual inventory` });
+  //         }
+  //         if (quantity > existingVirtualInventoryItem.quantity) {
+  //           return res.status(400).json({
+  //             message: `Not enough quantity in virtual inventory for item`,
+  //           });
+  //         }
 
-          existingVirtualInventoryItem.quantity -= quantity;
-          if (existingBilledInventoryItem) {
-            existingBilledInventoryItem.quantity += quantity;
-          } else {
-            warehouseDocument.billedInventory.push({
-              item: itemId,
-              quantity,
-            });
-          }
+  //         existingVirtualInventoryItem.quantity -= quantity;
+  //         if (existingBilledInventoryItem) {
+  //           existingBilledInventoryItem.quantity += quantity;
+  //         } else {
+  //           warehouseDocument.billedInventory.push({
+  //             item: itemId,
+  //             quantity,
+  //           });
+  //         }
 
-          existingOrderItem.quantity -= quantity;
+  //         existingOrderItem.quantity -= quantity;
 
-          if (existingOrderItem.quantity < 0) {
-            existingOrderItem.quantity = 0;
-          }
-        } else {
-          return res
-            .status(400)
-            .json({ message: `Invalid bill type for item` });
-        }
-      }
+  //         if (existingOrderItem.quantity < 0) {
+  //           existingOrderItem.quantity = 0;
+  //         }
+  //       } else {
+  //         return res
+  //           .status(400)
+  //           .json({ message: `Invalid bill type for item` });
+  //       }
+  //     }
 
-      await order.save();
-      await warehouseDocument.save();
+  //     await order.save();
+  //     await warehouseDocument.save();
 
-      res.status(200).json({ message: "Order updated successfully", order });
-    } catch (error) {
-      res.status(400).json({ message: "Error updating order", error });
-    }
-  },
+  //     res.status(200).json({ message: "Order updated successfully", order });
+  //   } catch (error) {
+  //     res.status(400).json({ message: "Error updating order", error });
+  //   }
+  // },
+
     deleteOrder: async (req, res) => {
       try {
         const { orderId } = req.params;
@@ -285,21 +288,21 @@ const orderController = {
             (i) => i.item && i.item.toString() === item.toString()
           );
   
-          if (billType === 'Virtual Billed') {
-            if (virtualInventoryItem) {
-              virtualInventoryItem.quantity -= quantity;
-              if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
-            }
-          } else if (billType === 'Billed') {
-            if (billedInventoryItem) {
-              billedInventoryItem.quantity -= quantity;
-              if (billedInventoryItem.quantity < 0) billedInventoryItem.quantity = 0;
-              // Optionally, you could move excess quantity back to virtual inventory if needed
-              if (virtualInventoryItem) {
-                virtualInventoryItem.quantity += quantity;
-              }
-            }
+          // if (billType === 'Virtual Billed') {
+          if (virtualInventoryItem) {
+            virtualInventoryItem.quantity -= quantity;
+            if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
           }
+          // } else if (billType === 'Billed') {
+          //   if (billedInventoryItem) {
+          //     billedInventoryItem.quantity -= quantity;
+          //     if (billedInventoryItem.quantity < 0) billedInventoryItem.quantity = 0;
+          //     // Optionally, you could move excess quantity back to virtual inventory if needed
+          //     if (virtualInventoryItem) {
+          //       virtualInventoryItem.quantity += quantity;
+          //     }
+          //   }
+          // }
         }
   
         await warehouse.save();

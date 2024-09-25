@@ -14,7 +14,12 @@ const orderSchema = new mongoose.Schema(
     },
     items: [{
       item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
-      quantity: { type: Number, required: true }
+      quantity: { type: Number, required: true },
+      pickup: {
+        type: String,
+        enum: ["rack", "depot", "plant"],
+        default: "rack",
+      },
     }],
     
     billType: {
