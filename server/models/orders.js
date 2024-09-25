@@ -21,7 +21,19 @@ const orderSchema = new mongoose.Schema(
         default: "rack",
       },
     }],
-    
+    contNumber:{
+      type:Number,
+    }, 
+    baseRate:{
+      type:Number,
+    },
+    taxpaidAmount:{
+      type:Number,
+    },
+    inco:{
+      type:String,
+      enum:["EXW","FOR"],
+    },
     billType: {
       type: String,
       enum: ["Virtual Billed", "Billed"],
