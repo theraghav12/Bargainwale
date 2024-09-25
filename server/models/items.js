@@ -44,6 +44,11 @@ const itemSchema = new mongoose.Schema({
         unique: true,  
         default: uuidv4, 
     },
+    warehouse: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Warehouse", 
+        
+      },
     
     
 });
