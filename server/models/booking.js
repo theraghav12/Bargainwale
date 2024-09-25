@@ -14,13 +14,29 @@ const bookingSchema = new mongoose.Schema(
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
         quantity: { type: Number, required: true },
-        virtualQuantity: { type: Number, required: true },
-        billedQuantity: { type: Number, required: true },
+        virtualQuantity: { type: Number, required: true  },
+
+        billedQuantity: { type: Number},
+        pickup: {
+          type: String,
+          enum: ["rack", "depot", "plant"],
+          default: "rack",
+        },
+        taxpaidAmount:{
+          type:Number,
+        },
+        contNumber:{
+          type:Number,
+        }, 
       },
     ],
     validity: {
       type: Number,
       default: 21, // Default payment days
+    },
+    inco:{
+      type:String,
+      enum:["EXW","FOR"],
     },
 
     deliveryOption: {
