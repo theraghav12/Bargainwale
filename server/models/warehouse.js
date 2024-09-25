@@ -34,8 +34,6 @@ const warehouseSchema = mongoose.Schema({
         enum: ["rack", "depot", "plant"],
         default: "rack",
       },
-      weight: Number,
-      itemName: String,
     },
   ],
   billedInventory: [
@@ -45,8 +43,6 @@ const warehouseSchema = mongoose.Schema({
         ref: "Item",
       },
       quantity: { type: Number },
-      weight: Number,
-      itemName: String,
     },
   ],
   soldInventory: [
