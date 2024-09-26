@@ -30,9 +30,7 @@ const bookingController = {
       const orderItems = [];
       for (const {
         item: itemId,
-        quantity,
         virtualQuantity,
-        billedQuantity,
         pickup,
       } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -55,9 +53,7 @@ const bookingController = {
 
         orderItems.push({
           item: itemId,
-          quantity,
           virtualQuantity,
-          billedQuantity,
           pickup,
         });
       }
@@ -75,9 +71,7 @@ const bookingController = {
 
       for (const {
         item: itemId,
-        quantity,
         virtualQuantity,
-        billedQuantity,
         pickup,
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
@@ -96,14 +90,14 @@ const bookingController = {
         virtualInventoryItem.quantity -= virtualQuantity;
         virtualInventoryUpdates.push({ itemId,pickup, quantity: virtualQuantity });
 
-        const billedInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()
-        );
-        if (!billedInventoryItem) {
-          return res
-            .status(400)
-            .json({ message: `Item not found in billed inventory: ${itemId}` });
-        }
+        // const billedInventoryItem = warehouseDocument.billedInventory.find(
+        //   (i) => i.item && i.item.toString() === itemId.toString()
+        // );
+        // if (!billedInventoryItem) {
+        //   return res
+        //     .status(400)
+        //     .json({ message: `Item not found in billed inventory: ${itemId}` });
+        // }
         //if (billedQuantity > billedInventoryItem.quantity) {
         //  return res.status(400).json({
         //    message: `Not enough quantity in billed inventory for item: ${itemId}`,
@@ -112,23 +106,25 @@ const bookingController = {
        // billedInventoryItem.quantity -= billedQuantity;
        // billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
 
-        
+        // console.log(pickup);
         const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
+          (i) => {
+            // console.log(i);
+            return (i.item && i.item.toString() === itemId.toString() && i.pickup===pickup)
+          }
         );
+        // console.log(soldInventoryItem);
         if (soldInventoryItem) {
-          soldInventoryItem.billedQuantity += billedQuantity;
           soldInventoryItem.virtualQuantity += virtualQuantity;
         } else {
           const itemDetails = await Item.findById(itemId);
           warehouseDocument.soldInventory.push({
             item: itemId,
-            billedQuantity,
             virtualQuantity,
             pickup,
           });
         }
-        soldInventoryUpdates.push({ itemId, billedQuantity, virtualQuantity });
+        // soldInventoryUpdates.push({ itemId, billedQuantity, virtualQuantity });
       }
 
       await warehouseDocument.save();
