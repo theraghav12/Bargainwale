@@ -51,8 +51,15 @@ const warehouseSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
       },
-      billedQuantity: { type: Number, default: 0 },
-      virtualQuantity: { type: Number, default: 0 },
+      virtualQuantity: {
+        type: Number,
+        default: 0,
+        pickup: {
+          type: String,
+          enum: ["rack", "depot", "plant"],
+          default: "rack",
+        },
+      },
     },
   ],
 });

@@ -6,8 +6,8 @@ import Transport from "../models/transport.js";
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
-      const { warehouseId, transporterId, orderId, items, invoiceDate } = req.body;
-
+      const { warehouseId, transporterId, orderId, items, invoiceDate } =req.body;
+      // console.log(items);
       // Fetch the warehouse and order documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
@@ -50,11 +50,14 @@ const purchaseController = {
 
       // Process each item in the purchase
       for (const item of items) {
-        const { itemId, quantity } = item;
+        const { itemId, quantity, pickup } = item;
 
         // Find the order item
         const orderItem = orderDocument.items.find(
-          (i) => i.item._id.toString() === itemId.toString()
+          (i) =>{
+            // console.log(orderDocument.items);
+            return (i.item._id.toString() === itemId.toString() && i.pickup == pickup);
+          }
         );
 
         if (!orderItem) {
@@ -84,88 +87,45 @@ const purchaseController = {
 
         // Adjust virtual and billed inventory
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item.toString() === itemId.toString()
+          (i) =>
+            i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item.toString() === itemId.toString()
+          (i) =>
+            i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         let billedInventoryItem = warehouseDocument.billedInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
-        if (soldInventoryItem) {
-          if (soldInventoryItem.virtualQuantity >= quantity) {
-            soldInventoryItem.virtualQuantity -= quantity;
+        if (virtualInventoryItem) {
+          if (virtualInventoryItem.quantity >= quantity) {
+            virtualInventoryItem.quantity -= quantity;
 
-            if (soldInventoryItem.billedQuantity) {
-              soldInventoryItem.billedQuantity += quantity;
+            if (billedInventoryItem) {
+              billedInventoryItem.quantity += quantity;
             } else {
-              soldInventoryItem.billedQuantity.push({
+              warehouseDocument.billedInventory.push({
                 item: itemId,
                 quantity,
               });
             }
           } else {
-            const remainingQuantity = quantity - soldInventoryItem.virtualQuantity;
-            soldInventoryItem.billedQuantity += soldInventoryItem.virtualQuantity;
-            soldInventoryItem.virtualQuantity = 0;
-            if (billedInventoryItem) {
-              billedInventoryItem.quantity += remainingQuantity;
-            } else {
-              warehouseDocument.billedInventory.push({
-                item: itemId,
-                quantity: remainingQuantity,
-              });
-            }
-
-            if (virtualInventoryItem) {
-              if (virtualInventoryItem.quantity >= remainingQuantity) {
-                virtualInventoryItem.quantity -= remainingQuantity;
-              } else {
-                return res.status(400).json({
-                  success: false,
-                  message:
-                    "Buying more than what is available in virtual inventory",
-                });
-              }
-            } else {
-              return res.status(400).json({
-                success: false,
-                message: `Purchasing item that is not in virtual inventory`,
-              });
-            }
-          }
-        } else {
-          if (virtualInventoryItem) {
-            if (virtualInventoryItem.quantity >= quantity) {
-              virtualInventoryItem.quantity -= quantity;
-
-              if (billedInventoryItem) {
-                billedInventoryItem.quantity += quantity;
-              } else {
-                warehouseDocument.billedInventory.push({
-                  item: itemId,
-                  quantity,
-                });
-              }
-            } else {
-              return res.status(400).json({
-                success: false,
-                message:
-                  "Buying more than what is available in virtual inventory",
-              });
-            }
-          } else {
             return res.status(400).json({
               success: false,
-              message: `Purchasing item that is not in virtual inventory`,
+              message:
+                "Buying more than what is available in virtual inventory",
             });
           }
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: `Purchasing item that is not in virtual inventory`,
+          });
         }
       }
-
       // Update the order status based on payment
       if (isFullyPaid && !isPartiallyPaid) {
         orderDocument.status = "billed";
@@ -176,13 +136,24 @@ const purchaseController = {
       await warehouseDocument.save();
 
       // Create and save the new purchase
+      // console.log(items);
+      // console.log(items);
+      // console.log({
+      //   warehouseId,
+      //   transporterId,
+      //   orderId,
+      //   items,
+      //   invoiceDate,
+      // });
       const newPurchase = new Purchase({
         warehouseId,
         transporterId,
         orderId,
         items,
-        invoiceDate
+        invoiceDate,
       });
+
+      // console.log(newPurchase);
 
       await newPurchase.save();
 
@@ -226,7 +197,7 @@ const purchaseController = {
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("orderId") // Populates the order details
-        .populate("items.item"); // Populates the item details in the items array
+        .populate("items"); // Populates the item details in the items array
 
       if (!purchase) {
         return res.status(404).json({
@@ -267,56 +238,47 @@ const purchaseController = {
       }
 
       for (const item of purchase.items) {
-        const { itemId, quantity } = item;
+        const { itemId, quantity, pickup } = item;
+        // console.log(itemId, quantity, pickup);
 
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => i.item.toString() === itemId.toString()
+          (i) =>{
+            // console.log(i.pickup);
+            return (i.item.toString() === itemId.toString() && i.pickup == pickup)
+          }
         );
 
         const billedInventoryItem = warehouse.billedInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
-
-        if (billedInventoryItem) {
-          billedInventoryItem.quantity -= quantity;
-          if (billedInventoryItem.quantity === 0) {
-            warehouse.billedInventory = warehouse.billedInventory.filter(
-              (i) => i.item.toString() !== itemId.toString()
-            );
-          }
-          if (virtualInventoryItem) {
-            virtualInventoryItem.quantity += quantity;
-          } else {
-            warehouse.virtualInventory.push({
-              item: itemId,
-              quantity,
-            });
-          }
+        billedInventoryItem.quantity -= quantity;
+        if (virtualInventoryItem) {
+          virtualInventoryItem.quantity += quantity;
         } else {
-          if (virtualInventoryItem) {
-            virtualInventoryItem.quantity += quantity;
-          } else {
-            warehouse.virtualInventory.push({
-              item: itemId,
-              quantity,
-            });
-          }
+          warehouse.virtualInventory.push({
+            item: itemId,
+            quantity,
+          });
         }
       }
 
       const order = await Order.findById(purchase.orderId);
+      console.log(order);
       if (order) {
         const remainingPurchases = await Purchase.find({
           orderId: purchase.orderId,
         });
-
+        console.log("---------------------------",remainingPurchases);
         let isPartiallyPaid = false;
         let isFullyPaid = true;
 
         for (const purchase of remainingPurchases) {
           for (const item of purchase.items) {
             const orderItem = order.items.find(
-              (i) => i.item._id.toString() === item.itemId.toString()
+              (i) =>{
+                // console.log(i.pickup);
+                return (i.item._id.toString() === item.itemId.toString() && i.pickup == pickup)
+              }
             );
             if (orderItem) {
               const totalPurchasedQuantity =

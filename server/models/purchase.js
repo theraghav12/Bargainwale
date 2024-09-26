@@ -11,6 +11,11 @@ const purchasedItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  pickup: {
+    type: String,
+    enum: ["rack", "depot", "plant"],
+    default: "rack",
+  },
 });
 
 const purchaseSchema = new mongoose.Schema(
