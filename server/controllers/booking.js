@@ -4,6 +4,7 @@ import Warehouse from "../models/warehouse.js";
 import Buyer from "../models/buyer.js";
 import Item from "../models/items.js";
 
+
 const bookingController = {
   createBooking: async (req, res) => {
     try {
@@ -32,7 +33,7 @@ const bookingController = {
         item: itemId,
         virtualQuantity,
         pickup,
-      } of items) {
+      } of items) {       
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res
             .status(400)
@@ -43,14 +44,12 @@ const bookingController = {
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
-
         // Check if the quantity is valid
        // if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
        //   return res
        //     .status(400)
        //     .json({ message: `Quantity mismatch for item: ${itemId}` });
        // }
-
         orderItems.push({
           item: itemId,
           virtualQuantity,
@@ -58,7 +57,6 @@ const bookingController = {
         });
       }
 
-      // Find and update warehouse
       const warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
         return res.status(404).json({ message: "Warehouse not found" });
@@ -129,7 +127,7 @@ const bookingController = {
 
       await warehouseDocument.save();
 
-      // Create booking
+  
       const booking = new Booking({
         BargainDate: new Date(BargainDate),
         BargainNo,

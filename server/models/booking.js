@@ -13,6 +13,7 @@ const bookingSchema = new mongoose.Schema(
     items: [
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+
         virtualQuantity: { type: Number, required: true  },
         pickup: {
           type: String,
@@ -25,6 +26,18 @@ const bookingSchema = new mongoose.Schema(
         contNumber:{
           type:Number,
         }, 
+        rackPrice: {
+          type: Number,
+          
+        },
+        plantPrice: {
+          type: Number,
+          
+        },
+        depoPrice: {
+          type: Number,
+          
+        },
       },
     ],
     validity: {
