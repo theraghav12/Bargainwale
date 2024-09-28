@@ -71,7 +71,7 @@ const bookingSchema = new mongoose.Schema(
 
     buyer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Buyer", // Reference to Manufacturer schema
+      ref: "Buyer", 
       required: true,
     },
     deliveryAddress: {
@@ -119,6 +119,5 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create and export the model
 const Booking = mongoose.model("Booking", bookingSchema);
 export default Booking;
