@@ -33,6 +33,11 @@ const bookingController = {
         item: itemId,
         virtualQuantity,
         pickup,
+        taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
       } of items) {       
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res
@@ -54,6 +59,11 @@ const bookingController = {
           item: itemId,
           virtualQuantity,
           pickup,
+          taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
         });
       }
 
@@ -71,6 +81,11 @@ const bookingController = {
         item: itemId,
         virtualQuantity,
         pickup,
+        taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
