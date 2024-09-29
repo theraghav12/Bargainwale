@@ -20,18 +20,15 @@ import excel from "../../assets/excel.svg";
 import { MdDeleteOutline } from "react-icons/md";
 
 export function OrderHistory() {
-  const [showCreateOrderForm, setShowCreateOrderForm] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showEditOrderForm, setShowEditOrderForm] = useState(false);
-  const [openOrder, setOpenOrder] = useState(null); // Manage open order dropdown
-  const [transferQuantities, setTransferQuantities] = useState({});
-  const [quantityErrors, setQuantityErrors] = useState({});
-  const [statusFilter, setStatusFilter] = useState("All"); // State for status filter
-  const [startDate, setStartDate] = useState(""); // State for start date
-  const [endDate, setEndDate] = useState(""); // State for end date
+  const [openOrder, setOpenOrder] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,

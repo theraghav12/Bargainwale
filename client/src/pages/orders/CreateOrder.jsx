@@ -228,7 +228,7 @@ const CreateOrder = () => {
             className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
           >
             <div className="flex flex-col gap-4">
-              <div className="flex justify-between">
+              <div className="flex flex-wrap gap-x-16 gap-y-5">
                 {/* {itemsOptions?.length > 0 && (
                 <Select
                   name="itemId"
@@ -249,7 +249,7 @@ const CreateOrder = () => {
                   ))}
                 </Select>
               )} */}
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="companyBargainNo"
                     className="flex text-[#38454A] text-[1rem]"
@@ -270,7 +270,7 @@ const CreateOrder = () => {
                   />
                 </div>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
                   <label
                     htmlFor="warehouse"
                     className="flex text-[#38454A] text-[1rem]"
@@ -302,7 +302,7 @@ const CreateOrder = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
                   <label
                     htmlFor="manufacturer"
                     className="flex text-[#38454A] text-[1rem]"
@@ -334,7 +334,7 @@ const CreateOrder = () => {
                   </div>
                 </div>
 
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="companyBargainDate"
                     className="flex text-[#38454A] text-[1rem]"
@@ -353,10 +353,8 @@ const CreateOrder = () => {
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
                   />
                 </div>
-              </div>
 
-              <div className="flex gap-10">
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="paymentDays"
                     className="flex text-[#38454A] text-[1rem]"
@@ -376,7 +374,7 @@ const CreateOrder = () => {
                   />
                 </div>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
                   <label
                     htmlFor="inco"
                     className="flex text-[#38454A] text-[1rem]"
@@ -405,7 +403,7 @@ const CreateOrder = () => {
                   </div>
                 </div>
 
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="description"
                     className="text-[#38454A] text-[1rem]"
@@ -454,9 +452,7 @@ const CreateOrder = () => {
                     <th className="py-4 text-center">Pickup</th>
                     <th className="py-4 text-center">Cont. No.</th>
                     <th className="py-4 text-center">Base Rate</th>
-                    <th className="py-4 text-center">
-                      Tax Paid Amount
-                    </th>
+                    <th className="py-4 text-center">Tax Paid Amount</th>
                     <th className="py-4 text-center">Inco</th>
                     <th className="py-4 text-center">Payment Date</th>
                     <th className="py-4 text-center">Description</th>
@@ -465,7 +461,10 @@ const CreateOrder = () => {
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
-                    <tr key={index} className="grid grid-cols-12 border-t-2 border-t-[#898989]">
+                    <tr
+                      key={index}
+                      className="grid grid-cols-12 border-t-2 border-t-[#898989]"
+                    >
                       <td className="py-4 text-center">
                         {form.companyBargainNo}
                       </td>

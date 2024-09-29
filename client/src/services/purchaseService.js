@@ -13,7 +13,7 @@ export const getPurchases = async () => {
 export const createPurchase = async (data) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/purchase`, data);
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
     }
