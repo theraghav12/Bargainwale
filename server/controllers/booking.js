@@ -4,6 +4,7 @@ import Warehouse from "../models/warehouse.js";
 import Buyer from "../models/buyer.js";
 import Item from "../models/items.js";
 
+
 const bookingController = {
   createBooking: async (req, res) => {
     try {
@@ -32,7 +33,12 @@ const bookingController = {
         item: itemId,
         virtualQuantity,
         pickup,
-      } of items) {
+        taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
+      } of items) {       
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res
             .status(400)
@@ -43,22 +49,24 @@ const bookingController = {
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
-
         // Check if the quantity is valid
        // if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
        //   return res
        //     .status(400)
        //     .json({ message: `Quantity mismatch for item: ${itemId}` });
        // }
-
         orderItems.push({
           item: itemId,
           virtualQuantity,
           pickup,
+          taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
         });
       }
 
-      // Find and update warehouse
       const warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
         return res.status(404).json({ message: "Warehouse not found" });
@@ -73,6 +81,11 @@ const bookingController = {
         item: itemId,
         virtualQuantity,
         pickup,
+        taxpaidAmount,
+          contNumber,
+          rackPrice,
+          depoPrice,
+          plantPrice
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
@@ -129,7 +142,7 @@ const bookingController = {
 
       await warehouseDocument.save();
 
-      // Create booking
+  
       const booking = new Booking({
         BargainDate: new Date(BargainDate),
         BargainNo,
@@ -224,6 +237,25 @@ const bookingController = {
         .json({ message: "Booking updated successfully", booking });
     } catch (error) {
       res.status(400).json({ message: "Error updating booking", error });
+    }
+  },
+  getBookingsByBuyerId: async (req, res) => {
+    try {
+      const { buyerId } = req.params;
+      
+      
+      const bookings = await Booking.find({ "buyer": buyerId })
+        .populate('warehouse')
+        .populate('buyer');  
+      
+      if (!bookings.length) {
+        return res.status(404).json({ message: "No bookings found for the provided buyer ID" });
+      }
+
+      res.status(200).json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Error fetching bookings", error });
     }
   },
 

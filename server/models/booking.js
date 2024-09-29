@@ -13,6 +13,7 @@ const bookingSchema = new mongoose.Schema(
     items: [
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+
         virtualQuantity: { type: Number, required: true  },
         pickup: {
           type: String,
@@ -25,6 +26,18 @@ const bookingSchema = new mongoose.Schema(
         contNumber:{
           type:Number,
         }, 
+        rackPrice: {
+          type: Number,
+          
+        },
+        plantPrice: {
+          type: Number,
+          
+        },
+        depoPrice: {
+          type: Number,
+          
+        },
       },
     ],
     validity: {
@@ -58,7 +71,7 @@ const bookingSchema = new mongoose.Schema(
 
     buyer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Buyer", // Reference to Manufacturer schema
+      ref: "Buyer", 
       required: true,
     },
     deliveryAddress: {
@@ -106,6 +119,5 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create and export the model
 const Booking = mongoose.model("Booking", bookingSchema);
 export default Booking;
