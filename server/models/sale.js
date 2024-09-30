@@ -24,11 +24,11 @@ const saleSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Transport",
     },
-    bookingId: {
+    bookingId: [{
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: "Booking", 
-    },
+    }],
     invoiceNumber: {
       type: String,
       unique: true,

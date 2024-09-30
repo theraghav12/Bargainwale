@@ -6,148 +6,142 @@ import Transport from "../models/transport.js";
 const saleController = {
   createSale: async (req, res) => {
     try {
-      const { warehouseId, bookingId, transporterId, items } = req.body;
+      const { warehouseId, bookingIds, transporterId, items } = req.body;
 
-      // Fetch the warehouse and booking documents
+      // Fetch the warehouse document
       const warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
 
-      const bookingDocument = await Booking.findById(bookingId).populate(
-        "items.item"
-      );
-      if (!bookingDocument) {
-        return res.status(404).json({ message: "Booking not found" });
-      }
-
-      if (bookingDocument.status === "fully sold") {
-        return res.status(400).json({
-          success: false,
-          message: "Sale cannot be created for a fully sold booking",
-        });
-      }
-
-      // Retrieve all previous sales for this booking
-      const previousSales = await Sale.find({ bookingId });
-      const previousSaleQuantities = {};
-
-      for (const sale of previousSales) {
-        for (const item of sale.items) {
-          if (!previousSaleQuantities[item.itemId]) {
-            previousSaleQuantities[item.itemId] = 0;
-          }
-          previousSaleQuantities[item.itemId] += item.quantity;
-        }
-      }
-
+      let allBookings = [];
       let isPartiallySold = false;
       let isFullySold = true;
 
-      // Process each item in the sale
-      for (const item of items) {
-        let { itemId, quantity } = item;
-        quantity=Number(quantity);
-        // Find the booking item
-        const bookingItem = bookingDocument.items.find(
-          (i) => i.item._id.toString() === itemId.toString()
-        );
+      for (const bookingId of bookingIds) {
+        const bookingDocument = await Booking.findById(bookingId).populate("items.item");
+        if (!bookingDocument) {
+          return res.status(404).json({ message: `Booking not found: ${bookingId}` });
+        }
 
-        if (!bookingItem) {
+        if (bookingDocument.status === "fully sold") {
           return res.status(400).json({
             success: false,
-            message: `Item not found in booking`,
+            message: `Sale cannot be created for a fully sold booking: ${bookingId}`,
           });
         }
 
-        // Calculate the total quantity sold so far for this item
-        const totalSoldQuantity =
-          (previousSaleQuantities[itemId] || 0) + quantity;
+        // Retrieve all previous sales for this booking
+        const previousSales = await Sale.find({ bookingId });
+        const previousSaleQuantities = {};
 
-        // Check if the sale quantity exceeds the booking quantity
-        if (totalSoldQuantity > bookingItem.quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Item ${itemId} is being sold more than what was booked`,
-          });
+        for (const sale of previousSales) {
+          for (const item of sale.items) {
+            if (!previousSaleQuantities[item.itemId]) {
+              previousSaleQuantities[item.itemId] = 0;
+            }
+            previousSaleQuantities[item.itemId] += item.quantity;
+          }
         }
 
-        // Get the sold inventory for this item
-        const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item.toString() === itemId.toString()
-        );
+        // Process each item in the sale for the current booking
+        for (const item of items) {
+          let { itemId, quantity } = item;
+          quantity = Number(quantity);
 
-        if (!soldInventoryItem) {
-          return res.status(400).json({
-            success: false,
-            message: `Item ${itemId} not found in sold inventory`,
-          });
-        }
-
-        const totalAvailableQuantity =
-          soldInventoryItem.virtualQuantity + soldInventoryItem.billedQuantity;
-
-        // If the total available quantity is less than the sale quantity, return an error
-        if (totalAvailableQuantity < quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Selling more than what was booked`,
-          });
-        }
-
-        // If billedQuantity alone is not enough, adjust from main inventory
-        if (soldInventoryItem.billedQuantity < quantity) {
-          const remainingQuantity = quantity - soldInventoryItem.billedQuantity;
-
-          // Update soldInventory's billedQuantity to 0 (used up)
-          soldInventoryItem.billedQuantity = 0;
-
-          // Update the main warehouse's inventory
-          const mainInventoryItem = warehouseDocument.billedInventory.find(
-            (i) => i.item.toString() === itemId.toString()
+          const bookingItem = bookingDocument.items.find(
+            (i) => i.item._id.toString() === itemId.toString()
           );
 
-          if (!mainInventoryItem || mainInventoryItem.quantity < remainingQuantity) {
+          if (!bookingItem) {
             return res.status(400).json({
               success: false,
-              message: `Not enough items in main billed inventory`,
+              message: `Item ${itemId} not found in booking: ${bookingId}`,
             });
           }
 
-          // Reduce main billed inventory by the remainingQuantity
-          mainInventoryItem.quantity -= remainingQuantity;
+          const totalSoldQuantity =
+            (previousSaleQuantities[itemId] || 0) + quantity;
 
-          // Transfer from virtual to billed in sold inventory
-          soldInventoryItem.virtualQuantity -= remainingQuantity;
-          warehouseDocument.virtualInventory.find(
+          if (totalSoldQuantity > bookingItem.quantity) {
+            return res.status(400).json({
+              success: false,
+              message: `Item ${itemId} is being sold more than booked in booking: ${bookingId}`,
+            });
+          }
+
+          const soldInventoryItem = warehouseDocument.soldInventory.find(
             (i) => i.item.toString() === itemId.toString()
-          ).quantity += remainingQuantity;
-        } else {
-          // If billedQuantity is sufficient, simply reduce it
-          soldInventoryItem.billedQuantity -= quantity;
+          );
+
+          if (!soldInventoryItem) {
+            return res.status(400).json({
+              success: false,
+              message: `Item ${itemId} not found in sold inventory`,
+            });
+          }
+
+          const totalAvailableQuantity =
+            soldInventoryItem.virtualQuantity + soldInventoryItem.billedQuantity;
+
+          if (totalAvailableQuantity < quantity) {
+            return res.status(400).json({
+              success: false,
+              message: `Selling more than booked in booking: ${bookingId}`,
+            });
+          }
+
+          if (soldInventoryItem.billedQuantity < quantity) {
+            const remainingQuantity = quantity - soldInventoryItem.billedQuantity;
+
+            soldInventoryItem.billedQuantity = 0;
+
+            const mainInventoryItem = warehouseDocument.billedInventory.find(
+              (i) => i.item.toString() === itemId.toString()
+            );
+
+            if (!mainInventoryItem || mainInventoryItem.quantity < remainingQuantity) {
+              return res.status(400).json({
+                success: false,
+                message: `Not enough items in main billed inventory for item ${itemId}`,
+              });
+            }
+
+            mainInventoryItem.quantity -= remainingQuantity;
+            soldInventoryItem.virtualQuantity -= remainingQuantity;
+            warehouseDocument.virtualInventory.find(
+              (i) => i.item.toString() === itemId.toString()
+            ).quantity += remainingQuantity;
+          } else {
+            soldInventoryItem.billedQuantity -= quantity;
+          }
+
+          if (totalSoldQuantity < bookingItem.quantity) {
+            isPartiallySold = true;
+            isFullySold = false;
+          }
         }
 
-        // Determine the status of the booking based on sales
-        if (totalSoldQuantity < bookingItem.quantity) {
-          isPartiallySold = true;
-          isFullySold = false;
-        }
+        allBookings.push(bookingDocument);
       }
 
-      // Update the booking status based on sales
-      if (isFullySold && !isPartiallySold) {
-        bookingDocument.status = "fully sold";
-      } else if (isPartiallySold) {
-        bookingDocument.status = "partially sold";
+      // Update the status of all bookings
+      for (const bookingDocument of allBookings) {
+        if (isFullySold && !isPartiallySold) {
+          bookingDocument.status = "fully sold";
+        } else if (isPartiallySold) {
+          bookingDocument.status = "partially sold";
+        }
+        await bookingDocument.save();
       }
-      await bookingDocument.save();
+
       await warehouseDocument.save();
 
       // Create and save the new sale
       const newSale = new Sale({
         warehouseId,
         transporterId,
-        bookingId,
+        bookingIds,
         items,
       });
 
@@ -166,7 +160,6 @@ const saleController = {
       });
     }
   },
-
   getAllSales: async (req, res) => {
     try {
       const sales = await Sale.find()
