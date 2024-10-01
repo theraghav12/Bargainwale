@@ -106,6 +106,7 @@ export default function Home() {
           rackPrice: price.rackPrice,
           depotPrice: price.depoPrice,
           plantPrice: price.plantPrice,
+          pricesUpdates: true,
         }));
         setForm(updatedForm);
         setPricesFound(true);
@@ -118,6 +119,7 @@ export default function Home() {
             rackPrice: "",
             depotPrice: "",
             plantPrice: "",
+            pricesUpdates: false,
           }))
         );
       }
@@ -166,25 +168,30 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    try {
-      const postData = {
-        warehouseId: selectedWarehouse,
-        prices: form.map((item) => ({
-          itemId: item.itemId,
-          companyPrice: item.companyPrice,
-          rackPrice: item.rackPrice,
-          depoPrice: item.depotPrice,
-          plantPrice: item.plantPrice,
-        })),
-      };
-      console.log(postData);
-      await addPrice(postData);
-      toast.success("Prices updated successfully!");
-      // Optionally, reset form and fetch prices again
-      fetchPricesForWarehouse(selectedWarehouse);
-    } catch (error) {
-      console.error("Error updating prices:", error);
-      toast.error("Error updating prices!");
+    const itemsToSubmit = form.filter((item) => !item.pricesUpdated);
+    if (itemsToSubmit.length > 0) {
+      try {
+        const postData = {
+          warehouseId: selectedWarehouse,
+          prices: itemsToSubmit.map((item) => ({
+            itemId: item.itemId,
+            companyPrice: item.companyPrice,
+            rackPrice: item.rackPrice,
+            depoPrice: item.depotPrice,
+            plantPrice: item.plantPrice,
+          })),
+        };
+        console.log(postData);
+        await addPrice(postData);
+        toast.success("Prices updated successfully!");
+        // Optionally, reset form and fetch prices again
+        fetchPricesForWarehouse(selectedWarehouse);
+      } catch (error) {
+        console.error("Error updating prices:", error);
+        toast.error("Error updating prices!");
+      }
+    } else {
+      toast.error("All prices are already updated.");
     }
   };
 
@@ -265,9 +272,9 @@ export default function Home() {
                         name="companyPrice"
                         value={item.companyPrice}
                         onChange={(event) => handleInputChange(index, event)}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter company price"
-                        disabled={pricesFound}
+                        disabled={item.pricesUpdated}
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -276,9 +283,9 @@ export default function Home() {
                         name="rackPrice"
                         value={item.rackPrice}
                         onChange={(event) => handleInputChange(index, event)}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter rack price"
-                        disabled={pricesFound}
+                        disabled={item.pricesUpdated}
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -287,9 +294,9 @@ export default function Home() {
                         name="depotPrice"
                         value={item.depotPrice}
                         onChange={(event) => handleInputChange(index, event)}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter depot price"
-                        disabled={pricesFound}
+                        disabled={item.pricesUpdated}
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -298,9 +305,9 @@ export default function Home() {
                         name="plantPrice"
                         value={item.plantPrice}
                         onChange={(event) => handleInputChange(index, event)}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter plant price"
-                        disabled={pricesFound}
+                        disabled={item.pricesUpdated}
                       />
                     </td>
                   </tr>
@@ -310,7 +317,6 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              disabled={pricesFound}
             >
               Save Prices
             </button>

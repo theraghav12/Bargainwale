@@ -3,12 +3,12 @@ import mongoose from "mongoose";
 const priceSchema = new mongoose.Schema({
   warehouse: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Warehouse", 
+    ref: "Warehouse",
     required: true
   },
   item: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Item", 
+    ref: "Item",
     required: true
   },
   companyPrice: {
@@ -29,7 +29,11 @@ const priceSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now 
+    default: Date.now
+  },
+  pricesUpdated: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
