@@ -28,7 +28,7 @@ import {
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { toast } from "react-toastify"; // Assuming you're using react-toastify for notifications
 
-export function Home() {
+export default function Home() {
   const [orders, setOrders] = useState([]);
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);

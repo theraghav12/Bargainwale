@@ -6,13 +6,13 @@ import SecondNavbar from "./widgets/layout/SecNavbar";
 import CreateOrder from "./pages/orders/CreateOrder";
 import Master from "./pages/dashboard/Master";
 import Inventory from "./pages/inventory/InventoryManagement";
-import { Home } from "./pages/dashboard";
 import { OrderHistory } from "./pages/orders/OrderHistory";
 import CreateBooking from "./pages/booking/CreateBooking";
 import { BookingHistory } from "./pages/booking/BookingHistory";
 import PurchaseHistory from "./pages/purchase/PurchaseHistory";
 import CreateSales from "./pages/sales/CreateSales";
 import SalesHistory from "./pages/sales/SalesHistory";
+import Home from "./pages/dashboard/Home";
 
 function App() {
   return (
