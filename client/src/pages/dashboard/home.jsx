@@ -74,7 +74,7 @@ export default function Home() {
   // Fetch items for the selected warehouse
   const fetchItemsForWarehouse = async (warehouseId) => {
     try {
-      const itemsData = await getItems(); // Assuming this fetches all items; modify if needed
+      const itemsData = await getItems();
       const filteredItems = itemsData.filter(
         (item) => item.warehouse === warehouseId
       );
@@ -85,7 +85,9 @@ export default function Home() {
         rackPrice: "",
         depotPrice: "",
         plantPrice: "",
+        pricesUpdated: item.pricesUpdated,
       }));
+      console.log(updatedForm);
       setForm(updatedForm);
     } catch (error) {
       console.error("Error fetching items:", error);
@@ -106,12 +108,10 @@ export default function Home() {
           rackPrice: price.rackPrice,
           depotPrice: price.depoPrice,
           plantPrice: price.plantPrice,
-          pricesUpdates: true,
+          pricesUpdated: true,
         }));
-        setForm(updatedForm);
-        setPricesFound(true);
+        setForm(...form, updatedForm);
       } else {
-        setPricesFound(false);
         setForm(
           items.map((item) => ({
             itemId: item._id,
@@ -119,7 +119,7 @@ export default function Home() {
             rackPrice: "",
             depotPrice: "",
             plantPrice: "",
-            pricesUpdates: false,
+            pricesUpdated: false,
           }))
         );
       }
@@ -138,6 +138,10 @@ export default function Home() {
       console.error("Error fetching prices:", error);
     }
   };
+
+  console.log(form);
+  const itemsToSubmit = form.filter((item) => !item.pricesUpdated);
+  console.log(itemsToSubmit);
 
   useEffect(() => {
     fetchWarehouseOptions();
@@ -203,6 +207,8 @@ export default function Home() {
       year: "numeric",
     }).format(date);
   };
+
+  console.log(historyItems);
 
   return (
     <div className="mt-12 px-12">
