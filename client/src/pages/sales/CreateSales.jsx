@@ -24,8 +24,9 @@ import { MdDeleteOutline } from "react-icons/md";
 import { createOrder, getOrders } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { createPurchase } from "@/services/purchaseService";
+import { getBookings } from "@/services/bookingService";
 
-const CreatePurchase = () => {
+const CreateSales = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
   const [transportOptions, setTransportOptions] = useState([]);
@@ -41,7 +42,7 @@ const CreatePurchase = () => {
   const [form, setForm] = useState({
     warehouseId: "",
     transporterId: "",
-    orderId: "",
+    bookingId: "",
     invoiceNumber: "",
     invoiceDate: "",
     items: [],
@@ -56,7 +57,7 @@ const CreatePurchase = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await getOrders();
+      const response = await getBookings();
       const ordersData = response;
 
       let filteredOrders =
@@ -172,7 +173,7 @@ const CreatePurchase = () => {
 
       const updatedForm = {
         ...form,
-        orderId: selectedOrder,
+        bookingId: selectedOrder,
         items: quantityInputs,
         organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
@@ -667,7 +668,7 @@ const CreatePurchase = () => {
               </div>
             ) : (
               <p className="text-center text-[1.2rem] text-blue-gray-600 mt-20">
-                No orders found!
+                No bookings found!
               </p>
             )}
           </div>
@@ -818,4 +819,4 @@ const CreatePurchase = () => {
   );
 };
 
-export default CreatePurchase;
+export default CreateSales;

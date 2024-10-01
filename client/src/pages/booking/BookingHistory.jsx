@@ -283,7 +283,7 @@ export function BookingHistory() {
           </div>
 
           <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
             <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
@@ -291,7 +291,7 @@ export function BookingHistory() {
             </button>
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
@@ -443,7 +443,7 @@ export function BookingHistory() {
                                     </thead>
                                     <tbody>
                                       {booking.items.map((item) => (
-                                        <tr key={item.name}>
+                                        <tr key={item._id}>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.name}
                                           </td>
@@ -478,18 +478,12 @@ export function BookingHistory() {
               </div>
             </div>
           ) : (
-            <Typography className="text-center text-blue-gray-600">
+            <Typography className="text-center text-blue-gray-600 mt-8">
               No bookings found
             </Typography>
           )}
         </div>
       </div>
-      {/* {showEditBookingForm && selectedBooking && (
-        <EditOrderForm
-          close={() => setShowEditbookingForm(false)}
-          booking={selectedBooking}
-        />
-      )} */}
     </div>
   );
 }

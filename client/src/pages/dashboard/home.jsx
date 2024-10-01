@@ -14,33 +14,34 @@ import {
   Progress,
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
-import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { StatisticsCard } from "@/widgets/cards";
 import { StatisticsChart } from "@/widgets/charts";
 import { getOrders } from "@/services/orderService";
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
+import {
+  getItems,
+  getPricesByWarehouse,
+  addPrice,
+  getPrices,
+} from "@/services/itemService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { toast } from "react-toastify"; // Assuming you're using react-toastify for notifications
 
 export function Home() {
   const [orders, setOrders] = useState([]);
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
-  const [form, setForm] = useState([
-    {
-      warehouse: "",
-      item: "",
-      companyPrice: "",
-      rackPrice: "",
-      depotPrice: "",
-      plantPrice: "",
-    },
-  ]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedHistoryWarehouse, setSelectedHistoryWarehouse] = useState("");
+  const [items, setItems] = useState([]); // State to hold items for the selected warehouse
+  const [historyItems, setHistoryItems] = useState([]); // State to hold items for the selected warehouse
+  const [form, setForm] = useState([]);
+  const [pricesFound, setPricesFound] = useState(false); // State to check if prices are found
 
   useEffect(() => {
     const fetchOrders = async () => {
       const data = await getOrders();
-      const selectedWarehouseID = localStorage.getItem("warehouse");
-      const data1 = await getWarehouseById(selectedWarehouseID);
       if (data) {
         setOrders(data);
         setStatisticsCardsData([
@@ -58,7 +59,7 @@ export function Home() {
       }
     };
     fetchOrders();
-  }, []);
+  }, [selectedWarehouse]);
 
   const fetchWarehouseOptions = async () => {
     try {
@@ -70,48 +71,88 @@ export function Home() {
     }
   };
 
+  // Fetch items for the selected warehouse
+  const fetchItemsForWarehouse = async (warehouseId) => {
+    try {
+      const itemsData = await getItems(); // Assuming this fetches all items; modify if needed
+      const filteredItems = itemsData.filter(
+        (item) => item.warehouse === warehouseId
+      );
+      setItems(filteredItems);
+      const updatedForm = filteredItems.map((item) => ({
+        itemId: item._id,
+        companyPrice: "",
+        rackPrice: "",
+        depotPrice: "",
+        plantPrice: "",
+      }));
+      setForm(updatedForm);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+      toast.error("Error fetching items!");
+    }
+  };
+
+  // Fetch prices for the selected warehouse
+  const fetchPricesForWarehouse = async (warehouseId) => {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const prices = await getPricesByWarehouse(warehouseId, today);
+
+      if (prices.length > 0) {
+        const updatedForm = prices.map((price) => ({
+          itemId: price.item._id,
+          companyPrice: price.companyPrice,
+          rackPrice: price.rackPrice,
+          depotPrice: price.depoPrice,
+          plantPrice: price.plantPrice,
+        }));
+        setForm(updatedForm);
+        setPricesFound(true);
+      } else {
+        setPricesFound(false);
+        setForm(
+          items.map((item) => ({
+            itemId: item._id,
+            companyPrice: "",
+            rackPrice: "",
+            depotPrice: "",
+            plantPrice: "",
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching prices:", error);
+      setPricesFound(false);
+    }
+  };
+
+  const fetchPricesForHistory = async (warehouseId) => {
+    try {
+      const response = await getPrices(warehouseId);
+      setHistoryItems(response);
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching prices:", error);
+    }
+  };
+
   useEffect(() => {
     fetchWarehouseOptions();
   }, []);
 
-  // Function to populate the form based on the given Postman data
-  const setFormFromPostmanData = (postData) => {
-    const { prices } = postData;
-    const updatedForm = prices.map((price) => ({
-      item: price.itemId, // Assuming you get the item name or id
-      companyPrice: price.companyPrice,
-      rackPrice: price.rackPrice,
-      depotPrice: price.depoPrice,
-      plantPrice: price.plantPrice,
-    }));
-    setForm(updatedForm);
-  };
-
-  // Example Postman data
-  const postmanData = {
-    warehouseId: "66d4b28d94374eea53e1cff3",
-    prices: [
-      {
-        itemId: "66cf6907e6f852c6a630cecb",
-        companyPrice: 100,
-        rackPrice: 110,
-        plantPrice: 120,
-        depoPrice: 130,
-      },
-      {
-        itemId: "66cf6938e6f852c6a630cece",
-        companyPrice: 200,
-        rackPrice: 210,
-        plantPrice: 220,
-        depoPrice: 230,
-      },
-    ],
-  };
-
-  // Populate form when the component mounts or when data is fetched
   useEffect(() => {
-    setFormFromPostmanData(postmanData);
-  }, []);
+    if (selectedWarehouse) {
+      fetchItemsForWarehouse(selectedWarehouse);
+      fetchPricesForWarehouse(selectedWarehouse);
+    }
+  }, [selectedWarehouse]);
+
+  useEffect(() => {
+    if (selectedHistoryWarehouse) {
+      fetchPricesForHistory(selectedHistoryWarehouse);
+    }
+  }, [selectedHistoryWarehouse]);
 
   const handleInputChange = (index, event) => {
     const { name, value } = event.target;
@@ -120,9 +161,44 @@ export function Home() {
     setForm(updatedForm);
   };
 
+  const handleWarehouseChange = (event) => {
+    setSelectedWarehouse(event.target.value);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const postData = {
+        warehouseId: selectedWarehouse,
+        prices: form.map((item) => ({
+          itemId: item.itemId,
+          companyPrice: item.companyPrice,
+          rackPrice: item.rackPrice,
+          depoPrice: item.depotPrice,
+          plantPrice: item.plantPrice,
+        })),
+      };
+      console.log(postData);
+      await addPrice(postData);
+      toast.success("Prices updated successfully!");
+      // Optionally, reset form and fetch prices again
+      fetchPricesForWarehouse(selectedWarehouse);
+    } catch (error) {
+      console.error("Error updating prices:", error);
+      toast.error("Error updating prices!");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
+
   return (
     <div className="mt-12 px-12">
-      {/* Heading */}
       <div>
         <h1 className="text-[1.2rem]">Welcome, Name</h1>
         <p className="text-[0.9rem] text-[#828282]">
@@ -130,21 +206,19 @@ export function Home() {
         </p>
       </div>
 
-      {/* Warehouse section */}
-      <div className="bg-white border-2 border-[#E9E9E9] rounded-md">
-        <h2 className="text-[0.9rem] text-[#929292]">
-          Daily Item price update
-        </h2>
-
-        <div className="flex gap-5 items-center">
+      <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
+        <h1 className="text-[1rem] text-[#929292]">DAILY ITEM PRICE UPDATE</h1>
+        <div className="flex gap-5 items-center mt-2">
           <div className="relative w-[400px]">
             <select
-              id="iphoneSelect"
-              name="iphoneSelect"
+              id="warehouseSelect"
+              name="warehouseSelect"
+              value={selectedWarehouse}
+              onChange={handleWarehouseChange}
               className="appearance-none w-full bg-[#F0F0F0] border-2 border-[#737373] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
             >
-              <option value="">Warehouse</option>
-              {warehouseOptions?.map((option) => (
+              <option value="">Select Warehouse</option>
+              {warehouseOptions.map((option) => (
                 <option key={option._id} value={option._id}>
                   {option.name}
                 </option>
@@ -156,81 +230,186 @@ export function Home() {
           </div>
         </div>
 
-        <div className="container mx-auto p-4">
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 border">Item Name</th>
-                <th className="px-4 py-2 border">Company Price</th>
-                <th className="px-4 py-2 border">Rack Price</th>
-                <th className="px-4 py-2 border">Depot Price</th>
-                <th className="px-4 py-2 border">Plant Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {form.map((item, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-2 border">
-                    <input
-                      type="text"
-                      name="item"
-                      value={item.item}
-                      onChange={(event) => handleInputChange(index, event)}
-                      className="border px-2 py-1 w-full"
-                      placeholder="Enter item name"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border">
-                    <input
-                      type="number"
-                      name="companyPrice"
-                      value={item.companyPrice}
-                      onChange={(event) => handleInputChange(index, event)}
-                      className="border px-2 py-1 w-full"
-                      placeholder="Enter company price"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border">
-                    <input
-                      type="number"
-                      name="rackPrice"
-                      value={item.rackPrice}
-                      onChange={(event) => handleInputChange(index, event)}
-                      className="border px-2 py-1 w-full"
-                      placeholder="Enter rack price"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border">
-                    <input
-                      type="number"
-                      name="depotPrice"
-                      value={item.depotPrice}
-                      onChange={(event) => handleInputChange(index, event)}
-                      className="border px-2 py-1 w-full"
-                      placeholder="Enter depot price"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border">
-                    <input
-                      type="number"
-                      name="plantPrice"
-                      value={item.plantPrice}
-                      onChange={(event) => handleInputChange(index, event)}
-                      className="border px-2 py-1 w-full"
-                      placeholder="Enter plant price"
-                    />
-                  </td>
+        {/* Price input form for items */}
+        {selectedWarehouse ? (
+          <div className="mt-2 p-4">
+            <table className="min-w-full bg-white border-b border-b-[2px] border-[#898484] text-[#7F7F7F]">
+              <thead>
+                <tr className="grid grid-cols-5">
+                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                    Item Name
+                  </th>
+                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                    Company Price
+                  </th>
+                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                    Rack Price
+                  </th>
+                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                    Depot Price
+                  </th>
+                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                    Plant Price
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Add Row
-          </button>
+              </thead>
+              <tbody>
+                {form.map((item, index) => (
+                  <tr key={index} className="grid grid-cols-5">
+                    <td className="px-4 py-2 border-r border-l border-r-[2px] border-l-[2px] border-[#898484]">
+                      {items[index]?.materialdescription || "Unknown Item"}
+                    </td>
+                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                      <input
+                        type="number"
+                        name="companyPrice"
+                        value={item.companyPrice}
+                        onChange={(event) => handleInputChange(index, event)}
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        placeholder="Enter company price"
+                        disabled={pricesFound}
+                      />
+                    </td>
+                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                      <input
+                        type="number"
+                        name="rackPrice"
+                        value={item.rackPrice}
+                        onChange={(event) => handleInputChange(index, event)}
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        placeholder="Enter rack price"
+                        disabled={pricesFound}
+                      />
+                    </td>
+                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                      <input
+                        type="number"
+                        name="depotPrice"
+                        value={item.depotPrice}
+                        onChange={(event) => handleInputChange(index, event)}
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        placeholder="Enter depot price"
+                        disabled={pricesFound}
+                      />
+                    </td>
+                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                      <input
+                        type="number"
+                        name="plantPrice"
+                        value={item.plantPrice}
+                        onChange={(event) => handleInputChange(index, event)}
+                        className="border px-2 py-1 w-full bg-[#E9E9E9] rounded"
+                        placeholder="Enter plant price"
+                        disabled={pricesFound}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              onClick={handleSubmit}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              disabled={pricesFound}
+            >
+              Save Prices
+            </button>
+            {/* {!pricesFound && (
+          <p className="text-red-500">
+            Prices not found for the selected warehouse. Please enter new
+            prices.
+          </p>
+        )} */}
+          </div>
+        ) : (
+          <Typography className="text-xl text-center font-bold my-5">
+            Select Warehouse!
+          </Typography>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] my-8">
+        <div className="flex items-center justify-between px-8 py-2 border-b-2 border-b-[#929292]">
+          <h1 className="text-[1rem] text-[#636363]">PRICE HISTORY</h1>
+
+          <div className="flex gap-5 items-center mt-2">
+            <div className="relative w-[400px]">
+              <select
+                value={selectedHistoryWarehouse}
+                onChange={(e) => setSelectedHistoryWarehouse(e.target.value)}
+                className="appearance-none w-full bg-[#F0F0F0] border-2 border-[#737373] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+              >
+                <option value="">Select Warehouse</option>
+                {warehouseOptions.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-10">
+          {/* Items Table */}
+          <div className="w-full overflow-x-scroll">
+            {selectedHistoryWarehouse ? (
+              historyItems?.length > 0 ? (
+                <table className="w-full bg-white">
+                  <thead>
+                    <tr className="grid grid-cols-6">
+                      <th className="py-2 px-4 text-start">Date</th>
+                      <th className="py-2 px-4 text-start">Item</th>
+                      <th className="py-2 px-4 text-start">Company Price</th>
+                      <th className="py-2 px-4 text-start">Rack Price</th>
+                      <th className="py-2 px-4 text-start">Depot Price</th>
+                      <th className="py-2 px-4 text-start">Plant Price</th>
+                    </tr>
+                  </thead>
+                  <tbody className="flex flex-col gap-2">
+                    {historyItems?.map((item) => (
+                      <tr
+                        key={item._id}
+                        className="grid grid-cols-6 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                      >
+                        <td className="py-2 px-4">
+                          <span>{formatDate(item.date)}</span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <span>{item.item?.materialdescription}</span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <span>{item.companyPrice}</span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <span>{item.rackPrice}</span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <span>{item.depoPrice}</span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <span>{item.plantPrice}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <Typography className="text-xl text-center font-bold">
+                  No Items!
+                </Typography>
+              )
+            ) : (
+              <Typography className="text-xl text-center font-bold">
+                Select Warehouse!
+              </Typography>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default Home;

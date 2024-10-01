@@ -10,6 +10,9 @@ import { Home } from "./pages/dashboard";
 import { OrderHistory } from "./pages/orders/OrderHistory";
 import CreateBooking from "./pages/booking/CreateBooking";
 import { BookingHistory } from "./pages/booking/BookingHistory";
+import PurchaseHistory from "./pages/purchase/PurchaseHistory";
+import CreateSales from "./pages/sales/CreateSales";
+import SalesHistory from "./pages/sales/SalesHistory";
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
             <Route path="/bookings/create" element={<CreateBooking />} />
             <Route path="/bookings/history" element={<BookingHistory />} />
             <Route path="/purchase/create" element={<CreatePurchase />} />
+            <Route path="/purchase/history" element={<PurchaseHistory />} />
+            <Route path="/sales/create" element={<CreateSales />} />
+            <Route path="/sales/history" element={<SalesHistory />} />
             {/* <Route path="/dashboard/" element={<Dashboard />}>
               <Route path="/dashboard/purchase/create" element={<Purchase />} />
               <Route path="/dashboard/sales/create" element={<Sales />} />

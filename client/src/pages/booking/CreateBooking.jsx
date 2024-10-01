@@ -45,6 +45,7 @@ const CreateBooking = () => {
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
+      console.log(response)
       setItemsOptions(response);
     } catch (error) {
       toast.error("Error fetching items!");
@@ -421,10 +422,10 @@ const CreateBooking = () => {
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
                       <td className="py-4 text-center">
-                        {form.companyBargainNo}
+                        {form.BargainNo}
                       </td>
                       <td className="py-4 text-center">
-                        {form.companyBargainDate}
+                        {form.BargainDate}
                       </td>
                       <td className="py-4 text-center">
                         <div className="relative w-[150px]">
@@ -441,7 +442,7 @@ const CreateBooking = () => {
                             <option value="">Select Item</option>
                             {itemsOptions?.map((item) => (
                               <option key={item._id} value={item._id}>
-                                {item.name}
+                                {item.materialdescription}
                               </option>
                             ))}
                           </select>

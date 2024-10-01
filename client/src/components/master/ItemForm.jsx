@@ -20,21 +20,39 @@ import {
 
 // icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { getWarehouses } from "@/services/warehouseService";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [form, setForm] = useState({
-    name: "",
-    packaging: "",
-    type: "",
-    weight: "",
+    flavor: "",
+    material: "",
+    materialdescription: "",
+    netweight: "",
+    grossweight: "",
+    gst: "",
+    packaging: "box",
+    packsize: "",
     staticPrice: "",
+    warehouse: "",
   });
   const [editingId, setEditingId] = useState(null);
 
+  const fetchWarehouseOptions = async () => {
+    try {
+      const response = await getWarehouses();
+      setWarehouseOptions(response);
+    } catch (error) {
+      toast.error("Error fetching warehouses!");
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchItems();
+    fetchWarehouseOptions();
   }, []);
 
   const fetchItems = async () => {
@@ -82,6 +100,7 @@ const ItemForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      console.log(form)
       const response = await createItem(form);
       console.log(response);
       toast.success("Item added successfully!");
@@ -98,6 +117,7 @@ const ItemForm = () => {
         type: "",
         weight: "",
         staticPrice: "",
+        warehouse: "",
       });
       fetchItems();
     } catch (error) {
@@ -360,12 +380,70 @@ const ItemForm = () => {
 
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex">
+            <div className="flex gap-4">
+              <div className="relative w-[400px]">
+                <Select
+                  name="warehouse"
+                  label="Warehouse"
+                  value={form.warehouse}
+                  onChange={(value) => handleChange(value, "warehouse")}
+                >
+                  <option value="">Select Warehouse</option>
+                  {warehouseOptions.map((option) => (
+                    <Option key={option._id} value={option._id}>
+                      {option.name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+
               <Input
-                name="name"
+                name="materialdescription"
                 label="Item Name"
                 type="text"
-                value={form.name}
+                value={form.materialdescription}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="flavor"
+                label="Flavor"
+                type="text"
+                value={form.flavor}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="material"
+                label="Material"
+                type="text"
+                value={form.material}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="flex gap-4">
+              <Input
+                name="netweight"
+                label="Net Weight"
+                type="text"
+                value={form.netweight}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="grossweight"
+                label="Gross Weight"
+                type="text"
+                value={form.grossweight}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                name="gst"
+                label="GST"
+                type="text"
+                value={form.gst}
                 onChange={handleChange}
                 required
               />
@@ -379,22 +457,13 @@ const ItemForm = () => {
               >
                 <Option value="box">Box</Option>
                 <Option value="tin">Tin</Option>
+                <Option value="jar">Jar</Option>
               </Select>
               <Input
-                name="type"
-                label="Type"
+                name="packsize"
+                label="Pack Size"
                 type="text"
-                value={form.type}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="flex gap-4">
-              <Input
-                name="weight"
-                label="Weight"
-                type="number"
-                value={form.weight}
+                value={form.packsize}
                 onChange={handleChange}
                 required
               />

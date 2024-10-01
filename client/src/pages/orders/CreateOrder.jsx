@@ -75,6 +75,12 @@ const CreateOrder = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (form.items.length === 0) {
+      toast.error("Please add at least one item before creating the order!");
+      setLoading(false);
+      return;
+    }
+
     try {
       const paymentDays = calculateDaysDifference(
         form.companyBargainDate,
@@ -441,37 +447,37 @@ const CreateOrder = () => {
           </form>
 
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-            <div className="overflow-x-auto">
-              <table className="max-w-full table-auto border-collapse">
+            <div className="w-full overflow-x-scroll">
+              <table className="w-full table-auto">
                 <thead>
-                  <tr className="grid grid-cols-12">
-                    <th className="py-4 text-center">CBN</th>
-                    <th className="py-4 text-center">CBD</th>
-                    <th className="py-4 text-center">Item</th>
-                    <th className="py-4 text-center">Quantity</th>
-                    <th className="py-4 text-center">Pickup</th>
-                    <th className="py-4 text-center">Cont. No.</th>
-                    <th className="py-4 text-center">Base Rate</th>
-                    <th className="py-4 text-center">Tax Paid Amount</th>
-                    <th className="py-4 text-center">Inco</th>
-                    <th className="py-4 text-center">Payment Date</th>
-                    <th className="py-4 text-center">Description</th>
-                    <th className="py-4 text-center">Action</th>
+                  <tr className="grid grid-cols-12 gap-2">
+                    <th className="py-4 px-2 text-center">CBN</th>
+                    <th className="py-4 px-2 text-center">CBD</th>
+                    <th className="py-4 px-2 text-center">Item</th>
+                    <th className="py-4 px-2 text-center">Quantity</th>
+                    <th className="py-4 px-2 text-center">Pickup</th>
+                    <th className="py-4 px-2 text-center">Cont. No.</th>
+                    <th className="py-4 px-2 text-center">Base Rate</th>
+                    <th className="py-4 px-2 text-center">Tax Paid Amount</th>
+                    <th className="py-4 px-2 text-center">Inco</th>
+                    <th className="py-4 px-2 text-center">Payment Date</th>
+                    <th className="py-4 px-2 text-center">Description</th>
+                    <th className="py-4 px-2 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr
                       key={index}
-                      className="grid grid-cols-12 border-t-2 border-t-[#898989]"
+                      className="grid grid-cols-12 gap-2 border-t-2 border-t-[#898989]"
                     >
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         {form.companyBargainNo}
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         {form.companyBargainDate}
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="itemId"
@@ -495,7 +501,7 @@ const CreateOrder = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="quantity"
@@ -508,7 +514,7 @@ const CreateOrder = () => {
                           className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="pickup"
@@ -530,7 +536,7 @@ const CreateOrder = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="contNumber"
@@ -547,7 +553,7 @@ const CreateOrder = () => {
                           className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="baseRate"
@@ -560,11 +566,17 @@ const CreateOrder = () => {
                           className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">{item.taxpaidAmount}</td>
-                      <td className="py-4 text-center">{form.inco}</td>
-                      <td className="py-4 text-center">{form.paymentDays}</td>
-                      <td className="py-4 text-center">{form.description}</td>
-                      <td className="py-4 flex justify-center">
+                      <td className="py-4 px-2 text-center">
+                        {item.taxpaidAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">{form.inco}</td>
+                      <td className="py-4 px-2 text-center">
+                        {form.paymentDays}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {form.description}
+                      </td>
+                      <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">
                             <MdDeleteOutline
