@@ -12,7 +12,7 @@ import { BookingHistory } from "./pages/booking/BookingHistory";
 import PurchaseHistory from "./pages/purchase/PurchaseHistory";
 import CreateSales from "./pages/sales/CreateSales";
 import SalesHistory from "./pages/sales/SalesHistory";
-import Home from "./pages/dashboard/Home";
+import Home from "@/pages/dashboard/Home";
 
 function App() {
   return (
