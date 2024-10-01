@@ -12,6 +12,7 @@ import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 import { createOrder } from "@/services/orderService";
+import { createBooking } from "@/services/bookingService";
 
 const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ const CreateBooking = () => {
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
-      console.log(response)
+      console.log(response);
       setItemsOptions(response);
     } catch (error) {
       toast.error("Error fetching items!");
@@ -94,7 +95,8 @@ const CreateBooking = () => {
         organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
 
-      const response = await createOrder(updatedForm);
+      console.log(updatedForm);
+      const response = await createBooking(updatedForm);
 
       if (response.status === 201) {
         toast.success("Order created successfully!");
@@ -147,10 +149,7 @@ const CreateBooking = () => {
         ...prevData,
         items: updatedItems,
       }));
-    } else if (
-      fieldName === "companyBargainDate" ||
-      fieldName === "paymentDays"
-    ) {
+    } else if (fieldName === "BargainDate" || fieldName === "paymentDays") {
       const formattedDate = value.split("T")[0];
       setForm((prevData) => ({
         ...prevData,
@@ -170,8 +169,8 @@ const CreateBooking = () => {
       items: [
         ...prevData.items,
         {
-          itemId: "",
-          quantity: null,
+          item: "",
+          virtualQuantity: null,
           pickup: "",
           baseRate: null,
           taxpaidAmount: null,
@@ -361,6 +360,35 @@ const CreateBooking = () => {
                   />
                 </div>
 
+                <div className="flex gap-2 items-center">
+                  <label
+                    htmlFor="deliveryOption"
+                    className="flex text-[#38454A] text-[1rem]"
+                  >
+                    Delivery Option
+                    <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+                  </label>
+                  <div className="relative w-[200px]">
+                    <select
+                      id="deliveryOption"
+                      name="deliveryOption"
+                      value={form.deliveryOption}
+                      onChange={(e) =>
+                        handleFormChange(0, "deliveryOption", e.target.value)
+                      }
+                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                      required
+                    >
+                      <option value="">Select Option</option>
+                      <option value="Delivery">Delivery</option>
+                      <option value="Pickup">Pickup</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="description"
@@ -391,8 +419,8 @@ const CreateBooking = () => {
                   <FaPlus /> Add Item
                 </Button>
 
-                <Button color="blue" type="submit" className="w-[140px]">
-                  {loading ? <Spinner /> : <span>Create Order</span>}
+                <Button color="blue" type="submit" className="w-[150px]">
+                  {loading ? <Spinner /> : <span>Create Booking</span>}
                 </Button>
               </div>
             </div>
@@ -421,20 +449,16 @@ const CreateBooking = () => {
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
-                      <td className="py-4 text-center">
-                        {form.BargainNo}
-                      </td>
-                      <td className="py-4 text-center">
-                        {form.BargainDate}
-                      </td>
+                      <td className="py-4 text-center">{form.BargainNo}</td>
+                      <td className="py-4 text-center">{form.BargainDate}</td>
                       <td className="py-4 text-center">
                         <div className="relative w-[150px]">
                           <select
-                            id="itemId"
-                            name="itemId"
-                            value={item.itemId}
+                            id="item"
+                            name="item"
+                            value={item.item}
                             onChange={(e) =>
-                              handleItemChange(index, "itemId", e.target.value)
+                              handleItemChange(index, "item", e.target.value)
                             }
                             className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                             required
@@ -454,10 +478,14 @@ const CreateBooking = () => {
                       <td className="py-4 text-center">
                         <input
                           type="number"
-                          name="quantity"
+                          name="virtualQuantity"
                           value={item.quantity}
                           onChange={(e) =>
-                            handleItemChange(index, "quantity", e.target.value)
+                            handleItemChange(
+                              index,
+                              "virtualQuantity",
+                              e.target.value
+                            )
                           }
                           required
                           placeholder="Quantity"

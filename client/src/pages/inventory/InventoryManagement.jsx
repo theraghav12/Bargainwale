@@ -65,6 +65,8 @@ export function Inventory() {
         ? inventory
         : inventory.filter((item) => item.pickup === pickupFilter);
 
+    console.log(filteredInventory);
+
     return (
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-5 mb-8 ">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
@@ -78,11 +80,11 @@ export function Inventory() {
                 <thead>
                   <tr
                     className={`grid grid-cols-${
-                      inventoryType === "sold" ? "4" : "3"
+                      inventoryType === "sold" ? "3" : "2"
                     }`}
                   >
                     <th className="py-2 px-4 text-start">Item Name</th>
-                    <th className="py-2 px-4 text-start">Weight (kg)</th>
+                    {/* <th className="py-2 px-4 text-start">Weight (kg)</th> */}
                     <th className="py-2 px-4 text-start">Quantity</th>
                     {inventoryType === "sold" && (
                       <th className="py-2 px-4 text-start">Virtual Quantity</th>
@@ -94,11 +96,11 @@ export function Inventory() {
                     <tr
                       key={index}
                       className={`grid grid-cols-${
-                        inventoryType === "sold" ? "4" : "3"
+                        inventoryType === "sold" ? "3" : "2"
                       } items-center border border-[#7F7F7F] rounded-md shadow-md`}
                     >
-                      <td className="px-4 py-2">{item.itemName}</td>
-                      <td className="px-4 py-2">{item.weight}</td>
+                      <td className="px-4 py-2">{item.item}</td>
+                      {/* <td className="px-4 py-2">{item.weight}</td> */}
                       <td className="px-4 py-2">{item.quantity}</td>
                       {inventoryType === "sold" && (
                         <td className="px-4 py-2">{item.virtualQuantity}</td>

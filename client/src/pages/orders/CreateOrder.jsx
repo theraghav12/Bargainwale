@@ -450,7 +450,7 @@ const CreateOrder = () => {
             <div className="w-full overflow-x-scroll">
               <table className="w-full table-auto">
                 <thead>
-                  <tr className="grid grid-cols-12 gap-2">
+                  <tr className="grid grid-cols-9 gap-2">
                     <th className="py-4 px-2 text-center">CBN</th>
                     <th className="py-4 px-2 text-center">CBD</th>
                     <th className="py-4 px-2 text-center">Item</th>
@@ -459,9 +459,9 @@ const CreateOrder = () => {
                     <th className="py-4 px-2 text-center">Cont. No.</th>
                     <th className="py-4 px-2 text-center">Base Rate</th>
                     <th className="py-4 px-2 text-center">Tax Paid Amount</th>
-                    <th className="py-4 px-2 text-center">Inco</th>
+                    {/* <th className="py-4 px-2 text-center">Inco</th>
                     <th className="py-4 px-2 text-center">Payment Date</th>
-                    <th className="py-4 px-2 text-center">Description</th>
+                    <th className="py-4 px-2 text-center">Description</th> */}
                     <th className="py-4 px-2 text-center">Action</th>
                   </tr>
                 </thead>
@@ -469,7 +469,7 @@ const CreateOrder = () => {
                   {form.items?.map((item, index) => (
                     <tr
                       key={index}
-                      className="grid grid-cols-12 gap-2 border-t-2 border-t-[#898989]"
+                      className="grid grid-cols-9 gap-2 border-t-2 border-t-[#898989]"
                     >
                       <td className="py-4 px-2 text-center">
                         {form.companyBargainNo}
@@ -511,7 +511,7 @@ const CreateOrder = () => {
                           }
                           required
                           placeholder="Quantity"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
@@ -550,7 +550,7 @@ const CreateOrder = () => {
                           }
                           required
                           placeholder="Cont. No."
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
@@ -563,19 +563,19 @@ const CreateOrder = () => {
                           }
                           required
                           placeholder="Base Rate"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
                         {item.taxpaidAmount}
                       </td>
-                      <td className="py-4 px-2 text-center">{form.inco}</td>
+                      {/* <td className="py-4 px-2 text-center">{form.inco}</td>
                       <td className="py-4 px-2 text-center">
                         {form.paymentDays}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {form.description}
-                      </td>
+                      </td> */}
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">

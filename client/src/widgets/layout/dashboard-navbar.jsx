@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Navbar, IconButton, Dialog } from "@material-tailwind/react";
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
   setOpenSidenav,
 } from "@/context";
-import { OrganizationProfile, SignedIn, UserButton } from "@clerk/clerk-react";
+import { OrganizationProfile, SignedIn, UserButton, useUser } from "@clerk/clerk-react";
 
 // icons
 import {
@@ -25,6 +25,26 @@ export function DashboardNavbar() {
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
+
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user?.organizationMemberships?.length > 0) {
+      localStorage.setItem(
+        "organizationId",
+        user?.organizationMemberships[0]?.id
+      );
+    } else if (user?.organizationMemberships?.length === 0) {
+      navigate("/auth/create-organization");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth/sign-in");
+    }
+  }, [user, navigate]);
 
   return (
     <>
@@ -75,13 +95,6 @@ export function DashboardNavbar() {
                 {/* Icon next to UserButton */}
               </IconButton>
             </SignedIn>
-            <IconButton
-              variant="text"
-              color="white"
-              onClick={() => setOpenConfigurator(dispatch, true)}
-            >
-              <Cog6ToothIcon className="h-5 w-5 text-white" />
-            </IconButton>
           </div>
         </div>
       </Navbar>

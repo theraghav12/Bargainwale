@@ -25,6 +25,8 @@ import { createOrder, getOrders } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { createPurchase } from "@/services/purchaseService";
 import { getBookings } from "@/services/bookingService";
+import { useParams } from "react-router-dom";
+import { createSales } from "@/services/salesService";
 
 const CreateSales = () => {
   const [loading, setLoading] = useState(false);
@@ -35,14 +37,14 @@ const CreateSales = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [timePeriod, setTimePeriod] = useState("All");
-  const [openOrder, setOpenOrder] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [openOrders, setOpenOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState([]);
   const [quantityInputs, setQuantityInputs] = useState([]);
 
   const [form, setForm] = useState({
     warehouseId: "",
     transporterId: "",
-    bookingId: "",
+    bookingIds: [],
     invoiceNumber: "",
     invoiceDate: "",
     items: [],
@@ -54,6 +56,8 @@ const CreateSales = () => {
     fetchTransportOptions();
     fetchWarehouseOptions();
   }, []);
+
+  const buyerId = useParams().id;
 
   const fetchOrders = async () => {
     try {
@@ -154,8 +158,8 @@ const CreateSales = () => {
     setLoading(true);
 
     try {
-      if (!selectedOrder) {
-        toast.error("Please select an order before submitting.");
+      if (selectedOrder.length === 0) {
+        toast.error("Please select at least one order before submitting.");
         setLoading(false);
         return;
       }
@@ -173,13 +177,13 @@ const CreateSales = () => {
 
       const updatedForm = {
         ...form,
-        bookingId: selectedOrder,
+        bookingIds: selectedOrder,
         items: quantityInputs,
         organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
 
       console.log(updatedForm);
-      const response = await createPurchase(updatedForm);
+      const response = await createSales(updatedForm);
 
       if (response.status === 201) {
         toast.success("Order created successfully!");
@@ -301,16 +305,26 @@ const CreateSales = () => {
   };
 
   const handleToggleOrder = (orderId) => {
-    setOpenOrder(openOrder === orderId ? null : orderId);
+    setOpenOrders(
+      (prevOpenOrders) =>
+        prevOpenOrders.includes(orderId)
+          ? prevOpenOrders.filter((id) => id !== orderId) // Close the order if it's open
+          : [...prevOpenOrders, orderId] // Open the order if it's not open
+    );
   };
 
   const handleOrderSelect = (orderId) => {
-    if (selectedOrder === orderId) {
-      setSelectedOrder(null);
-    } else {
-      setSelectedOrder(orderId);
-      setQuantityInputs([]);
-    }
+    setSelectedOrder((prevSelected) => {
+      // Check if the orderId is already in the selectedOrders array
+      if (prevSelected.includes(orderId)) {
+        // Remove the order from the selection
+        return prevSelected.filter((id) => id !== orderId);
+      } else {
+        // Add the order to the selection
+        return [...prevSelected, orderId];
+      }
+    });
+    setQuantityInputs([]); // Reset quantity input for newly selected order
   };
 
   const handleQuantityChange = (itemId, newQuantity) => {
@@ -471,7 +485,7 @@ const CreateSales = () => {
 
               <div className="flex justify-end gap-4">
                 <Button color="blue" type="submit" className="w-fit">
-                  {loading ? <Spinner /> : <span>Create Purchase</span>}
+                  {loading ? <Spinner /> : <span>Create Sales</span>}
                 </Button>
               </div>
             </div>
@@ -486,13 +500,13 @@ const CreateSales = () => {
                       <tr>
                         {[
                           "Select",
-                          "Company Bargain No",
-                          "Company Bargain Date",
-                          "Manufacturer Name",
-                          "Manufacturer Company",
-                          "Manufacturer Contact",
+                          "Bargain No",
+                          "Bargain Date",
+                          "Buyer Name",
+                          "Buyer Company",
+                          "Buyer Contact",
                           "Status",
-                          "Transport Category",
+                          "Delivery Option",
                           "Actions",
                         ].map((el) => (
                           <th key={el} className="py-4 text-center w-[200px]">
@@ -503,9 +517,9 @@ const CreateSales = () => {
                     </thead>
                     <tbody>
                       {orders.map((order) => {
-                        const isOpen = selectedOrder === order._id;
-                        const isChecked = selectedOrder === order._id;
-                        console.log(order);
+                        const isOpen = openOrders.includes(order._id);
+                        const isChecked = selectedOrder.includes(order._id);
+                        const isSoldOut = order.status === "fully sold";
                         return (
                           <React.Fragment key={order._id}>
                             <tr className="border-t-2 border-t-[#898989]">
@@ -515,22 +529,23 @@ const CreateSales = () => {
                                   checked={isChecked}
                                   onChange={() => handleOrderSelect(order._id)}
                                   className="form-checkbox h-5 w-5"
+                                  disabled={isSoldOut}
                                 />
                               </td>
                               <td className="py-4 text-center">
-                                {order.companyBargainNo}
+                                {order.BargainNo}
                               </td>
                               <td className="py-4 text-center">
-                                {formatDate(order.companyBargainDate)}
+                                {formatDate(order.BargainDate)}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturer}
+                                {order.buyer?.buyer}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturerCompany}
+                                {order.buyer?.buyerCompany}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturerContact}
+                                {order.buyer?.buyerContact}
                               </td>
                               <td className="py-4 text-center">
                                 <Chip
@@ -548,7 +563,7 @@ const CreateSales = () => {
                                 />
                               </td>
                               <td className="py-4 text-center">
-                                {order.transportCatigory}
+                                {order.deliveryOption}
                               </td>
                               <td className="py-4 text-center">
                                 <div className="flex justify-center gap-4">
@@ -599,8 +614,8 @@ const CreateSales = () => {
                                             "Packaging",
                                             "Weight",
                                             "Static Price (Rs.)",
-                                            "Ordered Quantity",
-                                            "Quantity to Purchase",
+                                            "Booked Quantity",
+                                            "Quantity to Sales",
                                           ].map((header) => (
                                             <th
                                               key={header}
@@ -618,19 +633,19 @@ const CreateSales = () => {
                                             className="border-t-2 border-t-[#898989]"
                                           >
                                             <td className="py-4 text-center">
-                                              {item.item.name}
+                                              {item.item.materialdescription}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.packaging}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.item.weight}
+                                              {item.item.netweight}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.staticPrice}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.quantity}
+                                              {item.virtualQuantity}
                                             </td>
                                             <td className="py-4 text-center">
                                               <input

@@ -13,7 +13,7 @@ export const getBookings = async () => {
 export const createBooking = async (data) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/booking`, data);
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
     }

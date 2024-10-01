@@ -13,6 +13,8 @@ import PurchaseHistory from "./pages/purchase/PurchaseHistory";
 import CreateSales from "./pages/sales/CreateSales";
 import SalesHistory from "./pages/sales/SalesHistory";
 import Home from "./pages/dashboard/home";
+import SignIn from "./pages/auth/sign-in";
+import BuyersList from "./pages/sales/BuyersList";
 
 function App() {
   return (
@@ -24,7 +26,7 @@ function App() {
         <div className="flex-1">
           <Routes>
             {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
-            <Route path="/auth/*" element={<Auth />} />
+            <Route path="/auth/sign-in" element={<SignIn />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/master" element={<Master />} />
@@ -35,7 +37,8 @@ function App() {
             <Route path="/bookings/history" element={<BookingHistory />} />
             <Route path="/purchase/create" element={<CreatePurchase />} />
             <Route path="/purchase/history" element={<PurchaseHistory />} />
-            <Route path="/sales/create" element={<CreateSales />} />
+            <Route path="/sales/create" element={<BuyersList />} />
+            <Route path="/sales/create/:id" element={<CreateSales />} />
             <Route path="/sales/history" element={<SalesHistory />} />
             {/* <Route path="/dashboard/" element={<Dashboard />}>
               <Route path="/dashboard/purchase/create" element={<Purchase />} />

@@ -13,7 +13,7 @@ export const getSales = async () => {
 export const createSales = async (data) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/sale`, data);
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
     }
