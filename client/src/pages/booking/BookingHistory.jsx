@@ -58,13 +58,13 @@ export function BookingHistory() {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 7);
         filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.companyBargainDate) >= filterDate
+          (booking) => new Date(booking.BargainDate) >= filterDate
         );
       } else if (timePeriod === "last30Days") {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 30);
         filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.companyBargainDate) >= filterDate
+          (booking) => new Date(booking.BargainDate) >= filterDate
         );
       } else if (
         timePeriod === "custom" &&
@@ -74,15 +74,15 @@ export function BookingHistory() {
         const start = new Date(dateRange.startDate);
         const end = new Date(dateRange.endDate);
         filteredBookings = filteredBookings.filter((booking) => {
-          const bookingDate = new Date(booking.companyBargainDate);
+          const bookingDate = new Date(booking.BargainDate);
           return bookingDate >= start && bookingDate <= end;
         });
       }
 
-      // Sort bookings by companyBargainDate in descending booking
+      // Sort bookings by BargainDate in descending booking
       filteredBookings.sort(
         (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
+          new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       console.log(filteredBookings);
@@ -173,7 +173,7 @@ export function BookingHistory() {
 
       filteredBookings.sort(
         (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
+          new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       setBookings(filteredBookings);

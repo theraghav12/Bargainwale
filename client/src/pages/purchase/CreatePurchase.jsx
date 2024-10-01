@@ -617,13 +617,13 @@ const CreatePurchase = () => {
                                             className="border-t-2 border-t-[#898989]"
                                           >
                                             <td className="py-4 text-center">
-                                              {item.item.name}
+                                              {item.item.materialdescription}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.packaging}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.item.weight}
+                                              {item.item.netweight}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.staticPrice}

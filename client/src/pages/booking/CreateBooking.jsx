@@ -28,13 +28,11 @@ const CreateBooking = () => {
     description: "",
     warehouse: "",
     deliveryOption: "",
-    deliveryAddress: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      pinCode: "",
-    },
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
   });
 
   useEffect(() => {
@@ -90,7 +88,21 @@ const CreateBooking = () => {
       );
 
       const updatedForm = {
-        ...form,
+        items: form.items,
+        BargainNo: form.BargainNo,
+        BargainDate: form.BargainDate,
+        buyer: form.buyer,
+        description: form.description,
+        warehouse: form.warehouse,
+        deliveryOption: form.deliveryOption,
+        deliveryAddress: {
+          addressLine1: form.addressLine1,
+          addressLine2: form.addressLine2,
+          city: form.city,
+          state: form.state,
+          pinCode: form.pinCode,
+        },
+
         paymentDays,
         organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
@@ -192,9 +204,9 @@ const CreateBooking = () => {
     const updatedItems = [...form.items];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     if (field === "quantity" || field === "baseRate") {
-      const quantity = updatedItems[index].quantity || 0;
+      const virtualQuantity = updatedItems[index].virtualQuantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
+      updatedItems[index].taxpaidAmount = virtualQuantity * baseRate;
     }
     setForm((prevData) => ({
       ...prevData,
@@ -373,9 +385,21 @@ const CreateBooking = () => {
                       id="deliveryOption"
                       name="deliveryOption"
                       value={form.deliveryOption}
-                      onChange={(e) =>
-                        handleFormChange(0, "deliveryOption", e.target.value)
-                      }
+                      onChange={(e) => {
+                        handleFormChange(0, "deliveryOption", e.target.value);
+                        if (form.deliveryOption === "Pickup") {
+                          setForm((prev) => ({
+                            ...prev,
+                            deliveryAddress: {
+                              addressLine1: "",
+                              addressLine2: "",
+                              city: "",
+                              state: "",
+                              pinCode: "",
+                            },
+                          }));
+                        }
+                      }}
                       className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                       required
                     >
@@ -408,6 +432,111 @@ const CreateBooking = () => {
                   />
                 </div>
               </div>
+
+              {/* Delivery Address Fields */}
+              {form.deliveryOption === "Delivery" && (
+                <div className="flex flex-col">
+                  <p className="text-[1.1rem] text-[#38454A] font-semibold mt-4">
+                    Delivery Address:
+                  </p>
+                  <div className="flex flex-wrap gap-x-16 gap-y-5 mt-2">
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="addressLine1"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Address Line 1
+                      </label>
+                      <input
+                        name="addressLine1"
+                        type="text"
+                        value={form.addressLine1}
+                        onChange={(e) =>
+                          handleFormChange(0, "addressLine1", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Address Line 1"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="addressLine2"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Address Line 2
+                      </label>
+                      <input
+                        name="addressLine2"
+                        type="text"
+                        value={form.addressLine2}
+                        onChange={(e) =>
+                          handleFormChange(0, "addressLine2", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Address Line 2"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="city"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        City
+                      </label>
+                      <input
+                        name="city"
+                        type="text"
+                        value={form.city}
+                        onChange={(e) =>
+                          handleFormChange(0, "city", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="City"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="state"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        State
+                      </label>
+                      <input
+                        name="state"
+                        type="text"
+                        value={form.state}
+                        onChange={(e) =>
+                          handleFormChange(0, "state", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="State"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="pinCode"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Pin Code
+                      </label>
+                      <input
+                        name="pinCode"
+                        type="text"
+                        value={form.pinCode}
+                        onChange={(e) =>
+                          handleFormChange(0, "pinCode", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Pin Code"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end gap-4">
                 <Button
@@ -442,7 +571,7 @@ const CreateBooking = () => {
                       Tax Paid Amount
                     </th>
                     <th className="py-4 text-center w-[200px]">Payment Date</th>
-                    <th className="py-4 text-center w-[200px]">Description</th>
+                    {/* <th className="py-4 text-center w-[200px]">Description</th> */}
                     <th className="py-4 text-center w-[200px]">Action</th>
                   </tr>
                 </thead>
@@ -489,7 +618,7 @@ const CreateBooking = () => {
                           }
                           required
                           placeholder="Quantity"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">
@@ -528,7 +657,7 @@ const CreateBooking = () => {
                           }
                           required
                           placeholder="Cont. No."
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">
@@ -541,12 +670,12 @@ const CreateBooking = () => {
                           }
                           required
                           placeholder="Base Rate"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">{item.taxpaidAmount}</td>
                       <td className="py-4 text-center">{form.paymentDays}</td>
-                      <td className="py-4 text-center">{form.description}</td>
+                      {/* <td className="py-4 text-center">{form.description}</td> */}
                       <td className="py-4 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">

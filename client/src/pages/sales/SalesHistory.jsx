@@ -60,13 +60,13 @@ export default function PurchaseHistory() {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 7);
         filteredSales = filteredSales.filter(
-          (sale) => new Date(sale.companyBargainDate) >= filterDate
+          (sale) => new Date(sale.invoiceDate) >= filterDate
         );
       } else if (timePeriod === "last30Days") {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 30);
         filteredSales = filteredSales.filter(
-          (sale) => new Date(sale.companyBargainDate) >= filterDate
+          (sale) => new Date(sale.invoiceDate) >= filterDate
         );
       } else if (
         timePeriod === "custom" &&
@@ -200,7 +200,7 @@ export default function PurchaseHistory() {
           </div>
 
           <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
             <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
@@ -208,7 +208,7 @@ export default function PurchaseHistory() {
             </button>
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
@@ -296,22 +296,21 @@ export default function PurchaseHistory() {
                                   <table className="w-full table-auto">
                                     <thead>
                                       <tr>
-                                        {[
-                                          "Item Name",
-                                          "Quantity",
-                                        ].map((header) => (
-                                          <th
-                                            key={header}
-                                            className="py-3 px-5 text-center"
-                                          >
-                                            <Typography
-                                              variant="small"
-                                              className="text-[11px] font-bold uppercase"
+                                        {["Item Name", "Quantity"].map(
+                                          (header) => (
+                                            <th
+                                              key={header}
+                                              className="py-3 px-5 text-center"
                                             >
-                                              {header}
-                                            </Typography>
-                                          </th>
-                                        ))}
+                                              <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase"
+                                              >
+                                                {header}
+                                              </Typography>
+                                            </th>
+                                          )
+                                        )}
                                       </tr>
                                     </thead>
                                     <tbody>
