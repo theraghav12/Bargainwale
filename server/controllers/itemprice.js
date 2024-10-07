@@ -19,6 +19,24 @@ const priceController = {
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
+
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+
+        
+        const existingPrice = await Price.findOne({
+          warehouse: warehouseId,
+          item: itemId,
+          date: {
+            $gte: today,
+            $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) 
+          }
+        });
+
+        if (existingPrice) {
+          return res.status(400).json({ message: `Price already set for item ${itemId} on this day` });
+        }
+
         const newPrice = new Price({
           warehouse: warehouseId,
           item: itemId,
@@ -60,6 +78,23 @@ const priceController = {
     } catch (error) {
       console.error("Error fetching prices:", error);
       res.status(500).json({ message: "Error fetching prices", error });
+    }
+  },
+  getAllPrices: async (req, res) => {
+    try {
+      const prices = await Price.find({})
+        .populate('item')  
+        .populate('warehouse')  
+        .sort({ date: -1 });  
+
+      if (!prices.length) {
+        return res.status(404).json({ message: "No prices found" });
+      }
+
+      res.status(200).json(prices);
+    } catch (error) {
+      console.error("Error fetching all prices:", error);
+      res.status(500).json({ message: "Error fetching all prices", error });
     }
   }
 };
