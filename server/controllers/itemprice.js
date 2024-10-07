@@ -96,6 +96,35 @@ const priceController = {
       console.error("Error fetching all prices:", error);
       res.status(500).json({ message: "Error fetching all prices", error });
     }
+  },
+  getItemPriceByWarehouse: async (req, res) => {
+    try {
+      const { warehouseId, itemId } = req.params;
+      const { date } = req.query;
+  
+      // Parse the date, default to today if not provided
+      const queryDate = date ? new Date(date) : new Date();
+  
+      // Set the start and end of the day (for the entire day range)
+      const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
+  
+      // Query for the price of the item in the warehouse for the specific day
+      const price = await Price.findOne({
+        warehouse: warehouseId,
+        item: itemId,
+        date: { $gte: startOfDay, $lt: endOfDay }
+      }).populate("item").populate("warehouse");
+  
+      if (!price) {
+        return res.status(404).json({ message: `No price found for item ${itemId} in warehouse ${warehouseId} on the selected day` });
+      }
+  
+      res.status(200).json(price);
+    } catch (error) {
+      console.error("Error fetching item price by warehouse:", error);
+      res.status(500).json({ message: "Error fetching item price", error });
+    }
   }
 };
 

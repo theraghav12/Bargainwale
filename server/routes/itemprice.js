@@ -9,4 +9,7 @@ router.get("/api/warehouseprices/:warehouseId", priceController.getPricesByWareh
 
 router.get('/api/prices', priceController.getAllPrices);
 
+router.get('/api/warehouse/:warehouseId/itemprice/:itemId', priceController.getItemPriceByWarehouse);
+
+
 export default router;
