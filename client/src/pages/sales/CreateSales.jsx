@@ -357,7 +357,7 @@ const CreateSales = () => {
               Download as Excel
             </button> */}
           </div>
-          <div className="flex flex-row gap-4">
+          {/* <div className="flex flex-row gap-4">
             <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
@@ -367,7 +367,7 @@ const CreateSales = () => {
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="w-full">
