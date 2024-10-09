@@ -47,6 +47,7 @@ export default function PurchaseHistory() {
   const fetchSales = async () => {
     try {
       const response = await getSales();
+      console.log(response)
       const salesData = response.data;
       let filteredSales =
         statusFilter === "All"

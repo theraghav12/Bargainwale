@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 const BuyersList = () => {
   const [buyers, setBuyers] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchBuyers = async () => {
     try {
@@ -37,9 +38,24 @@ const BuyersList = () => {
     fetchBuyers();
   }, []);
 
+  const filteredBuyers = buyers.filter((buyer) =>
+    buyer.buyer.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-8 mt-4">
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
+    <div className="p-8">
+      {/* Search Bar */}
+      <div className="w-full flex gap-4">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by Buyer Name"
+          className="border-[2px] border-[#737373] px-2 py-2 rounded-md placeholder-[#737373]"
+        />
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8 mt-4">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
           EXISTING BUYERS
         </h1>
@@ -47,7 +63,7 @@ const BuyersList = () => {
         <div className="px-10 pb-10">
           {/* Items Table */}
           <div className="w-full overflow-x-scroll mt-8">
-            {buyers?.length > 0 ? (
+            {filteredBuyers?.length > 0 ? (
               <table className="w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-8">
@@ -89,7 +105,10 @@ const BuyersList = () => {
                         <span>{getBookingCountForBuyer(buyer._id)}</span>
                       </td>
                       <td className="py-2 px-4">
-                        <Link to={`/sales/create/${buyer._id}`} className="bg-[#CACACA] rounded-md px-4 py-1 cursor-pointer font-semibold">
+                        <Link
+                          to={`/sales/create/${buyer._id}`}
+                          className="bg-[#CACACA] rounded-md px-4 py-1 cursor-pointer font-semibold"
+                        >
                           Create Sales
                         </Link>
                       </td>

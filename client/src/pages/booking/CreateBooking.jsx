@@ -202,6 +202,9 @@ const CreateBooking = () => {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];
+    if (field === "quantity" || field === "baseRate") {
+      value = Number(value) || null;
+    }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     if (field === "quantity" || field === "baseRate") {
       const virtualQuantity = updatedItems[index].virtualQuantity || 0;
@@ -212,6 +215,18 @@ const CreateBooking = () => {
       ...prevData,
       items: updatedItems,
     }));
+  };
+
+  const calculateTotalQuantity = () => {
+    return form.items.reduce((total, item) => {
+      return total + (Number(item.virtualQuantity) || 0);
+    }, 0);
+  };
+
+  const calculateTotalAmount = () => {
+    return form.items.reduce((total, item) => {
+      return total + (Number(item.taxpaidAmount) || 0);
+    }, 0);
   };
 
   return (
@@ -227,7 +242,7 @@ const CreateBooking = () => {
               Download as Excel
             </button> */}
           </div>
-          <div className="flex flex-row gap-4">
+          {/* <div className="flex flex-row gap-4">
             <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
@@ -237,7 +252,7 @@ const CreateBooking = () => {
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="w-full">
@@ -554,6 +569,21 @@ const CreateBooking = () => {
               </div>
             </div>
           </form>
+
+          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] shadow-md z-[10]">
+            <div className="flex justify-between items-center px-10 py-2">
+              <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
+                <span>Total Qty: {calculateTotalQuantity()}</span>
+                {/* <span>Total Gross Weight:</span>
+                <span>Total Net Weight:</span> */}
+                <span>Total Amount: {calculateTotalAmount()}</span>
+              </div>
+            </div>
+            <div className="bg-white text-[1rem] flex justify-between items-center px-4 py-1">
+              <p>2024 @ Bargainwale</p>
+              <p>Design and Developed by Reduxcorporation</p>
+            </div>
+          </div>
 
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
             <div className="overflow-x-auto">

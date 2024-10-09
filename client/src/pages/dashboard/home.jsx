@@ -10,6 +10,7 @@ import {
 } from "@/services/itemService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { toast } from "react-toastify";
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 export default function Home() {
   const [orders, setOrders] = useState([]);
@@ -22,6 +23,20 @@ export default function Home() {
   const [form, setForm] = useState([]);
   const [pricesFound, setPricesFound] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = historyItems?.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(historyItems?.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -221,7 +236,22 @@ export default function Home() {
                         type="number"
                         name="companyPrice"
                         value={item.companyPrice}
-                        onChange={(event) => handleInputChange(index, event)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value >= 0) {
+                            handleInputChange(index, e);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "e" ||
+                            e.key === "-" ||
+                            e.key === "+" ||
+                            e.key === "."
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter company price"
                         disabled={item.pricesUpdated}
@@ -232,7 +262,22 @@ export default function Home() {
                         type="number"
                         name="rackPrice"
                         value={item.rackPrice}
-                        onChange={(event) => handleInputChange(index, event)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value >= 0) {
+                            handleInputChange(index, e);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "e" ||
+                            e.key === "-" ||
+                            e.key === "+" ||
+                            e.key === "."
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter rack price"
                         disabled={item.pricesUpdated}
@@ -243,7 +288,22 @@ export default function Home() {
                         type="number"
                         name="depotPrice"
                         value={item.depotPrice}
-                        onChange={(event) => handleInputChange(index, event)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value >= 0) {
+                            handleInputChange(index, e);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "e" ||
+                            e.key === "-" ||
+                            e.key === "+" ||
+                            e.key === "."
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter depot price"
                         disabled={item.pricesUpdated}
@@ -254,7 +314,22 @@ export default function Home() {
                         type="number"
                         name="plantPrice"
                         value={item.plantPrice}
-                        onChange={(event) => handleInputChange(index, event)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value >= 0) {
+                            handleInputChange(index, e);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "e" ||
+                            e.key === "-" ||
+                            e.key === "+" ||
+                            e.key === "."
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter plant price"
                         disabled={item.pricesUpdated}
@@ -308,51 +383,114 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         <div className="p-10">
           {/* Items Table */}
           <div className="w-full overflow-x-scroll">
             {selectedHistoryWarehouse ? (
               historyItems?.length > 0 ? (
-                <table className="w-full bg-white">
-                  <thead>
-                    <tr className="grid grid-cols-6">
-                      <th className="py-2 px-4 text-start">Date</th>
-                      <th className="py-2 px-4 text-start">Item</th>
-                      <th className="py-2 px-4 text-start">Company Price</th>
-                      <th className="py-2 px-4 text-start">Rack Price</th>
-                      <th className="py-2 px-4 text-start">Depot Price</th>
-                      <th className="py-2 px-4 text-start">Plant Price</th>
-                    </tr>
-                  </thead>
-                  <tbody className="flex flex-col gap-2">
-                    {historyItems?.map((item) => (
-                      <tr
-                        key={item._id}
-                        className="grid grid-cols-6 items-center border border-[#7F7F7F] rounded-md shadow-md"
-                      >
-                        <td className="py-2 px-4">
-                          <span>{formatDate(item.date)}</span>
-                        </td>
-                        <td className="py-2 px-4">
-                          <span>{item.item?.materialdescription}</span>
-                        </td>
-                        <td className="py-2 px-4">
-                          <span>{item.companyPrice}</span>
-                        </td>
-                        <td className="py-2 px-4">
-                          <span>{item.rackPrice}</span>
-                        </td>
-                        <td className="py-2 px-4">
-                          <span>{item.depoPrice}</span>
-                        </td>
-                        <td className="py-2 px-4">
-                          <span>{item.plantPrice}</span>
-                        </td>
+                <>
+                  <table className="w-full bg-white">
+                    <thead>
+                      <tr className="grid grid-cols-6">
+                        <th className="py-2 px-4 text-start">Date</th>
+                        <th className="py-2 px-4 text-start">Item</th>
+                        <th className="py-2 px-4 text-start">Company Price</th>
+                        <th className="py-2 px-4 text-start">Rack Price</th>
+                        <th className="py-2 px-4 text-start">Depot Price</th>
+                        <th className="py-2 px-4 text-start">Plant Price</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="flex flex-col gap-2">
+                      {currentItems?.map((item) => (
+                        <tr
+                          key={item._id}
+                          className="grid grid-cols-6 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                        >
+                          <td className="py-2 px-4">
+                            <span>{formatDate(item.date)}</span>
+                          </td>
+                          <td className="py-2 px-4">
+                            <span>{item.item?.materialdescription}</span>
+                          </td>
+                          <td className="py-2 px-4">
+                            <span>{item.companyPrice}</span>
+                          </td>
+                          <td className="py-2 px-4">
+                            <span>{item.rackPrice}</span>
+                          </td>
+                          <td className="py-2 px-4">
+                            <span>{item.depoPrice}</span>
+                          </td>
+                          <td className="py-2 px-4">
+                            <span>{item.plantPrice}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Pagination Controls */}
+                  <div className="flex justify-end mt-4">
+                    {/* Previous Button */}
+                    <button
+                      className={`mx-1 px-3 py-1 rounded ${
+                        currentPage === 1
+                          ? "bg-[#D0D0D0]"
+                          : "bg-white hover:bg-[#D0D0D0] transition-all"
+                      } text-[#494949] border-2 border-[#C5C5C5]`}
+                      onClick={() => paginate(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <FaArrowLeftLong />
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, index) => index + 1)
+                      .filter((pageNumber) => {
+                        // Show the first, last, current, and adjacent pages
+                        return (
+                          pageNumber === 1 ||
+                          pageNumber === totalPages ||
+                          pageNumber === currentPage ||
+                          (pageNumber >= currentPage - 1 &&
+                            pageNumber <= currentPage + 1)
+                        );
+                      })
+                      .map((pageNumber, index, visiblePages) => (
+                        <React.Fragment key={pageNumber}>
+                          {/* Show ellipsis if there's a gap */}
+                          {index > 0 &&
+                            pageNumber - visiblePages[index - 1] > 1 && (
+                              <span className="mx-1">...</span>
+                            )}
+
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              currentPage === pageNumber
+                                ? "bg-[#D0D0D0]"
+                                : "bg-white"
+                            } text-[#494949] border-2 border-[#C5C5C5]`}
+                            onClick={() => paginate(pageNumber)}
+                          >
+                            {pageNumber}
+                          </button>
+                        </React.Fragment>
+                      ))}
+
+                    {/* Next Button */}
+                    <button
+                      className={`mx-1 px-3 py-1 rounded ${
+                        currentPage === totalPages
+                          ? "bg-[#D0D0D0]"
+                          : "bg-white hover:bg-[#D0D0D0] transition-all"
+                      } text-[#494949] border-2 border-[#C5C5C5]`}
+                      onClick={() => paginate(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <FaArrowRightLong className="text-[#494949]" />
+                    </button>
+                  </div>
+                </>
               ) : (
                 <Typography className="text-xl text-center font-bold">
                   No Items!

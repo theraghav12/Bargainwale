@@ -491,6 +491,13 @@ const CreateSales = () => {
             </div>
           </form>
 
+          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] border-t-2 border-t-[#A6A6A6] shadow-md z-[10]">
+            <div className="text-[1rem] flex justify-between items-center px-4 py-1">
+              <p>2024 @ Bargainwale</p>
+              <p>Design and Developed by Reduxcorporation</p>
+            </div>
+          </div>
+
           <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
             {orders.length > 0 ? (
               <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
