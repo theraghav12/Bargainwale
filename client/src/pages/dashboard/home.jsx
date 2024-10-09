@@ -100,7 +100,7 @@ export default function Home() {
     try {
       const today = new Date().toISOString().split("T")[0];
       const prices = await getPricesByWarehouse(warehouseId, today);
-      console.log(prices)
+      console.log(prices);
 
       if (prices.length > 0) {
         const updatedForm = prices.map((price) => ({
