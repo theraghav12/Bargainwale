@@ -68,7 +68,7 @@ const priceController = {
       const prices = await Price.find({
         warehouse: warehouseId,
         date: { $gte: queryDate.setUTCHours(0, 0, 0, 0), $lt: queryDate.setUTCHours(23, 59, 59, 999) }
-      }).populate("item");
+      }).populate("item").populate("itemId");
 
       if (!prices.length) {
         return res.status(404).json({ message: "No prices found for the selected warehouse and date" });

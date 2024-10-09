@@ -492,7 +492,7 @@ const CreateOrder = () => {
                             <option value="">Select Item</option>
                             {itemsOptions?.map((item) => (
                               <option key={item._id} value={item._id}>
-                                {item.name}
+                                {item.materialdescription}
                               </option>
                             ))}
                           </select>
@@ -506,9 +506,22 @@ const CreateOrder = () => {
                           type="number"
                           name="quantity"
                           value={item.quantity}
-                          onChange={(e) =>
-                            handleItemChange(index, "quantity", e.target.value)
-                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleItemChange(index, "quantity", value);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "e" ||
+                              e.key === "-" ||
+                              e.key === "+" ||
+                              e.key === "." 
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
                           required
                           placeholder="Quantity"
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"

@@ -21,6 +21,7 @@ import {
 // icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { getWarehouses } from "@/services/warehouseService";
+import { TbTriangleInvertedFilled } from "react-icons/tb";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
@@ -100,7 +101,7 @@ const ItemForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log(form)
+      console.log(form);
       const response = await createItem(form);
       console.log(response);
       toast.success("Item added successfully!");
@@ -176,6 +177,7 @@ const ItemForm = () => {
       console.error(error);
     }
   };
+  console.log(items)
 
   return (
     <>
@@ -213,47 +215,14 @@ const ItemForm = () => {
                     >
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
                             name="name"
-                            type="text"
-                            value={item.name}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.name}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="flavor"
-                            type="text"
-                            value={item.flavor}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.flavor}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="material"
-                            type="text"
-                            value={item.material}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.material}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="materialdescription"
                             type="text"
                             value={item.materialdescription}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Material Description"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.materialdescription}</span>
@@ -261,11 +230,59 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
+                            name="flavor"
+                            type="text"
+                            value={item.flavor}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Flavor"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          />
+                        ) : (
+                          <span>{item.flavor}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <input
+                            name="material"
+                            type="text"
+                            value={item.material}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Material"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          />
+                        ) : (
+                          <span>{item.material}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <input
+                            name="materialdescription"
+                            type="text"
+                            value={item.materialdescription}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Material Description"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          />
+                        ) : (
+                          <span>{item.materialdescription}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {item.isEditing ? (
+                          <input
                             name="netweight"
                             type="text"
                             value={item.netweight}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Net Weight"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.netweight}</span>
@@ -273,11 +290,14 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
                             name="grossweight"
                             type="text"
                             value={item.grossweight}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Gross Weight"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.grossweight}</span>
@@ -285,11 +305,14 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
                             name="gst"
                             type="text"
                             value={item.gst}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="GST"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.gst}</span>
@@ -297,28 +320,37 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Select
-                            name="packaging"
-                            value={item.packaging}
-                            onChange={(value) =>
-                              handleItemChange(value, item._id, "packaging")
-                            }
-                          >
-                            <Option value="box">Box</Option>
-                            <Option value="tin">Tin</Option>
-                            <Option value="jar">Jar</Option>
-                          </Select>
+                          <div className="relative w-[200px]">
+                            <select
+                              name="packaging"
+                              value={item.packaging}
+                              onChange={(value) =>
+                                handleItemChange(value, item._id, "packaging")
+                              }
+                              className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                            >
+                              <option value="box">Box</option>
+                              <option value="tin">Tin</option>
+                              <option value="jar">Jar</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                              <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                            </div>
+                          </div>
                         ) : (
                           <span>{item.packaging}</span>
                         )}
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
                             name="packsize"
                             type="text"
                             value={item.packsize}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Pack Size"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.packsize}</span>
@@ -326,11 +358,14 @@ const ItemForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {item.isEditing ? (
-                          <Input
+                          <input
                             name="staticPrice"
                             type="number"
                             value={item.staticPrice}
                             onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Static Price"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{item.staticPrice}</span>
@@ -389,9 +424,9 @@ const ItemForm = () => {
                   onChange={(value) => handleChange(value, "warehouse")}
                 >
                   <option value="">Select Warehouse</option>
-                  {warehouseOptions.map((option) => (
-                    <Option key={option._id} value={option._id}>
-                      {option.name}
+                  {warehouseOptions?.map((option) => (
+                    <Option key={option?._id} value={option?._id}>
+                      {option?.name}
                     </Option>
                   ))}
                 </Select>
@@ -426,7 +461,7 @@ const ItemForm = () => {
               <Input
                 name="netweight"
                 label="Net Weight"
-                type="text"
+                type="number"
                 value={form.netweight}
                 onChange={handleChange}
                 required
@@ -434,7 +469,7 @@ const ItemForm = () => {
               <Input
                 name="grossweight"
                 label="Gross Weight"
-                type="text"
+                type="number"
                 value={form.grossweight}
                 onChange={handleChange}
                 required
@@ -442,7 +477,7 @@ const ItemForm = () => {
               <Input
                 name="gst"
                 label="GST"
-                type="text"
+                type="number"
                 value={form.gst}
                 onChange={handleChange}
                 required
@@ -462,7 +497,7 @@ const ItemForm = () => {
               <Input
                 name="packsize"
                 label="Pack Size"
-                type="text"
+                type="number"
                 value={form.packsize}
                 onChange={handleChange}
                 required

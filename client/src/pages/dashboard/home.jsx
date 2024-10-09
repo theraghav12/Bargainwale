@@ -100,6 +100,7 @@ export default function Home() {
     try {
       const today = new Date().toISOString().split("T")[0];
       const prices = await getPricesByWarehouse(warehouseId, today);
+      console.log(prices)
 
       if (prices.length > 0) {
         const updatedForm = prices.map((price) => ({
@@ -140,7 +141,7 @@ export default function Home() {
   };
 
   console.log(form);
-  const itemsToSubmit = form.filter((item) => !item.pricesUpdated);
+  const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
   console.log(itemsToSubmit);
 
   useEffect(() => {
@@ -172,7 +173,7 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    const itemsToSubmit = form.filter((item) => !item.pricesUpdated);
+    const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
     if (itemsToSubmit.length > 0) {
       try {
         const postData = {
