@@ -62,24 +62,58 @@ const priceController = {
     try {
       const { warehouseId } = req.params;
       const { date } = req.query;
-
+  
+      // Parse the date, default to today if not provided
       const queryDate = date ? new Date(date) : new Date();
-
-      const prices = await Price.find({
-        warehouse: warehouseId,
-        date: { $gte: queryDate.setUTCHours(0, 0, 0, 0), $lt: queryDate.setUTCHours(23, 59, 59, 999) }
-      }).populate("item");
-
-      if (!prices.length) {
+      const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
+  
+      // Fetch all items from the selected warehouse
+      const items = await Item.find({ warehouse: warehouseId });
+  
+      if (!items.length) {
+        return res.status(404).json({ message: "No items found for the selected warehouse" });
+      }
+  
+      const result = [];
+  
+      // Loop through each item and find the price for the selected day
+      for (const item of items) {
+        const price = await Price.findOne({
+          warehouse: warehouseId,
+          item: item._id,
+          date: { $gte: startOfDay, $lt: endOfDay }
+        });
+  
+        if (price) {
+          result.push({
+            item: item,
+            companyPrice: price.companyPrice,
+            rackPrice: price.rackPrice,
+            plantPrice: price.plantPrice,
+            depoPrice: price.depoPrice,
+            pricesUpdated: price.pricesUpdated,
+            date: price.date,
+            message: "Price updated"
+          });
+        } else {
+          result.push({
+            item: item,
+            message: "Price not updated"
+          });
+        }
+      }
+  
+      if (!result.length) {
         return res.status(404).json({ message: "No prices found for the selected warehouse and date" });
       }
-
-      res.status(200).json(prices);
+  
+      res.status(200).json(result);
     } catch (error) {
       console.error("Error fetching prices:", error);
       res.status(500).json({ message: "Error fetching prices", error });
     }
-  },
+  },  
   getAllPrices: async (req, res) => {
     try {
       const prices = await Price.find({})

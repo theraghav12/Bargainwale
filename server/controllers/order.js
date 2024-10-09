@@ -8,8 +8,7 @@ const orderController = {
     try {
       const {
         companyBargainDate,
-        items,
-        
+        items,   
         inco,
         companyBargainNo,
         billType,
