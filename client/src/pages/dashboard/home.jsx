@@ -1,32 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {
-  Typography,
-  Card,
-  CardHeader,
-  CardBody,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Avatar,
-  Tooltip,
-  Progress,
-} from "@material-tailwind/react";
-import { EllipsisVerticalIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
+import { Typography } from "@material-tailwind/react";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
-import { StatisticsCard } from "@/widgets/cards";
-import { StatisticsChart } from "@/widgets/charts";
 import { getOrders } from "@/services/orderService";
-import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
+import { getWarehouses } from "@/services/warehouseService";
 import {
-  getItems,
   getPricesByWarehouse,
   addPrice,
   getPrices,
 } from "@/services/itemService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
-import { toast } from "react-toastify"; // Assuming you're using react-toastify for notifications
+import { toast } from "react-toastify";
 
 export default function Home() {
   const [orders, setOrders] = useState([]);
@@ -34,10 +17,11 @@ export default function Home() {
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedHistoryWarehouse, setSelectedHistoryWarehouse] = useState("");
-  const [items, setItems] = useState([]); // State to hold items for the selected warehouse
-  const [historyItems, setHistoryItems] = useState([]); // State to hold items for the selected warehouse
+  const [items, setItems] = useState([]);
+  const [historyItems, setHistoryItems] = useState([]);
   const [form, setForm] = useState([]);
-  const [pricesFound, setPricesFound] = useState(false); // State to check if prices are found
+  const [pricesFound, setPricesFound] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -64,6 +48,10 @@ export default function Home() {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
+      if (response.length > 0) {
+        setSelectedWarehouse(response[0]._id);
+        setSelectedHistoryWarehouse(response[0]._id);
+      }
       setWarehouseOptions(response);
     } catch (error) {
       toast.error("Error fetching warehouses!");
@@ -71,78 +59,30 @@ export default function Home() {
     }
   };
 
-  // Fetch items for the selected warehouse
-  const fetchItemsForWarehouse = async (warehouseId) => {
-    try {
-      const itemsData = await getItems();
-      const filteredItems = itemsData.filter(
-        (item) => item.warehouse === warehouseId
-      );
-      setItems(filteredItems);
-      const updatedForm = filteredItems.map((item) => ({
-        itemId: item._id,
-        companyPrice: "",
-        rackPrice: "",
-        depotPrice: "",
-        plantPrice: "",
-        pricesUpdated: item.pricesUpdated,
-      }));
-      console.log(updatedForm);
-      setForm(updatedForm);
-    } catch (error) {
-      console.error("Error fetching items:", error);
-      toast.error("Error fetching items!");
-    }
-  };
-
   // Fetch prices for the selected warehouse
   const fetchPricesForWarehouse = async (warehouseId) => {
+    setLoading(true);
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const prices = await getPricesByWarehouse(warehouseId, today);
-      console.log(prices);
-
-      if (prices.length > 0) {
-        const updatedForm = prices.map((price) => ({
-          itemId: price.item._id,
-          companyPrice: price.companyPrice,
-          rackPrice: price.rackPrice,
-          depotPrice: price.depoPrice,
-          plantPrice: price.plantPrice,
-          pricesUpdated: true,
-        }));
-        setForm(...form, updatedForm);
-      } else {
-        setForm(
-          items.map((item) => ({
-            itemId: item._id,
-            companyPrice: "",
-            rackPrice: "",
-            depotPrice: "",
-            plantPrice: "",
-            pricesUpdated: false,
-          }))
-        );
-      }
+      const prices = await getPricesByWarehouse(warehouseId);
+      setForm(prices);
     } catch (error) {
       console.error("Error fetching prices:", error);
       setPricesFound(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchPricesForHistory = async (warehouseId) => {
     try {
-      const response = await getPrices(warehouseId);
-      setHistoryItems(response);
-      console.log(response);
+      const response = await getPrices();
+      setHistoryItems(
+        response?.filter((item) => item.warehouse?._id === warehouseId)
+      );
     } catch (error) {
       console.error("Error fetching prices:", error);
     }
   };
-
-  console.log(form);
-  const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
-  console.log(itemsToSubmit);
 
   useEffect(() => {
     fetchWarehouseOptions();
@@ -150,7 +90,6 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedWarehouse) {
-      fetchItemsForWarehouse(selectedWarehouse);
       fetchPricesForWarehouse(selectedWarehouse);
     }
   }, [selectedWarehouse]);
@@ -174,12 +113,14 @@ export default function Home() {
 
   const handleSubmit = async () => {
     const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
+    console.log(form);
+    console.log(itemsToSubmit);
     if (itemsToSubmit.length > 0) {
       try {
         const postData = {
           warehouseId: selectedWarehouse,
           prices: itemsToSubmit.map((item) => ({
-            itemId: item.itemId,
+            itemId: item.item?._id,
             companyPrice: item.companyPrice,
             rackPrice: item.rackPrice,
             depoPrice: item.depotPrice,
@@ -208,8 +149,6 @@ export default function Home() {
       year: "numeric",
     }).format(date);
   };
-
-  console.log(historyItems);
 
   return (
     <div className="mt-12 px-12">
@@ -245,7 +184,11 @@ export default function Home() {
         </div>
 
         {/* Price input form for items */}
-        {selectedWarehouse ? (
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <p className="text-lg text-gray-500">Loading prices...</p>
+          </div>
+        ) : selectedWarehouse ? (
           <div className="mt-2 p-4">
             <table className="min-w-full bg-white border-b border-b-[2px] border-[#898484] text-[#7F7F7F]">
               <thead>
@@ -271,7 +214,7 @@ export default function Home() {
                 {form.map((item, index) => (
                   <tr key={index} className="grid grid-cols-5">
                     <td className="px-4 py-2 border-r border-l border-r-[2px] border-l-[2px] border-[#898484]">
-                      {items[index]?.materialdescription || "Unknown Item"}
+                      {item.item?.materialdescription || "Unknown Item"}
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
                       <input

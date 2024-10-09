@@ -11,9 +11,9 @@ export const getItems = async () => {
     }
 };
 
-export const getPricesByWarehouse = async (warehouseId, date) => {
+export const getPricesByWarehouse = async (warehouseId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouseprices/${warehouseId}?date=${date}`);
+        const response = await axios.get(`${API_BASE_URL}/warehouseprices/${warehouseId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);
@@ -23,7 +23,7 @@ export const getPricesByWarehouse = async (warehouseId, date) => {
 
 export const getPrices = async (warehouseId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouseprices/${warehouseId}`);
+        const response = await axios.get(`${API_BASE_URL}/prices`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);
