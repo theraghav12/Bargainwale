@@ -129,13 +129,28 @@ export default function Home() {
 
   const handleSubmit = async () => {
     const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
+    const eligibleItems = itemsToSubmit?.filter(
+      (item) =>
+        item.companyPrice &&
+        String(item.companyPrice).trim() !== "" &&
+        item.rackPrice &&
+        String(item.rackPrice).trim() !== "" &&
+        item.depoPrice &&
+        String(item.depoPrice).trim() !== "" &&
+        item.plantPrice &&
+        String(item.plantPrice).trim() !== ""
+    );
     console.log(form);
     console.log(itemsToSubmit);
     if (itemsToSubmit.length > 0) {
+      if (eligibleItems.length === 0) {
+        toast.error("Fill all prices!");
+        return;
+      }
       try {
         const postData = {
           warehouseId: selectedWarehouse,
-          prices: itemsToSubmit.map((item) => ({
+          prices: eligibleItems?.map((item) => ({
             itemId: item.item?._id,
             companyPrice: item.companyPrice,
             rackPrice: item.rackPrice,
@@ -147,7 +162,6 @@ export default function Home() {
         console.log(postData);
         await addPrice(postData);
         toast.success("Prices updated successfully!");
-        // Optionally, reset form and fetch prices again
         fetchPricesForWarehouse(selectedWarehouse);
       } catch (error) {
         console.error("Error updating prices:", error);
@@ -257,6 +271,7 @@ export default function Home() {
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter company price"
                         disabled={item.pricesUpdated}
+                        required
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -283,6 +298,7 @@ export default function Home() {
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter rack price"
                         disabled={item.pricesUpdated}
+                        required
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -309,6 +325,7 @@ export default function Home() {
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter depot price"
                         disabled={item.pricesUpdated}
+                        required
                       />
                     </td>
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
@@ -335,6 +352,7 @@ export default function Home() {
                         className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
                         placeholder="Enter plant price"
                         disabled={item.pricesUpdated}
+                        required
                       />
                     </td>
                   </tr>
