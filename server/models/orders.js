@@ -26,6 +26,21 @@ const orderSchema = new mongoose.Schema(
       taxpaidAmount:{
         type:Number,
       },
+      gst: {
+        type: Number,
+      },
+      cgst: {
+        type: Number,
+      },
+      sgst: {
+        type: Number,
+      },
+      igst: {
+        type: Number,
+      },
+      taxableAmount:{
+        type:Number,
+      },
       contNumber:{
         type:Number,
       }, 

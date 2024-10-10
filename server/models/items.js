@@ -21,7 +21,8 @@ const itemSchema = new mongoose.Schema({
         type:Number,
     },
     gst:{
-        typer:Number,
+        type:Number,
+        required: true,
     },
 
     packaging: {
