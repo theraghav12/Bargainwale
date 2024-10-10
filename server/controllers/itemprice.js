@@ -6,7 +6,7 @@ const priceController = {
 
   addPrice: async (req, res) => {
     try {
-      const { warehouseId, prices, pricesUpdated } = req.body;
+      const { warehouseId, prices } = req.body;
 
       const warehouse = await Warehouse.findById(warehouseId);
       if (!warehouse) {
@@ -14,7 +14,7 @@ const priceController = {
       }
       const savedPrices = [];
       for (const price of prices) {
-        const { itemId, companyPrice, rackPrice, plantPrice, depoPrice } = price;
+        const { itemId, companyPrice, rackPrice, plantPrice, depoPrice, pricesUpdated } = price;
         const item = await Item.findById(itemId);
         if (!item) {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
