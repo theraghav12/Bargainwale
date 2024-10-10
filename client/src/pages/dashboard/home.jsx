@@ -80,6 +80,7 @@ export default function Home() {
     try {
       const prices = await getPricesByWarehouse(warehouseId);
       setForm(prices);
+      console.log(prices);
     } catch (error) {
       console.error("Error fetching prices:", error);
       setPricesFound(false);
@@ -138,8 +139,9 @@ export default function Home() {
             itemId: item.item?._id,
             companyPrice: item.companyPrice,
             rackPrice: item.rackPrice,
-            depoPrice: item.depotPrice,
+            depoPrice: item.depoPrice,
             plantPrice: item.plantPrice,
+            pricesUpdated: true,
           })),
         };
         console.log(postData);
@@ -286,8 +288,8 @@ export default function Home() {
                     <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
                       <input
                         type="number"
-                        name="depotPrice"
-                        value={item.depotPrice}
+                        name="depoPrice"
+                        value={item.depoPrice}
                         onChange={(e) => {
                           const value = e.target.value;
                           if (value >= 0) {

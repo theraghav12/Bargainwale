@@ -6,7 +6,7 @@ const priceController = {
 
   addPrice: async (req, res) => {
     try {
-      const { warehouseId, prices, pricesUpdates } = req.body;
+      const { warehouseId, prices, pricesUpdated } = req.body;
 
       const warehouse = await Warehouse.findById(warehouseId);
       if (!warehouse) {
@@ -44,7 +44,7 @@ const priceController = {
           rackPrice,
           plantPrice,
           depoPrice,
-          pricesUpdates
+          pricesUpdated
         });
         await newPrice.save();
         savedPrices.push(newPrice);
