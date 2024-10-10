@@ -21,6 +21,7 @@ const bookingController = {
         deliveryAddress,
         description,
         reminderDays,
+        totalAmount,
       } = req.body;
 
       if (!Array.isArray(items)) {
@@ -34,6 +35,11 @@ const bookingController = {
         virtualQuantity,
         pickup,
         taxpaidAmount,
+        taxableAmount,
+        gst,
+        cgst,
+        sgst,
+        igst,
           contNumber,
           rackPrice,
           depoPrice,
@@ -60,6 +66,11 @@ const bookingController = {
           virtualQuantity,
           pickup,
           taxpaidAmount,
+          taxableAmount,
+        gst,
+        cgst,
+        sgst,
+        igst,
           contNumber,
           rackPrice,
           depoPrice,
@@ -85,7 +96,12 @@ const bookingController = {
           contNumber,
           rackPrice,
           depoPrice,
-          plantPrice
+          plantPrice,
+          taxableAmount,
+        gst,
+        cgst,
+        sgst,
+        igst,
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
@@ -156,6 +172,7 @@ const bookingController = {
         deliveryAddress,
         description,
         reminderDays,
+        totalAmount,
       });
 
       await booking.save();

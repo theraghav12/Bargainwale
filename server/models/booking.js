@@ -23,6 +23,21 @@ const bookingSchema = new mongoose.Schema(
         taxpaidAmount:{
           type:Number,
         },
+        gst: {
+          type: Number,
+        },
+        cgst: {
+          type: Number,
+        },
+        sgst: {
+          type: Number,
+        },
+        igst: {
+          type: Number,
+        },
+        taxableAmount:{
+          type:Number,
+        },
         contNumber:{
           type:Number,
         }, 
@@ -40,6 +55,10 @@ const bookingSchema = new mongoose.Schema(
         },
       },
     ],
+    totalAmount:{
+      type: Number,
+      
+     },
     validity: {
       type: Number,
       default: 21, // Default payment days
