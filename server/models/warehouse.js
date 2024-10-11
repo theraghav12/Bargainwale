@@ -62,7 +62,7 @@ const warehouseSchema = mongoose.Schema({
       },
     },
   ],
-});
+}, { timestamps: true });
 
 const Warehouse = mongoose.model("Warehouse", warehouseSchema);
 export default Warehouse;
