@@ -15,6 +15,7 @@ import SalesHistory from "./pages/sales/SalesHistory";
 import Home from "./pages/dashboard/home";
 import SignIn from "./pages/auth/sign-in";
 import BuyersList from "./pages/sales/BuyersList";
+import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
             <Route path="/auth/sign-in" element={<SignIn />} />
+            <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/master" element={<Master />} />

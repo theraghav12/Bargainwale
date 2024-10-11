@@ -18,6 +18,7 @@ export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
   const { organizations } = useOrganizationList();
+  console.log(organizations)
 
   useEffect(() => {
     const userValidation = async () => {
