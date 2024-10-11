@@ -43,6 +43,11 @@ const purchaseSchema = new mongoose.Schema(
       default: Date.now,
     },
     items: [purchasedItemSchema],
+    organization: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Organization",
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -50,9 +55,8 @@ const purchaseSchema = new mongoose.Schema(
 purchaseSchema.pre("save", function (next) {
   const randomString = crypto.randomBytes(4).toString("hex");
 
-  this.invoiceNumber = `${Date.now() + 5.5 * 60 * 60 * 1000}-${
-    this.orderId
-  }-${randomString}`;
+  this.invoiceNumber = `${Date.now() + 5.5 * 60 * 60 * 1000}-${this.orderId
+    }-${randomString}`;
 
   next();
 });

@@ -34,7 +34,12 @@ const priceSchema = new mongoose.Schema({
   pricesUpdated: {
     type: Boolean,
     default: false
-  }
+  },
+  organization: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Organization",
+    required: true,
+  },
 }, { timestamps: true });
 
 const Price = mongoose.model("Price", priceSchema);

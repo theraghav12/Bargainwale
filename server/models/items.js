@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import mongoose from "mongoose";
+
 const itemSchema = new mongoose.Schema({
-    flavor:{
-      type: String,
-      required: true,  
+    flavor: {
+        type: String,
+        required: true,
     },
-    material:{
+    material: {
         type: Number,
         required: true,
     },
@@ -17,42 +18,42 @@ const itemSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    grossweight:{
-        type:Number,
+    grossweight: {
+        type: Number,
     },
-    gst:{
-        type:Number,
+    gst: {
+        type: Number,
         required: true,
     },
-
     packaging: {
         type: String,
-        enum: ['box', 'tin','jar'],
+        enum: ['box', 'tin', 'jar'],
         default: 'box',
     },//id
-    
     packsize: {
         type: String,
-        
+
     },
-    
     staticPrice: {
         type: Number,
-        
+
     },
     itemId: {
         type: String,
-        unique: true,  
-        default: uuidv4, 
+        unique: true,
+        default: uuidv4,
     },
     warehouse: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse", 
-        
-      },
-    
-    
-});
+        ref: "Warehouse",
+
+    },
+    organization: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Organization",
+        required: true,
+    },
+}, { timestamps: true });
+
 const Item = mongoose.model('Item', itemSchema);
-    export default Item;
-    
+export default Item;

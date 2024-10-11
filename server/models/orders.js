@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 
-
 const orderSchema = new mongoose.Schema(
   {
     companyBargainDate: {
       type: Date,
       required: true,
     },
-
     companyBargainNo: {
       type: String,
       required: true,
@@ -20,11 +18,11 @@ const orderSchema = new mongoose.Schema(
         enum: ["rack", "depot", "plant"],
         default: "rack",
       },
-      baseRate:{
-        type:Number,
+      baseRate: {
+        type: Number,
       },
-      taxpaidAmount:{
-        type:Number,
+      taxpaidAmount: {
+        type: Number,
       },
       gst: {
         type: Number,
@@ -38,22 +36,19 @@ const orderSchema = new mongoose.Schema(
       igst: {
         type: Number,
       },
-      taxableAmount:{
-        type:Number,
+      taxableAmount: {
+        type: Number,
       },
-      contNumber:{
-        type:Number,
-      }, 
-
+      contNumber: {
+        type: Number,
+      },
     }],
-    
-   totalAmount:{
-    type: Number,
-    
-   },
-    inco:{
-      type:String,
-      enum:["EXW","FOR"],
+    totalAmount: {
+      type: Number,
+    },
+    inco: {
+      type: String,
+      enum: ["EXW", "FOR"],
     },
     billType: {
       type: String,
@@ -65,7 +60,6 @@ const orderSchema = new mongoose.Schema(
       enum: ["created", "partially paid", "billed"],
       default: "created",
     },
-    
     organization: {
       type: mongoose.Schema.ObjectId,
       ref: "Organization",
@@ -80,7 +74,7 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Manufacturer",  // Reference to Manufacturer schema
       required: true,
-    },    
+    },
     paymentDays: {
       type: Number,
       default: 21, // Default payment days
@@ -107,9 +101,9 @@ function daysBetweenDates(date1, date2) {
 
 // Method to calculate days since creation
 orderSchema.methods.getDaysSinceCreation = function () {
-    const now = new Date();
-    const days = Math.ceil((now - this.createdAt) / (1000 * 60 * 60 * 24));
-    return days;
+  const now = new Date();
+  const days = Math.ceil((now - this.createdAt) / (1000 * 60 * 60 * 24));
+  return days;
 };
 
 // Method to calculate days since creation

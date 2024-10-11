@@ -14,14 +14,14 @@ const bookingSchema = new mongoose.Schema(
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
 
-        virtualQuantity: { type: Number, required: true  },
+        virtualQuantity: { type: Number, required: true },
         pickup: {
           type: String,
           enum: ["rack", "depot", "plant"],
           default: "rack",
         },
-        taxpaidAmount:{
-          type:Number,
+        taxpaidAmount: {
+          type: Number,
         },
         gst: {
           type: Number,
@@ -35,39 +35,38 @@ const bookingSchema = new mongoose.Schema(
         igst: {
           type: Number,
         },
-        taxableAmount:{
-          type:Number,
+        taxableAmount: {
+          type: Number,
         },
-        contNumber:{
-          type:Number,
-        }, 
+        contNumber: {
+          type: Number,
+        },
         rackPrice: {
           type: Number,
-          
+
         },
         plantPrice: {
           type: Number,
-          
+
         },
         depoPrice: {
           type: Number,
-          
+
         },
       },
     ],
-    totalAmount:{
+    totalAmount: {
       type: Number,
-      
-     },
+
+    },
     validity: {
       type: Number,
       default: 21, // Default payment days
     },
-    inco:{
-      type:String,
-      enum:["EXW","FOR"],
+    inco: {
+      type: String,
+      enum: ["EXW", "FOR"],
     },
-
     deliveryOption: {
       type: String,
       enum: ["Pickup", "Delivery"],
@@ -87,10 +86,9 @@ const bookingSchema = new mongoose.Schema(
       ref: "Organization",
       required: true,
     },
-
     buyer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Buyer", 
+      ref: "Buyer",
       required: true,
     },
     deliveryAddress: {

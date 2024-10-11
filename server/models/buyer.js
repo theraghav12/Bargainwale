@@ -41,7 +41,12 @@ const buyerSchema = new mongoose.Schema({
   buyerGooglemaps: {
     type: String,
   },
-});
+  organization: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Organization",
+    required: true,
+  },
+}, { timestamps: true });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);
 export default Buyer;
