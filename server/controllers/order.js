@@ -8,7 +8,7 @@ const orderController = {
     try {
       const {
         companyBargainDate,
-        items,   
+        items,
         inco,
         companyBargainNo,
         billType,
@@ -28,17 +28,17 @@ const orderController = {
       const orderItems = [];
 
       for (const {
-        itemId, 
-        quantity, 
-        pickup, 
-        baseRate, 
-        taxpaidAmount, 
-        gst, 
-        cgst, 
-        sgst, 
-        igst, 
-        taxableAmount, 
-        contNumber 
+        itemId,
+        quantity,
+        pickup,
+        baseRate,
+        taxpaidAmount,
+        gst,
+        cgst,
+        sgst,
+        igst,
+        taxableAmount,
+        contNumber
       } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res.status(400).json({ message: `Invalid itemId format: ${itemId}` });
@@ -100,7 +100,7 @@ const orderController = {
         let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString()
         );
- 
+
         if (!existingVirtualInventoryItem) {
           warehouseDocument.virtualInventory.push({
             item: itemId,
@@ -135,7 +135,7 @@ const orderController = {
 
   getAllOrders: async (req, res) => {
     try {
-      const orders = await Order.find()
+      const orders = await Order.find({ organization: req.params.orgId })
         .populate('items.item')
         .populate('warehouse')
         .populate('manufacturer');
@@ -147,11 +147,12 @@ const orderController = {
 
   getOrderById: async (req, res) => {
     try {
-      const order = await Order.findById(req.params.id)
+      const { id, orgId } = req.params;
+      const order = await Order.findOne({ _id: id, organization: orgId })
         .populate('items.item')
         .populate('warehouse')
         .populate('manufacturer');
-        
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -165,7 +166,7 @@ const orderController = {
     try {
       const {
         companyBargainDate,
-        items,   
+        items,
         inco,
         companyBargainNo,
         billType,
@@ -208,7 +209,7 @@ const orderController = {
   deleteOrder: async (req, res) => {
     try {
       const { orderId } = req.params;
-  
+
       if (!mongoose.Types.ObjectId.isValid(orderId)) {
         return res.status(400).json({ message: 'Invalid orderId format' });
       }

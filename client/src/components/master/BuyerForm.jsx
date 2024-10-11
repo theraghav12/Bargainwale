@@ -34,6 +34,7 @@ const BuyerForm = () => {
     buyerEmail: "",
     buyerGstno: "",
     buyerGooglemaps: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -108,6 +109,7 @@ const BuyerForm = () => {
         buyerEmail: form.buyerEmail,
         buyerGstno: form.buyerGstno,
         buyerGooglemaps: form.buyerGooglemaps,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Buyer added successfully!");

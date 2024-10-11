@@ -1,9 +1,11 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
+const orgId = localStorage.getItem("organizationId");
+
 export const getItems = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/items`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/items`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);
@@ -13,7 +15,7 @@ export const getItems = async () => {
 
 export const getPricesByWarehouse = async (warehouseId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouseprices/${warehouseId}`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/warehouseprices/${warehouseId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);
@@ -23,7 +25,7 @@ export const getPricesByWarehouse = async (warehouseId) => {
 
 export const getPrices = async (warehouseId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/prices`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/prices`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);

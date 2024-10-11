@@ -4,13 +4,14 @@ const transportController = {
   // Create a new transport
   createTransport: async (req, res) => {
     try {
-      const { transport, transportType, transportContact, transportAgency } = req.body;
+      const { transport, transportType, transportContact, transportAgency, organization } = req.body;
 
       const newTransport = new Transport({
         transport,
         transportType,
         transportContact,
         transportAgency,
+        organization
       });
 
       await newTransport.save();
@@ -23,7 +24,7 @@ const transportController = {
   // Get all transports
   getAllTransports: async (req, res) => {
     try {
-      const transports = await Transport.find();
+      const transports = await Transport.find({ organization: req.params.orgId });
       res.status(200).json(transports);
     } catch (error) {
       res.status(500).json({ message: 'Error retrieving transports', error });
@@ -33,7 +34,8 @@ const transportController = {
   // Get a transport by ID
   getTransportById: async (req, res) => {
     try {
-      const transport = await Transport.findById(req.params.id);
+      const { id, orgId } = req.params;
+      const transport = await Transport.findOne({ _id: id, organization: orgId });
       if (!transport) {
         return res.status(404).json({ message: 'Transport not found' });
       }

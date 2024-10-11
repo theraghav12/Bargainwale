@@ -1,9 +1,11 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
+const orgId = localStorage.getItem("organizationId");
+
 export const getOrders = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/order`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/order`);
         return response.data;
     } catch (error) {
         console.log(error);

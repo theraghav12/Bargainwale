@@ -158,6 +158,7 @@ export default function Home() {
             plantPrice: item.plantPrice,
             pricesUpdated: true,
           })),
+          organization: localStorage.getItem("organizationId"),
         };
         console.log(postData);
         await addPrice(postData);

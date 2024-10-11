@@ -27,7 +27,6 @@ const CreateOrganizationPage = () => {
       );
 
       if (response.status === 201) {
-        localStorage.setItem("organizationId", organization.id);
         navigate("/dashboard/home");
         toast.success("Organization Created!");
       } else {
@@ -48,7 +47,7 @@ const CreateOrganizationPage = () => {
       ) : (
         <CreateOrganization
           path="/auth/create-organization"
-          afterCreate={(organization) => {
+          afterCreateOrganizationUrl={(organization) => {
             handleOrganizationCreated(organization);
           }}
         />

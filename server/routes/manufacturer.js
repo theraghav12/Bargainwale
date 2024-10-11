@@ -7,10 +7,10 @@ const router = express.Router();
 router.post('/api/manufacturers', manufacturerController.createManufacturer);
 
 // Route to get all manufacturers
-router.get('/api/manufacturers', manufacturerController.getAllManufacturers);
+router.get('/api/:orgId/manufacturers', manufacturerController.getAllManufacturers);
 
 // Route to get a specific manufacturer by ID
-router.get('/api/manufacturers/:id', manufacturerController.getManufacturerById);
+router.get('/api/:orgId/manufacturers/:id', manufacturerController.getManufacturerById);
 
 // Route to update a specific manufacturer by ID
 router.put('/api/manufacturers/:id', manufacturerController.updateManufacturer);

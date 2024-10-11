@@ -38,6 +38,7 @@ const ItemForm = () => {
     packsize: "",
     staticPrice: "",
     warehouse: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 

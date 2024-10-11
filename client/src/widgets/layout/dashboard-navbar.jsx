@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Navbar, IconButton, Dialog } from "@material-tailwind/react";
+import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import {
-  useMaterialTailwindController,
-  setOpenConfigurator,
-  setOpenSidenav,
-} from "@/context";
-import { OrganizationProfile, SignedIn, UserButton, useUser } from "@clerk/clerk-react";
+  OrganizationProfile,
+  SignedIn,
+  UserButton,
+  useUser,
+} from "@clerk/clerk-react";
 
 // icons
 import {
@@ -15,6 +16,8 @@ import {
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
+import axios from "axios";
+import { API_BASE_URL } from "@/services/api";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -29,12 +32,22 @@ export function DashboardNavbar() {
   const { user } = useUser();
   const navigate = useNavigate();
 
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/${user?.organizationMemberships[0]?.organization.id}/organization`
+      );
+      if (response.status === 200) {
+        localStorage.setItem("organizationId", response.data[0]._id);
+      }
+    } catch (err) {
+      console.log("Error:", err);
+    }
+  };
+
   useEffect(() => {
     if (user && user?.organizationMemberships?.length > 0) {
-      localStorage.setItem(
-        "organizationId",
-        user?.organizationMemberships[0]?.id
-      );
+      fetchData();
     } else if (user?.organizationMemberships?.length === 0) {
       navigate("/auth/create-organization");
     }

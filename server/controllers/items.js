@@ -1,10 +1,10 @@
-import Item from "../models/items.js"; 
+import Item from "../models/items.js";
 
 const itemController = {
   // Create a new item
   createItem: async (req, res) => {
     try {
-      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice,warehouse } = req.body;
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouse, organization } = req.body;
 
       const newItem = new Item({
         flavor,
@@ -17,8 +17,7 @@ const itemController = {
         packsize,
         staticPrice,
         warehouse,
-
-       
+        organization
       });
 
       await newItem.save();
@@ -31,7 +30,7 @@ const itemController = {
 
   getAllItems: async (req, res) => {
     try {
-      const items = await Item.find();
+      const items = await Item.find({ organization: req.params.orgId });
       res.status(200).json(items);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving items", error });
@@ -40,7 +39,8 @@ const itemController = {
 
   getItemById: async (req, res) => {
     try {
-      const item = await Item.findById(req.params.id);
+      const { id, orgId } = req.params;
+      const item = await Item.findOne({ _id: id, organization: orgId });
       if (!item) {
         return res.status(404).json({ message: "Item not found" });
       }
@@ -51,8 +51,8 @@ const itemController = {
   },
   getItemByWarehouseId: async (req, res) => {
     try {
-      const { warehouseId } = req.params;
-      const items = await Item.find({ warehouse: warehouseId }); // Assuming warehouse is stored as a reference or ID
+      const { warehouseId, orgId } = req.params;
+      const items = await Item.find({ warehouse: warehouseId, organization: orgId }); // Assuming warehouse is stored as a reference or ID
 
       if (items.length === 0) {
         return res.status(404).json({ message: "No items found for the specified warehouse" });
@@ -82,7 +82,7 @@ const itemController = {
           staticPrice,
           warehouse,
         },
-        { new: true } 
+        { new: true }
       );
 
       if (!updatedItem) {

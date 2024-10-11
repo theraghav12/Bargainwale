@@ -27,6 +27,7 @@ const TransportForm = () => {
     transportType: "",
     transportContact: "",
     transportAgency: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 

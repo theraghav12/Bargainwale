@@ -33,6 +33,7 @@ const ManufacturerForm = () => {
     manufacturerContact: "",
     manufacturerEmail: "",
     manufacturerGstno: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -105,6 +106,7 @@ const ManufacturerForm = () => {
         manufacturerContact: form.manufacturerContact,
         manufacturerEmail: form.manufacturerEmail,
         manufacturerGstno: form.manufacturerGstno,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Manufacturer added successfully!");

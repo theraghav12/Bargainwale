@@ -45,6 +45,7 @@ const CreatePurchase = () => {
     invoiceNumber: "",
     invoiceDate: "",
     items: [],
+    organization: localStorage.getItem("organizationId"),
   });
 
   useEffect(() => {
@@ -174,7 +175,6 @@ const CreatePurchase = () => {
         ...form,
         orderId: selectedOrder,
         items: quantityInputs,
-        organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
 
       console.log(updatedForm);

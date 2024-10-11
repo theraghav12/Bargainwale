@@ -28,6 +28,7 @@ const CreateOrder = () => {
     paymentDays: "",
     description: "",
     warehouse: "",
+    organization: localStorage.getItem("organizationId"),
   });
 
   useEffect(() => {
@@ -90,7 +91,6 @@ const CreateOrder = () => {
       const updatedForm = {
         ...form,
         paymentDays,
-        organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
 
       const response = await createOrder(updatedForm);

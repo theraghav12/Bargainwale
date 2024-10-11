@@ -40,11 +40,11 @@ const bookingController = {
         cgst,
         sgst,
         igst,
-          contNumber,
-          rackPrice,
-          depoPrice,
-          plantPrice
-      } of items) {       
+        contNumber,
+        rackPrice,
+        depoPrice,
+        plantPrice
+      } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res
             .status(400)
@@ -56,21 +56,21 @@ const bookingController = {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
         // Check if the quantity is valid
-       // if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
-       //   return res
-       //     .status(400)
-       //     .json({ message: `Quantity mismatch for item: ${itemId}` });
-       // }
+        // if (Number(virtualQuantity) + Number(billedQuantity) !== Number(quantity)) {
+        //   return res
+        //     .status(400)
+        //     .json({ message: `Quantity mismatch for item: ${itemId}` });
+        // }
         orderItems.push({
           item: itemId,
           virtualQuantity,
           pickup,
           taxpaidAmount,
           taxableAmount,
-        gst,
-        cgst,
-        sgst,
-        igst,
+          gst,
+          cgst,
+          sgst,
+          igst,
           contNumber,
           rackPrice,
           depoPrice,
@@ -93,18 +93,18 @@ const bookingController = {
         virtualQuantity,
         pickup,
         taxpaidAmount,
-          contNumber,
-          rackPrice,
-          depoPrice,
-          plantPrice,
-          taxableAmount,
+        contNumber,
+        rackPrice,
+        depoPrice,
+        plantPrice,
+        taxableAmount,
         gst,
         cgst,
         sgst,
         igst,
       } of items) {
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
         );
         if (!virtualInventoryItem) {
           return res.status(400).json({
@@ -115,9 +115,9 @@ const bookingController = {
         //  return res.status(400).json({
         //    message: `Not enough quantity in virtual inventory for item: ${itemId}`,
         //  });
-       // }
+        // }
         virtualInventoryItem.quantity -= virtualQuantity;
-        virtualInventoryUpdates.push({ itemId,pickup, quantity: virtualQuantity });
+        virtualInventoryUpdates.push({ itemId, pickup, quantity: virtualQuantity });
 
         // const billedInventoryItem = warehouseDocument.billedInventory.find(
         //   (i) => i.item && i.item.toString() === itemId.toString()
@@ -132,14 +132,14 @@ const bookingController = {
         //    message: `Not enough quantity in billed inventory for item: ${itemId}`,
         //  });
         //}
-       // billedInventoryItem.quantity -= billedQuantity;
-       // billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
+        // billedInventoryItem.quantity -= billedQuantity;
+        // billedInventoryUpdates.push({ itemId, quantity: billedQuantity });
 
         // console.log(pickup);
         const soldInventoryItem = warehouseDocument.soldInventory.find(
           (i) => {
             // console.log(i);
-            return (i.item && i.item.toString() === itemId.toString() && i.pickup===pickup)
+            return (i.item && i.item.toString() === itemId.toString() && i.pickup === pickup)
           }
         );
         // console.log(soldInventoryItem);
@@ -158,7 +158,7 @@ const bookingController = {
 
       await warehouseDocument.save();
 
-  
+
       const booking = new Booking({
         BargainDate: new Date(BargainDate),
         BargainNo,
@@ -193,7 +193,7 @@ const bookingController = {
 
   getAllBookings: async (req, res) => {
     try {
-      const bookings = await Booking.find()
+      const bookings = await Booking.find({ organization: req.params.orgId })
         .populate('items.item')
         .populate('warehouse')
         .populate("buyer")
@@ -215,7 +215,8 @@ const bookingController = {
   // Get a booking by ID
   getBookingById: async (req, res) => {
     try {
-      const booking = await Booking.findById(req.params.id)
+      const { id, orgId } = req.params;
+      const booking = await Booking.findOne({ _id: id, organization: orgId })
         .populate("items.item")
         .populate("warehouse")
 
@@ -259,12 +260,12 @@ const bookingController = {
   getBookingsByBuyerId: async (req, res) => {
     try {
       const { buyerId } = req.params;
-      
-      
+
+
       const bookings = await Booking.find({ "buyer": buyerId })
         .populate('warehouse')
-        .populate('buyer');  
-      
+        .populate('buyer');
+
       if (!bookings.length) {
         return res.status(404).json({ message: "No bookings found for the provided buyer ID" });
       }
@@ -313,7 +314,7 @@ const bookingController = {
         }
 
         const billedInventoryItem = warehouse.billedInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString()  && i.pickup===pickup
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
         );
         if (billedInventoryItem) {
           billedInventoryItem.quantity += billedQuantity;

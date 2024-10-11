@@ -48,6 +48,7 @@ const CreateSales = () => {
     invoiceNumber: "",
     invoiceDate: "",
     items: [],
+    organization: localStorage.getItem("organizationId"),
   });
 
   useEffect(() => {
@@ -179,7 +180,6 @@ const CreateSales = () => {
         ...form,
         bookingIds: selectedOrder,
         items: quantityInputs,
-        organization: "64d22f5a8b3b9f47a3b0e7f1",
       };
 
       console.log(updatedForm);

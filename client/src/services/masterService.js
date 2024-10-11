@@ -1,10 +1,12 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
+const orgId = localStorage.getItem("organizationId");
+
 // items
 export const getItems = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/items`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/items`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -41,7 +43,7 @@ export const deleteItem = async (id) => {
 // transport
 export const getTransport = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/transports`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/transports`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -78,7 +80,7 @@ export const deleteTransport = async (id) => {
 // buyer
 export const getBuyer = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/buyers`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/buyers`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -115,7 +117,7 @@ export const deleteBuyer = async (id) => {
 // manufacturer
 export const getManufacturer = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/manufacturers`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/manufacturers`);
         return response.data;
     } catch (error) {
         console.log(error);

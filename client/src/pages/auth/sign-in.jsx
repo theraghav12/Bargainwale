@@ -1,13 +1,5 @@
 import { API_BASE_URL } from "@/services/api";
-import {
-  RedirectToSignIn,
-  SignedIn,
-  SignedOut,
-  UserButton,
-  useUser,
-  useClerk,
-  useOrganizationList,
-} from "@clerk/clerk-react";
+import { RedirectToSignIn, SignedOut, useUser } from "@clerk/clerk-react";
 import { Spinner } from "@material-tailwind/react";
 import axios from "axios";
 import { useEffect } from "react";
@@ -17,8 +9,6 @@ import { toast } from "react-toastify";
 export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { organizations } = useOrganizationList();
-  console.log(organizations)
 
   useEffect(() => {
     const userValidation = async () => {
@@ -32,7 +22,7 @@ export default function SignIn() {
             if (user.organizationMemberships.length === 0) {
               navigate("/auth/create-organization");
             } else {
-              navigate("/dashboard/home");
+              navigate("/dashboard");
             }
           }
         }
@@ -48,7 +38,7 @@ export default function SignIn() {
           if (user.organizationMemberships.length === 0) {
             navigate("/create-organization");
           } else {
-            navigate("/dashboard/home");
+            navigate("/dashboard");
           }
         } else {
           console.log(err);

@@ -31,6 +31,7 @@ const WarehouseForm = () => {
     city: "",
     warehouseManager: "",
     googleMapsLink: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -96,6 +97,7 @@ const WarehouseForm = () => {
           city: form.city,
         },
         warehouseManager: form.warehouseManager,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Warehouse added successfully!");

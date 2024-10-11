@@ -4,8 +4,8 @@ import saleController from "../controllers/sale.js";
 const router = Router();
 
 router.post("/api/sale", saleController.createSale);
-router.get("/api/sale", saleController.getAllSales);
-router.get("/api/sale/:id", saleController.getSaleById);
+router.get("/api/:orgId/sale", saleController.getAllSales);
+router.get("/api/:orgId/sale/:id", saleController.getSaleById);
 router.delete("/api/sale/:id", saleController.deleteSale);
 
 export default router;

@@ -1,9 +1,11 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
+const orgId = localStorage.getItem("organizationId");
+
 export const getBookings = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/booking`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/booking`);
         return response.data;
     } catch (error) {
         console.log(error);

@@ -6,7 +6,7 @@ import Transport from "../models/transport.js";
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
-      const { warehouseId, transporterId, orderId, items, invoiceDate } =req.body;
+      const { warehouseId, transporterId, orderId, items, invoiceDate, organization } = req.body;
       // console.log(items);
       // Fetch the warehouse and order documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
@@ -54,7 +54,7 @@ const purchaseController = {
 
         // Find the order item
         const orderItem = orderDocument.items.find(
-          (i) =>{
+          (i) => {
             // console.log(orderDocument.items);
             return (i.item._id.toString() === itemId.toString() && i.pickup == pickup);
           }
@@ -151,6 +151,7 @@ const purchaseController = {
         orderId,
         items,
         invoiceDate,
+        organization
       });
 
       // console.log(newPurchase);
@@ -172,7 +173,7 @@ const purchaseController = {
   },
   getAllPurchases: async (req, res) => {
     try {
-      const purchases = await Purchase.find()
+      const purchases = await Purchase.find({ organization: req.params.orgId })
         .populate("warehouseId")
         .populate("transporterId")
         .populate("orderId")
@@ -193,7 +194,8 @@ const purchaseController = {
 
   getPurchaseById: async (req, res) => {
     try {
-      const purchase = await Purchase.findById(req.params.id)
+      const { id, orgId } = req.params;
+      const purchase = await Purchase.findOne({ _id: id, organization: orgId })
         .populate("warehouseId") // Populates the warehouse details
         .populate("transporterId") // Populates the transporter details
         .populate("orderId") // Populates the order details
@@ -242,7 +244,7 @@ const purchaseController = {
         // console.log(itemId, quantity, pickup);
 
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) =>{
+          (i) => {
             // console.log(i.pickup);
             return (i.item.toString() === itemId.toString() && i.pickup == pickup)
           }
@@ -268,14 +270,14 @@ const purchaseController = {
         const remainingPurchases = await Purchase.find({
           orderId: purchase.orderId,
         });
-        console.log("---------------------------",remainingPurchases);
+        console.log("---------------------------", remainingPurchases);
         let isPartiallyPaid = false;
         let isFullyPaid = true;
 
         for (const purchase of remainingPurchases) {
           for (const item of purchase.items) {
             const orderItem = order.items.find(
-              (i) =>{
+              (i) => {
                 // console.log(i.pickup);
                 return (i.item._id.toString() === item.itemId.toString() && i.pickup == pickup)
               }

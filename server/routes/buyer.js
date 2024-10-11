@@ -7,10 +7,10 @@ const router = express.Router();
 router.post('/api/buyers', buyerController.createBuyer);
 
 // Route to get all buyers
-router.get('/api/buyers', buyerController.getAllBuyers);
+router.get('/api/:orgId/buyers', buyerController.getAllBuyers);
 
 // Route to get a specific buyer by ID
-router.get('/api/buyers/:id', buyerController.getBuyerById);
+router.get('/api/:orgId/buyers/:id', buyerController.getBuyerById);
 
 // Route to update a specific buyer by ID
 router.put('/api/buyers/:id', buyerController.updateBuyer);
