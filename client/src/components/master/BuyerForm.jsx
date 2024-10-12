@@ -477,7 +477,11 @@ const BuyerForm = () => {
               />
             </div>
             <div className="flex gap-4">
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Buyer</span>}
               </Button>
             </div>

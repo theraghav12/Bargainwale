@@ -306,7 +306,11 @@ const TransportForm = () => {
               />
             </div>
             <div className="flex">
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Transport</span>}
               </Button>
             </div>

@@ -534,7 +534,11 @@ const ItemForm = () => {
               />
             </div>
             <div className="flex">
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Item</span>}
               </Button>
             </div>
