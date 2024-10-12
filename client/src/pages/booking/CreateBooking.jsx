@@ -563,7 +563,11 @@ const CreateBooking = () => {
                   <FaPlus /> Add Item
                 </Button>
 
-                <Button color="blue" type="submit" className="w-[150px]">
+                <Button
+                  color="blue"
+                  type="submit"
+                  className="w-[150px] flex items-center justify-center"
+                >
                   {loading ? <Spinner /> : <span>Create Booking</span>}
                 </Button>
               </div>

@@ -454,7 +454,11 @@ const CreateOrder = () => {
                   <FaPlus /> Add Item
                 </Button>
 
-                <Button color="blue" type="submit" className="w-[140px]">
+                <Button
+                  color="blue"
+                  type="submit"
+                  className="w-[140px] flex items-center justify-center"
+                >
                   {loading ? <Spinner /> : <span>Create Order</span>}
                 </Button>
               </div>
@@ -465,8 +469,6 @@ const CreateOrder = () => {
             <div className="flex justify-between items-center px-10 py-2">
               <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
                 <span>Total Qty: {calculateTotalQuantity()}</span>
-                {/* <span>Total Gross Weight:</span>
-                <span>Total Net Weight:</span> */}
                 <span>Total Amount: {calculateTotalAmount()}</span>
               </div>
             </div>

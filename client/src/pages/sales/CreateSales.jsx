@@ -160,7 +160,7 @@ const CreateSales = () => {
 
     try {
       if (selectedOrder.length === 0) {
-        toast.error("Please select at least one order before submitting.");
+        toast.error("Please select at least one booking before submitting.");
         setLoading(false);
         return;
       }
@@ -170,7 +170,7 @@ const CreateSales = () => {
         quantityInputs.some((input) => !input.quantity)
       ) {
         toast.error(
-          "Please enter quantities for all items in the selected order."
+          "Please enter quantities for all items in the selected booking."
         );
         setLoading(false);
         return;
@@ -186,7 +186,7 @@ const CreateSales = () => {
       const response = await createSales(updatedForm);
 
       if (response.status === 201) {
-        toast.success("Order created successfully!");
+        toast.success("Sales created successfully!");
       } else {
         toast.error(`Unexpected status code: ${response.status}`);
         console.error("Unexpected response:", response);
@@ -484,7 +484,11 @@ const CreateSales = () => {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button color="blue" type="submit" className="w-fit">
+                <Button
+                  color="blue"
+                  type="submit"
+                  className="w-fit flex items-center justify-center"
+                >
                   {loading ? <Spinner /> : <span>Create Sales</span>}
                 </Button>
               </div>

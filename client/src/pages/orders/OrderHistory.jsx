@@ -191,9 +191,8 @@ export function OrderHistory() {
             >
               <option value="All">All Statuses</option>
               <option value="created">Created</option>
+              <option value="partially paid">Partially Paid</option>
               <option value="billed">Billed</option>
-              <option value="payment pending">Payment Pending</option>
-              <option value="completed">Completed</option>
             </select>
             <select
               value={timePeriod}
@@ -313,9 +312,7 @@ export function OrderHistory() {
                                 }
                               />
                             </td>
-                            <td className="py-4 text-center">
-                              {order.inco}
-                            </td>
+                            <td className="py-4 text-center">{order.inco}</td>
                             <td className="py-4 text-center">
                               <div className="flex justify-center gap-4">
                                 <IconButton
@@ -334,7 +331,7 @@ export function OrderHistory() {
                                     <span className="w-fit h-fit">
                                       <MdDeleteOutline
                                         onClick={() => handleDelete(order._id)}
-                                        className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                        className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
                                       />
                                     </span>
                                   </Tooltip>

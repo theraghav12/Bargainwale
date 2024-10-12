@@ -472,7 +472,11 @@ const CreatePurchase = () => {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button color="blue" type="submit" className="w-fit">
+                <Button
+                  color="blue"
+                  type="submit"
+                  className="w-fit flex items-center justify-center"
+                >
                   {loading ? <Spinner /> : <span>Create Purchase</span>}
                 </Button>
               </div>
@@ -501,7 +505,6 @@ const CreatePurchase = () => {
                           "Manufacturer Company",
                           "Manufacturer Contact",
                           "Status",
-                          "Actions",
                         ].map((el) => (
                           <th key={el} className="py-4 text-center w-[200px]">
                             {el}
@@ -513,7 +516,6 @@ const CreatePurchase = () => {
                       {orders.map((order) => {
                         const isOpen = selectedOrder === order._id;
                         const isChecked = selectedOrder === order._id;
-                        console.log(order);
                         return (
                           <React.Fragment key={order._id}>
                             <tr className="border-t-2 border-t-[#898989]">
@@ -540,7 +542,7 @@ const CreatePurchase = () => {
                               <td className="py-4 text-center">
                                 {order.manufacturer?.manufacturerContact}
                               </td>
-                              <td className="py-4 text-center">
+                              <td className="py-4 text-center flex items-center justify-center">
                                 <Chip
                                   variant="ghost"
                                   value={order.status}
@@ -553,43 +555,8 @@ const CreatePurchase = () => {
                                       ? "green"
                                       : "red"
                                   }
+                                  className="w-[150px]"
                                 />
-                              </td>
-                              <td className="py-4 text-center">
-                                <div className="flex justify-center gap-4">
-                                  <IconButton
-                                    variant="text"
-                                    onClick={() => handleToggleOrder(order._id)}
-                                    className="bg-gray-300"
-                                  >
-                                    {isOpen ? (
-                                      <ChevronUpIcon className="h-5 w-5" />
-                                    ) : (
-                                      <ChevronDownIcon className="h-5 w-5" />
-                                    )}
-                                  </IconButton>
-                                  {/* <Button
-                                    color="blue"
-                                    onClick={() => {
-                                      setSelectedOrder(order);
-                                      setShowEditOrderForm(true);
-                                    }}
-                                  >
-                                    Edit
-                                  </Button> */}
-                                  {/* {!hasFutureBookings(order, bookings) && (
-                                    <Tooltip content="Delete Order">
-                                      <span className="w-fit h-fit">
-                                        <MdDeleteOutline
-                                          onClick={() =>
-                                            handleDelete(order._id)
-                                          }
-                                          className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                        />
-                                      </span>
-                                    </Tooltip>
-                                  )} */}
-                                </div>
                               </td>
                             </tr>
                             {isOpen && (

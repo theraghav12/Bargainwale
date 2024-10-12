@@ -81,8 +81,7 @@ export function BookingHistory() {
 
       // Sort bookings by BargainDate in descending booking
       filteredBookings.sort(
-        (a, b) =>
-          new Date(b.BargainDate) - new Date(a.BargainDate)
+        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       console.log(filteredBookings);
@@ -172,8 +171,7 @@ export function BookingHistory() {
           : bookingsData.filter((booking) => booking.status === statusFilter);
 
       filteredBookings.sort(
-        (a, b) =>
-          new Date(b.BargainDate) - new Date(a.BargainDate)
+        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       setBookings(filteredBookings);
@@ -252,9 +250,8 @@ export function BookingHistory() {
             >
               <option value="All">All Statuses</option>
               <option value="created">Created</option>
-              <option value="billed">Billed</option>
-              <option value="payment pending">Payment Pending</option>
-              <option value="completed">Completed</option>
+              <option value="partially sold">Partially Sold</option>
+              <option value="fully sold">Fully Sold</option>
             </select>
             <select
               value={timePeriod}
