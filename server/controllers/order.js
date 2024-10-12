@@ -127,7 +127,7 @@ const orderController = {
         message: "Error creating order",
         error: {
           message: error.message || "An error occurred",
-          stack: error.stack // Optional: include stack trace for more details
+          stack: error.stack 
         }
       });
     }
