@@ -178,7 +178,7 @@ const ItemForm = () => {
       console.error(error);
     }
   };
-  console.log(items)
+  console.log(items);
 
   return (
     <>
@@ -417,21 +417,42 @@ const ItemForm = () => {
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex gap-4">
-              <div className="relative w-[400px]">
+              <div className="relative w-[200px]">
+                <select
+                  id="warehouse"
+                  name="warehouse"
+                  value={form.warehouse}
+                  onChange={(value) => handleChange(value, "warehouse")}
+                  className="appearance-none w-[200px] bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-[6px] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                  required
+                >
+                  <option value="">Select Warehouse</option>
+                  {warehouseOptions?.map((option) => (
+                    <option key={option?._id} value={option?._id}>
+                      {option?.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                </div>
+              </div>
+
+              {/* <div className="relative w-[400px]">
                 <Select
                   name="warehouse"
                   label="Warehouse"
                   value={form.warehouse}
                   onChange={(value) => handleChange(value, "warehouse")}
                 >
-                  <option value="">Select Warehouse</option>
+                  <Option value="">Select Warehouse</Option>
                   {warehouseOptions?.map((option) => (
                     <Option key={option?._id} value={option?._id}>
                       {option?.name}
                     </Option>
                   ))}
                 </Select>
-              </div>
+              </div> */}
 
               <Input
                 name="materialdescription"

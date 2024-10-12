@@ -45,6 +45,10 @@ export function DashboardNavbar() {
     }
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem("organizationId");
+  };
+
   useEffect(() => {
     if (user && user?.organizationMemberships?.length > 0) {
       fetchData();
@@ -98,13 +102,16 @@ export function DashboardNavbar() {
               <Bars3Icon strokeWidth={3} className="h-6 w-6 text-white" />
             </IconButton>
             <SignedIn>
-              <UserButton />
+              <UserButton
+                afterSignOutUrl="/auth/sign-in"
+                signOutCallback={handleSignOut}
+              />
               <IconButton
                 variant="text"
                 color="white"
                 onClick={handleOpenOrgProfile} // Toggle modal on click
               >
-                <BuildingOfficeIcon className="h-6 w-6 text-white" />{" "}
+                <BuildingOfficeIcon className="h-6 w-6 text-white" />
                 {/* Icon next to UserButton */}
               </IconButton>
             </SignedIn>

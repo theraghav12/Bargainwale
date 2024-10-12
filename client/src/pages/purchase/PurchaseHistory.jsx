@@ -163,7 +163,7 @@ export default function PurchaseHistory() {
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row gap-5">
           <div>
             <button
               onClick={handleDownloadExcel}
@@ -174,17 +174,6 @@ export default function PurchaseHistory() {
             </button>
           </div>
           <div className="flex gap-4">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
-            >
-              <option value="All">All Statuses</option>
-              <option value="created">Created</option>
-              <option value="billed">Billed</option>
-              <option value="payment pending">Payment Pending</option>
-              <option value="completed">Completed</option>
-            </select>
             <select
               value={timePeriod}
               onChange={(e) => {
@@ -232,7 +221,7 @@ export default function PurchaseHistory() {
             <Typography className="text-center text-red-600">
               {error}
             </Typography>
-          ) : purchases.length > 0 ? (
+          ) : purchases?.length > 0 ? (
             <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
               <div className="overflow-x-auto">
                 <table className="min-w-full table-auto border-collapse">
@@ -245,7 +234,6 @@ export default function PurchaseHistory() {
                         "Warehouse",
                         "Transporter",
                         "Pickup Type",
-                        "Item Quantity",
                         "Actions",
                       ].map((el) => (
                         <th key={el} className="py-4 text-center w-[200px]">
@@ -255,8 +243,9 @@ export default function PurchaseHistory() {
                     </tr>
                   </thead>
                   <tbody>
-                    {purchases.map((purchase) => {
+                    {purchases?.map((purchase) => {
                       const isOpen = openPurchase === purchase._id;
+                      console.log(purchase)
                       return (
                         <React.Fragment key={purchase._id}>
                           <tr className="border-t-2 border-t-[#898989]">
@@ -268,13 +257,16 @@ export default function PurchaseHistory() {
                               {purchase?.invoiceNumber}
                             </td>
                             <td className="py-4 text-center">
-                              {purchase?.orderId}
+                              {purchase?.orderId?.companyBargainNo}
                             </td>
                             <td className="py-4 text-center">
-                              {purchase?.warehouseId}
+                              {purchase?.warehouseId?.name}
                             </td>
                             <td className="py-4 text-center">
-                              {purchase?.transporterId}
+                              {purchase?.transporterId?.transport}
+                            </td>
+                            <td className="py-4 text-center">
+                              {purchase?.items[0]?.pickup}
                             </td>
                             <td className="py-4 text-center">
                               <div className="flex justify-center gap-4">
@@ -335,7 +327,7 @@ export default function PurchaseHistory() {
                                       {purchase.items.map((item) => (
                                         <tr key={item._id}>
                                           <td className="py-3 px-5 text-center">
-                                            {item.item?.materialdescription}
+                                            {item.itemId?.materialdescription}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.quantity}

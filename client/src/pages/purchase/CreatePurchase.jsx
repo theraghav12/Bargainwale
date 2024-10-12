@@ -181,7 +181,7 @@ const CreatePurchase = () => {
       const response = await createPurchase(updatedForm);
 
       if (response.status === 201) {
-        toast.success("Order created successfully!");
+        toast.success("Purchase created successfully!");
       } else {
         toast.error(`Unexpected status code: ${response.status}`);
         console.error("Unexpected response:", response);
@@ -312,16 +312,19 @@ const CreatePurchase = () => {
     }
   };
 
-  const handleQuantityChange = (itemId, newQuantity) => {
+  const handleQuantityChange = (itemId, newQuantity, pickup) => {
+    const quantity = Number(newQuantity);
     setQuantityInputs((prevInputs) => {
       const existingItem = prevInputs.find((item) => item.itemId === itemId);
 
       if (existingItem) {
         return prevInputs.map((item) =>
-          item.itemId === itemId ? { ...item, quantity: newQuantity } : item
+          item.itemId === itemId
+            ? { ...item, quantity: quantity, pickup: pickup }
+            : item
         );
       } else {
-        return [...prevInputs, { itemId, quantity: newQuantity }];
+        return [...prevInputs, { itemId, quantity: quantity, pickup: pickup }];
       }
     });
   };
@@ -498,7 +501,6 @@ const CreatePurchase = () => {
                           "Manufacturer Company",
                           "Manufacturer Contact",
                           "Status",
-                          "Transport Category",
                           "Actions",
                         ].map((el) => (
                           <th key={el} className="py-4 text-center w-[200px]">
@@ -552,9 +554,6 @@ const CreatePurchase = () => {
                                       : "red"
                                   }
                                 />
-                              </td>
-                              <td className="py-4 text-center">
-                                {order.transportCatigory}
                               </td>
                               <td className="py-4 text-center">
                                 <div className="flex justify-center gap-4">
@@ -650,7 +649,8 @@ const CreatePurchase = () => {
                                                 onChange={(e) =>
                                                   handleQuantityChange(
                                                     item.item._id,
-                                                    e.target.value
+                                                    e.target.value,
+                                                    item.pickup
                                                   )
                                                 }
                                                 className="w-[150px] p-2 border rounded"
