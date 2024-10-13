@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "@material-tailwind/react";
+import { Spinner, Typography } from "@material-tailwind/react";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { getOrders } from "@/services/orderService";
 import { getWarehouses } from "@/services/warehouseService";
@@ -23,6 +23,7 @@ export default function Home() {
   const [form, setForm] = useState([]);
   const [pricesFound, setPricesFound] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -128,6 +129,7 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
+    setSubmitLoading(true);
     const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
     const eligibleItems = itemsToSubmit?.filter(
       (item) =>
@@ -144,6 +146,7 @@ export default function Home() {
     console.log(itemsToSubmit);
     if (itemsToSubmit.length > 0) {
       if (eligibleItems.length === 0) {
+        setSubmitLoading(false);
         toast.error("Fill all prices!");
         return;
       }
@@ -162,13 +165,16 @@ export default function Home() {
         };
         console.log(postData);
         await addPrice(postData);
+        setSubmitLoading(false);
         toast.success("Prices updated successfully!");
         fetchPricesForWarehouse(selectedWarehouse);
       } catch (error) {
         console.error("Error updating prices:", error);
+        setSubmitLoading(false);
         toast.error("Error updating prices!");
       }
     } else {
+      setSubmitLoading(false);
       toast.error("All prices are already updated.");
     }
   };
@@ -362,9 +368,9 @@ export default function Home() {
             </table>
             <button
               onClick={handleSubmit}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              className="w-[120px] flex items-center justify-center mt-4 bg-blue-500 text-white px-4 py-2 rounded"
             >
-              Save Prices
+              {submitLoading ? <Spinner /> : <span>Save Prices</span>}
             </button>
             {/* {!pricesFound && (
           <p className="text-red-500">

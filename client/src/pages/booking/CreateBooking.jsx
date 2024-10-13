@@ -111,7 +111,7 @@ const CreateBooking = () => {
       const response = await createBooking(updatedForm);
 
       if (response.status === 201) {
-        toast.success("Order created successfully!");
+        toast.success("Booking created successfully!");
       } else {
         toast.error(`Unexpected status code: ${response.status}`);
         console.error("Unexpected response:", response);

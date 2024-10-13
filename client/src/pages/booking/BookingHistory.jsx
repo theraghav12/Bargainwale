@@ -442,13 +442,13 @@ export function BookingHistory() {
                                       {booking.items.map((item) => (
                                         <tr key={item._id}>
                                           <td className="py-3 px-5 text-center">
-                                            {item.item.name}
+                                            {item.item.materialdescription}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.packaging}
                                           </td>
                                           <td className="py-3 px-5 text-center">
-                                            {item.item.weight}
+                                            {item.item.netweight}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.staticPrice}
