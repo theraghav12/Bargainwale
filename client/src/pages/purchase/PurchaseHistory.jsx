@@ -19,6 +19,8 @@ import { EditOrderForm } from "@/components/orders/EditOrder";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
 import { getPurchases } from "@/services/purchaseService";
+import { generateInvoicePDF } from "@/utils/generateInvoicePdf";
+import { FaDownload } from "react-icons/fa6";
 
 export default function PurchaseHistory() {
   const [showPurchaseForm, setPurchaseForm] = useState(false);
@@ -160,6 +162,14 @@ export default function PurchaseHistory() {
     }
   };
 
+  const handleDownloadInvoice = async (purchase) => {
+    try {
+      await generateInvoicePDF(purchase);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -245,7 +255,6 @@ export default function PurchaseHistory() {
                   <tbody>
                     {purchases?.map((purchase) => {
                       const isOpen = openPurchase === purchase._id;
-                      console.log(purchase)
                       return (
                         <React.Fragment key={purchase._id}>
                           <tr className="border-t-2 border-t-[#898989]">
@@ -288,6 +297,16 @@ export default function PurchaseHistory() {
                                     <MdDeleteOutline
                                       onClick={() => handleDelete(purchase._id)}
                                       className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                    />
+                                  </span>
+                                </Tooltip>
+                                <Tooltip content="Download Invoice">
+                                  <span className="flex items-center justify-center">
+                                    <FaDownload
+                                      onClick={() =>
+                                        handleDownloadInvoice(purchase)
+                                      }
+                                      className="text-[1.4rem] cursor-pointer"
                                     />
                                   </span>
                                 </Tooltip>

@@ -1,55 +1,47 @@
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import "jspdf-autotable";
 
 export const generateInvoicePDF = async (purchase) => {
     const doc = new jsPDF("portrait", "pt", "A4");
 
-    // Title
-    doc.setFontSize(18);
-    if (purchase.orderId) {
-        doc.text("Purchase Invoice", 40, 40);
-    }
-    else if (purchase.bookingId) {
-        doc.text("Sales Invoice", 40, 40);
-    }
-
-    // Invoice Number and Date
+    // Company Header
+    doc.setFontSize(16);
+    doc.text("PATANJALI FOODS LIMITED", 40, 40);
     doc.setFontSize(12);
-    doc.text(`Invoice Number: ${purchase.invoiceNumber}`, 40, 70);
-    doc.text(`Invoice Date: ${purchase.invoiceDate}`, 40, 90);
+    doc.text("CIN L15140MH1986PLC038536   GSTIN:09AAACR2892L1ZW  PANNO : AAACR2892L", 40, 60);
+    doc.text("Address : Plot No. 64, 65, 66, Transport Nagar, ALLAHABAD, UTTAR PRADESH, Pin- 211003", 40, 80);
+    doc.text("Phone(F):05322-684723   Web : www.patanjalifoods.com  Email : wecare@patanjalifoods.co.in", 40, 100);
 
-    // Transporter Details
-    doc.text(`Transport: ${purchase.transporterId.transport}`, 40, 110);
-    doc.text(`Transport Agency: ${purchase.transporterId.transportAgency}`, 40, 130);
-    doc.text(`Transport Contact: ${purchase.transporterId.transportContact}`, 40, 150);
+    // Invoice Details
+    doc.setFontSize(14);
+    doc.text("Tax Invoice", 40, 130);
 
-    // Warehouse Details
-    doc.text(`Warehouse: ${purchase.warehouseId.name}`, 40, 170);
+    doc.setFontSize(12);
+    doc.text(`Invoice No.: ${purchase.invoiceNumber}`, 40, 150);
+    doc.text(`Date & Time of issue: ${new Date(purchase.invoiceDate).toLocaleDateString()}`, 40, 170);
+    doc.text(`Vehicle No.: ${purchase.vehicleNo || 'UP70LT2432'}`, 40, 190);
+    doc.text(`E-Waybill No.: ${purchase.ewaybill || '401421053525'}`, 40, 210);
+    doc.text(`Place of Supply: ${purchase.placeOfSupply || 'PRAYAGRAJ'}`, 40, 230);
 
-    // Order Details
-    if (purchase.orderId) {
-        doc.text(`Order Number: ${purchase.orderId.companyBargainNo}`, 40, 190);
-    }
-    else if (purchase.bookingId) {
-        doc.text(`Booking Number: ${purchase.bookingId.BargainNo}`, 40, 190);
-    }
-
-    // Items Table
+    // Itemized Table (example items)
     const items = purchase.items.map((item, index) => [
         index + 1,
-        item.itemId.name,
-        item.itemId.packaging,
-        item.itemId.staticPrice,
-        item.itemId.type,
-        item.itemId.weight,
-        item.quantity,
+        item.materialDescription || "Material Description",
+        `${item.quantity} ${item.unit}`,
+        item.rate,
+        item.discount || "0%",
+        item.taxableValue,
+        item.sgst,
+        item.cgst,
+        item.igst || "0%"
     ]);
 
     doc.autoTable({
-        head: [["#", "Item Name", "Packaging", "Static Price", "Type", "Weight", "Quantity"]],
+        head: [
+            ["Sr.", "Material Description", "Quantity/UOM", "Rate / Unit", "Discount", "Taxable Value", "SGST", "CGST", "IGST"]
+        ],
         body: items,
-        startY: 210,
+        startY: 260,
         theme: "grid",
         styles: {
             fontSize: 10,
@@ -57,9 +49,15 @@ export const generateInvoicePDF = async (purchase) => {
         },
     });
 
-    // Footer
-    doc.setFontSize(10);
-    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 40, doc.internal.pageSize.height - 30);
+    // Footer (Totals)
+    doc.text(`Total: ${purchase.totalTaxableValue}`, 400, doc.autoTable.previous.finalY + 30);
+    doc.text(`Total SGST: ${purchase.totalSGST}`, 400, doc.autoTable.previous.finalY + 50);
+    doc.text(`Total CGST: ${purchase.totalCGST}`, 400, doc.autoTable.previous.finalY + 70);
+    doc.text(`Grand Total: ${purchase.grandTotal}`, 400, doc.autoTable.previous.finalY + 90);
+    doc.text(`Amount in Words: ${purchase.amountInWords || "RUPEES SIXTY THOUSAND FOUR HUNDRED SEVENTY THREE ONLY"}`, 40, doc.autoTable.previous.finalY + 120);
+
+    // Footer Details (prepared, checked by)
+    doc.text("Prepared By         Checked By         Received By         Authorised Signatory", 40, doc.autoTable.previous.finalY + 160);
 
     // Save the PDF
     doc.save(`invoice_${purchase.invoiceNumber}.pdf`);
