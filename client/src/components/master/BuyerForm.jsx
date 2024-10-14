@@ -64,11 +64,11 @@ const BuyerForm = () => {
           buyer: buyerToEdit.buyer,
           buyerCompany: buyerToEdit.buyerCompany,
           buyerdeliveryAddress: {
-            addressLine1: buyerToEdit.addressLine1,
-            addressLine2: buyerToEdit.addressLine2,
-            city: buyerToEdit.city,
-            state: buyerToEdit.state,
-            pinCode: buyerToEdit.pinCode,
+            addressLine1: buyerToEdit.buyerdeliveryAddress?.addressLine1,
+            addressLine2: buyerToEdit.buyerdeliveryAddress?.addressLine2,
+            city: buyerToEdit.buyerdeliveryAddress?.city,
+            state: buyerToEdit.buyerdeliveryAddress?.state,
+            pinCode: buyerToEdit.buyerdeliveryAddress?.pinCode,
           },
           buyerContact: buyerToEdit.buyerContact,
           buyerEmail: buyerToEdit.buyerEmail,
@@ -151,25 +151,30 @@ const BuyerForm = () => {
     }
   };
 
-  const handleItemChange = (e, id, fieldName) => {
-    let name, value;
+  const handleItemChange = (e, id) => {
+    const { name, value } = e.target;
 
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
     setBuyers((prevBuyers) =>
-      prevBuyers.map((buyer) =>
-        buyer._id === id
-          ? {
+      prevBuyers.map((buyer) => {
+        if (buyer._id === id) {
+          if (name.startsWith("buyerdeliveryAddress.")) {
+            const addressField = name.split(".")[1];
+            return {
+              ...buyer,
+              buyerdeliveryAddress: {
+                ...buyer.buyerdeliveryAddress,
+                [addressField]: value,
+              },
+            };
+          } else {
+            return {
               ...buyer,
               [name]: value,
-            }
-          : buyer
-      )
+            };
+          }
+        }
+        return buyer;
+      })
     );
   };
 
@@ -246,7 +251,7 @@ const BuyerForm = () => {
                         {buyer.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
-                              name="addressLine1"
+                              name="buyerdeliveryAddress.addressLine1"
                               type="text"
                               placeholder="Address Line 1"
                               value={buyer.buyerdeliveryAddress?.addressLine1}
@@ -254,7 +259,7 @@ const BuyerForm = () => {
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="addressLine2"
+                              name="buyerdeliveryAddress.addressLine2"
                               type="text"
                               placeholder="Address Line 2"
                               value={buyer.buyerdeliveryAddress?.addressLine2}
@@ -262,7 +267,7 @@ const BuyerForm = () => {
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="city"
+                              name="buyerdeliveryAddress.city"
                               type="text"
                               placeholder="City"
                               value={buyer.buyerdeliveryAddress?.city}
@@ -270,7 +275,7 @@ const BuyerForm = () => {
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="state"
+                              name="buyerdeliveryAddress.state"
                               type="text"
                               placeholder="State"
                               value={buyer.buyerdeliveryAddress?.state}
@@ -278,7 +283,7 @@ const BuyerForm = () => {
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="pinCode"
+                              name="buyerdeliveryAddress.pinCode"
                               type="text"
                               placeholder="Pincode"
                               value={buyer.buyerdeliveryAddress?.pinCode}

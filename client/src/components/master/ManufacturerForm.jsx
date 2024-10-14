@@ -63,11 +63,11 @@ const ManufacturerForm = () => {
           manufacturer: manToEdit.manufacturer,
           manufacturerCompany: manToEdit.manufacturerCompany,
           manufacturerdeliveryAddress: {
-            addressLine1: manToEdit.addressLine1,
-            addressLine2: manToEdit.addressLine2,
-            city: manToEdit.city,
-            state: manToEdit.state,
-            pinCode: manToEdit.pinCode,
+            addressLine1: manToEdit.manufacturerdeliveryAddress?.addressLine1,
+            addressLine2: manToEdit.manufacturerdeliveryAddress?.addressLine2,
+            city: manToEdit.manufacturerdeliveryAddress?.city,
+            state: manToEdit.manufacturerdeliveryAddress?.state,
+            pinCode: manToEdit.manufacturerdeliveryAddress?.pinCode,
           },
           manufacturerContact: manToEdit.manufacturerContact,
           manufacturerEmail: manToEdit.manufacturerEmail,
@@ -147,25 +147,30 @@ const ManufacturerForm = () => {
     }
   };
 
-  const handleItemChange = (e, id, fieldName) => {
-    let name, value;
+  const handleItemChange = (e, id) => {
+    const { name, value } = e.target;
 
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
-    setManufacturer((prevManufacturers) =>
-      prevManufacturers.map((man) =>
-        man._id === id
-          ? {
+    setManufacturer((prevManufacturer) =>
+      prevManufacturer.map((man) => {
+        if (man._id === id) {
+          if (name.startsWith("manufacturerdeliveryAddress.")) {
+            const addressField = name.split(".")[1];
+            return {
+              ...man,
+              manufacturerdeliveryAddress: {
+                ...man.manufacturerdeliveryAddress,
+                [addressField]: value,
+              },
+            };
+          } else {
+            return {
               ...man,
               [name]: value,
-            }
-          : man
-      )
+            };
+          }
+        }
+        return man;
+      })
     );
   };
 
@@ -242,7 +247,7 @@ const ManufacturerForm = () => {
                         {man.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
-                              name="addressLine1"
+                              name="manufacturerdeliveryAddress.addressLine1"
                               type="text"
                               placeholder="Address Line 1"
                               value={
@@ -252,7 +257,7 @@ const ManufacturerForm = () => {
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="addressLine2"
+                              name="manufacturerdeliveryAddress.addressLine2"
                               type="text"
                               placeholder="Address Line 2"
                               value={
@@ -262,7 +267,7 @@ const ManufacturerForm = () => {
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="city"
+                              name="manufacturerdeliveryAddress/city"
                               type="text"
                               placeholder="City"
                               value={man.manufacturerdeliveryAddress?.city}
@@ -270,7 +275,7 @@ const ManufacturerForm = () => {
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="state"
+                              name="manufacturerdeliveryAddress.state"
                               type="text"
                               placeholder="State"
                               value={man.manufacturerdeliveryAddress?.state}
@@ -278,7 +283,7 @@ const ManufacturerForm = () => {
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="pinCode"
+                              name="manufacturerdeliveryAddress.pinCode"
                               type="text"
                               placeholder="Pincode"
                               value={man.manufacturerdeliveryAddress?.pinCode}
