@@ -22,6 +22,7 @@ import {
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { getWarehouses } from "@/services/warehouseService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { FaCheck } from "react-icons/fa6";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
@@ -214,7 +215,7 @@ const ItemForm = () => {
                       key={item._id}
                       className="grid grid-cols-11 items-center border border-[#7F7F7F] rounded-md shadow-md"
                     >
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="name"
@@ -223,13 +224,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Material Description"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.materialdescription}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="flavor"
@@ -238,13 +239,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Flavor"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.flavor}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="material"
@@ -253,13 +254,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Material"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.material}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="materialdescription"
@@ -268,13 +269,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Material Description"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.materialdescription}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="netweight"
@@ -283,13 +284,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Net Weight"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.netweight}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="grossweight"
@@ -298,13 +299,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Gross Weight"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.grossweight}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="gst"
@@ -313,15 +314,15 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="GST"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.gst}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
-                          <div className="relative w-[200px]">
+                          <div className="relative w-full">
                             <select
                               name="packaging"
                               value={item.packaging}
@@ -342,7 +343,7 @@ const ItemForm = () => {
                           <span>{item.packaging}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="packsize"
@@ -351,13 +352,13 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Pack Size"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.packsize}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
                             name="staticPrice"
@@ -366,34 +367,36 @@ const ItemForm = () => {
                             onChange={(e) => handleItemChange(e, item._id)}
                             required
                             placeholder="Static Price"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
                           <span>{item.staticPrice}</span>
                         )}
                       </td>
                       <td className="py-2 px-4 flex gap-2">
-                        {item.isEditing ? (
-                          <IconButton
-                            color="green"
-                            onClick={() => toggleEditing(item._id)}
-                          >
-                            Save
-                          </IconButton>
-                        ) : (
+                        <div className="flex gap-1">
+                          {item.isEditing ? (
+                            <button
+                              onClick={() => toggleEditing(item._id)}
+                              className="flex items-center text-sm p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200"
+                            >
+                              <FaCheck />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => toggleEditing(item._id)}
+                              className="flex items-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                            >
+                              <AiOutlineEdit />
+                            </button>
+                          )}
                           <button
-                            onClick={() => toggleEditing(item._id)}
-                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                            onClick={() => handleDelete(item._id)}
+                            className="flex items-center p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                           >
-                            <AiOutlineEdit />
+                            <AiOutlineDelete />
                           </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                        >
-                          <AiOutlineDelete />
-                        </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
