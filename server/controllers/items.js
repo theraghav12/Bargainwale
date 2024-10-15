@@ -4,7 +4,7 @@ const itemController = {
   // Create a new item
   createItem: async (req, res) => {
     try {
-      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouse, organization } = req.body;
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, organization } = req.body;
 
       const newItem = new Item({
         flavor,
@@ -16,7 +16,7 @@ const itemController = {
         packaging,
         packsize,
         staticPrice,
-        warehouse,
+        warehouses,
         organization
       });
 
@@ -52,7 +52,7 @@ const itemController = {
   getItemByWarehouseId: async (req, res) => {
     try {
       const { warehouseId, orgId } = req.params;
-      const items = await Item.find({ warehouse: warehouseId, organization: orgId }); // Assuming warehouse is stored as a reference or ID
+      const items = await Item.find({ warehouses: warehouseId, organization: orgId }); // Assuming warehouse is stored as a reference or ID
 
       if (items.length === 0) {
         return res.status(404).json({ message: "No items found for the specified warehouse" });
@@ -80,7 +80,7 @@ const itemController = {
           packaging,
           packsize,
           staticPrice,
-          warehouse,
+          warehouses,
         },
         { new: true }
       );
