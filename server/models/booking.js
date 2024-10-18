@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema(
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
 
-        virtualQuantity: { type: Number, required: true },
+        quantity: { type: Number, required: true },
         pickup: {
           type: String,
           enum: ["rack", "depot", "plant"],

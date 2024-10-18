@@ -11,6 +11,11 @@ const soldItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  pickup: {
+    type: String,
+    enum: ["rack", "depot", "plant"],
+    default: "rack",
+  },
 });
 
 const saleSchema = new mongoose.Schema(
@@ -24,11 +29,11 @@ const saleSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Transport",
     },
-    bookingId: [{
+    bookingId: {
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: "Booking",
-    }],
+    },
     invoiceNumber: {
       type: String,
       unique: true,
