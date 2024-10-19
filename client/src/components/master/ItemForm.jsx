@@ -38,7 +38,7 @@ const ItemForm = () => {
     packaging: "box",
     packsize: "",
     staticPrice: "",
-    warehouse: "",
+    warehouses: [],
     organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
@@ -102,25 +102,25 @@ const ItemForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const warehouseIds = warehouseOptions.map((warehouse) => warehouse._id);
     try {
-      console.log(form);
-      const response = await createItem(form);
-      console.log(response);
+      const formData = {
+        ...form,
+        warehouses: warehouseIds,
+      };
+      const response = await createItem(formData);
       toast.success("Item added successfully!");
       setForm({
-        name: "",
         flavor: "",
         material: "",
         materialdescription: "",
         netweight: "",
         grossweight: "",
         gst: "",
-        packaging: "",
+        packaging: "box",
         packsize: "",
-        type: "",
-        weight: "",
         staticPrice: "",
-        warehouse: "",
+        warehouses: [],
       });
       fetchItems();
     } catch (error) {
@@ -179,7 +179,6 @@ const ItemForm = () => {
       console.error(error);
     }
   };
-  console.log(items);
 
   return (
     <>
@@ -420,7 +419,7 @@ const ItemForm = () => {
         <div className="p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex gap-4">
-              <div className="relative w-[200px]">
+              {/* <div className="relative w-[200px]">
                 <select
                   id="warehouse"
                   name="warehouse"
@@ -439,7 +438,7 @@ const ItemForm = () => {
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                   <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
                 </div>
-              </div>
+              </div> */}
 
               {/* <div className="relative w-[400px]">
                 <Select
