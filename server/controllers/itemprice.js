@@ -63,21 +63,24 @@ const priceController = {
     try {
       const { warehouseId, orgId } = req.params;
       const { date } = req.query;
-
+  
       // Parse the date, default to today if not provided
       const queryDate = date ? new Date(date) : new Date();
       const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
-
-      // Fetch all items from the selected warehouse
-      const items = await Item.find({ warehouse: warehouseId, organization: orgId });
-
+  
+      // Fetch all items from the selected warehouse using $in to match warehouses array
+      const items = await Item.find({ 
+        warehouses: { $in: [warehouseId] }, 
+        organization: orgId 
+      });
+  
       if (!items.length) {
         return res.status(404).json({ message: "No items found for the selected warehouse" });
       }
-
+  
       const result = [];
-
+  
       // Loop through each item and find the price for the selected day
       for (const item of items) {
         const price = await Price.findOne({
@@ -85,8 +88,7 @@ const priceController = {
           item: item._id,
           date: { $gte: startOfDay, $lt: endOfDay },
           organization: orgId
-        });
-
+        }); 
         if (price) {
           result.push({
             item: item,
@@ -105,17 +107,15 @@ const priceController = {
           });
         }
       }
-
       if (!result.length) {
         return res.status(404).json({ message: "No prices found for the selected warehouse and date" });
       }
-
       res.status(200).json(result);
     } catch (error) {
       console.error("Error fetching prices:", error);
       res.status(500).json({ message: "Error fetching prices", error });
     }
-  },
+  },  
   getAllPrices: async (req, res) => {
     try {
       const { orgId } = req.params;
