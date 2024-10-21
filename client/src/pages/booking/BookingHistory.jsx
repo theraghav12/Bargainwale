@@ -454,7 +454,7 @@ export function BookingHistory() {
                                             {item.item.staticPrice}
                                           </td>
                                           <td className="py-3 px-5 text-center">
-                                            {item.virtualQuantity || "0"}
+                                            {item.quantity || "0"}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.billedQuantity || "0"}

@@ -182,7 +182,7 @@ const CreateBooking = () => {
         ...prevData.items,
         {
           item: "",
-          virtualQuantity: null,
+          quantity: null,
           pickup: "",
           baseRate: null,
           taxpaidAmount: null,
@@ -207,9 +207,9 @@ const CreateBooking = () => {
     }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     if (field === "quantity" || field === "baseRate") {
-      const virtualQuantity = updatedItems[index].virtualQuantity || 0;
+      const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = virtualQuantity * baseRate;
+      updatedItems[index].taxpaidAmount = quantity * baseRate;
     }
     setForm((prevData) => ({
       ...prevData,
@@ -219,7 +219,7 @@ const CreateBooking = () => {
 
   const calculateTotalQuantity = () => {
     return form.items.reduce((total, item) => {
-      return total + (Number(item.virtualQuantity) || 0);
+      return total + (Number(item.quantity) || 0);
     }, 0);
   };
 
@@ -641,12 +641,12 @@ const CreateBooking = () => {
                       <td className="py-4 text-center">
                         <input
                           type="number"
-                          name="virtualQuantity"
+                          name="quantity"
                           value={item.quantity}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "virtualQuantity",
+                              "quantity",
                               e.target.value
                             )
                           }
