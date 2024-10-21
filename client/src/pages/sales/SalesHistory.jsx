@@ -255,7 +255,7 @@ export default function PurchaseHistory() {
                               {sale?.invoiceNumber}
                             </td>
                             <td className="py-4 text-center">
-                              {sale?.bookingId}
+                              {sale?.bookingId?._id}
                             </td>
                             <td className="py-4 text-center">
                               {sale?.warehouseId?.name}
