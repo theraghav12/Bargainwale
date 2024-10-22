@@ -93,23 +93,26 @@ const CreateOrder = () => {
         paymentDays,
       };
 
-      const response = await createOrder(updatedForm);
+      console.log();
 
-      if (response.status === 201) {
-        toast.success("Order created successfully!");
-      } else {
-        toast.error(`Unexpected status code: ${response.status}`);
-        console.error("Unexpected response:", response);
-      } // setForm({
-      //   items: [],
-      //   inco: "",
-      //   companyBargainNo: "",
-      //   companyBargainDate: "",
-      //   manufacturer: "",
-      //   paymentDays: "",
-      //   description: "",
-      //   warehouse: "",
-      // });
+      // const response = await createOrder(updatedForm);
+
+      // if (response.status === 201) {
+      //   toast.success("Order created successfully!");
+      // } else {
+      //   toast.error(`Unexpected status code: ${response.status}`);
+      //   console.error("Unexpected response:", response);
+      // }
+      setForm({
+        items: [],
+        inco: "",
+        companyBargainNo: "",
+        companyBargainDate: "",
+        manufacturer: "",
+        paymentDays: "",
+        description: "",
+        warehouse: "",
+      });
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
@@ -175,6 +178,10 @@ const CreateOrder = () => {
           baseRate: null,
           taxpaidAmount: null,
           contNumber: null,
+          gst: null,
+          cgst: null,
+          sgst: null,
+          igst: null,
         },
       ],
     }));
@@ -188,17 +195,50 @@ const CreateOrder = () => {
     }));
   };
 
+  console.log(form);
+
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];
     if (field === "quantity" || field === "baseRate") {
       value = Number(value) || null;
     }
+
+    // Update the specific field
     updatedItems[index] = { ...updatedItems[index], [field]: value };
+
+    // If the itemId is changed, update GST accordingly
+    if (field === "itemId") {
+      const selectedItem = itemsOptions?.find((option) => option._id === value);
+      if (selectedItem) {
+        const gst = selectedItem.gst;
+        const warehouseState = warehouseOptions?.find(
+          (warehouse) => warehouse._id === form?.warehouse
+        )?.state;
+        const manufacturerState = manufacturerOptions?.find(
+          (man) => man._id === form?.manufacturer
+        )?.manufacturerdeliveryAddress.state;
+        updatedItems[index].gst = gst;
+
+        if (warehouseState === manufacturerState) {
+          updatedItems[index].cgst = gst / 2; // Set CGST
+          updatedItems[index].sgst = gst / 2; // Set SGST
+          updatedItems[index].igst = null; // Clear IGST
+        } else {
+          updatedItems[index].igst = gst; // Set IGST
+          updatedItems[index].cgst = null; // Clear CGST
+          updatedItems[index].sgst = null; // Clear SGST
+        }
+      }
+    }
+
+    // Calculate tax paid amount if needed
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
       updatedItems[index].taxpaidAmount = quantity * baseRate;
     }
+
+    // Update the form state
     setForm((prevData) => ({
       ...prevData,
       items: updatedItems,
@@ -218,8 +258,8 @@ const CreateOrder = () => {
   };
 
   return (
-    <div className="w-full mt-8 mb-8 flex flex-col gap-12">
-      <div className="px-7">
+    <div className="w-full mt-8 mb-8 flex flex-col gap-12 px-7">
+      <div className="">
         <div className="flex flex-row justify-between">
           <div>
             {/* <button
@@ -479,10 +519,10 @@ const CreateOrder = () => {
           </div>
 
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-            <div className="w-full overflow-x-scroll">
-              <table className="w-full table-auto">
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto">
                 <thead>
-                  <tr className="grid grid-cols-9 gap-2">
+                  <tr className="">
                     <th className="py-4 px-2 text-center">CBN</th>
                     <th className="py-4 px-2 text-center">CBD</th>
                     <th className="py-4 px-2 text-center">Item</th>
@@ -491,6 +531,7 @@ const CreateOrder = () => {
                     <th className="py-4 px-2 text-center">Cont. No.</th>
                     <th className="py-4 px-2 text-center">Base Rate</th>
                     <th className="py-4 px-2 text-center">Tax Paid Amount</th>
+                    <th className="py-4 px-2 text-center">GST</th>
                     {/* <th className="py-4 px-2 text-center">Inco</th>
                     <th className="py-4 px-2 text-center">Payment Date</th>
                     <th className="py-4 px-2 text-center">Description</th> */}
@@ -499,11 +540,8 @@ const CreateOrder = () => {
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
-                    <tr
-                      key={index}
-                      className="grid grid-cols-9 gap-2 border-t-2 border-t-[#898989]"
-                    >
-                      <td className="py-4 px-2 text-center">
+                    <tr key={index} className="border-t-2 border-t-[#898989]">
+                      <td className="break-all py-4 px-2 text-center">
                         {form.companyBargainNo}
                       </td>
                       <td className="py-4 px-2 text-center">
@@ -636,13 +674,39 @@ const CreateOrder = () => {
                       <td className="py-4 px-2 text-center">
                         {item.taxpaidAmount}
                       </td>
-                      {/* <td className="py-4 px-2 text-center">{form.inco}</td>
                       <td className="py-4 px-2 text-center">
-                        {form.paymentDays}
+                        {warehouseOptions?.find(
+                          (warehouse) => warehouse._id === form?.warehouse
+                        )?.state ===
+                        manufacturerOptions?.find(
+                          (man) => man._id === form?.manufacturer
+                        )?.manufacturerdeliveryAddress.state ? (
+                          <>
+                            <span>
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.itemId
+                              )?.gst / 2 || "N/A"}
+                              {"% "}
+                              (CGST) +{" "}
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.itemId
+                              )?.gst / 2 || "N/A"}
+                              {"% "}
+                              (SGST)
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span>
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.itemId
+                              )?.gst || "N/A"}
+                              {"% "}
+                              (IGST)
+                            </span>
+                          </>
+                        )}
                       </td>
-                      <td className="py-4 px-2 text-center">
-                        {form.description}
-                      </td> */}
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">
