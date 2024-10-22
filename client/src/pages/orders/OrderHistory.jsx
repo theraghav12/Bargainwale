@@ -20,18 +20,15 @@ import excel from "../../assets/excel.svg";
 import { MdDeleteOutline } from "react-icons/md";
 
 export function OrderHistory() {
-  const [showCreateOrderForm, setShowCreateOrderForm] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showEditOrderForm, setShowEditOrderForm] = useState(false);
-  const [openOrder, setOpenOrder] = useState(null); // Manage open order dropdown
-  const [transferQuantities, setTransferQuantities] = useState({});
-  const [quantityErrors, setQuantityErrors] = useState({});
-  const [statusFilter, setStatusFilter] = useState("All"); // State for status filter
-  const [startDate, setStartDate] = useState(""); // State for start date
-  const [endDate, setEndDate] = useState(""); // State for end date
+  const [openOrder, setOpenOrder] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
@@ -137,6 +134,8 @@ export function OrderHistory() {
     setOpenOrder(openOrder === orderId ? null : orderId);
   };
 
+  console.log(orders);
+
   const handleDownloadExcel = () => {
     const formattedOrders = orders.map((order) => ({
       "Company Bargain No": order.companyBargainNo,
@@ -192,9 +191,8 @@ export function OrderHistory() {
             >
               <option value="All">All Statuses</option>
               <option value="created">Created</option>
+              <option value="partially paid">Partially Paid</option>
               <option value="billed">Billed</option>
-              <option value="payment pending">Payment Pending</option>
-              <option value="completed">Completed</option>
             </select>
             <select
               value={timePeriod}
@@ -238,7 +236,7 @@ export function OrderHistory() {
                 /> */}
           </div>
           <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
             <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
@@ -246,7 +244,7 @@ export function OrderHistory() {
             </button>
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
@@ -269,7 +267,7 @@ export function OrderHistory() {
                         "Manufacturer Company",
                         "Manufacturer Contact",
                         "Status",
-                        "Transport Category",
+                        "Inco",
                         "Actions",
                       ].map((el) => (
                         <th key={el} className="py-4 text-center w-[200px]">
@@ -314,9 +312,7 @@ export function OrderHistory() {
                                 }
                               />
                             </td>
-                            <td className="py-4 text-center">
-                              {order.transportCatigory}
-                            </td>
+                            <td className="py-4 text-center">{order.inco}</td>
                             <td className="py-4 text-center">
                               <div className="flex justify-center gap-4">
                                 <IconButton
@@ -330,21 +326,12 @@ export function OrderHistory() {
                                     <ChevronDownIcon className="h-5 w-5" />
                                   )}
                                 </IconButton>
-                                <Button
-                                  color="blue"
-                                  onClick={() => {
-                                    setSelectedOrder(order);
-                                    setShowEditOrderForm(true);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
                                 {!hasFutureBookings(order, bookings) && (
                                   <Tooltip content="Delete Order">
                                     <span className="w-fit h-fit">
                                       <MdDeleteOutline
                                         onClick={() => handleDelete(order._id)}
-                                        className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                        className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
                                       />
                                     </span>
                                   </Tooltip>
@@ -382,13 +369,13 @@ export function OrderHistory() {
                                           className="border-t-2 border-t-[#898989]"
                                         >
                                           <td className="py-4 text-center">
-                                            {item.item.name}
+                                            {item.item?.materialdescription}
                                           </td>
                                           <td className="py-4 text-center">
                                             {item.item.packaging}
                                           </td>
                                           <td className="py-4 text-center">
-                                            {item.item.weight}
+                                            {item.item.netweight}
                                           </td>
                                           <td className="py-4 text-center">
                                             {item.item.staticPrice}
@@ -418,12 +405,6 @@ export function OrderHistory() {
           )}
         </div>
       </div>
-      {/* {showEditOrderForm && selectedOrder && (
-        <EditOrderForm
-          close={() => setShowEditOrderForm(false)}
-          order={selectedOrder}
-        />
-      )} */}
     </div>
   );
 }

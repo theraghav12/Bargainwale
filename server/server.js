@@ -15,6 +15,7 @@ import itemRoutes from './routes/items.js';
 import purchaseRoutes from './routes/purchase.js';
 import saleRoutes from "./routes/sale.js";
 import itempriceRoutes from "./routes/itemprice.js";
+import totalSaleRoutes from "./routes/totalsale.js";
 dotenv.config();
 
 const PORT = 3000 || process.env.PORT;
@@ -46,6 +47,8 @@ app.use(purchaseRoutes);
 app.use(saleRoutes);
 
 app.use(itempriceRoutes);
+
+app.use(totalSaleRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);

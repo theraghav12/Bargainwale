@@ -13,29 +13,60 @@ const bookingSchema = new mongoose.Schema(
     items: [
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
-        virtualQuantity: { type: Number, required: true  },
+
+        quantity: { type: Number, required: true },
         pickup: {
           type: String,
           enum: ["rack", "depot", "plant"],
           default: "rack",
         },
-        taxpaidAmount:{
-          type:Number,
+        taxpaidAmount: {
+          type: Number,
         },
-        contNumber:{
-          type:Number,
-        }, 
+        gst: {
+          type: Number,
+        },
+        cgst: {
+          type: Number,
+        },
+        sgst: {
+          type: Number,
+        },
+        igst: {
+          type: Number,
+        },
+        taxableAmount: {
+          type: Number,
+        },
+        contNumber: {
+          type: Number,
+        },
+        rackPrice: {
+          type: Number,
+
+        },
+        plantPrice: {
+          type: Number,
+
+        },
+        depoPrice: {
+          type: Number,
+
+        },
       },
     ],
+    totalAmount: {
+      type: Number,
+
+    },
     validity: {
       type: Number,
       default: 21, // Default payment days
     },
-    inco:{
-      type:String,
-      enum:["EXW","FOR"],
+    inco: {
+      type: String,
+      enum: ["EXW", "FOR"],
     },
-
     deliveryOption: {
       type: String,
       enum: ["Pickup", "Delivery"],
@@ -55,10 +86,9 @@ const bookingSchema = new mongoose.Schema(
       ref: "Organization",
       required: true,
     },
-
     buyer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Buyer", // Reference to Manufacturer schema
+      ref: "Buyer",
       required: true,
     },
     deliveryAddress: {
@@ -106,6 +136,5 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create and export the model
 const Booking = mongoose.model("Booking", bookingSchema);
 export default Booking;

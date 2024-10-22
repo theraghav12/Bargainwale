@@ -5,11 +5,16 @@ const soldItemSchema = new mongoose.Schema({
   itemId: {
     type: mongoose.Schema.ObjectId,
     required: true,
-    ref: "Item", 
+    ref: "Item",
   },
   quantity: {
     type: Number,
     required: true,
+  },
+  pickup: {
+    type: String,
+    enum: ["rack", "depot", "plant"],
+    default: "rack",
   },
 });
 
@@ -27,7 +32,7 @@ const saleSchema = new mongoose.Schema(
     bookingId: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "Booking", 
+      ref: "Booking",
     },
     invoiceNumber: {
       type: String,
@@ -38,6 +43,11 @@ const saleSchema = new mongoose.Schema(
       default: Date.now,
     },
     items: [soldItemSchema],
+    organization: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Organization",
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -45,9 +55,8 @@ const saleSchema = new mongoose.Schema(
 saleSchema.pre("save", function (next) {
   const randomString = crypto.randomBytes(4).toString("hex");
 
-  this.invoiceNumber = `${Date.now() + 5.5 * 60 * 60 * 1000}-${
-    this.bookingId
-  }-${randomString}`;
+  this.invoiceNumber = `${Date.now() + 5.5 * 60 * 60 * 1000}-${this.bookingId
+    }-${randomString}`;
 
   next();
 });

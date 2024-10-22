@@ -34,6 +34,7 @@ const BuyerForm = () => {
     buyerEmail: "",
     buyerGstno: "",
     buyerGooglemaps: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -63,11 +64,11 @@ const BuyerForm = () => {
           buyer: buyerToEdit.buyer,
           buyerCompany: buyerToEdit.buyerCompany,
           buyerdeliveryAddress: {
-            addressLine1: buyerToEdit.addressLine1,
-            addressLine2: buyerToEdit.addressLine2,
-            city: buyerToEdit.city,
-            state: buyerToEdit.state,
-            pinCode: buyerToEdit.pinCode,
+            addressLine1: buyerToEdit.buyerdeliveryAddress?.addressLine1,
+            addressLine2: buyerToEdit.buyerdeliveryAddress?.addressLine2,
+            city: buyerToEdit.buyerdeliveryAddress?.city,
+            state: buyerToEdit.buyerdeliveryAddress?.state,
+            pinCode: buyerToEdit.buyerdeliveryAddress?.pinCode,
           },
           buyerContact: buyerToEdit.buyerContact,
           buyerEmail: buyerToEdit.buyerEmail,
@@ -108,6 +109,7 @@ const BuyerForm = () => {
         buyerEmail: form.buyerEmail,
         buyerGstno: form.buyerGstno,
         buyerGooglemaps: form.buyerGooglemaps,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Buyer added successfully!");
@@ -149,25 +151,30 @@ const BuyerForm = () => {
     }
   };
 
-  const handleItemChange = (e, id, fieldName) => {
-    let name, value;
+  const handleItemChange = (e, id) => {
+    const { name, value } = e.target;
 
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
     setBuyers((prevBuyers) =>
-      prevBuyers.map((buyer) =>
-        buyer._id === id
-          ? {
+      prevBuyers.map((buyer) => {
+        if (buyer._id === id) {
+          if (name.startsWith("buyerdeliveryAddress.")) {
+            const addressField = name.split(".")[1];
+            return {
+              ...buyer,
+              buyerdeliveryAddress: {
+                ...buyer.buyerdeliveryAddress,
+                [addressField]: value,
+              },
+            };
+          } else {
+            return {
               ...buyer,
               [name]: value,
-            }
-          : buyer
-      )
+            };
+          }
+        }
+        return buyer;
+      })
     );
   };
 
@@ -197,13 +204,13 @@ const BuyerForm = () => {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-7">
-                    <th className="py-2 px-4 text-start">Buyer Name</th>
-                    <th className="py-2 px-4 text-start">Company</th>
-                    <th className="py-2 px-4 text-start">Address</th>
-                    <th className="py-2 px-4 text-start">Contact</th>
-                    <th className="py-2 px-4 text-start">Email</th>
-                    <th className="py-2 px-4 text-start">GST Number</th>
-                    <th className="py-2 px-4 text-start">Actions</th>
+                    <th className="py-2 px-2 text-start">Buyer Name</th>
+                    <th className="py-2 px-2 text-start">Company</th>
+                    <th className="py-2 px-2 text-start">Address</th>
+                    <th className="py-2 px-2 text-start">Contact</th>
+                    <th className="py-2 px-2 text-start">Email</th>
+                    <th className="py-2 px-2 text-start">GST Number</th>
+                    <th className="py-2 px-2 text-start">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="flex flex-col gap-2">
@@ -212,75 +219,75 @@ const BuyerForm = () => {
                       key={buyer._id}
                       className="grid grid-cols-7 items-center border border-[#7F7F7F] rounded-md shadow-md"
                     >
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <input
                             name="buyer"
                             type="text"
                             placeholder="Buyer Name"
                             value={buyer.buyer}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
                           <span>{buyer.buyer}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <input
                             name="buyerCompany"
                             type="text"
                             placeholder="Buyer Company"
                             value={buyer.buyerCompany}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
                           <span>{buyer.buyerCompany}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
-                              name="addressLine1"
+                              name="buyerdeliveryAddress.addressLine1"
                               type="text"
                               placeholder="Address Line 1"
                               value={buyer.buyerdeliveryAddress?.addressLine1}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="addressLine2"
+                              name="buyerdeliveryAddress.addressLine2"
                               type="text"
                               placeholder="Address Line 2"
                               value={buyer.buyerdeliveryAddress?.addressLine2}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="city"
+                              name="buyerdeliveryAddress.city"
                               type="text"
                               placeholder="City"
                               value={buyer.buyerdeliveryAddress?.city}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="state"
+                              name="buyerdeliveryAddress.state"
                               type="text"
                               placeholder="State"
                               value={buyer.buyerdeliveryAddress?.state}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                             <input
-                              name="pinCode"
+                              name="buyerdeliveryAddress.pinCode"
                               type="text"
                               placeholder="Pincode"
                               value={buyer.buyerdeliveryAddress?.pinCode}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, buyer._id)}
                             />
                           </div>
@@ -294,42 +301,42 @@ const BuyerForm = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <input
                             name="buyerContact"
                             type="text"
                             placeholder="Buyer Contact'"
                             value={buyer.buyerContact}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
                           <span>{buyer.buyerContact}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <input
                             name="buyerEmail"
                             type="email"
                             placeholder="Buyer Email"
                             value={buyer.buyerEmail}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
                           <span>{buyer.buyerEmail}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {buyer.isEditing ? (
                           <input
                             name="buyerGstno"
                             type="text"
                             placeholder="Buyer GST No."
                             value={buyer.buyerGstno}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
@@ -475,7 +482,11 @@ const BuyerForm = () => {
               />
             </div>
             <div className="flex gap-4">
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Buyer</span>}
               </Button>
             </div>

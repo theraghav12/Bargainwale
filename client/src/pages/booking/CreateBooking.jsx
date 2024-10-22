@@ -12,6 +12,7 @@ import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 import { createOrder } from "@/services/orderService";
+import { createBooking } from "@/services/bookingService";
 
 const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
@@ -27,13 +28,12 @@ const CreateBooking = () => {
     description: "",
     warehouse: "",
     deliveryOption: "",
-    deliveryAddress: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      pinCode: "",
-    },
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
+    organization: localStorage.getItem("organizationId"),
   });
 
   useEffect(() => {
@@ -45,6 +45,7 @@ const CreateBooking = () => {
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
+      console.log(response);
       setItemsOptions(response);
     } catch (error) {
       toast.error("Error fetching items!");
@@ -88,15 +89,29 @@ const CreateBooking = () => {
       );
 
       const updatedForm = {
-        ...form,
+        items: form.items,
+        BargainNo: form.BargainNo,
+        BargainDate: form.BargainDate,
+        buyer: form.buyer,
+        description: form.description,
+        warehouse: form.warehouse,
+        deliveryOption: form.deliveryOption,
+        deliveryAddress: {
+          addressLine1: form.addressLine1,
+          addressLine2: form.addressLine2,
+          city: form.city,
+          state: form.state,
+          pinCode: form.pinCode,
+        },
         paymentDays,
-        organization: "64d22f5a8b3b9f47a3b0e7f1",
+        organization: form.organization,
       };
 
-      const response = await createOrder(updatedForm);
+      console.log(updatedForm);
+      const response = await createBooking(updatedForm);
 
       if (response.status === 201) {
-        toast.success("Order created successfully!");
+        toast.success("Booking created successfully!");
       } else {
         toast.error(`Unexpected status code: ${response.status}`);
         console.error("Unexpected response:", response);
@@ -146,10 +161,7 @@ const CreateBooking = () => {
         ...prevData,
         items: updatedItems,
       }));
-    } else if (
-      fieldName === "companyBargainDate" ||
-      fieldName === "paymentDays"
-    ) {
+    } else if (fieldName === "BargainDate" || fieldName === "paymentDays") {
       const formattedDate = value.split("T")[0];
       setForm((prevData) => ({
         ...prevData,
@@ -169,7 +181,7 @@ const CreateBooking = () => {
       items: [
         ...prevData.items,
         {
-          itemId: "",
+          item: "",
           quantity: null,
           pickup: "",
           baseRate: null,
@@ -190,6 +202,9 @@ const CreateBooking = () => {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];
+    if (field === "quantity" || field === "baseRate") {
+      value = Number(value) || null;
+    }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
@@ -200,6 +215,18 @@ const CreateBooking = () => {
       ...prevData,
       items: updatedItems,
     }));
+  };
+
+  const calculateTotalQuantity = () => {
+    return form.items.reduce((total, item) => {
+      return total + (Number(item.quantity) || 0);
+    }, 0);
+  };
+
+  const calculateTotalAmount = () => {
+    return form.items.reduce((total, item) => {
+      return total + (Number(item.taxpaidAmount) || 0);
+    }, 0);
   };
 
   return (
@@ -215,7 +242,7 @@ const CreateBooking = () => {
               Download as Excel
             </button> */}
           </div>
-          <div className="flex flex-row gap-4">
+          {/* <div className="flex flex-row gap-4">
             <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
@@ -225,7 +252,7 @@ const CreateBooking = () => {
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="w-full">
@@ -234,7 +261,7 @@ const CreateBooking = () => {
             className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
           >
             <div className="flex flex-col gap-4">
-              <div className="flex justify-between">
+              <div className="flex flex-wrap gap-x-16 gap-y-5">
                 <div className="w-fit flex gap-5 items-center">
                   <label
                     htmlFor="BargainNo"
@@ -256,7 +283,7 @@ const CreateBooking = () => {
                   />
                 </div>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
                   <label
                     htmlFor="warehouse"
                     className="flex text-[#38454A] text-[1rem]"
@@ -288,7 +315,7 @@ const CreateBooking = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
                   <label
                     htmlFor="buyer"
                     className="flex text-[#38454A] text-[1rem]"
@@ -320,7 +347,7 @@ const CreateBooking = () => {
                   </div>
                 </div>
 
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="BargainDate"
                     className="flex text-[#38454A] text-[1rem]"
@@ -339,10 +366,8 @@ const CreateBooking = () => {
                     className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
                   />
                 </div>
-              </div>
 
-              <div className="flex gap-10">
-                <div className="w-fit flex gap-5 items-center">
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="paymentDays"
                     className="flex text-[#38454A] text-[1rem]"
@@ -362,7 +387,48 @@ const CreateBooking = () => {
                   />
                 </div>
 
-                <div className="w-fit flex gap-5 items-center">
+                <div className="flex gap-2 items-center">
+                  <label
+                    htmlFor="deliveryOption"
+                    className="flex text-[#38454A] text-[1rem]"
+                  >
+                    Delivery Option
+                    <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
+                  </label>
+                  <div className="relative w-[200px]">
+                    <select
+                      id="deliveryOption"
+                      name="deliveryOption"
+                      value={form.deliveryOption}
+                      onChange={(e) => {
+                        handleFormChange(0, "deliveryOption", e.target.value);
+                        if (form.deliveryOption === "Pickup") {
+                          setForm((prev) => ({
+                            ...prev,
+                            deliveryAddress: {
+                              addressLine1: "",
+                              addressLine2: "",
+                              city: "",
+                              state: "",
+                              pinCode: "",
+                            },
+                          }));
+                        }
+                      }}
+                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+                      required
+                    >
+                      <option value="">Select Option</option>
+                      <option value="Delivery">Delivery</option>
+                      <option value="Pickup">Pickup</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="description"
                     className="text-[#38454A] text-[1rem]"
@@ -382,6 +448,111 @@ const CreateBooking = () => {
                 </div>
               </div>
 
+              {/* Delivery Address Fields */}
+              {form.deliveryOption === "Delivery" && (
+                <div className="flex flex-col">
+                  <p className="text-[1.1rem] text-[#38454A] font-semibold mt-4">
+                    Delivery Address:
+                  </p>
+                  <div className="flex flex-wrap gap-x-16 gap-y-5 mt-2">
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="addressLine1"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Address Line 1
+                      </label>
+                      <input
+                        name="addressLine1"
+                        type="text"
+                        value={form.addressLine1}
+                        onChange={(e) =>
+                          handleFormChange(0, "addressLine1", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Address Line 1"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="addressLine2"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Address Line 2
+                      </label>
+                      <input
+                        name="addressLine2"
+                        type="text"
+                        value={form.addressLine2}
+                        onChange={(e) =>
+                          handleFormChange(0, "addressLine2", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Address Line 2"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="city"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        City
+                      </label>
+                      <input
+                        name="city"
+                        type="text"
+                        value={form.city}
+                        onChange={(e) =>
+                          handleFormChange(0, "city", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="City"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="state"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        State
+                      </label>
+                      <input
+                        name="state"
+                        type="text"
+                        value={form.state}
+                        onChange={(e) =>
+                          handleFormChange(0, "state", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="State"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <label
+                        htmlFor="pinCode"
+                        className="text-[#38454A] text-[1rem]"
+                      >
+                        Pin Code
+                      </label>
+                      <input
+                        name="pinCode"
+                        type="text"
+                        value={form.pinCode}
+                        onChange={(e) =>
+                          handleFormChange(0, "pinCode", e.target.value)
+                        }
+                        className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        placeholder="Pin Code"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-4">
                 <Button
                   color="green"
@@ -392,12 +563,31 @@ const CreateBooking = () => {
                   <FaPlus /> Add Item
                 </Button>
 
-                <Button color="blue" type="submit" className="w-[140px]">
-                  {loading ? <Spinner /> : <span>Create Order</span>}
+                <Button
+                  color="blue"
+                  type="submit"
+                  className="w-[150px] flex items-center justify-center"
+                >
+                  {loading ? <Spinner /> : <span>Create Booking</span>}
                 </Button>
               </div>
             </div>
           </form>
+
+          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] shadow-md z-[10]">
+            <div className="flex justify-between items-center px-10 py-2">
+              <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
+                <span>Total Qty: {calculateTotalQuantity()}</span>
+                {/* <span>Total Gross Weight:</span>
+                <span>Total Net Weight:</span> */}
+                <span>Total Amount: {calculateTotalAmount()}</span>
+              </div>
+            </div>
+            <div className="bg-white text-[1rem] flex justify-between items-center px-4 py-1">
+              <p>2024 @ Bargainwale</p>
+              <p>Design and Developed by Reduxcorporation</p>
+            </div>
+          </div>
 
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
             <div className="overflow-x-auto">
@@ -415,27 +605,23 @@ const CreateBooking = () => {
                       Tax Paid Amount
                     </th>
                     <th className="py-4 text-center w-[200px]">Payment Date</th>
-                    <th className="py-4 text-center w-[200px]">Description</th>
+                    {/* <th className="py-4 text-center w-[200px]">Description</th> */}
                     <th className="py-4 text-center w-[200px]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
-                      <td className="py-4 text-center">
-                        {form.companyBargainNo}
-                      </td>
-                      <td className="py-4 text-center">
-                        {form.companyBargainDate}
-                      </td>
+                      <td className="py-4 text-center">{form.BargainNo}</td>
+                      <td className="py-4 text-center">{form.BargainDate}</td>
                       <td className="py-4 text-center">
                         <div className="relative w-[150px]">
                           <select
-                            id="itemId"
-                            name="itemId"
-                            value={item.itemId}
+                            id="item"
+                            name="item"
+                            value={item.item}
                             onChange={(e) =>
-                              handleItemChange(index, "itemId", e.target.value)
+                              handleItemChange(index, "item", e.target.value)
                             }
                             className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
                             required
@@ -443,7 +629,7 @@ const CreateBooking = () => {
                             <option value="">Select Item</option>
                             {itemsOptions?.map((item) => (
                               <option key={item._id} value={item._id}>
-                                {item.name}
+                                {item.materialdescription}
                               </option>
                             ))}
                           </select>
@@ -458,11 +644,15 @@ const CreateBooking = () => {
                           name="quantity"
                           value={item.quantity}
                           onChange={(e) =>
-                            handleItemChange(index, "quantity", e.target.value)
+                            handleItemChange(
+                              index,
+                              "quantity",
+                              e.target.value
+                            )
                           }
                           required
                           placeholder="Quantity"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">
@@ -501,7 +691,7 @@ const CreateBooking = () => {
                           }
                           required
                           placeholder="Cont. No."
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">
@@ -514,12 +704,12 @@ const CreateBooking = () => {
                           }
                           required
                           placeholder="Base Rate"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">{item.taxpaidAmount}</td>
                       <td className="py-4 text-center">{form.paymentDays}</td>
-                      <td className="py-4 text-center">{form.description}</td>
+                      {/* <td className="py-4 text-center">{form.description}</td> */}
                       <td className="py-4 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">

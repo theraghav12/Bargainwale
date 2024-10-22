@@ -1,9 +1,11 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
+const orgId = localStorage.getItem("organizationId");
+
 export const getWarehouses = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouse`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/warehouse`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -12,7 +14,7 @@ export const getWarehouses = async () => {
 
 export const getWarehouseById = async (id) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouse/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/warehouse/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -30,7 +32,7 @@ export const createWarehouse = async (data) => {
 
 export const fetchWarehouse = async (state, city) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/warehouse/filter?state=${state}&city=${city}`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/warehouse/filter?state=${state}&city=${city}`);
         return response.data;
     } catch (error) {
         console.log(error);

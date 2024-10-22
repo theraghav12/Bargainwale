@@ -96,6 +96,13 @@ function SecondNavbar() {
         { name: "Purchase History", to: "/purchase/history" },
       ],
     },
+    {
+      label: "Sales",
+      links: [
+        { name: "Create Sales", to: "/sales/create" },
+        { name: "Sales History", to: "/sales/history" },
+      ],
+    },
   ];
 
   return (

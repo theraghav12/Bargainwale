@@ -58,13 +58,13 @@ export function BookingHistory() {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 7);
         filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.companyBargainDate) >= filterDate
+          (booking) => new Date(booking.BargainDate) >= filterDate
         );
       } else if (timePeriod === "last30Days") {
         filterDate = new Date();
         filterDate.setDate(now.getDate() - 30);
         filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.companyBargainDate) >= filterDate
+          (booking) => new Date(booking.BargainDate) >= filterDate
         );
       } else if (
         timePeriod === "custom" &&
@@ -74,15 +74,14 @@ export function BookingHistory() {
         const start = new Date(dateRange.startDate);
         const end = new Date(dateRange.endDate);
         filteredBookings = filteredBookings.filter((booking) => {
-          const bookingDate = new Date(booking.companyBargainDate);
+          const bookingDate = new Date(booking.BargainDate);
           return bookingDate >= start && bookingDate <= end;
         });
       }
 
-      // Sort bookings by companyBargainDate in descending booking
+      // Sort bookings by BargainDate in descending booking
       filteredBookings.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
+        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       console.log(filteredBookings);
@@ -172,8 +171,7 @@ export function BookingHistory() {
           : bookingsData.filter((booking) => booking.status === statusFilter);
 
       filteredBookings.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
+        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
       );
 
       setBookings(filteredBookings);
@@ -252,9 +250,8 @@ export function BookingHistory() {
             >
               <option value="All">All Statuses</option>
               <option value="created">Created</option>
-              <option value="billed">Billed</option>
-              <option value="payment pending">Payment Pending</option>
-              <option value="completed">Completed</option>
+              <option value="partially sold">Partially Sold</option>
+              <option value="fully sold">Fully Sold</option>
             </select>
             <select
               value={timePeriod}
@@ -283,7 +280,7 @@ export function BookingHistory() {
           </div>
 
           <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
+            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               Delete
             </button>
             <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
@@ -291,7 +288,7 @@ export function BookingHistory() {
             </button>
             <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
               PUBLISH
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
@@ -443,21 +440,21 @@ export function BookingHistory() {
                                     </thead>
                                     <tbody>
                                       {booking.items.map((item) => (
-                                        <tr key={item.name}>
+                                        <tr key={item._id}>
                                           <td className="py-3 px-5 text-center">
-                                            {item.item.name}
+                                            {item.item.materialdescription}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.packaging}
                                           </td>
                                           <td className="py-3 px-5 text-center">
-                                            {item.item.weight}
+                                            {item.item.netweight}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.staticPrice}
                                           </td>
                                           <td className="py-3 px-5 text-center">
-                                            {item.virtualQuantity || "0"}
+                                            {item.quantity || "0"}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.billedQuantity || "0"}
@@ -478,18 +475,12 @@ export function BookingHistory() {
               </div>
             </div>
           ) : (
-            <Typography className="text-center text-blue-gray-600">
+            <Typography className="text-center text-blue-gray-600 mt-8">
               No bookings found
             </Typography>
           )}
         </div>
       </div>
-      {/* {showEditBookingForm && selectedBooking && (
-        <EditOrderForm
-          close={() => setShowEditbookingForm(false)}
-          booking={selectedBooking}
-        />
-      )} */}
     </div>
   );
 }

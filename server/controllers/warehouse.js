@@ -28,7 +28,7 @@ const warehouseController = {
 
   getAllWarehouses: async (req, res) => {
     try {
-      const warehouses = await Warehouse.find();
+      const warehouses = await Warehouse.find({ organization: req.params.orgId });
       res.status(200).json(warehouses);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving warehouses", error });
@@ -50,6 +50,7 @@ const warehouseController = {
       if (city) {
         filter["location.city"] = city;
       }
+      filter.organization = req.params.orgId;
       const warehouses = await Warehouse.find(filter);
 
       if (warehouses.length === 0) {
@@ -65,7 +66,8 @@ const warehouseController = {
 
   getWarehouseById: async (req, res) => {
     try {
-      const warehouse = await Warehouse.findById(req.params.id);
+      const { id, orgId } = req.params;
+      const warehouse = await Warehouse.findById({ _id: id, organization: orgId });
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
@@ -105,7 +107,7 @@ const warehouseController = {
       res.status(400).json({ message: "Error updating warehouse", error });
     }
   },
-  
+
   deleteWarehouse: async (req, res) => {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);
@@ -121,177 +123,177 @@ const warehouseController = {
 
 export default warehouseController;
 
-  // addInventoryItem: async (req, res) => {
-  //   try {
-  //     let warehouse = await Warehouse.findById(req.params.id);
+// addInventoryItem: async (req, res) => {
+//   try {
+//     let warehouse = await Warehouse.findById(req.params.id);
 
-  //     if (!warehouse) {
-  //       return res.status(404).json({ message: "Warehouse not found" });
-  //     }
+//     if (!warehouse) {
+//       return res.status(404).json({ message: "Warehouse not found" });
+//     }
 
-  //     const { itemId, quantity, billType } = req.body;
+//     const { itemId, quantity, billType } = req.body;
 
-  //     if (!itemId || !quantity || !billType) {
-  //       return res
-  //         .status(400)
-  //         .json({ message: "Incomplete inventory item details" });
-  //     }
+//     if (!itemId || !quantity || !billType) {
+//       return res
+//         .status(400)
+//         .json({ message: "Incomplete inventory item details" });
+//     }
 
-  //     const processItem = (inventoryArray) => {
-  //       return inventoryArray.find((i) => i.item.toString() === itemId);
-  //     };
+//     const processItem = (inventoryArray) => {
+//       return inventoryArray.find((i) => i.item.toString() === itemId);
+//     };
 
-  //     if (billType === "Virtual Billed") {
-  //       const existingVirtualInventoryItem = processItem(
-  //         warehouse.virtualInventory
-  //       );
-  //       if (!existingVirtualInventoryItem) {
-  //         warehouse.virtualInventory.push({
-  //           item: itemId,
-  //           quantity,
-  //         });
-  //         warehouse.billedInventory.push({
-  //           item: itemId,
-  //           quantity: 0,
-  //         });
-  //       } else {
-  //         existingVirtualInventoryItem.quantity += quantity;
-  //       }
-  //     } else {
-  //       const existingVirtualInventoryItem = processItem(
-  //         warehouse.virtualInventory
-  //       );
-  //       const existingBilledInventoryItem = processItem(
-  //         warehouse.billedInventory
-  //       );
+//     if (billType === "Virtual Billed") {
+//       const existingVirtualInventoryItem = processItem(
+//         warehouse.virtualInventory
+//       );
+//       if (!existingVirtualInventoryItem) {
+//         warehouse.virtualInventory.push({
+//           item: itemId,
+//           quantity,
+//         });
+//         warehouse.billedInventory.push({
+//           item: itemId,
+//           quantity: 0,
+//         });
+//       } else {
+//         existingVirtualInventoryItem.quantity += quantity;
+//       }
+//     } else {
+//       const existingVirtualInventoryItem = processItem(
+//         warehouse.virtualInventory
+//       );
+//       const existingBilledInventoryItem = processItem(
+//         warehouse.billedInventory
+//       );
 
-  //       if (!existingBilledInventoryItem) {
-  //         return res.status(400).json({
-  //           message: "Billing for inventory item that is not virtual",
-  //         });
-  //       } else {
-  //         if (quantity > existingVirtualInventoryItem.quantity) {
-  //           return res.status(400).json({
-  //             message:
-  //               "Billing more than what is available in virtual inventory",
-  //           });
-  //         }
-  //         existingVirtualInventoryItem.quantity -= quantity;
-  //         existingBilledInventoryItem.quantity += quantity;
-  //       }
-  //     }
+//       if (!existingBilledInventoryItem) {
+//         return res.status(400).json({
+//           message: "Billing for inventory item that is not virtual",
+//         });
+//       } else {
+//         if (quantity > existingVirtualInventoryItem.quantity) {
+//           return res.status(400).json({
+//             message:
+//               "Billing more than what is available in virtual inventory",
+//           });
+//         }
+//         existingVirtualInventoryItem.quantity -= quantity;
+//         existingBilledInventoryItem.quantity += quantity;
+//       }
+//     }
 
-  //     // Update soldInventory
-  //     const updateSoldInventory = (itemId, billedQuantity, virtualQuantity) => {
-  //       const existingSoldItem = warehouse.soldInventory.find(
-  //         (i) => i.item.toString() === itemId
-  //       );
-  //       if (!existingSoldItem) {
-  //         warehouse.soldInventory.push({
-  //           item: itemId,
-  //           billedQuantity,
-  //           virtualQuantity,
-  //         });
-  //       } else {
-  //         existingSoldItem.billedQuantity += billedQuantity;
-  //         existingSoldItem.virtualQuantity += virtualQuantity;
-  //       }
-  //     };
+//     // Update soldInventory
+//     const updateSoldInventory = (itemId, billedQuantity, virtualQuantity) => {
+//       const existingSoldItem = warehouse.soldInventory.find(
+//         (i) => i.item.toString() === itemId
+//       );
+//       if (!existingSoldItem) {
+//         warehouse.soldInventory.push({
+//           item: itemId,
+//           billedQuantity,
+//           virtualQuantity,
+//         });
+//       } else {
+//         existingSoldItem.billedQuantity += billedQuantity;
+//         existingSoldItem.virtualQuantity += virtualQuantity;
+//       }
+//     };
 
-  //     updateSoldInventory(
-  //       itemId,
-  //       billType === "Billed" ? quantity : 0,
-  //       billType === "Virtual" ? quantity : 0
-  //     );
+//     updateSoldInventory(
+//       itemId,
+//       billType === "Billed" ? quantity : 0,
+//       billType === "Virtual" ? quantity : 0
+//     );
 
-  //     await warehouse.save();
+//     await warehouse.save();
 
-  //     res.status(200).json({
-  //       message: "Inventory item added/updated successfully",
-  //       warehouse,
-  //     });
-  //   } catch (error) {
-  //     res
-  //       .status(400)
-  //       .json({ message: "Error adding/updating inventory item", error });
-  //   }
-  // },
+//     res.status(200).json({
+//       message: "Inventory item added/updated successfully",
+//       warehouse,
+//     });
+//   } catch (error) {
+//     res
+//       .status(400)
+//       .json({ message: "Error adding/updating inventory item", error });
+//   }
+// },
 
-  // deleteInventoryItem: async (req, res) => {
-  //   try {
-  //     const { warehouseId } = req.params;
-  //     const { itemId, billType, quantity } = req.body;
+// deleteInventoryItem: async (req, res) => {
+//   try {
+//     const { warehouseId } = req.params;
+//     const { itemId, billType, quantity } = req.body;
 
-  //     const warehouse = await Warehouse.findById(warehouseId);
+//     const warehouse = await Warehouse.findById(warehouseId);
 
-  //     if (!warehouse) {
-  //       return res.status(404).json({ message: "Warehouse not found" });
-  //     }
+//     if (!warehouse) {
+//       return res.status(404).json({ message: "Warehouse not found" });
+//     }
 
-  //     const processItem = (inventoryArray) => {
-  //       return inventoryArray.find((i) => i.item.toString() === itemId);
-  //     };
+//     const processItem = (inventoryArray) => {
+//       return inventoryArray.find((i) => i.item.toString() === itemId);
+//     };
 
-  //     if (billType === "Virtual") {
-  //       const existingVirtualInventoryItem = processItem(
-  //         warehouse.virtualInventory
-  //       );
-  //       if (!existingVirtualInventoryItem) {
-  //         return res
-  //           .status(400)
-  //           .json({ message: "Item not found in virtual inventory" });
-  //       }
-  //       if (existingVirtualInventoryItem.quantity < quantity) {
-  //         return res.status(400).json({
-  //           message: "Cannot reduce quantity below zero in virtual inventory",
-  //         });
-  //       }
-  //       existingVirtualInventoryItem.quantity -= quantity;
+//     if (billType === "Virtual") {
+//       const existingVirtualInventoryItem = processItem(
+//         warehouse.virtualInventory
+//       );
+//       if (!existingVirtualInventoryItem) {
+//         return res
+//           .status(400)
+//           .json({ message: "Item not found in virtual inventory" });
+//       }
+//       if (existingVirtualInventoryItem.quantity < quantity) {
+//         return res.status(400).json({
+//           message: "Cannot reduce quantity below zero in virtual inventory",
+//         });
+//       }
+//       existingVirtualInventoryItem.quantity -= quantity;
 
-  //       // Update soldInventory
-  //       const soldItem = warehouse.soldInventory.find(
-  //         (i) => i.item.toString() === itemId
-  //       );
-  //       if (soldItem) {
-  //         soldItem.virtualQuantity -= quantity;
-  //       }
-  //     } else if (billType === "Billed") {
-  //       const existingBilledInventoryItem = processItem(
-  //         warehouse.billedInventory
-  //       );
-  //       if (!existingBilledInventoryItem) {
-  //         return res
-  //           .status(400)
-  //           .json({ message: "Item not found in billed inventory" });
-  //       }
-  //       if (existingBilledInventoryItem.quantity < quantity) {
-  //         return res.status(400).json({
-  //           message: "Cannot reduce quantity below zero in billed inventory",
-  //         });
-  //       }
-  //       existingBilledInventoryItem.quantity -= quantity;
+//       // Update soldInventory
+//       const soldItem = warehouse.soldInventory.find(
+//         (i) => i.item.toString() === itemId
+//       );
+//       if (soldItem) {
+//         soldItem.virtualQuantity -= quantity;
+//       }
+//     } else if (billType === "Billed") {
+//       const existingBilledInventoryItem = processItem(
+//         warehouse.billedInventory
+//       );
+//       if (!existingBilledInventoryItem) {
+//         return res
+//           .status(400)
+//           .json({ message: "Item not found in billed inventory" });
+//       }
+//       if (existingBilledInventoryItem.quantity < quantity) {
+//         return res.status(400).json({
+//           message: "Cannot reduce quantity below zero in billed inventory",
+//         });
+//       }
+//       existingBilledInventoryItem.quantity -= quantity;
 
-  //       // Update soldInventory
-  //       const soldItem = warehouse.soldInventory.find(
-  //         (i) => i.item.toString() === itemId
-  //       );
-  //       if (soldItem) {
-  //         soldItem.billedQuantity -= quantity;
-  //       }
-  //     } else {
-  //       return res.status(400).json({ message: "Invalid billType provided" });
-  //     }
+//       // Update soldInventory
+//       const soldItem = warehouse.soldInventory.find(
+//         (i) => i.item.toString() === itemId
+//       );
+//       if (soldItem) {
+//         soldItem.billedQuantity -= quantity;
+//       }
+//     } else {
+//       return res.status(400).json({ message: "Invalid billType provided" });
+//     }
 
-  //     await warehouse.save();
+//     await warehouse.save();
 
-  //     res.status(200).json({
-  //       message: "Inventory item quantity updated successfully",
-  //       warehouse,
-  //     });
-  //   } catch (error) {
-  //     res
-  //       .status(500)
-  //       .json({ message: "Error updating inventory item quantity", error });
-  //   }
-  // },
+//     res.status(200).json({
+//       message: "Inventory item quantity updated successfully",
+//       warehouse,
+//     });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Error updating inventory item quantity", error });
+//   }
+// },
 

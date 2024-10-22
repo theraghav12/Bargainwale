@@ -24,8 +24,13 @@ import { MdDeleteOutline } from "react-icons/md";
 import { createOrder, getOrders } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { createPurchase } from "@/services/purchaseService";
+import { getBookings } from "@/services/bookingService";
+import { useParams } from "react-router-dom";
+import { createSales } from "@/services/salesService";
+import { API_BASE_URL } from "@/services/api";
+import axios from "axios";
 
-const CreatePurchase = () => {
+const CreateSales = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
   const [transportOptions, setTransportOptions] = useState([]);
@@ -34,14 +39,16 @@ const CreatePurchase = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [timePeriod, setTimePeriod] = useState("All");
-  const [openOrder, setOpenOrder] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [openOrders, setOpenOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState([]);
   const [quantityInputs, setQuantityInputs] = useState([]);
+  const [salesIds, setSalesIds] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(null);
 
   const [form, setForm] = useState({
     warehouseId: "",
     transporterId: "",
-    orderId: "",
+    bookingIds: [],
     invoiceNumber: "",
     invoiceDate: "",
     items: [],
@@ -55,9 +62,11 @@ const CreatePurchase = () => {
     fetchWarehouseOptions();
   }, []);
 
+  const buyerId = useParams().id;
+
   const fetchOrders = async () => {
     try {
-      const response = await getOrders();
+      const response = await getBookings();
       const ordersData = response;
 
       let filteredOrders =
@@ -149,13 +158,88 @@ const CreatePurchase = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     if (selectedOrder.length === 0) {
+  //       toast.error("Please select at least one booking before submitting.");
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     if (
+  //       quantityInputs.length === 0 ||
+  //       quantityInputs.some((input) => !input.quantity)
+  //     ) {
+  //       toast.error(
+  //         "Please enter quantities for all items in the selected booking."
+  //       );
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     const updatedForm = {
+  //       ...form,
+  //       bookingIds: selectedOrder,
+  //       items: quantityInputs,
+  //     };
+
+  //     console.log(updatedForm);
+  //     // const response = await createSales(updatedForm);
+
+  //     if (response.status === 201) {
+  //       toast.success("Sales created successfully!");
+  //     } else {
+  //       toast.error(`Unexpected status code: ${response.status}`);
+  //       console.error("Unexpected response:", response);
+  //     }
+
+  //     // Reset the form after successful submission
+  //     // setForm({
+  //     //   items: [],
+  //     //   inco: "",
+  //     //   companyBargainNo: "",
+  //     //   companyBargainDate: "",
+  //     //   manufacturer: "",
+  //     //   paymentDays: "",
+  //     //   description: "",
+  //     //   warehouse: "",
+  //     // });
+  //   } catch (error) {
+  //     // Handle different types of errors (network/server-side/client-side)
+  //     if (error.response) {
+  //       const { status, data } = error.response;
+  //       if (status === 400) {
+  //         toast.error("Bad request: Please check the form data.");
+  //       } else if (status === 401) {
+  //         toast.error("Unauthorized: Please log in again.");
+  //       } else if (status === 500) {
+  //         toast.error("Internal server error: Please try again later.");
+  //       } else {
+  //         toast.error(`Error: ${data?.message || "Something went wrong!"}`);
+  //       }
+  //       console.error("Server-side error:", error.response);
+  //     } else if (error.request) {
+  //       toast.error("Network error: Unable to reach the server.");
+  //       console.error("Network error:", error.request);
+  //     } else {
+  //       toast.error("Error: Something went wrong!");
+  //       console.error("Error:", error.message);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (!selectedOrder) {
-        toast.error("Please select an order before submitting.");
+      if (selectedOrder.length === 0) {
+        toast.error("Please select at least one booking before submitting.");
         setLoading(false);
         return;
       }
@@ -165,39 +249,43 @@ const CreatePurchase = () => {
         quantityInputs.some((input) => !input.quantity)
       ) {
         toast.error(
-          "Please enter quantities for all items in the selected order."
+          "Please enter quantities for all items in the selected booking."
         );
         setLoading(false);
         return;
       }
 
+      // Group items by bookingId
+      const itemQuantities = selectedOrder.map((bookingId) => {
+        const bookingItems = quantityInputs
+          .filter((input) => selectedOrder.includes(bookingId))
+          .map(({ itemId, quantity }) => ({
+            itemId,
+            quantity: parseFloat(quantity), // Ensure quantity is a number
+          }));
+
+        return {
+          bookingId,
+          items: bookingItems,
+        };
+      });
+
+      // Updated form structure with itemQuantities
       const updatedForm = {
         ...form,
-        orderId: selectedOrder,
-        items: quantityInputs,
+        bookingIds: undefined, // Remove bookingIds since we're using itemQuantities
+        itemQuantities,
       };
 
       console.log(updatedForm);
-      const response = await createPurchase(updatedForm);
+      // const response = await createSales(updatedForm);
 
       if (response.status === 201) {
-        toast.success("Purchase created successfully!");
+        toast.success("Sales created successfully!");
       } else {
         toast.error(`Unexpected status code: ${response.status}`);
         console.error("Unexpected response:", response);
       }
-
-      // Reset the form after successful submission
-      // setForm({
-      //   items: [],
-      //   inco: "",
-      //   companyBargainNo: "",
-      //   companyBargainDate: "",
-      //   manufacturer: "",
-      //   paymentDays: "",
-      //   description: "",
-      //   warehouse: "",
-      // });
     } catch (error) {
       // Handle different types of errors (network/server-side/client-side)
       if (error.response) {
@@ -300,37 +388,211 @@ const CreatePurchase = () => {
   };
 
   const handleToggleOrder = (orderId) => {
-    setOpenOrder(openOrder === orderId ? null : orderId);
+    setOpenOrders(
+      (prevOpenOrders) =>
+        prevOpenOrders.includes(orderId)
+          ? prevOpenOrders.filter((id) => id !== orderId) // Close the order if it's open
+          : [...prevOpenOrders, orderId] // Open the order if it's not open
+    );
   };
 
   const handleOrderSelect = (orderId) => {
-    if (selectedOrder === orderId) {
-      setSelectedOrder(null);
-    } else {
-      setSelectedOrder(orderId);
-      setQuantityInputs([]);
+    const { warehouseId, invoiceNumber, invoiceDate, transporterId } = form;
+
+    if (!warehouseId || !invoiceNumber || !invoiceDate || !transporterId) {
+      return;
+    }
+
+    // Check if all items in the order have a non-zero quantity
+    const allItemsHaveQuantity = quantityInputs.some(
+      (booking) =>
+        booking.bookingId === orderId &&
+        booking.items.every((item) => item.quantity > 0)
+    );
+
+    if (!allItemsHaveQuantity) {
+      return;
+    }
+
+    // console.log(orderId);
+    setSelectedOrder((prevSelected) => {
+      // Check if the orderId is already in the selectedOrders array
+      if (prevSelected.includes(orderId)) {
+        // Remove the order from the selection
+        return prevSelected.filter((id) => id !== orderId);
+      } else {
+        // Add the order to the selection
+        return [...prevSelected, orderId];
+      }
+    });
+    setQuantityInputs([]); // Reset quantity input for newly selected order
+  };
+
+  const handleCreateSale = async (bookingId, buyerId, orderItems) => {
+    const {
+      warehouseId,
+      transporterId,
+      organization,
+      invoiceNumber,
+      invoiceDate,
+    } = form;
+
+    // // Ensure all required fields are filled
+    if (!warehouseId || !invoiceNumber || !invoiceDate || !transporterId) {
+      toast.error(
+        "Please fill in all the required fields: Warehouse, Invoice Number, Invoice Date, and Transporter."
+      );
+      return;
+    }
+
+    console.log(quantityInputs);
+
+    // Check if all items in the order have a non-zero quantity
+    const allItemsHaveQuantity = quantityInputs.some(
+      (booking) =>
+        booking.bookingId === bookingId &&
+        booking.items.every((item) => item.quantity > 0)
+    );
+
+    if (!allItemsHaveQuantity) {
+      toast.error("Please enter a quantity for all items in the order.");
+      return;
+    }
+
+    // Format the items for the sale payload
+    const saleItems = orderItems.map((item) => ({
+      itemId: item.item._id,
+      quantity:
+        quantityInputs
+          .find((booking) => booking.bookingId === bookingId)
+          ?.items.find((q) => q.itemId === item.item._id)?.quantity || 0,
+      pickup: "plant", // Assuming "plant" as a static value
+    }));
+
+    // First API call: Create a sale
+    try {
+      const saleResponse = await axios.post(`${API_BASE_URL}/sale`, {
+        warehouseId,
+        bookingId,
+        transporterId,
+        organization,
+        buyerId,
+        items: saleItems,
+      });
+      console.log({
+        warehouseId,
+        bookingId,
+        transporterId,
+        organization,
+        buyerId,
+        items: saleItems,
+      });
+      console.log(saleResponse);
+
+      const newSaleId = saleResponse.data.data?._id;
+      setSalesIds((prevSales) => [...prevSales, newSaleId]);
+
+      // console.log("Sale created:", newSaleId);
+    } catch (error) {
+      console.error("Error creating sale:", error);
+    }
+  };
+  // console.log(orders);
+
+  const handleFinalizeSales = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/totalsales`, {
+        saleIds: salesIds,
+        organization: form.organization,
+        totalAmount: totalAmount,
+      });
+      console.log(response);
+
+      console.log("Sales finalized:", {
+        saleIds: salesIds,
+        organization: form.organization,
+        totalAmount: totalAmount,
+      });
+    } catch (error) {
+      console.error("Error finalizing sales:", error);
     }
   };
 
-  const handleQuantityChange = (itemId, newQuantity, pickup) => {
-    const quantity = Number(newQuantity);
+  const handleQuantityChange = (
+    itemId,
+    bookingId,
+    newQuantity,
+    taxpaidAmount
+  ) => {
     setQuantityInputs((prevInputs) => {
-      const existingItem = prevInputs.find((item) => item.itemId === itemId);
+      // Find the booking that matches the current bookingId
+      const existingBookingIndex = prevInputs.findIndex(
+        (booking) => booking.bookingId === bookingId
+      );
 
-      if (existingItem) {
-        return prevInputs.map((item) =>
-          item.itemId === itemId
-            ? { ...item, quantity: quantity, pickup: pickup }
-            : item
-        );
+      if (existingBookingIndex !== -1) {
+        // If booking exists, check if the item already exists within that booking
+        const existingItemIndex = prevInputs[
+          existingBookingIndex
+        ].items.findIndex((item) => item.itemId === itemId);
+
+        if (existingItemIndex !== -1) {
+          // If item exists, update the quantity
+          return prevInputs.map((booking, bookingIndex) => {
+            if (bookingIndex === existingBookingIndex) {
+              return {
+                ...booking,
+                items: booking.items.map((item, itemIndex) => {
+                  if (itemIndex === existingItemIndex) {
+                    return { ...item, quantity: newQuantity };
+                  }
+                  return item;
+                }),
+              };
+            }
+            return booking;
+          });
+        } else {
+          // If item does not exist, add it to the items array of that booking
+          return prevInputs.map((booking, bookingIndex) => {
+            if (bookingIndex === existingBookingIndex) {
+              return {
+                ...booking,
+                items: [...booking.items, { itemId, quantity: newQuantity }],
+              };
+            }
+            return booking;
+          });
+        }
       } else {
-        return [...prevInputs, { itemId, quantity: quantity, pickup: pickup }];
+        // If booking does not exist, create a new entry with the item and quantity
+        return [
+          ...prevInputs,
+          {
+            bookingId,
+            items: [{ itemId, quantity: newQuantity }],
+          },
+        ];
       }
     });
+
+    // Update the total amount based on the quantity
+    if (newQuantity === "") {
+      setTotalAmount((prevAmount) => prevAmount * 0);
+    } else {
+      setTotalAmount(
+        (prevAmount) => prevAmount + taxpaidAmount * Number(newQuantity)
+      );
+    }
   };
 
-  console.log(selectedOrder);
-  console.log(quantityInputs);
+  // console.log("Before Update:", quantityInputs);
+
+  // console.log(selectedOrder);
+  // console.log(quantityInputs);
 
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
@@ -360,7 +622,7 @@ const CreatePurchase = () => {
 
         <div className="w-full">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleFinalizeSales}
             className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
           >
             <div className="flex flex-col gap-4">
@@ -477,7 +739,7 @@ const CreatePurchase = () => {
                   type="submit"
                   className="w-fit flex items-center justify-center"
                 >
-                  {loading ? <Spinner /> : <span>Create Purchase</span>}
+                  {loading ? <Spinner /> : <span>Create Sales</span>}
                 </Button>
               </div>
             </div>
@@ -499,12 +761,14 @@ const CreatePurchase = () => {
                       <tr>
                         {[
                           "Select",
-                          "Company Bargain No",
-                          "Company Bargain Date",
-                          "Manufacturer Name",
-                          "Manufacturer Company",
-                          "Manufacturer Contact",
+                          "Bargain No",
+                          "Bargain Date",
+                          "Buyer Name",
+                          "Buyer Company",
+                          "Buyer Contact",
                           "Status",
+                          "Delivery Option",
+                          "Actions",
                         ].map((el) => (
                           <th key={el} className="py-4 text-center w-[200px]">
                             {el}
@@ -514,35 +778,52 @@ const CreatePurchase = () => {
                     </thead>
                     <tbody>
                       {orders.map((order) => {
-                        const isOpen = selectedOrder === order._id;
-                        const isChecked = selectedOrder === order._id;
+                        const isOpen = openOrders.includes(order._id);
+                        const isChecked = selectedOrder.includes(order._id);
+                        const isSoldOut = order.status === "fully sold";
                         return (
                           <React.Fragment key={order._id}>
                             <tr className="border-t-2 border-t-[#898989]">
                               <td className="py-4 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => handleOrderSelect(order._id)}
-                                  className="form-checkbox h-5 w-5"
-                                />
+                                <Tooltip
+                                  content={
+                                    isSoldOut
+                                      ? "Booking fully sold"
+                                      : "Select Booking"
+                                  }
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      handleOrderSelect(order._id);
+                                      handleCreateSale(
+                                        order._id,
+                                        order.buyer?._id,
+                                        order.items
+                                      );
+                                    }}
+                                    className="form-checkbox h-5 w-5 cursor-pointer"
+                                    disabled={isSoldOut}
+                                  />
+                                </Tooltip>
                               </td>
                               <td className="py-4 text-center">
-                                {order.companyBargainNo}
+                                {order.BargainNo}
                               </td>
                               <td className="py-4 text-center">
-                                {formatDate(order.companyBargainDate)}
+                                {formatDate(order.BargainDate)}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturer}
+                                {order.buyer?.buyer}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturerCompany}
+                                {order.buyer?.buyerCompany}
                               </td>
                               <td className="py-4 text-center">
-                                {order.manufacturer?.manufacturerContact}
+                                {order.buyer?.buyerContact}
                               </td>
-                              <td className="py-4 text-center flex items-center justify-center">
+                              <td className="py-4 text-center">
                                 <Chip
                                   variant="ghost"
                                   value={order.status}
@@ -555,8 +836,46 @@ const CreatePurchase = () => {
                                       ? "green"
                                       : "red"
                                   }
-                                  className="w-[150px]"
                                 />
+                              </td>
+                              <td className="py-4 text-center">
+                                {order.deliveryOption}
+                              </td>
+                              <td className="py-4 text-center">
+                                <div className="flex justify-center gap-4">
+                                  <IconButton
+                                    variant="text"
+                                    onClick={() => handleToggleOrder(order._id)}
+                                    className="bg-gray-300"
+                                  >
+                                    {isOpen ? (
+                                      <ChevronUpIcon className="h-5 w-5" />
+                                    ) : (
+                                      <ChevronDownIcon className="h-5 w-5" />
+                                    )}
+                                  </IconButton>
+                                  {/* <Button
+                                    color="blue"
+                                    onClick={() => {
+                                      setSelectedOrder(order);
+                                      setShowEditOrderForm(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button> */}
+                                  {/* {!hasFutureBookings(order, bookings) && (
+                                    <Tooltip content="Delete Order">
+                                      <span className="w-fit h-fit">
+                                        <MdDeleteOutline
+                                          onClick={() =>
+                                            handleDelete(order._id)
+                                          }
+                                          className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                        />
+                                      </span>
+                                    </Tooltip>
+                                  )} */}
+                                </div>
                               </td>
                             </tr>
                             {isOpen && (
@@ -571,8 +890,8 @@ const CreatePurchase = () => {
                                             "Packaging",
                                             "Weight",
                                             "Static Price (Rs.)",
-                                            "Ordered Quantity",
-                                            "Quantity to Purchase",
+                                            "Booked Quantity",
+                                            "Quantity to Sales",
                                           ].map((header) => (
                                             <th
                                               key={header}
@@ -608,18 +927,30 @@ const CreatePurchase = () => {
                                               <input
                                                 type="number"
                                                 value={
-                                                  quantityInputs.find(
-                                                    (q) =>
-                                                      q.itemId === item.item._id
-                                                  )?.quantity || ""
+                                                  quantityInputs
+                                                    .find(
+                                                      (booking) =>
+                                                        booking.bookingId ===
+                                                        order._id
+                                                    )
+                                                    ?.items.find(
+                                                      (q) =>
+                                                        q.itemId ===
+                                                        item.item._id
+                                                    )?.quantity || ""
                                                 }
-                                                onChange={(e) =>
+                                                onChange={(e) => {
+                                                  const newQuantity =
+                                                    e.target.value === ""
+                                                      ? ""
+                                                      : Number(e.target.value);
                                                   handleQuantityChange(
                                                     item.item._id,
-                                                    e.target.value,
-                                                    item.pickup
-                                                  )
-                                                }
+                                                    order._id,
+                                                    newQuantity,
+                                                    item.taxpaidAmount
+                                                  );
+                                                }}
                                                 className="w-[150px] p-2 border rounded"
                                                 placeholder="Enter new qty"
                                               />
@@ -641,7 +972,7 @@ const CreatePurchase = () => {
               </div>
             ) : (
               <p className="text-center text-[1.2rem] text-blue-gray-600 mt-20">
-                No orders found!
+                No bookings found!
               </p>
             )}
           </div>
@@ -792,4 +1123,4 @@ const CreatePurchase = () => {
   );
 };
 
-export default CreatePurchase;
+export default CreateSales;

@@ -7,12 +7,12 @@ const router = express.Router();
 router.post('/api/items', itemController.createItem);
 
 // Route to get all items
-router.get('/api/items', itemController.getAllItems);
+router.get('/api/:orgId/items', itemController.getAllItems);
 
 // Route to get a specific item by ID
-router.get('/api/items/:id', itemController.getItemById);
+router.get('/api/:orgId/items/:id', itemController.getItemById);
 
-router.get('/api/items/warehouse/:warehouseId', itemController.getItemByWarehouseId);
+router.get('/api/:orgId/items/warehouse/:warehouseId', itemController.getItemByWarehouseId);
 
 // Route to update a specific item by ID
 router.put('/api/items/:id', itemController.updateItem);

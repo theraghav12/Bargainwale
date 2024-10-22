@@ -31,6 +31,7 @@ const WarehouseForm = () => {
     city: "",
     warehouseManager: "",
     googleMapsLink: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -96,6 +97,7 @@ const WarehouseForm = () => {
           city: form.city,
         },
         warehouseManager: form.warehouseManager,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Warehouse added successfully!");
@@ -198,13 +200,15 @@ const WarehouseForm = () => {
                     >
                       <td className="py-2 px-4">
                         {warehouse.isEditing ? (
-                          <Input
+                          <input
                             name="name"
                             type="text"
                             value={warehouse.name}
                             onChange={(e) =>
                               handleWarehouseChange(e, warehouse._id)
                             }
+                            placeholder="Invoice No."
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{warehouse.name}</span>
@@ -212,13 +216,16 @@ const WarehouseForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {warehouse.isEditing ? (
-                          <Input
+                          <input
                             name="state"
                             type="text"
                             value={warehouse.location.state}
                             onChange={(e) =>
                               handleWarehouseChange(e, warehouse._id)
                             }
+                            required
+                            placeholder="State"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{warehouse.location.state}</span>
@@ -226,13 +233,16 @@ const WarehouseForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {warehouse.isEditing ? (
-                          <Input
+                          <input
                             name="city"
                             type="text"
                             value={warehouse.location.city}
                             onChange={(e) =>
                               handleWarehouseChange(e, warehouse._id)
                             }
+                            required
+                            placeholder="City"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{warehouse.location.city}</span>
@@ -240,13 +250,16 @@ const WarehouseForm = () => {
                       </td>
                       <td className="py-2 px-4">
                         {warehouse.isEditing ? (
-                          <Input
+                          <input
                             name="warehouseManager"
                             type="text"
                             value={warehouse.warehouseManager}
                             onChange={(e) =>
                               handleWarehouseChange(e, warehouse._id)
                             }
+                            required
+                            placeholder="Warehouse Manager"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
                           <span>{warehouse.warehouseManager || "N/A"}</span>
@@ -355,7 +368,11 @@ const WarehouseForm = () => {
               />
             </div>
             <div>
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Warehouse</span>}
               </Button>
             </div>

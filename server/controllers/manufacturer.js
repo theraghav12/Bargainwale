@@ -11,6 +11,7 @@ const manufacturerController = {
         manufacturerEmail,
         manufacturerGstno,
         manufacturerGooglemaps,
+        organization
       } = req.body;
 
       const newManufacturer = new Manufacturer({
@@ -21,6 +22,7 @@ const manufacturerController = {
         manufacturerEmail,
         manufacturerGstno,
         manufacturerGooglemaps,
+        organization
       });
 
       await newManufacturer.save();
@@ -32,7 +34,7 @@ const manufacturerController = {
 
   getAllManufacturers: async (req, res) => {
     try {
-      const manufacturers = await Manufacturer.find();
+      const manufacturers = await Manufacturer.find({ organization: req.params.orgId });
       res.status(200).json(manufacturers);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving manufacturers", error });
@@ -41,7 +43,8 @@ const manufacturerController = {
 
   getManufacturerById: async (req, res) => {
     try {
-      const manufacturer = await Manufacturer.findById(req.params.id);
+      const { id, orgId } = req.params;
+      const manufacturer = await Manufacturer.findOne({ _id: id, organization: orgId });
       if (!manufacturer) {
         return res.status(404).json({ message: "Manufacturer not found" });
       }

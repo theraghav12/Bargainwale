@@ -9,7 +9,6 @@ const orderController = {
       const {
         companyBargainDate,
         items,
-        
         inco,
         companyBargainNo,
         billType,
@@ -18,7 +17,6 @@ const orderController = {
         organization,
         warehouse: warehouseId,
         manufacturer,
-        transportCatigory,
         paymentDays = 21,
         reminderDays = [7, 3, 1],
       } = req.body;
@@ -29,7 +27,19 @@ const orderController = {
 
       const orderItems = [];
 
-      for (const { itemId, quantity,pickup } of items) {
+      for (const {
+        itemId,
+        quantity,
+        pickup,
+        baseRate,
+        taxpaidAmount,
+        gst,
+        cgst,
+        sgst,
+        igst,
+        taxableAmount,
+        contNumber
+      } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res.status(400).json({ message: `Invalid itemId format: ${itemId}` });
         }
@@ -39,13 +49,24 @@ const orderController = {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
 
-        orderItems.push({ item: item._id, quantity, pickup });
+        orderItems.push({
+          item: item._id,
+          quantity,
+          pickup,
+          baseRate,
+          taxpaidAmount,
+          gst,
+          cgst,
+          sgst,
+          igst,
+          taxableAmount,
+          contNumber,
+        });
       }
 
       const order = new Order({
         companyBargainDate: new Date(companyBargainDate),
         items: orderItems,
-        
         inco,
         companyBargainNo,
         billType,
@@ -54,13 +75,11 @@ const orderController = {
         organization,
         warehouse: warehouseId,
         manufacturer,
-        transportCatigory,
         paymentDays,
         reminderDays,
       });
 
       await order.save();
-      // console.log("Warehouse ID:", warehouseId);
 
       let warehouseDocument = await Warehouse.findById(warehouseId);
       if (!warehouseDocument) {
@@ -74,65 +93,30 @@ const orderController = {
           return res.status(404).json({ message: `Item not found: ${itemId}` });
         }
 
-        // const weight = item.grossweight; 
-        // const itemName = item.materialdescription;  
-
-        // if (billType === "Virtual Billed") {
         let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup===pickup
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
           (i) => i.item && i.item.toString() === itemId.toString()
         );
- 
+
         if (!existingVirtualInventoryItem) {
           warehouseDocument.virtualInventory.push({
             item: itemId,
             quantity,
-            // weight,
-            // itemName,
-            pickup
+            pickup,
           });
         } else {
           existingVirtualInventoryItem.quantity += quantity;
         }
-        if(!existingBilledInventoryItem){
+
+        if (!existingBilledInventoryItem) {
           warehouseDocument.billedInventory.push({
             item: itemId,
             quantity: 0,
-            // weight,
-            // itemName,
           });
         }
-        // } else if (billType === "Billed") {
-        //   let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-        //     (i) => i.item && i.item.toString() === itemId.toString()
-        //   );
-        //   let existingBilledInventoryItem = warehouseDocument.billedInventory.find(
-        //     (i) => i.item && i.item.toString() === itemId.toString()
-        //   );
-
-        //   if (!existingBilledInventoryItem) {
-        //     return res.status(400).json({
-        //       message: "Billing for inventory item that is not virtual",
-        //     });
-        //   } else {
-        //     if (!existingVirtualInventoryItem) {
-        //       return res.status(400).json({
-        //         message: "Virtual inventory item not found",
-        //       });
-        //     }
-
-        //     if (quantity > existingVirtualInventoryItem.quantity) {
-        //       return res.status(400).json({
-        //         message: "Billing more than what is available in virtual inventory",
-        //       });
-        //     }
-        //     existingVirtualInventoryItem.quantity -= quantity;
-        //     existingBilledInventoryItem.quantity += quantity;
-        //   }
-        // }
       }
 
       await warehouseDocument.save();
@@ -143,7 +127,7 @@ const orderController = {
         message: "Error creating order",
         error: {
           message: error.message || "An error occurred",
-          stack: error.stack // Optional: include stack trace for more details
+          stack: error.stack 
         }
       });
     }
@@ -151,7 +135,7 @@ const orderController = {
 
   getAllOrders: async (req, res) => {
     try {
-      const orders = await Order.find()
+      const orders = await Order.find({ organization: req.params.orgId })
         .populate('items.item')
         .populate('warehouse')
         .populate('manufacturer');
@@ -163,11 +147,12 @@ const orderController = {
 
   getOrderById: async (req, res) => {
     try {
-      const order = await Order.findById(req.params.id)
-        .populate('items')
+      const { id, orgId } = req.params;
+      const order = await Order.findOne({ _id: id, organization: orgId })
+        .populate('items.item')
         .populate('warehouse')
         .populate('manufacturer');
-        
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -179,159 +164,89 @@ const orderController = {
 
   updateOrder: async (req, res) => {
     try {
-      const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
+      const {
+        companyBargainDate,
+        items,
+        inco,
+        companyBargainNo,
+        billType,
+        status,
+        description,
+        organization,
+        warehouse: warehouseId,
+        manufacturer,
+        paymentDays = 21,
+        reminderDays = [7, 3, 1],
+      } = req.body;
+
+      const order = await Order.findByIdAndUpdate(req.params.id, {
+        companyBargainDate: new Date(companyBargainDate),
+        items,
+        inco,
+        companyBargainNo,
+        billType,
+        status,
+        description,
+        organization,
+        warehouse: warehouseId,
+        manufacturer,
+        paymentDays,
+        reminderDays,
+      }, {
         new: true,
       });
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
+
       res.status(200).json({ message: "Order updated successfully", order });
     } catch (error) {
       res.status(400).json({ message: "Error updating order", error });
     }
   },
 
-  // updateBillTypePartWise: async (req, res) => {
-  //   try {
-  //     const { id } = req.params;
-  //     const { items } = req.body;
+  deleteOrder: async (req, res) => {
+    try {
+      const { orderId } = req.params;
 
-  //     const order = await Order.findById(id).populate('items');
-
-  //     if (!order) {
-  //       return res.status(404).json({ message: "Order not found" });
-  //     }
-
-  //     let warehouseDocument = await Warehouse.findById(order.warehouse);
-
-  //     if (!warehouseDocument) {
-  //       return res.status(404).json({ message: "Warehouse not found" });
-  //     }
-
-  //     for (const updatedItem of items) {
-  //       const { itemId, quantity, billType } = updatedItem;
-
-  //       const existingOrderItem = order.items.find(
-  //         (item) => item._id.toString() === itemId.toString()
-  //       );
-  //       if (!existingOrderItem) {
-  //         return res
-  //           .status(400)
-  //           .json({ message: `Item not found in order` });
-  //       }
-
-  //       const existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-  //         (i) => i.item && i.item.toString() === itemId.toString()
-  //       );
-  //       const existingBilledInventoryItem = warehouseDocument.billedInventory.find(
-  //         (i) => i.item && i.item.toString() === itemId.toString()
-  //       );
-
-  //       if (billType === "Virtual Billed") {
-  //         if (!existingVirtualInventoryItem) {
-  //           return res
-  //             .status(400)
-  //             .json({ message: `Item not found in virtual inventory` });
-  //         }
-  //         if (quantity > existingVirtualInventoryItem.quantity) {
-  //           return res.status(400).json({
-  //             message: `Not enough quantity in virtual inventory for item`,
-  //           });
-  //         }
-
-  //         existingVirtualInventoryItem.quantity -= quantity;
-  //         if (existingBilledInventoryItem) {
-  //           existingBilledInventoryItem.quantity += quantity;
-  //         } else {
-  //           warehouseDocument.billedInventory.push({
-  //             item: itemId,
-  //             quantity,
-  //           });
-  //         }
-
-  //         existingOrderItem.quantity -= quantity;
-
-  //         if (existingOrderItem.quantity < 0) {
-  //           existingOrderItem.quantity = 0;
-  //         }
-  //       } else {
-  //         return res
-  //           .status(400)
-  //           .json({ message: `Invalid bill type for item` });
-  //       }
-  //     }
-
-  //     await order.save();
-  //     await warehouseDocument.save();
-
-  //     res.status(200).json({ message: "Order updated successfully", order });
-  //   } catch (error) {
-  //     res.status(400).json({ message: "Error updating order", error });
-  //   }
-  // },
-
-    deleteOrder: async (req, res) => {
-      try {
-        const { orderId } = req.params;
-        console.log('Received orderId:', orderId);
-  
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-          return res.status(400).json({ message: 'Invalid orderId format' });
-        }
-  
-        // Find the order to be deleted
-        const order = await Order.findById(orderId).populate('warehouse');
-  
-        if (!order) {
-          return res.status(404).json({ message: 'Order not found' });
-        }
-  
-        const { items, billType, warehouse } = order;
-  
-        // Adjust the inventory in the warehouse
-        for (const { item, quantity, pickup } of items) {
-          const virtualInventoryItem = warehouse.virtualInventory.find(
-            (i) => i.item && i.item.toString() === item.toString() && i.pickup===pickup
-          );
-          const billedInventoryItem = warehouse.billedInventory.find(
-            (i) => i.item && i.item.toString() === item.toString()
-          );
-  
-          // if (billType === 'Virtual Billed') {
-          if (virtualInventoryItem) {
-            virtualInventoryItem.quantity -= quantity;
-            if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
-          }
-          // } else if (billType === 'Billed') {
-          //   if (billedInventoryItem) {
-          //     billedInventoryItem.quantity -= quantity;
-          //     if (billedInventoryItem.quantity < 0) billedInventoryItem.quantity = 0;
-          //     // Optionally, you could move excess quantity back to virtual inventory if needed
-          //     if (virtualInventoryItem) {
-          //       virtualInventoryItem.quantity += quantity;
-          //     }
-          //   }
-          // }
-        }
-  
-        await warehouse.save();
-  
-        // Delete the order
-        await Order.findByIdAndDelete(orderId);
-  
-        res.status(200).json({ message: 'Order deleted successfully' });
-      } catch (error) {
-        console.error('Error deleting order:', error.message || error);
-        res.status(400).json({
-          message: 'Error deleting order',
-          error: {
-            message: error.message || 'An error occurred',
-            stack: error.stack, // Optional: include stack trace for more details
-          },
-        });
+      if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ message: 'Invalid orderId format' });
       }
-    },
-  
+
+      const order = await Order.findById(orderId).populate('warehouse');
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+
+      const { items, warehouse } = order;
+
+      for (const { item, quantity, pickup } of items) {
+        const virtualInventoryItem = warehouse.virtualInventory.find(
+          (i) => i.item && i.item.toString() === item.toString() && i.pickup === pickup
+        );
+
+        if (virtualInventoryItem) {
+          virtualInventoryItem.quantity -= quantity;
+          if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
+        }
+      }
+
+      await warehouse.save();
+      await Order.findByIdAndDelete(orderId);
+
+      res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting order:', error.message || error);
+      res.status(400).json({
+        message: 'Error deleting order',
+        error: {
+          message: error.message || 'An error occurred',
+          stack: error.stack,
+        },
+      });
+    }
+  },
 
   fetchPendingRemindersToday: async () => {
     try {

@@ -33,6 +33,7 @@ const ManufacturerForm = () => {
     manufacturerContact: "",
     manufacturerEmail: "",
     manufacturerGstno: "",
+    organization: localStorage.getItem("organizationId"),
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -62,11 +63,11 @@ const ManufacturerForm = () => {
           manufacturer: manToEdit.manufacturer,
           manufacturerCompany: manToEdit.manufacturerCompany,
           manufacturerdeliveryAddress: {
-            addressLine1: manToEdit.addressLine1,
-            addressLine2: manToEdit.addressLine2,
-            city: manToEdit.city,
-            state: manToEdit.state,
-            pinCode: manToEdit.pinCode,
+            addressLine1: manToEdit.manufacturerdeliveryAddress?.addressLine1,
+            addressLine2: manToEdit.manufacturerdeliveryAddress?.addressLine2,
+            city: manToEdit.manufacturerdeliveryAddress?.city,
+            state: manToEdit.manufacturerdeliveryAddress?.state,
+            pinCode: manToEdit.manufacturerdeliveryAddress?.pinCode,
           },
           manufacturerContact: manToEdit.manufacturerContact,
           manufacturerEmail: manToEdit.manufacturerEmail,
@@ -105,6 +106,7 @@ const ManufacturerForm = () => {
         manufacturerContact: form.manufacturerContact,
         manufacturerEmail: form.manufacturerEmail,
         manufacturerGstno: form.manufacturerGstno,
+        organization: form.organization,
       });
       console.log(response);
       toast.success("Manufacturer added successfully!");
@@ -145,25 +147,30 @@ const ManufacturerForm = () => {
     }
   };
 
-  const handleItemChange = (e, id, fieldName) => {
-    let name, value;
+  const handleItemChange = (e, id) => {
+    const { name, value } = e.target;
 
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
-    setManufacturer((prevManufacturers) =>
-      prevManufacturers.map((man) =>
-        man._id === id
-          ? {
+    setManufacturer((prevManufacturer) =>
+      prevManufacturer.map((man) => {
+        if (man._id === id) {
+          if (name.startsWith("manufacturerdeliveryAddress.")) {
+            const addressField = name.split(".")[1];
+            return {
+              ...man,
+              manufacturerdeliveryAddress: {
+                ...man.manufacturerdeliveryAddress,
+                [addressField]: value,
+              },
+            };
+          } else {
+            return {
               ...man,
               [name]: value,
-            }
-          : man
-      )
+            };
+          }
+        }
+        return man;
+      })
     );
   };
 
@@ -193,13 +200,13 @@ const ManufacturerForm = () => {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-7">
-                    <th className="py-2 px-4 text-start">Manufacturer Name</th>
-                    <th className="py-2 px-4 text-start">Company</th>
-                    <th className="py-2 px-4 text-start">Address</th>
-                    <th className="py-2 px-4 text-start">Contact</th>
-                    <th className="py-2 px-4 text-start">Email</th>
-                    <th className="py-2 px-4 text-start">GST Number</th>
-                    <th className="py-2 px-4 text-start">Actions</th>
+                    <th className="py-2 px-2 text-start">Manufacturer Name</th>
+                    <th className="py-2 px-2 text-start">Company</th>
+                    <th className="py-2 px-2 text-start">Address</th>
+                    <th className="py-2 px-2 text-start">Contact</th>
+                    <th className="py-2 px-2 text-start">Email</th>
+                    <th className="py-2 px-2 text-start">GST Number</th>
+                    <th className="py-2 px-2 text-start">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="flex flex-col gap-2">
@@ -208,79 +215,79 @@ const ManufacturerForm = () => {
                       key={man._id}
                       className="grid grid-cols-7 items-center border border-[#7F7F7F] rounded-md shadow-md"
                     >
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <input
                             name="manufacturer"
                             type="text"
                             placeholder="Manufacturer Name"
                             value={man.manufacturer}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
                           <span>{man.manufacturer}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <input
                             name="manufacturerCompany"
                             type="text"
                             placeholder="Manufacturer Company"
                             value={man.manufacturerCompany}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
                           <span>{man.manufacturerCompany}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <div className="flex flex-col gap-1">
                             <input
-                              name="addressLine1"
+                              name="manufacturerdeliveryAddress.addressLine1"
                               type="text"
                               placeholder="Address Line 1"
                               value={
                                 man.manufacturerdeliveryAddress?.addressLine1
                               }
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="addressLine2"
+                              name="manufacturerdeliveryAddress.addressLine2"
                               type="text"
                               placeholder="Address Line 2"
                               value={
                                 man.manufacturerdeliveryAddress?.addressLine2
                               }
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="city"
+                              name="manufacturerdeliveryAddress/city"
                               type="text"
                               placeholder="City"
                               value={man.manufacturerdeliveryAddress?.city}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="state"
+                              name="manufacturerdeliveryAddress.state"
                               type="text"
                               placeholder="State"
                               value={man.manufacturerdeliveryAddress?.state}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="pinCode"
+                              name="manufacturerdeliveryAddress.pinCode"
                               type="text"
                               placeholder="Pincode"
                               value={man.manufacturerdeliveryAddress?.pinCode}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                           </div>
@@ -294,42 +301,42 @@ const ManufacturerForm = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <input
                             name="manufacturerContact"
                             type="text"
                             placeholder="Manufacturer Contact'"
                             value={man.manufacturerContact}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
                           <span>{man.manufacturerContact}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <input
                             name="manufacturerEmail"
                             type="email"
                             placeholder="Manufacturer Email"
                             value={man.manufacturerEmail}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
                           <span>{man.manufacturerEmail}</span>
                         )}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 px-2">
                         {man.isEditing ? (
                           <input
                             name="manufacturerGstno"
                             type="text"
                             placeholder="Manufacturer GST No."
                             value={man.manufacturerGstno}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-[170px]"
+                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
@@ -467,7 +474,11 @@ const ManufacturerForm = () => {
               />
             </div>
             <div className="flex gap-4">
-              <Button color="blue" type="submit">
+              <Button
+                color="blue"
+                type="submit"
+                className="flex items-center justify-center"
+              >
                 {loading ? <Spinner /> : <span>Add Manufacturer</span>}
               </Button>
             </div>

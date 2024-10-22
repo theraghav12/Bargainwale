@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Navbar, IconButton, Dialog } from "@material-tailwind/react";
+import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import {
-  useMaterialTailwindController,
-  setOpenConfigurator,
-  setOpenSidenav,
-} from "@/context";
-import { OrganizationProfile, SignedIn, UserButton } from "@clerk/clerk-react";
+  OrganizationProfile,
+  SignedIn,
+  UserButton,
+  useUser,
+} from "@clerk/clerk-react";
 
 // icons
 import {
@@ -15,6 +16,8 @@ import {
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
+import axios from "axios";
+import { API_BASE_URL } from "@/services/api";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -25,6 +28,40 @@ export function DashboardNavbar() {
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
+
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/${user?.organizationMemberships[0]?.organization.id}/organization`
+      );
+      if (response.status === 200) {
+        localStorage.setItem("organizationId", response.data[0]._id);
+      }
+    } catch (err) {
+      console.log("Error:", err);
+    }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("organizationId");
+  };
+
+  useEffect(() => {
+    if (user && user?.organizationMemberships?.length > 0) {
+      fetchData();
+    } else if (user?.organizationMemberships?.length === 0) {
+      navigate("/auth/create-organization");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth/sign-in");
+    }
+  }, [user, navigate]);
 
   return (
     <>
@@ -65,23 +102,19 @@ export function DashboardNavbar() {
               <Bars3Icon strokeWidth={3} className="h-6 w-6 text-white" />
             </IconButton>
             <SignedIn>
-              <UserButton />
+              <UserButton
+                afterSignOutUrl="/auth/sign-in"
+                signOutCallback={handleSignOut}
+              />
               <IconButton
                 variant="text"
                 color="white"
                 onClick={handleOpenOrgProfile} // Toggle modal on click
               >
-                <BuildingOfficeIcon className="h-6 w-6 text-white" />{" "}
+                <BuildingOfficeIcon className="h-6 w-6 text-white" />
                 {/* Icon next to UserButton */}
               </IconButton>
             </SignedIn>
-            <IconButton
-              variant="text"
-              color="white"
-              onClick={() => setOpenConfigurator(dispatch, true)}
-            >
-              <Cog6ToothIcon className="h-5 w-5 text-white" />
-            </IconButton>
           </div>
         </div>
       </Navbar>

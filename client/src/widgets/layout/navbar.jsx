@@ -1,6 +1,6 @@
-import React from "react";
+import { useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Navbar as MTNavbar,
   Collapse,
@@ -11,11 +11,12 @@ import {
 
 // icons
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useUser } from "@clerk/clerk-react";
 
 export function Navbar({ brandName, routes, action }) {
   const [openNav, setOpenNav] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false)

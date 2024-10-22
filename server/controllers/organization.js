@@ -19,9 +19,17 @@ const orgController = {
             res.status(500).json({ message: 'Error retrieving organizations', error });
         }
     },
+    getOrganizationByClerkId: async (req, res) => {
+        try {
+            const organization = await Organization.find({ clerkOrganizationId: req.params.clerkOrgId });
+            res.status(200).json(organization);
+        } catch (error) {
+            res.status(500).json({ message: 'Error retrieving organizations', error });
+        }
+    },
     getOrganizationById: async (req, res) => {
         try {
-            const organization = await Organization.findById(req.params.id).populate('users').populate('inventory');
+            const organization = await Organization.findById(req.params.id);
             if (!organization) {
                 return res.status(404).json({ message: 'Organization not found' });
             }

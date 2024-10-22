@@ -1,4 +1,4 @@
-import Sale from "../models/sale.js"; // Assuming you have a Sale model
+import Sale from "../models/sale.js"; 
 import Warehouse from "../models/warehouse.js";
 import Booking from "../models/booking.js";
 import Transport from "../models/transport.js";
@@ -6,7 +6,7 @@ import Transport from "../models/transport.js";
 const saleController = {
   createSale: async (req, res) => {
     try {
-      const { warehouseId, bookingId, transporterId, items } = req.body;
+      const { warehouseId, transporterId, bookingId, items, organization, invoiceDate } = req.body;
 
       // Fetch the warehouse and booking documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
@@ -46,11 +46,10 @@ const saleController = {
 
       // Process each item in the sale
       for (const item of items) {
-        let { itemId, quantity } = item;
-        quantity=Number(quantity);
-        // Find the booking item
+        const { itemId, quantity, pickup } = item;
+
         const bookingItem = bookingDocument.items.find(
-          (i) => i.item._id.toString() === itemId.toString()
+          (i) => i.item._id.toString() === itemId.toString() && i.pickup === pickup
         );
 
         if (!bookingItem) {
@@ -60,11 +59,9 @@ const saleController = {
           });
         }
 
-        // Calculate the total quantity sold so far for this item
         const totalSoldQuantity =
           (previousSaleQuantities[itemId] || 0) + quantity;
 
-        // Check if the sale quantity exceeds the booking quantity
         if (totalSoldQuantity > bookingItem.quantity) {
           return res.status(400).json({
             success: false,
@@ -72,69 +69,48 @@ const saleController = {
           });
         }
 
-        // Get the sold inventory for this item
-        const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item.toString() === itemId.toString()
-        );
-
-        if (!soldInventoryItem) {
-          return res.status(400).json({
-            success: false,
-            message: `Item ${itemId} not found in sold inventory`,
-          });
-        }
-
-        const totalAvailableQuantity =
-          soldInventoryItem.virtualQuantity + soldInventoryItem.billedQuantity;
-
-        // If the total available quantity is less than the sale quantity, return an error
-        if (totalAvailableQuantity < quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Selling more than what was booked`,
-          });
-        }
-
-        // If billedQuantity alone is not enough, adjust from main inventory
-        if (soldInventoryItem.billedQuantity < quantity) {
-          const remainingQuantity = quantity - soldInventoryItem.billedQuantity;
-
-          // Update soldInventory's billedQuantity to 0 (used up)
-          soldInventoryItem.billedQuantity = 0;
-
-          // Update the main warehouse's inventory
-          const mainInventoryItem = warehouseDocument.billedInventory.find(
-            (i) => i.item.toString() === itemId.toString()
-          );
-
-          if (!mainInventoryItem || mainInventoryItem.quantity < remainingQuantity) {
-            return res.status(400).json({
-              success: false,
-              message: `Not enough items in main billed inventory`,
-            });
-          }
-
-          // Reduce main billed inventory by the remainingQuantity
-          mainInventoryItem.quantity -= remainingQuantity;
-
-          // Transfer from virtual to billed in sold inventory
-          soldInventoryItem.virtualQuantity -= remainingQuantity;
-          warehouseDocument.virtualInventory.find(
-            (i) => i.item.toString() === itemId.toString()
-          ).quantity += remainingQuantity;
-        } else {
-          // If billedQuantity is sufficient, simply reduce it
-          soldInventoryItem.billedQuantity -= quantity;
-        }
-
-        // Determine the status of the booking based on sales
         if (totalSoldQuantity < bookingItem.quantity) {
           isPartiallySold = true;
           isFullySold = false;
         }
+
+        const virtualInventoryItem = warehouseDocument.virtualInventory.find(
+          (i) =>
+            i.item.toString() === itemId.toString() && i.pickup === pickup
+        );
+
+        const soldInventoryItem = warehouseDocument.soldInventory.find(
+          (i) =>
+            i.item.toString() === itemId.toString() && i.pickup === pickup
+        );
+
+        if (virtualInventoryItem) {
+          if (virtualInventoryItem.quantity >= quantity) {
+            virtualInventoryItem.quantity -= quantity;
+
+            if (soldInventoryItem) {
+              soldInventoryItem.quantity += quantity;
+            } else {
+              warehouseDocument.soldInventory.push({
+                item: itemId,
+                quantity,
+              });
+            }
+          } else {
+            return res.status(400).json({
+              success: false,
+              message:
+                "Selling more than what is available in virtual inventory",
+            });
+          }
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: `Selling item that is not in virtual inventory`,
+          });
+        }
       }
 
-      // Update the booking status based on sales
       if (isFullySold && !isPartiallySold) {
         bookingDocument.status = "fully sold";
       } else if (isPartiallySold) {
@@ -143,12 +119,13 @@ const saleController = {
       await bookingDocument.save();
       await warehouseDocument.save();
 
-      // Create and save the new sale
       const newSale = new Sale({
         warehouseId,
         transporterId,
         bookingId,
         items,
+        invoiceDate,
+        organization,
       });
 
       await newSale.save();
@@ -169,11 +146,11 @@ const saleController = {
 
   getAllSales: async (req, res) => {
     try {
-      const sales = await Sale.find()
-        .populate("warehouseId") // Populates the warehouse details
-        .populate("transporterId") // Populates the transporter details
-        .populate("bookingId") // Populates the booking details
-        .populate("items.itemId");// Populates the item details in the items array
+      const sales = await Sale.find({ organization: req.params.orgId })
+        .populate("warehouseId")
+        .populate("transporterId")
+        .populate("bookingId")
+        .populate("items.itemId");
 
       res.status(200).json({
         success: true,
@@ -190,11 +167,12 @@ const saleController = {
 
   getSaleById: async (req, res) => {
     try {
-      const sale = await Sale.findById(req.params.id)
-        .populate("warehouseId") // Populates the warehouse details
-        .populate("transporterId") // Populates the transporter details
-        .populate("bookingId") // Populates the booking details
-        .populate("items.itemId"); // Populates the item details in the items array
+      const { id, orgId } = req.params;
+      const sale = await Sale.findOne({ _id: id, organization: orgId })
+        .populate("warehouseId")
+        .populate("transporterId")
+        .populate("bookingId")
+        .populate("items");
 
       if (!sale) {
         return res.status(404).json({
@@ -235,25 +213,33 @@ const saleController = {
       }
 
       for (const item of sale.items) {
-        const { itemId, quantity } = item;
+        const { itemId, quantity, pickup } = item;
+
+        const virtualInventoryItem = warehouse.virtualInventory.find(
+          (i) =>
+            i.item.toString() === itemId.toString() && i.pickup === pickup
+        );
 
         const soldInventoryItem = warehouse.soldInventory.find(
           (i) => i.item.toString() === itemId.toString()
         );
 
-        if (soldInventoryItem) {
-          soldInventoryItem.virtualQuantity += quantity;
-          if (soldInventoryItem.virtualQuantity === 0) {
-            warehouse.soldInventory = warehouse.soldInventory.filter(
-              (i) => i.item.toString() !== itemId.toString()
-            );
-          }
+        soldInventoryItem.quantity -= quantity;
+        if (virtualInventoryItem) {
+          virtualInventoryItem.quantity += quantity;
+        } else {
+          warehouse.virtualInventory.push({
+            item: itemId,
+            quantity,
+          });
         }
       }
 
       const booking = await Booking.findById(sale.bookingId);
       if (booking) {
-        const remainingSales = await Sale.find({ bookingId: sale.bookingId });
+        const remainingSales = await Sale.find({
+          bookingId: sale.bookingId,
+        });
 
         let isPartiallySold = false;
         let isFullySold = true;
@@ -261,7 +247,7 @@ const saleController = {
         for (const sale of remainingSales) {
           for (const item of sale.items) {
             const bookingItem = booking.items.find(
-              (i) => i.item._id.toString() === item.itemId.toString()
+              (i) => i.item._id.toString() === item.itemId.toString() && i.pickup === pickup
             );
             if (bookingItem) {
               const totalSoldQuantity =

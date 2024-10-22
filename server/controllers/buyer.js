@@ -11,6 +11,7 @@ const buyerController = {
         buyerEmail,
         buyerGstno,
         buyerGooglemaps,
+        organization
       } = req.body;
 
       const newBuyer = new Buyer({
@@ -21,6 +22,7 @@ const buyerController = {
         buyerEmail,
         buyerGstno,
         buyerGooglemaps,
+        organization
       });
 
       await newBuyer.save();
@@ -32,7 +34,7 @@ const buyerController = {
 
   getAllBuyers: async (req, res) => {
     try {
-      const buyers = await Buyer.find();
+      const buyers = await Buyer.find({ organization: req.params.orgId });
       res.status(200).json(buyers);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving buyers", error });
@@ -41,7 +43,8 @@ const buyerController = {
 
   getBuyerById: async (req, res) => {
     try {
-      const buyer = await Buyer.findById(req.params.id);
+      const { id, orgId } = req.params;
+      const buyer = await Buyer.findOne({ _id: id, organization: orgId });
       if (!buyer) {
         return res.status(404).json({ message: "Buyer not found" });
       }
