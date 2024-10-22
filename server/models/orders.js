@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema(
     items: [{
       item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
       quantity: { type: Number, required: true },
+      soldQuantity:{ type: Number, required: true, default:0},
       pickup: {
         type: String,
         enum: ["rack", "depot", "plant"],

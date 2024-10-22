@@ -33,20 +33,20 @@ const purchaseController = {
       }
 
       // Retrieve all previous purchases for this order
-      const previousPurchases = await Purchase.find({ orderId });
-      const previousPurchaseQuantities = {};
+      // const previousPurchases = await Purchase.find({ orderId });
+      // const previousPurchaseQuantities = {};
 
-      for (const purchase of previousPurchases) {
-        for (const item of purchase.items) {
-          if (!previousPurchaseQuantities[item.itemId]) {
-            previousPurchaseQuantities[item.itemId] = 0;
-          }
-          previousPurchaseQuantities[item.itemId] += item.quantity;
-        }
-      }
+      // for (const purchase of previousPurchases) {
+      //   for (const item of purchase.items) {
+      //     if (!previousPurchaseQuantities[item.itemId]) {
+      //       previousPurchaseQuantities[item.itemId] = 0;
+      //     }
+      //     previousPurchaseQuantities[item.itemId] += item.quantity;
+      //   }
+      // }
 
-      let isPartiallyPaid = false;
-      let isFullyPaid = true;
+      // let isPartiallyPaid = false;
+      // let isFullyPaid = true;
 
       // Process each item in the purchase
       for (const item of items) {
@@ -68,8 +68,9 @@ const purchaseController = {
         }
 
         // Calculate the total quantity purchased so far for this item
-        const totalPurchasedQuantity =
-          (previousPurchaseQuantities[itemId] || 0) + quantity;
+
+        // const totalPurchasedQuantity = (previousPurchaseQuantities[itemId] || 0) + quantity;
+        let totalPurchasedQuantity = (orderItem.soldQuantity || 0) + quantity;
 
         // Check if the purchase quantity exceeds the order quantity
         if (totalPurchasedQuantity > orderItem.quantity) {
@@ -80,9 +81,10 @@ const purchaseController = {
         }
 
         // Determine the status of the order based on purchases
-        if (totalPurchasedQuantity < orderItem.quantity) {
-          isPartiallyPaid = true;
-          isFullyPaid = false;
+        if (totalPurchasedQuantity <= orderItem.quantity) {
+          // console.log(orderItem.soldQuantity);
+          orderItem.soldQuantity=totalPurchasedQuantity;
+          // console.log(orderItem.soldQuantity);
         }
 
         // Adjust virtual and billed inventory
@@ -126,12 +128,27 @@ const purchaseController = {
           });
         }
       }
-      // Update the order status based on payment
-      if (isFullyPaid && !isPartiallyPaid) {
-        orderDocument.status = "billed";
-      } else if (isPartiallyPaid) {
-        orderDocument.status = "partially paid";
+
+      let isFullyPaid=true;
+
+      for(const item of orderDocument.items){
+        if(item.quantity!=item.soldQuantity){
+          isFullyPaid=false;
+          break;
+        }
       }
+      if(isFullyPaid){
+        orderDocument.status="billed";
+      }else{
+        orderDocument.status="partially paid";
+      }
+
+      // Update the order status based on payment
+      // if (isFullyPaid && !isPartiallyPaid) {
+      //   orderDocument.status = "billed";
+      // } else if (isPartiallyPaid) {
+      //   orderDocument.status = "partially paid";
+      // }
       await orderDocument.save();
       await warehouseDocument.save();
 
