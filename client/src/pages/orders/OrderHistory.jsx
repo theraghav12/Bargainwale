@@ -170,6 +170,8 @@ export function OrderHistory() {
     }
   };
 
+  console.log(orders);
+
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -350,7 +352,11 @@ export function OrderHistory() {
                                           "Item Name",
                                           "Packaging",
                                           "Weight",
+                                          "Cont. No.",
+                                          "Pickup",
                                           "Static Price (Rs.)",
+                                          "GST",
+                                          "Tax Paid Amt.",
                                           "Quantity",
                                         ].map((header) => (
                                           <th
@@ -378,7 +384,26 @@ export function OrderHistory() {
                                             {item.item.netweight}
                                           </td>
                                           <td className="py-4 text-center">
+                                            {item.contNumber}
+                                          </td>
+                                          <td className="py-4 text-center">
+                                            {item.pickup}
+                                          </td>
+                                          <td className="py-4 text-center">
                                             {item.item.staticPrice}
+                                          </td>
+                                          <td className="py-4 text-center">
+                                            {item.igst ? (
+                                              <span>{item.igst}% (IGST)</span>
+                                            ) : (
+                                              <span>
+                                                {item.cgst}% (CGST) +{" "}
+                                                {item.sgst}&
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="py-4 text-center">
+                                            {item.taxpaidAmount}
                                           </td>
                                           <td className="py-4 text-center">
                                             {item.quantity}

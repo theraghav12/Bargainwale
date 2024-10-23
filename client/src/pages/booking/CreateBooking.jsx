@@ -13,6 +13,7 @@ import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 import { createOrder } from "@/services/orderService";
 import { createBooking } from "@/services/bookingService";
+import { getPricesById } from "@/services/itemService";
 
 const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
@@ -200,12 +201,37 @@ const CreateBooking = () => {
     }));
   };
 
-  const handleItemChange = (index, field, value) => {
+  const handleItemChange = async (index, field, value) => {
     const updatedItems = [...form.items];
     if (field === "quantity" || field === "baseRate") {
       value = Number(value) || null;
     }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
+    try {
+      if (
+        updatedItems[index].item &&
+        updatedItems[index].pickup &&
+        form.warehouse
+      ) {
+        const response = await getPricesById(
+          updatedItems[index].item,
+          form.warehouse
+        );
+        if (response.status === 200) {
+          if (updatedItems[index].pickup === "rack") {
+            updatedItems[index].baseRate = response.data.rackPrice;
+          } else if (updatedItems[index].pickup === "plant") {
+            updatedItems[index].baseRate = response.data.plantPrice;
+          } else {
+            updatedItems[index].baseRate = response.data.depoPrice;
+          }
+        }
+      }
+    } catch (err) {
+      if (err.response.status === 404) {
+        toast.error("Item price not updated for selected warehouse");
+      }
+    }
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
@@ -644,11 +670,7 @@ const CreateBooking = () => {
                           name="quantity"
                           value={item.quantity}
                           onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "quantity",
-                              e.target.value
-                            )
+                            handleItemChange(index, "quantity", e.target.value)
                           }
                           required
                           placeholder="Quantity"
@@ -702,9 +724,10 @@ const CreateBooking = () => {
                           onChange={(e) =>
                             handleItemChange(index, "baseRate", e.target.value)
                           }
+                          disabled
                           required
                           placeholder="Base Rate"
-                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] bg-white text-center px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 text-center">{item.taxpaidAmount}</td>

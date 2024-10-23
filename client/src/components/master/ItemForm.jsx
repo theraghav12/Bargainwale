@@ -316,7 +316,7 @@ const ItemForm = () => {
                             className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
-                          <span>{item.gst}</span>
+                          <span>{item.gst}%</span>
                         )}
                       </td>
                       <td className="py-2 px-2">

@@ -95,14 +95,14 @@ const CreateOrder = () => {
 
       console.log();
 
-      // const response = await createOrder(updatedForm);
+      const response = await createOrder(updatedForm);
 
-      // if (response.status === 201) {
-      //   toast.success("Order created successfully!");
-      // } else {
-      //   toast.error(`Unexpected status code: ${response.status}`);
-      //   console.error("Unexpected response:", response);
-      // }
+      if (response.status === 201) {
+        toast.success("Order created successfully!");
+      } else {
+        toast.error(`Unexpected status code: ${response.status}`);
+        console.error("Unexpected response:", response);
+      }
       setForm({
         items: [],
         inco: "",
@@ -532,9 +532,6 @@ const CreateOrder = () => {
                     <th className="py-4 px-2 text-center">Base Rate</th>
                     <th className="py-4 px-2 text-center">Tax Paid Amount</th>
                     <th className="py-4 px-2 text-center">GST</th>
-                    {/* <th className="py-4 px-2 text-center">Inco</th>
-                    <th className="py-4 px-2 text-center">Payment Date</th>
-                    <th className="py-4 px-2 text-center">Description</th> */}
                     <th className="py-4 px-2 text-center">Action</th>
                   </tr>
                 </thead>

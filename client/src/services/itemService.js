@@ -23,6 +23,16 @@ export const getPricesByWarehouse = async (warehouseId) => {
     }
 };
 
+export const getPricesById = async (itemId, warehouseId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/warehouse/${warehouseId}/itemprice/${itemId}`);
+        return response;
+    } catch (error) {
+        console.error("Error fetching prices:", error);
+        throw error;
+    }
+};
+
 export const getPrices = async (warehouseId) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/${orgId}/prices`);
