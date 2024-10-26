@@ -125,6 +125,7 @@ const BuyerForm = () => {
         buyerEmail: "",
         buyerGstno: "",
         buyerGooglemaps: "",
+        organization: localStorage.getItem("organizationId"),
       });
       fetchBuyers();
     } catch (error) {
@@ -326,7 +327,7 @@ const BuyerForm = () => {
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
-                          <span>{buyer.buyerEmail}</span>
+                          <span className="break-words">{buyer.buyerEmail}</span>
                         )}
                       </td>
                       <td className="py-2 px-2">

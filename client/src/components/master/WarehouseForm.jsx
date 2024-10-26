@@ -106,6 +106,7 @@ const WarehouseForm = () => {
         state: "",
         city: "",
         warehouseManager: "",
+        organization: localStorage.getItem("organizationId"),
       });
       fetchWarehouses();
     } catch (error) {

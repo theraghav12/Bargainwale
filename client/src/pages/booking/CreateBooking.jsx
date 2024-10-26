@@ -202,6 +202,11 @@ const CreateBooking = () => {
   };
 
   const handleItemChange = async (index, field, value) => {
+    if (!form.warehouse) {
+      toast.error("Please select a warehouse first");
+      return;
+    }
+
     const updatedItems = [...form.items];
     if (field === "quantity" || field === "baseRate") {
       value = Number(value) || null;

@@ -88,6 +88,7 @@ const TransportForm = () => {
         transportType: "",
         transportContact: "",
         transportAgency: "",
+        organization: localStorage.getItem("organizationId"),
       });
       fetchTransport();
     } catch (error) {

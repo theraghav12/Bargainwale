@@ -77,10 +77,14 @@ const ItemForm = () => {
     if (itemToEdit.isEditing) {
       try {
         const data = {
-          name: itemToEdit.name,
+          flavor: itemToEdit.flavor,
+          material: itemToEdit.material,
+          materialdescription: itemToEdit.materialdescription,
+          netweight: itemToEdit.netweight,
+          grossweight: itemToEdit.grossweight,
+          gst: itemToEdit.gst,
           packaging: itemToEdit.packaging,
-          type: itemToEdit.type,
-          weight: itemToEdit.weight,
+          packsize: itemToEdit.packsize,
           staticPrice: itemToEdit.staticPrice,
         };
         await updateItem(data, id);
@@ -121,6 +125,7 @@ const ItemForm = () => {
         packsize: "",
         staticPrice: "",
         warehouses: [],
+        organization: localStorage.getItem("organizationId"),
       });
       fetchItems();
     } catch (error) {
@@ -195,6 +200,7 @@ const ItemForm = () => {
               <table className="w-full bg-white">
                 <thead>
                   <tr className="grid grid-cols-11">
+                    <th className="py-2 px-4 text-start">Item Id</th>
                     <th className="py-2 px-4 text-start">Name</th>
                     <th className="py-2 px-4 text-start">Flavor</th>
                     <th className="py-2 px-4 text-start">Material</th>
@@ -204,7 +210,6 @@ const ItemForm = () => {
                     <th className="py-2 px-4 text-start">GST</th>
                     <th className="py-2 px-4 text-start">Packaging</th>
                     <th className="py-2 px-4 text-start">Pack Size</th>
-                    <th className="py-2 px-4 text-start">Static Price</th>
                     <th className="py-2 px-4 text-start">Actions</th>
                   </tr>
                 </thead>
@@ -214,6 +219,21 @@ const ItemForm = () => {
                       key={item._id}
                       className="grid grid-cols-11 items-center border border-[#7F7F7F] rounded-md shadow-md"
                     >
+                      <td className="py-2 px-2">
+                        {item.isEditing ? (
+                          <input
+                            name="staticPrice"
+                            type="number"
+                            value={item.staticPrice}
+                            onChange={(e) => handleItemChange(e, item._id)}
+                            required
+                            placeholder="Static Price"
+                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
+                          />
+                        ) : (
+                          <span className="break-words">{item._id}</span>
+                        )}
+                      </td>
                       <td className="py-2 px-2">
                         {item.isEditing ? (
                           <input
@@ -355,21 +375,6 @@ const ItemForm = () => {
                           />
                         ) : (
                           <span>{item.packsize}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="staticPrice"
-                            type="number"
-                            value={item.staticPrice}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Static Price"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.staticPrice}</span>
                         )}
                       </td>
                       <td className="py-2 px-4 flex gap-2">
@@ -523,14 +528,6 @@ const ItemForm = () => {
                 label="Pack Size"
                 type="number"
                 value={form.packsize}
-                onChange={handleChange}
-                required
-              />
-              <Input
-                name="staticPrice"
-                label="Static Price"
-                type="number"
-                value={form.staticPrice}
                 onChange={handleChange}
                 required
               />

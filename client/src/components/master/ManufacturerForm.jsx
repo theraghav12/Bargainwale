@@ -121,6 +121,7 @@ const ManufacturerForm = () => {
         manufacturerContact: "",
         manufacturerEmail: "",
         manufacturerGstno: "",
+        organization: localStorage.getItem("organizationId"),
       });
       fetchManufacturers();
     } catch (error) {
@@ -326,7 +327,7 @@ const ManufacturerForm = () => {
                             onChange={(e) => handleItemChange(e, man._id)}
                           />
                         ) : (
-                          <span>{man.manufacturerEmail}</span>
+                          <span className="break-words">{man.manufacturerEmail}</span>
                         )}
                       </td>
                       <td className="py-2 px-2">

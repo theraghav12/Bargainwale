@@ -177,6 +177,7 @@ const CreateOrder = () => {
           pickup: "",
           baseRate: null,
           taxpaidAmount: null,
+          taxableAmount: null,
           contNumber: null,
           gst: null,
           cgst: null,
@@ -236,6 +237,11 @@ const CreateOrder = () => {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
       updatedItems[index].taxpaidAmount = quantity * baseRate;
+      updatedItems[index].taxableAmount =
+        updatedItems[index].taxpaidAmount +
+        (updatedItems[index].taxpaidAmount *
+          updatedItems[index].gst) /
+          100;
     }
 
     // Update the form state
@@ -532,6 +538,7 @@ const CreateOrder = () => {
                     <th className="py-4 px-2 text-center">Base Rate</th>
                     <th className="py-4 px-2 text-center">Tax Paid Amount</th>
                     <th className="py-4 px-2 text-center">GST</th>
+                    <th className="py-4 px-2 text-center">Taxable Amount</th>
                     <th className="py-4 px-2 text-center">Action</th>
                   </tr>
                 </thead>
@@ -703,6 +710,9 @@ const CreateOrder = () => {
                             </span>
                           </>
                         )}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.taxableAmount}
                       </td>
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
