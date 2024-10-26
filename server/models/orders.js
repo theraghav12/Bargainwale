@@ -10,40 +10,42 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    items: [{
-      item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
-      quantity: { type: Number, required: true },
-      soldQuantity:{ type: Number, required: true, default:0},
-      pickup: {
-        type: String,
-        enum: ["rack", "depot", "plant"],
-        default: "rack",
+    items: [
+      {
+        item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
+        quantity: { type: Number, required: true },
+        purchaseQuantity: { type: Number, required: true, default: 0 },
+        pickup: {
+          type: String,
+          enum: ["rack", "depot", "plant"],
+          default: "rack",
+        },
+        baseRate: {
+          type: Number,
+        },
+        taxpaidAmount: {
+          type: Number,
+        },
+        gst: {
+          type: Number,
+        },
+        cgst: {
+          type: Number,
+        },
+        sgst: {
+          type: Number,
+        },
+        igst: {
+          type: Number,
+        },
+        taxableAmount: {
+          type: Number,
+        },
+        contNumber: {
+          type: Number,
+        },
       },
-      baseRate: {
-        type: Number,
-      },
-      taxpaidAmount: {
-        type: Number,
-      },
-      gst: {
-        type: Number,
-      },
-      cgst: {
-        type: Number,
-      },
-      sgst: {
-        type: Number,
-      },
-      igst: {
-        type: Number,
-      },
-      taxableAmount: {
-        type: Number,
-      },
-      contNumber: {
-        type: Number,
-      },
-    }],
+    ],
     totalAmount: {
       type: Number,
     },
@@ -68,12 +70,12 @@ const orderSchema = new mongoose.Schema(
     },
     warehouse: {
       type: mongoose.Schema.ObjectId,
-      ref: "Warehouse",  // Reference to Warehouse schema
+      ref: "Warehouse", // Reference to Warehouse schema
       required: true,
     },
     manufacturer: {
       type: mongoose.Schema.ObjectId,
-      ref: "Manufacturer",  // Reference to Manufacturer schema
+      ref: "Manufacturer", // Reference to Manufacturer schema
       required: true,
     },
     paymentDays: {

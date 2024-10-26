@@ -6,7 +6,14 @@ import Transport from "../models/transport.js";
 const purchaseController = {
   createPurchase: async (req, res) => {
     try {
-      const { warehouseId, transporterId, orderId, items, invoiceDate, organization } = req.body;
+      const {
+        warehouseId,
+        transporterId,
+        orderId,
+        items,
+        invoiceDate,
+        organization,
+      } = req.body;
       // console.log(items);
       // Fetch the warehouse and order documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
@@ -30,7 +37,7 @@ const purchaseController = {
           success: false,
           message: "Purchase cannot be created for a fully billed order",
         });
-      }
+      } 
 
       // Retrieve all previous purchases for this order
       // const previousPurchases = await Purchase.find({ orderId });
@@ -53,12 +60,12 @@ const purchaseController = {
         const { itemId, quantity, pickup } = item;
 
         // Find the order item
-        const orderItem = orderDocument.items.find(
-          (i) => {
-            // console.log(orderDocument.items);
-            return (i.item._id.toString() === itemId.toString() && i.pickup == pickup);
-          }
-        );
+        const orderItem = orderDocument.items.find((i) => {
+          // console.log(orderDocument.items);
+          return (
+            i.item._id.toString() === itemId.toString() && i.pickup == pickup
+          );
+        });
 
         if (!orderItem) {
           return res.status(400).json({
@@ -70,7 +77,7 @@ const purchaseController = {
         // Calculate the total quantity purchased so far for this item
 
         // const totalPurchasedQuantity = (previousPurchaseQuantities[itemId] || 0) + quantity;
-        let totalPurchasedQuantity = (orderItem.soldQuantity || 0) + quantity;
+        let totalPurchasedQuantity =(orderItem.purchaseQuantity || 0) + quantity;
 
         // Check if the purchase quantity exceeds the order quantity
         if (totalPurchasedQuantity > orderItem.quantity) {
@@ -82,20 +89,18 @@ const purchaseController = {
 
         // Determine the status of the order based on purchases
         if (totalPurchasedQuantity <= orderItem.quantity) {
-          // console.log(orderItem.soldQuantity);
-          orderItem.soldQuantity=totalPurchasedQuantity;
-          // console.log(orderItem.soldQuantity);
+          // console.log(orderItem.purchaseQuantity);
+          orderItem.purchaseQuantity = totalPurchasedQuantity;
+          // console.log(orderItem.purchaseQuantity);
         }
 
         // Adjust virtual and billed inventory
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) =>
-            i.item.toString() === itemId.toString() && i.pickup === pickup
+          (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) =>
-            i.item.toString() === itemId.toString() && i.pickup === pickup
+          (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         let billedInventoryItem = warehouseDocument.billedInventory.find(
@@ -129,18 +134,18 @@ const purchaseController = {
         }
       }
 
-      let isFullyPaid=true;
+      let isFullyPaid = true;
 
-      for(const item of orderDocument.items){
-        if(item.quantity!=item.soldQuantity){
-          isFullyPaid=false;
+      for (const item of orderDocument.items) {
+        if (item.quantity != item.purchaseQuantity) {
+          isFullyPaid = false;
           break;
         }
       }
-      if(isFullyPaid){
-        orderDocument.status="billed";
-      }else{
-        orderDocument.status="partially paid";
+      if (isFullyPaid) {
+        orderDocument.status = "billed";
+      } else {
+        orderDocument.status = "partially paid";
       }
 
       // Update the order status based on payment
@@ -168,7 +173,7 @@ const purchaseController = {
         orderId,
         items,
         invoiceDate,
-        organization
+        organization,
       });
 
       // console.log(newPurchase);
@@ -260,12 +265,10 @@ const purchaseController = {
         const { itemId, quantity, pickup } = item;
         // console.log(itemId, quantity, pickup);
 
-        const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => {
-            // console.log(i.pickup);
-            return (i.item.toString() === itemId.toString() && i.pickup == pickup)
-          }
-        );
+        const virtualInventoryItem = warehouse.virtualInventory.find((i) => {
+          // console.log(i.pickup);
+          return i.item.toString() === itemId.toString() && i.pickup == pickup;
+        });
 
         const billedInventoryItem = warehouse.billedInventory.find(
           (i) => i.item.toString() === itemId.toString()
@@ -293,12 +296,13 @@ const purchaseController = {
 
         for (const purchase of remainingPurchases) {
           for (const item of purchase.items) {
-            const orderItem = order.items.find(
-              (i) => {
-                // console.log(i.pickup);
-                return (i.item._id.toString() === item.itemId.toString() && i.pickup == pickup)
-              }
-            );
+            const orderItem = order.items.find((i) => {
+              // console.log(i.pickup);
+              return (
+                i.item._id.toString() === item.itemId.toString() &&
+                i.pickup == pickup
+              );
+            });
             if (orderItem) {
               const totalPurchasedQuantity =
                 (previousPurchaseQuantities[item.itemId] || 0) + item.quantity;

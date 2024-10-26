@@ -13,8 +13,8 @@ const bookingSchema = new mongoose.Schema(
     items: [
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
-
         quantity: { type: Number, required: true },
+        soldQuantity: { type: Number, required: true, default: 0 },
         pickup: {
           type: String,
           enum: ["rack", "depot", "plant"],
@@ -43,21 +43,17 @@ const bookingSchema = new mongoose.Schema(
         },
         rackPrice: {
           type: Number,
-
         },
         plantPrice: {
           type: Number,
-
         },
         depoPrice: {
           type: Number,
-
         },
       },
     ],
     totalAmount: {
       type: Number,
-
     },
     validity: {
       type: Number,
