@@ -7,7 +7,14 @@ import ItemHistory from "../models/itemHistory.js";
 const saleController = {
   createSale: async (req, res) => {
     try {
-      const { warehouseId, transporterId, bookingId, items, organization, invoiceDate } = req.body;
+      const {
+        warehouseId,
+        transporterId,
+        bookingId,
+        items,
+        organization,
+        invoiceDate,
+      } = req.body;
 
       // Fetch the warehouse and booking documents
       const warehouseDocument = await Warehouse.findById(warehouseId);
@@ -32,27 +39,28 @@ const saleController = {
       }
 
       // Retrieve all previous sales for this booking
-      const previousSales = await Sale.find({ bookingId });
-      const previousSaleQuantities = {};
+      // const previousSales = await Sale.find({ bookingId });
+      // const previousSaleQuantities = {};
 
-      for (const sale of previousSales) {
-        for (const item of sale.items) {
-          if (!previousSaleQuantities[item.itemId]) {
-            previousSaleQuantities[item.itemId] = 0;
-          }
-          previousSaleQuantities[item.itemId] += item.quantity;
-        }
-      }
+      // for (const sale of previousSales) {
+      //   for (const item of sale.items) {
+      //     if (!previousSaleQuantities[item.itemId]) {
+      //       previousSaleQuantities[item.itemId] = 0;
+      //     }
+      //     previousSaleQuantities[item.itemId] += item.quantity;
+      //   }
+      // }
 
-      let isPartiallySold = false;
-      let isFullySold = true;
+      // let isPartiallySold = false;
+      // let isFullySold = true;
 
       // Process each item in the sale
       for (const item of items) {
         const { itemId, quantity, pickup } = item;
 
         const bookingItem = bookingDocument.items.find(
-          (i) => i.item._id.toString() === itemId.toString() && i.pickup === pickup
+          (i) =>
+            i.item._id.toString() === itemId.toString() && i.pickup === pickup
         );
 
         if (!bookingItem) {
@@ -63,7 +71,7 @@ const saleController = {
         }
 
         const totalSoldQuantity =
-          (previousSaleQuantities[itemId] || 0) + quantity;
+          (bookingItem.soldQuantity || 0) + quantity;
 
         if (totalSoldQuantity > bookingItem.quantity) {
           return res.status(400).json({
@@ -73,18 +81,17 @@ const saleController = {
         }
 
         if (totalSoldQuantity < bookingItem.quantity) {
-          isPartiallySold = true;
-          isFullySold = false;
+          // isPartiallySold = true;
+          // isFullySold = false;
+          bookingItem.soldQuantity = totalSoldQuantity;
         }
 
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) =>
-            i.item.toString() === itemId.toString() && i.pickup === pickup
+          (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         const soldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) =>
-            i.item.toString() === itemId.toString() && i.pickup === pickup
+          (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         if (virtualInventoryItem) {
@@ -229,8 +236,7 @@ const saleController = {
         const { itemId, quantity, pickup } = item;
 
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) =>
-            i.item.toString() === itemId.toString() && i.pickup === pickup
+          (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
         const soldInventoryItem = warehouse.soldInventory.find(
@@ -260,12 +266,14 @@ const saleController = {
         for (const sale of remainingSales) {
           for (const item of sale.items) {
             const bookingItem = booking.items.find(
-              (i) => i.item._id.toString() === item.itemId.toString() && i.pickup === pickup
+              (i) =>
+                i.item._id.toString() === item.itemId.toString() &&
+                i.pickup === pickup
             );
             if (bookingItem) {
-              const totalSoldQuantity =
+              const totalPurchaseQuantity =
                 (previousSaleQuantities[item.itemId] || 0) + item.quantity;
-              if (totalSoldQuantity < bookingItem.quantity) {
+              if (totalPurchaseQuantity < bookingItem.quantity) {
                 isPartiallySold = true;
                 isFullySold = false;
               }
