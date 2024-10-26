@@ -67,8 +67,7 @@ const saleController = {
           });
         }
 
-        const totalSoldQuantity =
-          (bookingItem.soldQuantity || 0) + quantity;
+        const totalSoldQuantity = (bookingItem.soldQuantity || 0) + quantity;
 
         if (totalSoldQuantity > bookingItem.quantity) {
           return res.status(400).json({
@@ -77,52 +76,63 @@ const saleController = {
           });
         }
 
-        if (totalSoldQuantity < bookingItem.quantity) {
-          // isPartiallySold = true;
-          // isFullySold = false;
-          bookingItem.soldQuantity = totalSoldQuantity;
-        }
-
         const virtualInventoryItem = warehouseDocument.virtualInventory.find(
           (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
-        const soldInventoryItem = warehouseDocument.soldInventory.find(
+        const billedInventoryItem = warehouseDocument.billedInventory.find(
+          (i) => i.item.toString() === itemId.toString() 
+        );
+
+        const soldInventoryItem = warehouseDocument.soldInventory.find( 
           (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
-        if (virtualInventoryItem) {
-          if (virtualInventoryItem.quantity >= quantity) {
-            virtualInventoryItem.quantity -= quantity;
-
-            if (soldInventoryItem) {
-              soldInventoryItem.quantity += quantity;
-            } else {
-              warehouseDocument.soldInventory.push({
-                item: itemId,
-                quantity,
-              });
-            }
+        if (billedInventoryItem) {
+          if (billedInventoryItem.quantity >= quantity) {
+            billedInventoryItem.quantity -= quantity;
+            soldInventoryItem.quantity -= quantity;
+            virtualInventoryItem.quantity += quantity;
           } else {
             return res.status(400).json({
               success: false,
               message:
-                "Selling more than what is available in virtual inventory",
+                "Selling more than what is available in billed inventory",
             });
           }
         } else {
           return res.status(400).json({
             success: false,
-            message: `Selling item that is not in virtual inventory`,
+            message: `Selling item that is not in billed inventory`,
           });
+        }
+
+        if (totalSoldQuantity <= bookingItem.quantity) {
+          // isPartiallySold = true;
+          // isFullySold = false;
+          bookingItem.soldQuantity = totalSoldQuantity;
         }
       }
 
-      if (isFullySold && !isPartiallySold) {
+      let isFullySold = true;
+
+      for (const item of bookingDocument.items) {
+        if (item.quantity != item.soldQuantity) {
+          isFullySold = false;
+          break;
+        }
+      }
+      if (isFullySold) {
         bookingDocument.status = "fully sold";
-      } else if (isPartiallySold) {
+      } else {
         bookingDocument.status = "partially sold";
       }
+
+      // if (isFullySold && !isPartiallySold) {
+      //   bookingDocument.status = "fully sold";
+      // } else if (isPartiallySold) {
+      //   bookingDocument.status = "partially sold";
+      // }
       await bookingDocument.save();
       await warehouseDocument.save();
 
