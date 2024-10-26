@@ -2,6 +2,7 @@ import Purchase from "../models/purchase.js";
 import Warehouse from "../models/warehouse.js";
 import Order from "../models/orders.js";
 import Transport from "../models/transport.js";
+import ItemHistory from "../models/itemHistory.js";
 
 const purchaseController = {
   createPurchase: async (req, res) => {
@@ -83,7 +84,7 @@ const purchaseController = {
         // Determine the status of the order based on purchases
         if (totalPurchasedQuantity <= orderItem.quantity) {
           // console.log(orderItem.soldQuantity);
-          orderItem.soldQuantity=totalPurchasedQuantity;
+          orderItem.soldQuantity = totalPurchasedQuantity;
           // console.log(orderItem.soldQuantity);
         }
 
@@ -114,6 +115,16 @@ const purchaseController = {
                 quantity,
               });
             }
+
+            await ItemHistory.create({
+              item: itemId,
+              sourceModel: "Order",
+              source: orderId,
+              destinationModel: "Warehouse",
+              destination: warehouseId,
+              quantity,
+              organization,
+            });
           } else {
             return res.status(400).json({
               success: false,
@@ -129,18 +140,18 @@ const purchaseController = {
         }
       }
 
-      let isFullyPaid=true;
+      let isFullyPaid = true;
 
-      for(const item of orderDocument.items){
-        if(item.quantity!=item.soldQuantity){
-          isFullyPaid=false;
+      for (const item of orderDocument.items) {
+        if (item.quantity != item.soldQuantity) {
+          isFullyPaid = false;
           break;
         }
       }
-      if(isFullyPaid){
-        orderDocument.status="billed";
-      }else{
-        orderDocument.status="partially paid";
+      if (isFullyPaid) {
+        orderDocument.status = "billed";
+      } else {
+        orderDocument.status = "partially paid";
       }
 
       // Update the order status based on payment

@@ -3,6 +3,7 @@ import Booking from "../models/booking.js";
 import Warehouse from "../models/warehouse.js";
 import Buyer from "../models/buyer.js";
 import Item from "../models/items.js";
+import ItemHistory from "../models/itemHistory.js";
 
 const bookingController = {
   createBooking: async (req, res) => {
@@ -121,6 +122,16 @@ const bookingController = {
         } else {
           existingSoldInventoryItem.quantity += quantity;
         }
+
+        await ItemHistory.create({
+          item: itemId,
+          sourceModel: "Warehouse",
+          source: warehouseId,
+          destinationModel: "Buyer",
+          destination: buyer,
+          quantity,
+          organization,
+        });
       }
 
       await warehouseDocument.save();
