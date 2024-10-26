@@ -52,3 +52,13 @@ export const addPrice = async (data) => {
         throw error;
     }
 };
+
+export const getItemHistoryById = async (itemId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/pricehistory/${itemId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching prices:", error);
+        throw error;
+    }
+};

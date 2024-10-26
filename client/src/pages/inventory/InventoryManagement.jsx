@@ -13,6 +13,7 @@ import InventorySidenav from "@/widgets/layout/InventorySidenav";
 // api services
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { getItemHistoryById } from "@/services/itemService";
 
 export function Inventory() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
@@ -22,6 +23,8 @@ export function Inventory() {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [pickupFilter, setPickupFilter] = useState("all");
+  const [expandedItem, setExpandedItem] = useState(null);
+  const [itemHistory, setItemHistory] = useState([]);
 
   useEffect(() => {
     fetchWarehouses();
@@ -37,10 +40,24 @@ export function Inventory() {
   const fetchWarehouses = async () => {
     try {
       const response = await getWarehouses();
-      console.log(response);
       setWarehouses(response);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const handleItemClick = async (itemId) => {
+    if (expandedItem === itemId) {
+      setExpandedItem(null);
+      setItemHistory([]);
+    } else {
+      setExpandedItem(itemId);
+      try {
+        const history = await getItemHistoryById(itemId);
+        setItemHistory(history);
+      } catch (error) {
+        console.log("Failed to fetch item history", error);
+      }
     }
   };
 
@@ -65,8 +82,6 @@ export function Inventory() {
         ? inventory
         : inventory.filter((item) => item.pickup === pickupFilter);
 
-    console.log(filteredInventory);
-
     return (
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-5 mb-8 ">
         <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
@@ -84,7 +99,6 @@ export function Inventory() {
                     }`}
                   >
                     <th className="py-2 px-4 text-start">Item Name</th>
-                    {/* <th className="py-2 px-4 text-start">Weight (kg)</th> */}
                     <th className="py-2 px-4 text-start">Quantity</th>
                     {inventoryType === "sold" && (
                       <th className="py-2 px-4 text-start">Virtual Quantity</th>
@@ -93,19 +107,49 @@ export function Inventory() {
                 </thead>
                 <tbody className="flex flex-col gap-2">
                   {filteredInventory.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={`grid grid-cols-${
-                        inventoryType === "sold" ? "3" : "2"
-                      } items-center border border-[#7F7F7F] rounded-md shadow-md`}
-                    >
-                      <td className="px-4 py-2">{item.item}</td>
-                      {/* <td className="px-4 py-2">{item.weight}</td> */}
-                      <td className="px-4 py-2">{item.quantity}</td>
-                      {inventoryType === "sold" && (
-                        <td className="px-4 py-2">{item.virtualQuantity}</td>
+                    <React.Fragment key={index}>
+                      <tr
+                        className={`grid grid-cols-${
+                          inventoryType === "sold" ? "3" : "2"
+                        } items-center border border-[#7F7F7F] rounded-md shadow-md cursor-pointer`}
+                        onClick={() => handleItemClick(item._id)}
+                      >
+                        <td className="px-4 py-2">{item.item}</td>
+                        <td className="px-4 py-2">{item.quantity}</td>
+                        {inventoryType === "sold" && (
+                          <td className="px-4 py-2">{item.virtualQuantity}</td>
+                        )}
+                      </tr>
+                      {expandedItem === item.id && (
+                        <tr className="bg-gray-100">
+                          <td colSpan={inventoryType === "sold" ? 3 : 2}>
+                            <div className="p-4">
+                              <h3 className="font-semibold text-gray-600 mb-2">
+                                Item History
+                              </h3>
+                              {itemHistory.length > 0 ? (
+                                <ul>
+                                  {itemHistory.map((history, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="flex justify-between mb-2"
+                                    >
+                                      <span>Quantity: {history.quantity}</span>
+                                      <span>Source: {history.sourceName}</span>
+                                      <span>
+                                        Destination: {history.destinationName}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p>No history available for this item.</p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </tr>
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
