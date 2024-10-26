@@ -2,6 +2,7 @@ import Sale from "../models/sale.js";
 import Warehouse from "../models/warehouse.js";
 import Booking from "../models/booking.js";
 import Transport from "../models/transport.js";
+import ItemHistory from "../models/itemHistory.js";
 
 const saleController = {
   createSale: async (req, res) => {
@@ -24,6 +25,8 @@ const saleController = {
       const bookingDocument = await Booking.findById(bookingId).populate(
         "items.item"
       );
+      const booking = await Booking.findById(bookingId);
+
       if (!bookingDocument) {
         return res.status(404).json({ message: "Booking not found" });
       }

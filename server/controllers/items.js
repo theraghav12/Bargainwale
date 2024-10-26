@@ -66,7 +66,7 @@ const itemController = {
 
   updateItem: async (req, res) => {
     try {
-      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice } = req.body;
+      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses } = req.body;
 
       const updatedItem = await Item.findByIdAndUpdate(
         req.params.id,

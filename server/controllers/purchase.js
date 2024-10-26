@@ -2,6 +2,7 @@ import Purchase from "../models/purchase.js";
 import Warehouse from "../models/warehouse.js";
 import Order from "../models/orders.js";
 import Transport from "../models/transport.js";
+import ItemHistory from "../models/itemHistory.js";
 
 const purchaseController = {
   createPurchase: async (req, res) => {
@@ -119,6 +120,15 @@ const purchaseController = {
                 quantity,
               });
             }
+            await ItemHistory.create({
+              item: itemId,
+              sourceModel: "Order",
+              source: orderId,
+              destinationModel: "Warehouse",
+              destination: warehouseId,
+              quantity,
+              organization,
+            });
           // } else {
           //   return res.status(400).json({
           //     success: false,

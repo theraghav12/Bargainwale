@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Order from "../models/orders.js";
 import Warehouse from "../models/warehouse.js";
 import Item from "../models/items.js";
+import ItemHistory from '../models/itemHistory.js';
 
 const orderController = {
   createOrder: async (req, res) => {
@@ -117,6 +118,16 @@ const orderController = {
             quantity: 0,
           });
         }
+
+        await ItemHistory.create({
+          item: itemId,
+          sourceModel: "Manufacturer",
+          source: manufacturer,
+          destinationModel: "Warehouse",
+          destination: warehouseId,
+          quantity,
+          organization,
+        });
       }
 
       await warehouseDocument.save();
@@ -127,7 +138,7 @@ const orderController = {
         message: "Error creating order",
         error: {
           message: error.message || "An error occurred",
-          stack: error.stack 
+          stack: error.stack
         }
       });
     }
