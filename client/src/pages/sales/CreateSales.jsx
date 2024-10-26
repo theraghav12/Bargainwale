@@ -466,7 +466,7 @@ const CreateSales = () => {
         quantityInputs
           .find((booking) => booking.bookingId === bookingId)
           ?.items.find((q) => q.itemId === item.item._id)?.quantity || 0,
-      pickup: "plant", // Assuming "plant" as a static value
+      pickup: item.pickup, // Assuming "plant" as a static value
     }));
 
     // First API call: Create a sale
@@ -510,6 +510,8 @@ const CreateSales = () => {
         totalAmount: totalAmount,
       });
       console.log(response);
+      setLoading(false);
+      toast.success("Sale created successfully!");
 
       console.log("Sales finalized:", {
         saleIds: salesIds,

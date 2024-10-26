@@ -160,6 +160,8 @@ export default function PurchaseHistory() {
     }
   };
 
+  console.log(sales)
+
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
