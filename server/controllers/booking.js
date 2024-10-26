@@ -116,11 +116,11 @@ const bookingController = {
         if (!existingSoldInventoryItem) {
           warehouseDocument.soldInventory.push({
             item: itemId,
-            quantity,
+            virtualQuantity:quantity,
             pickup,
           });
         } else {
-          existingSoldInventoryItem.quantity += quantity;
+          existingSoldInventoryItem.virtualQuantity += quantity;
         }
 
         await ItemHistory.create({

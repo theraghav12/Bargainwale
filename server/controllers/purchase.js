@@ -109,7 +109,7 @@ const purchaseController = {
         );
 
         if (virtualInventoryItem) {
-          if (virtualInventoryItem.quantity >= quantity) {
+          // if (virtualInventoryItem.quantity >= quantity) {
             virtualInventoryItem.quantity -= quantity;
 
             if (billedInventoryItem) {
@@ -120,7 +120,6 @@ const purchaseController = {
                 quantity,
               });
             }
-
             await ItemHistory.create({
               item: itemId,
               sourceModel: "Order",
@@ -130,13 +129,13 @@ const purchaseController = {
               quantity,
               organization,
             });
-          } else {
-            return res.status(400).json({
-              success: false,
-              message:
-                "Buying more than what is available in virtual inventory",
-            });
-          }
+          // } else {
+          //   return res.status(400).json({
+          //     success: false,
+          //     message:
+          //       "Buying more than what is available in virtual inventory",
+          //   });
+          // }
         } else {
           return res.status(400).json({
             success: false,
