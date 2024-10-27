@@ -54,7 +54,7 @@ export function Inventory() {
       setExpandedItem(itemId);
       try {
         const history = await getItemHistoryById(itemId);
-        setItemHistory(history);
+        setItemHistory(history.data);
       } catch (error) {
         console.log("Failed to fetch item history", error);
       }
@@ -112,7 +112,7 @@ export function Inventory() {
                         className={`grid grid-cols-${
                           inventoryType === "sold" ? "3" : "2"
                         } items-center border border-[#7F7F7F] rounded-md shadow-md cursor-pointer`}
-                        onClick={() => handleItemClick(item._id)}
+                        onClick={() => handleItemClick(item.item)}
                       >
                         <td className="px-4 py-2">{item.item}</td>
                         <td className="px-4 py-2">{item.quantity}</td>
@@ -120,30 +120,76 @@ export function Inventory() {
                           <td className="px-4 py-2">{item.virtualQuantity}</td>
                         )}
                       </tr>
-                      {expandedItem === item.id && (
-                        <tr className="bg-gray-100">
-                          <td colSpan={inventoryType === "sold" ? 3 : 2}>
-                            <div className="p-4">
-                              <h3 className="font-semibold text-gray-600 mb-2">
+                      {expandedItem === item.item && (
+                        <tr className="w-full bg-gray-50">
+                          <td className="w-[100vw]">
+                            <div className="w-full p-4 ">
+                              <h3 className="font-semibold text-gray-700 mb-3">
                                 Item History
                               </h3>
                               {itemHistory.length > 0 ? (
-                                <ul>
+                                <ul className="w-full">
                                   {itemHistory.map((history, idx) => (
                                     <li
                                       key={idx}
-                                      className="flex justify-between mb-2"
+                                      className="w-full flex items-center justify-between mb-2 p-3 px-5 bg-white rounded-md shadow-md border border-gray-200"
                                     >
-                                      <span>Quantity: {history.quantity}</span>
-                                      <span>Source: {history.sourceName}</span>
-                                      <span>
-                                        Destination: {history.destinationName}
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-gray-600 font-medium">
+                                          {history.sourceModel ===
+                                          "Manufacturer" ? (
+                                            <span>
+                                              Manufacturer:{" "}
+                                              {history.source.manufacturer}
+                                            </span>
+                                          ) : history.sourceModel ===
+                                            "Order" ? (
+                                            <span>
+                                              Order: {history.source.order}
+                                            </span>
+                                          ) : (
+                                            <span>
+                                              Warehouse:{" "}
+                                              {history.source.warehouse}
+                                            </span>
+                                          )}
+                                        </span>
+                                        <span className="text-blue-500">→</span>
+                                        <span className="text-gray-600 font-medium">
+                                          {history.destinationModel ===
+                                          "Warehouse" ? (
+                                            <span>
+                                              Warehouse:{" "}
+                                              {history.destination.name}
+                                            </span>
+                                          ) : (
+                                            <span>
+                                              Buyer: {history.destination.buyer}
+                                            </span>
+                                          )}
+                                        </span>
+                                      </div>
+                                      <span
+                                        className={`font-semibold text-lg ${
+                                          history.destinationModel ===
+                                          "Warehouse"
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}
+                                      >
+                                        {history.destinationModel ===
+                                        "Warehouse"
+                                          ? "+"
+                                          : "-"}{" "}
+                                        {history.quantity}
                                       </span>
                                     </li>
                                   ))}
                                 </ul>
                               ) : (
-                                <p>No history available for this item.</p>
+                                <p className="text-gray-500">
+                                  No history available for this item.
+                                </p>
                               )}
                             </div>
                           </td>
