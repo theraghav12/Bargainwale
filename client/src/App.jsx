@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Auth } from "@/layouts";
 import CreatePurchase from "./pages/purchase/CreatePurchase";
@@ -16,8 +17,35 @@ import Home from "./pages/dashboard/home";
 import SignIn from "./pages/auth/sign-in";
 import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
+import { SlSizeFullscreen } from "react-icons/sl";
+import largeScreen from "./assets/large-screen.png";
 
-function App() {
+const App = () => {
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsLargeScreen(window.innerWidth >= 1250);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (!isLargeScreen) {
+    return (
+      <div className="flex flex-col p-4 gap-4 bg-[#38454A] items-center justify-center h-screen text-center">
+        <img src={largeScreen} className="w-14 md:w-24" />
+        <p className="text-[1.3rem] md:text-[1.5rem] flex flex-col font-semibold text-white">
+          Please use a larger screen to access the dashboard.
+          <span className="text-[0.9rem] md:text-[1.2rem] font-normal text-white">
+            (Device width {">"} 1200px)
+          </span>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
       <DashboardNavbar />
@@ -26,9 +54,11 @@ function App() {
       <div className="flex flex-1 mt-28">
         <div className="flex-1">
           <Routes>
-            {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
             <Route path="/auth/sign-in" element={<SignIn />} />
-            <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
+            <Route
+              path="/auth/create-organization"
+              element={<CreateOrganizationPage />}
+            />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/master" element={<Master />} />
@@ -42,10 +72,6 @@ function App() {
             <Route path="/sales/create" element={<BuyersList />} />
             <Route path="/sales/create/:id" element={<CreateSales />} />
             <Route path="/sales/history" element={<SalesHistory />} />
-            {/* <Route path="/dashboard/" element={<Dashboard />}>
-              <Route path="/dashboard/purchase/create" element={<Purchase />} />
-              <Route path="/dashboard/sales/create" element={<Sales />} />
-            </Route> */}
           </Routes>
 
           <div className="text-blue-gray-600">
@@ -55,6 +81,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
