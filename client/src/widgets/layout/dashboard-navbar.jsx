@@ -15,6 +15,7 @@ import {
   Bars3Icon,
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
+  ArrowsPointingOutIcon,
 } from "@heroicons/react/24/solid";
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
@@ -24,13 +25,12 @@ export function DashboardNavbar() {
   const { openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
-
-  const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
 
   const { user } = useUser();
   const navigate = useNavigate();
+
+  const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
 
   const fetchData = async () => {
     try {
@@ -59,15 +59,24 @@ export function DashboardNavbar() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/auth/sign-in");
+      navigate("/");
     }
   }, [user, navigate]);
+
+  // Fullscreen toggle function
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
 
   return (
     <>
       <Navbar
         color="white"
-        className="bg-[#38454A] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5 z-[105]"
+        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5 z-[105]"
         fullWidth
         blurred
       >
@@ -85,9 +94,9 @@ export function DashboardNavbar() {
                 <input
                   type="search"
                   placeholder="Search"
-                  className="w-full py-2 pl-4 pr-10 text-white bg-transparent placeholder-white border border-gray-300 rounded-lg focus:outline-none shadow-inner-custom"
+                  className="w-full py-2 pl-4 pr-10 text-black bg-white placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none shadow-inner-custom"
                 />
-                <MagnifyingGlassIcon className="absolute top-1/2 right-3 h-5 w-5 text-white transform -translate-y-1/2" />
+                <MagnifyingGlassIcon className="absolute top-1/2 right-3 h-5 w-5 text-gray-500 transform -translate-y-1/2" />
               </div>
             </div>
           </div>
@@ -101,6 +110,16 @@ export function DashboardNavbar() {
             >
               <Bars3Icon strokeWidth={3} className="h-6 w-6 text-white" />
             </IconButton>
+
+            {/* Fullscreen Icon */}
+            <IconButton
+              variant="text"
+              color="white"
+              onClick={toggleFullscreen}
+            >
+              <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
+            </IconButton>
+
             <SignedIn>
               <UserButton
                 afterSignOutUrl="/auth/sign-in"
@@ -109,10 +128,9 @@ export function DashboardNavbar() {
               <IconButton
                 variant="text"
                 color="white"
-                onClick={handleOpenOrgProfile} // Toggle modal on click
+                onClick={handleOpenOrgProfile}
               >
                 <BuildingOfficeIcon className="h-6 w-6 text-white" />
-                {/* Icon next to UserButton */}
               </IconButton>
             </SignedIn>
           </div>

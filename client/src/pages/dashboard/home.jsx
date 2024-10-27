@@ -179,23 +179,44 @@ export default function Home() {
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(date);
-  };
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000); // Update every second
+
+    return () => clearInterval(timer); // Cleanup interval on unmount
+  }, []);
+
+  // Format date and time separately for different styles
+  const formattedDate = currentDateTime.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+  const formattedTime = currentDateTime.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   return (
     <div className="mt-12 px-12">
-      <div>
-        <h1 className="text-[1.2rem]">Welcome, Name</h1>
-        <p className="text-[0.9rem] text-[#828282]">
-          Here's what's happening with your store today.
-        </p>
+      <div className="flex justify-between items-center bg-white rounded-lg shadow p-4" style={{ borderRadius: "10px" }}>
+        <div>
+          <h1 className="text-[1.2rem]">Welcome, Divyanshu Trading Company</h1>
+          <p className="text-[0.9rem] text-[#828282]">
+            Here's what's happening with your store today.
+          </p>
+        </div>
+        <div className="flex flex-col items-end text-[#828282]">
+          <span className="text-lg font-bold">{formattedDate}</span>
+          <span className="text-md">{formattedTime}</span>
+        </div>
       </div>
+      <br></br>
 
       <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
         <h1 className="text-[1rem] text-[#929292]">DAILY ITEM PRICE UPDATE</h1>
