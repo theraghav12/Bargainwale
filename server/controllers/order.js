@@ -239,7 +239,7 @@ const orderController = {
 
         if (virtualInventoryItem) {
           virtualInventoryItem.quantity -= quantity;
-          if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
+          //if (virtualInventoryItem.quantity < 0) virtualInventoryItem.quantity = 0;
         }
       }
 

@@ -28,7 +28,11 @@ const warehouseController = {
 
   getAllWarehouses: async (req, res) => {
     try {
-      const warehouses = await Warehouse.find({ organization: req.params.orgId });
+      const warehouses = await Warehouse.find({ organization: req.params.orgId })
+      .populate('virtualInventory.item') 
+      .populate('billedInventory.item')  
+      .populate('soldInventory.item');   
+
       res.status(200).json(warehouses);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving warehouses", error });
@@ -67,7 +71,12 @@ const warehouseController = {
   getWarehouseById: async (req, res) => {
     try {
       const { id, orgId } = req.params;
-      const warehouse = await Warehouse.findById({ _id: id, organization: orgId });
+      const warehouse = await Warehouse.findOne({ _id: id, organization: orgId })
+      .populate('virtualInventory.item') 
+      .populate('billedInventory.item') 
+      .populate('soldInventory.item');   
+
+    
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
