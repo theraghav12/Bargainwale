@@ -26,7 +26,6 @@ export function DashboardNavbar() {
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
-
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -49,6 +48,14 @@ export function DashboardNavbar() {
     localStorage.removeItem("organizationId");
   };
 
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
+
   useEffect(() => {
     if (user && user?.organizationMemberships?.length > 0) {
       fetchData();
@@ -59,18 +66,9 @@ export function DashboardNavbar() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/");
+      navigate("/auth/sign-in");
     }
   }, [user, navigate]);
-
-  // Fullscreen toggle function
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
-  };
 
   return (
     <>
@@ -81,14 +79,12 @@ export function DashboardNavbar() {
         blurred
       >
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
-          {/* Brand Name */}
           <div className="flex items-center gap-16">
             <Link to={`/${layout}`}>
               <h1 className="text-[1.5rem] px-8 font-semibold text-white">
                 Bargainwale
               </h1>
             </Link>
-            {/* Search Bar */}
             <div className="flex items-center w-[400px] max-w-md">
               <div className="relative w-full">
                 <input
@@ -111,20 +107,20 @@ export function DashboardNavbar() {
               <Bars3Icon strokeWidth={3} className="h-6 w-6 text-white" />
             </IconButton>
 
-            {/* Fullscreen Icon */}
-            <IconButton
-              variant="text"
-              color="white"
-              onClick={toggleFullscreen}
-            >
-              <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
-            </IconButton>
-
             <SignedIn>
+              <IconButton
+                variant="text"
+                color="white"
+                onClick={toggleFullScreen}
+              >
+                <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
+              </IconButton>
+
               <UserButton
                 afterSignOutUrl="/auth/sign-in"
                 signOutCallback={handleSignOut}
               />
+
               <IconButton
                 variant="text"
                 color="white"
@@ -137,7 +133,6 @@ export function DashboardNavbar() {
         </div>
       </Navbar>
 
-      {/* Organization Profile Modal */}
       <Dialog
         open={openOrgProfile}
         handler={handleOpenOrgProfile}
