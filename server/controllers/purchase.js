@@ -253,6 +253,28 @@ const purchaseController = {
     }
   },
 
+  getPurchasesBetweenDates : async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Both startDate and endDate are required." });
+      }
+
+      const purchases = await Purchase.find({
+        invoiceDate: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      });
+
+      res.status(200).json({ success: true, purchases });
+    } catch (error) {
+      console.error("Error fetching purchases between dates:", error);
+      res.status(500).json({ success: false, message: "Server Error" });
+    }
+  },
+
   deletePurchase: async (req, res) => {
     try {
       const purchase = await Purchase.findById(req.params.id);

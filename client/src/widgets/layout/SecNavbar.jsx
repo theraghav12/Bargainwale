@@ -150,7 +150,7 @@ function SecondNavbar() {
   }, []);
 
   return (
-    <nav className="bg-white shadow-md border-b-[2px] border-y-light-blue-900 px-14 py-4 fixed top-16 w-full z-[101]">
+    <nav className="bg-white shadow-md border-b-[2px] border-y-light-blue-900 px-14 py-4 fixed top-16 w-full z-[0]">
       <ul className="flex justify-start gap-20 relative">
         {navItems.map((item) => (
           <Dropdown
