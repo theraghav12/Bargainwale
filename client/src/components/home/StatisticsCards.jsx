@@ -1,50 +1,82 @@
-// src/components/StatisticsCards.jsx
-
+import { getBookings } from "@/services/bookingService";
+import { getOrders } from "@/services/orderService";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function StatisticsCards() {
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulated data fetching
+    const fetchOrders = async () => {
+      const data = await getOrders();
+      setOrders(data);
+    };
+    const fetchBookings = async () => {
+      const data = await getBookings();
+      setBookings(data);
+    };
+    fetchOrders();
+    fetchBookings();
+  }, []);
+
+  console.log(bookings);
+
+  let totalOrderValue = orders?.reduce((total, order) => {
+    const orderTotal = order.items.reduce(
+      (sum, item) => sum + (item.taxableAmount || 0),
+      0
+    );
+    return total + orderTotal;
+  }, 0);
+
+  let totalBookingValue = bookings?.reduce((total, booking) => {
+    const bookingTotal = booking.items.reduce(
+      (sum, item) => sum + (item.taxpaidAmount || 0),
+      0
+    );
+    return total + bookingTotal;
+  }, 0);
+
+  useEffect(() => {
     const data = [
       {
-        title: "No of Active Orders",
-        value: "2",
-        percentage: "+16.24%",
+        title: "No. of Active Orders",
+        value: orders?.length,
+        // percentage: "+16.24%",
         percentageColor: "text-green-500",
         footerLabel: "View Orders History",
-        onClick: () => navigate("/orders/history"), // Set path for Orders History
+        onClick: () => navigate("/orders/history"),
       },
       {
-        title: "No of Active Bookings",
-        value: "67",
-        percentage: "-3.57%",
+        title: "No. of Active Bookings",
+        value: bookings?.length,
+        // percentage: "-3.57%",
         percentageColor: "text-red-500",
-        footerLabel: "View all orders",
-        onClick: () => navigate("/booking/history"), // Set path for Orders History
+        footerLabel: "View all bookings",
+        onClick: () => navigate("/bookings/history"),
       },
       {
         title: "Total Order Value",
-        value: "₹120.00k",
-        percentage: "+29.08%",
+        value: `₹${totalOrderValue}`,
+        // percentage: "+29.08%",
         percentageColor: "text-green-500",
-        footerLabel: "See details",
-        onClick: () => navigate("/purchase/history"), // Set path for Orders History
+        // footerLabel: "See details",
+        onClick: () => navigate("/orders/history"),
       },
       {
         title: "Total Booking Value",
-        value: "₹178.00k",
-        percentage: "+0.00%",
+        value: `₹${totalBookingValue}`,
+        // percentage: "+0.00%",
         percentageColor: "text-gray-500",
-        footerLabel: "View Details",
-        onClick: () => navigate("/sales/history"), // Set path for Orders History
+        // footerLabel: "View Details",
+        onClick: () => navigate("/bookings/history"),
       },
     ];
     setStatisticsCardsData(data);
-  }, [navigate]);
+  }, [orders, bookings]);
 
   return (
     <div className="grid grid-cols-4 gap-4 mb-6">
