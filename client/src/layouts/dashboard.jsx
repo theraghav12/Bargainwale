@@ -1,12 +1,11 @@
 import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
 import { setOpenConfigurator } from "@/context";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect } from "react";
 
-// Lazy loading components for better performance
-const DashboardNavbar = lazy(() => import("@/widgets/layout/DashboardNavbar"));
-const SecondNavbar = lazy(() => import("@/widgets/layout/SecNavbar"));
-const Footer = lazy(() => import("@/widgets/layout/Footer"));
+// components
+import { DashboardNavbar, Footer } from "@/widgets/layout";
+import SecondNavbar from "@/widgets/layout/SecNavbar";
 
 // icons
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
@@ -25,28 +24,25 @@ export function Dashboard() {
     } else if (user?.organizationMemberships?.length === 0) {
       navigate("/auth/create-organization");
     }
-  }, [user, navigate]);
+  }, [user]);
 
   return (
     <>
       <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
-        {/* Suspense wraps components to show loading state while they load */}
-        <Suspense fallback={<div>Loading...</div>}>
-          {/* Navbar at the top */}
-          <DashboardNavbar />
-          
-          {/* Second Navbar below the main one */}
-          <SecondNavbar />
-          
-          <div className="flex flex-1 mt-28">
-            <div className="flex-1">
-              {/* Footer */}
-              <div className="text-blue-gray-600">
-                <Footer />
-              </div>
+        {/* Navbar at the top */}
+        <DashboardNavbar />
+
+        {/* Second Navbar below the main one */}
+        <SecondNavbar />
+
+        <div className="flex flex-1 mt-28">
+          <div className="flex-1">
+            {/* Footer */}
+            <div className="text-blue-gray-600">
+              <Footer />
             </div>
           </div>
-        </Suspense>
+        </div>
       </div>
     </>
   );

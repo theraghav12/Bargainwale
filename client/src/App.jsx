@@ -17,7 +17,6 @@ import Home from "./pages/dashboard/home";
 import SignIn from "./pages/auth/sign-in";
 import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
-import { SlSizeFullscreen } from "react-icons/sl";
 import largeScreen from "./assets/large-screen.png";
 import { useUser } from "@clerk/clerk-react";
 
@@ -37,7 +36,7 @@ const App = () => {
   if (!isLargeScreen) {
     return (
       <div className="flex flex-col p-4 gap-4 bg-[#38454A] items-center justify-center h-screen text-center">
-        <img src={largeScreen} className="w-14 md:w-24" />
+        <img src={largeScreen} className="w-14 md:w-24" alt="large screen required" />
         <p className="text-[1.3rem] md:text-[1.5rem] flex flex-col font-semibold text-white">
           Please use a larger screen to access the dashboard.
           <span className="text-[0.9rem] md:text-[1.2rem] font-normal text-white">
@@ -50,41 +49,40 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
-      {isSignedIn && (
+      {isSignedIn ? (
         <>
           <DashboardNavbar />
           <SecondNavbar />
-        </>
-      )}
-
-      <div className="flex flex-1 mt-28">
-        <div className="flex-1">
-          <Routes>
-            <Route path="/auth/sign-in" element={<SignIn />} />
-            <Route
-              path="/auth/create-organization"
-              element={<CreateOrganizationPage />}
-            />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Home />} />
-            <Route path="/master" element={<Master />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/orders/create" element={<CreateOrder />} />
-            <Route path="/orders/history" element={<OrderHistory />} />
-            <Route path="/bookings/create" element={<CreateBooking />} />
-            <Route path="/bookings/history" element={<BookingHistory />} />
-            <Route path="/purchase/create" element={<CreatePurchase />} />
-            <Route path="/purchase/history" element={<PurchaseHistory />} />
-            <Route path="/sales/create" element={<BuyersList />} />
-            <Route path="/sales/create/:id" element={<CreateSales />} />
-            <Route path="/sales/history" element={<SalesHistory />} />
-          </Routes>
-
-          <div className="text-blue-gray-600">
-            <Footer />
+          <div className="flex flex-1 mt-28">
+            <div className="flex-1">
+              <Routes>
+                <Route path="/auth/sign-in" element={<SignIn />} />
+                <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
+                <Route path="/dashboard" element={<Home />} />
+                <Route path="/master" element={<Master />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/orders/create" element={<CreateOrder />} />
+                <Route path="/orders/history" element={<OrderHistory />} />
+                <Route path="/bookings/create" element={<CreateBooking />} />
+                <Route path="/bookings/history" element={<BookingHistory />} />
+                <Route path="/purchase/create" element={<CreatePurchase />} />
+                <Route path="/purchase/history" element={<PurchaseHistory />} />
+                <Route path="/sales/create" element={<BuyersList />} />
+                <Route path="/sales/create/:id" element={<CreateSales />} />
+                <Route path="/sales/history" element={<SalesHistory />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </div>
           </div>
-        </div>
-      </div>
+          <Footer />
+        </>
+      ) : (
+        <Routes>
+          <Route path="/auth/sign-in" element={<SignIn />} />
+          <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
+          <Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
+        </Routes>
+      )}
     </div>
   );
 };
