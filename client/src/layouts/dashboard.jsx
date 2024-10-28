@@ -3,7 +3,7 @@ import { setOpenConfigurator } from "@/context";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, Suspense, lazy } from "react";
 
-// Lazy loading components for improved performance
+// Lazy loading components for better performance
 const DashboardNavbar = lazy(() => import("@/widgets/layout/DashboardNavbar"));
 const SecondNavbar = lazy(() => import("@/widgets/layout/SecNavbar"));
 const Footer = lazy(() => import("@/widgets/layout/Footer"));
@@ -30,14 +30,14 @@ export function Dashboard() {
   return (
     <>
       <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
-        {/* Suspense to wrap lazy-loaded components with a loading fallback */}
+        {/* Suspense wraps components to show loading state while they load */}
         <Suspense fallback={<div>Loading...</div>}>
           {/* Navbar at the top */}
           <DashboardNavbar />
-
-          {/* Secondary Navbar below the main Navbar */}
+          
+          {/* Second Navbar below the main one */}
           <SecondNavbar />
-
+          
           <div className="flex flex-1 mt-28">
             <div className="flex-1">
               {/* Footer */}
