@@ -95,9 +95,10 @@ export function Inventory() {
                 <thead>
                   <tr
                     className={`grid grid-cols-${
-                      inventoryType === "sold" ? "3" : "2"
+                      inventoryType === "sold" ? "4" : "3"
                     }`}
                   >
+                    <th className="py-2 px-4 text-start">Item Id</th>
                     <th className="py-2 px-4 text-start">Item Name</th>
                     <th className="py-2 px-4 text-start">Quantity</th>
                     {inventoryType === "sold" && (
@@ -106,30 +107,33 @@ export function Inventory() {
                   </tr>
                 </thead>
                 <tbody className="flex flex-col gap-2">
-                  {filteredInventory.map((item, index) => (
+                  {filteredInventory?.map((item, index) => (
                     <React.Fragment key={index}>
                       <tr
                         className={`grid grid-cols-${
-                          inventoryType === "sold" ? "3" : "2"
+                          inventoryType === "sold" ? "4" : "3"
                         } items-center border border-[#7F7F7F] rounded-md shadow-md cursor-pointer`}
-                        onClick={() => handleItemClick(item.item)}
+                        onClick={() => handleItemClick(item.item._id)}
                       >
-                        <td className="px-4 py-2">{item.item}</td>
+                        <td className="px-4 py-2">{item.item._id}</td>
+                        <td className="px-4 py-2">
+                          {item.item.materialdescription}
+                        </td>
                         <td className="px-4 py-2">{item.quantity}</td>
                         {inventoryType === "sold" && (
                           <td className="px-4 py-2">{item.virtualQuantity}</td>
                         )}
                       </tr>
-                      {expandedItem === item.item && (
+                      {expandedItem === item.item?._id && (
                         <tr className="w-full bg-gray-50">
                           <td className="w-[100vw]">
                             <div className="w-full p-4 ">
                               <h3 className="font-semibold text-gray-700 mb-3">
                                 Item History
                               </h3>
-                              {itemHistory.length > 0 ? (
+                              {itemHistory?.length > 0 ? (
                                 <ul className="w-full">
-                                  {itemHistory.map((history, idx) => (
+                                  {itemHistory?.map((history, idx) => (
                                     <li
                                       key={idx}
                                       className="w-full flex items-center justify-between mb-2 p-3 px-5 bg-white rounded-md shadow-md border border-gray-200"

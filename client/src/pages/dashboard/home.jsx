@@ -204,10 +204,21 @@ export default function Home() {
     second: "2-digit",
   });
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
+
   return (
-    
     <div className="mt-8 px-12">
-      <div className="flex justify-between items-center bg-white rounded-lg shadow p-4" style={{ borderRadius: "10px" }}>
+      <div
+        className="flex justify-between items-center bg-white rounded-lg shadow p-4"
+        style={{ borderRadius: "10px" }}
+      >
         <div>
           <h1 className="text-[1.2rem]">Welcome, Divyanshu Trading Company</h1>
           <p className="text-[0.9rem] text-[#828282]">
@@ -218,8 +229,8 @@ export default function Home() {
           <span className="text-lg font-bold">{formattedDate}</span>
           <span className="text-md">{formattedTime}</span>
         </div>
-      </div> 
-      <br></br>     
+      </div>
+      <br></br>
       <StatisticsCards />
 
       <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
