@@ -9,6 +9,13 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 
+import WhatsappIcon from "@/assets/whatsapp_icon.svg";
+import GmailIcon from "@/assets/gmail_icon.svg";
+import BitbucketIcon from "@/assets/bitbucket_icon.svg";
+import EmailIcon from "@/assets/google_icon.svg"; // assuming "Email" uses Google icon
+import GithubIcon from "@/assets/github_icon.svg";
+import FirebaseIcon from "@/assets/firebase_icon.svg";
+
 // icons
 import {
   Cog6ToothIcon,
@@ -16,7 +23,9 @@ import {
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
   ArrowsPointingOutIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/solid";
+import { FaWhatsapp, FaGoogle, FaBitbucket, FaEnvelope } from "react-icons/fa";
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
 
@@ -26,10 +35,12 @@ export function DashboardNavbar() {
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
+  const [showAppMenu, setShowAppMenu] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
+  const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
   const fetchData = async () => {
     try {
@@ -97,7 +108,7 @@ export function DashboardNavbar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative">
             <IconButton
               variant="text"
               color="white"
@@ -115,12 +126,110 @@ export function DashboardNavbar() {
               >
                 <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
               </IconButton>
+              {/* Grid Icon for Web Apps Dropdown */}
+              <IconButton variant="text" color="white" onClick={toggleAppMenu}>
+                <Squares2X2Icon className="h-6 w-6 text-white" />
+              </IconButton>
+              {/* Web Apps Dropdown */}
+              {showAppMenu && (
+                <div className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-lg w-72">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-semibold text-gray-700">
+                      Web Apps
+                    </h3>
+                    <button className="text-blue-500 text-sm hover:underline">
+                      View all
+                    </button>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-300 mb-4"></div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() =>
+                        window.open("https://web.whatsapp.com", "_blank")
+                      }
+                    >
+                      <img
+                        src={WhatsappIcon}
+                        alt="WhatsApp"
+                        className="h-6 w-6"
+                      />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        WhatsApp
+                      </span>
+                    </button>
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() =>
+                        window.open("https://mail.google.com", "_blank")
+                      }
+                    >
+                      <img src={GmailIcon} alt="Gmail" className="h-6 w-6" />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        Gmail
+                      </span>
+                    </button>
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() =>
+                        window.open("https://bitbucket.org", "_blank")
+                      }
+                    >
+                      <img
+                        src={BitbucketIcon}
+                        alt="Bitbucket"
+                        className="h-6 w-6"
+                      />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        Bitbucket
+                      </span>
+                    </button>
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() => window.open("https://mail.com", "_blank")}
+                    >
+                      <img src={EmailIcon} alt="Email" className="h-6 w-6" />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        Email
+                      </span>
+                    </button>
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() =>
+                        window.open("https://github.com", "_blank")
+                      }
+                    >
+                      <img src={GithubIcon} alt="GitHub" className="h-6 w-6" />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        GitHub
+                      </span>
+                    </button>
+                    <button
+                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
+                      onClick={() =>
+                        window.open("https://firebase.google.com", "_blank")
+                      }
+                    >
+                      <img
+                        src={FirebaseIcon}
+                        alt="Firebase"
+                        className="h-6 w-6"
+                      />
+                      <span className="text-[12px] font-medium text-gray-700 p-1">
+                        Firebase
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <UserButton
                 afterSignOutUrl="/auth/sign-in"
                 signOutCallback={handleSignOut}
               />
-
               <IconButton
                 variant="text"
                 color="white"

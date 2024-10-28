@@ -11,6 +11,7 @@ import {
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+import StatisticsCards from "@/components/home/StatisticsCards"; // Adjust path if necessary
 
 export default function Home() {
   const [orders, setOrders] = useState([]);
@@ -203,7 +204,7 @@ export default function Home() {
   });
 
   return (
-    <div className="mt-12 px-12">
+    <div className="mt-8 px-12">
       <div className="flex justify-between items-center bg-white rounded-lg shadow p-4" style={{ borderRadius: "10px" }}>
         <div>
           <h1 className="text-[1.2rem]">Welcome, Divyanshu Trading Company</h1>
@@ -217,6 +218,8 @@ export default function Home() {
         </div>
       </div>
       <br></br>
+      
+      <StatisticsCards />
 
       <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
         <h1 className="text-[1rem] text-[#929292]">DAILY ITEM PRICE UPDATE</h1>
