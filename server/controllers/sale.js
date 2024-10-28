@@ -84,10 +84,10 @@ const saleController = {
         );
 
         const billedInventoryItem = warehouseDocument.billedInventory.find(
-          (i) => i.item.toString() === itemId.toString() 
+          (i) => i.item.toString() === itemId.toString()
         );
 
-        const soldInventoryItem = warehouseDocument.soldInventory.find( 
+        const soldInventoryItem = warehouseDocument.soldInventory.find(
           (i) => i.item.toString() === itemId.toString() && i.pickup === pickup
         );
 
@@ -211,6 +211,30 @@ const saleController = {
         message: "Failed to retrieve sale",
         error: error.message,
       });
+    }
+  },
+
+  getSalesBetweenDates: async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+
+      if (!startDate || !endDate) {
+        return res
+          .status(400)
+          .json({ message: "Both startDate and endDate are required." });
+      }
+
+      const sales = await Sale.find({
+        invoiceDate: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      });
+
+      res.status(200).json({ success: true, sales });
+    } catch (error) {
+      console.error("Error fetching sales between dates:", error);
+      res.status(500).json({ success: false, message: "Server Error" });
     }
   },
 
