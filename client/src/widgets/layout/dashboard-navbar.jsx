@@ -9,6 +9,7 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 
+import BargainwaleIcon from "@/assets/logo.png";
 import WhatsappIcon from "@/assets/whatsapp_icon.svg";
 import GmailIcon from "@/assets/gmail_icon.svg";
 import BitbucketIcon from "@/assets/bitbucket_icon.svg";
@@ -84,7 +85,7 @@ export function DashboardNavbar() {
   return (
     <>
       <Navbar
-        color="white"
+        color="#183EC2"
         className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5 z-[105]"
         fullWidth
         blurred
@@ -92,9 +93,11 @@ export function DashboardNavbar() {
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
           <div className="flex items-center gap-16">
             <Link to={`/${layout}`}>
-              <h1 className="text-[1.5rem] px-8 font-semibold text-white">
-                Bargainwale
-              </h1>
+              <img
+                src={BargainwaleIcon}
+                alt="Bargainwale"
+                className="h-8 w-auto px-8"
+              />
             </Link>
             <div className="flex items-center w-[400px] max-w-md">
               <div className="relative w-full">

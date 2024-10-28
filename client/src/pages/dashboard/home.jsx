@@ -218,7 +218,6 @@ export default function Home() {
         </div>
       </div>
       <br></br>
-      
       <StatisticsCards />
 
       <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
