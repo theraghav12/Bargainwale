@@ -228,10 +228,10 @@ const purchaseController = {
     try {
       const { id, orgId } = req.params;
       const purchase = await Purchase.findOne({ _id: id, organization: orgId })
-        .populate("warehouseId") // Populates the warehouse details
-        .populate("transporterId") // Populates the transporter details
-        .populate("orderId") // Populates the order details
-        .populate("items"); // Populates the item details in the items array
+        .populate("warehouseId") 
+        .populate("transporterId") 
+        .populate("orderId")
+        .populate("items"); 
 
       if (!purchase) {
         return res.status(404).json({
