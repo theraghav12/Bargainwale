@@ -13,20 +13,19 @@ import BargainwaleIcon from "@/assets/logo.png";
 import WhatsappIcon from "@/assets/whatsapp_icon.svg";
 import GmailIcon from "@/assets/gmail_icon.svg";
 import BitbucketIcon from "@/assets/bitbucket_icon.svg";
-import EmailIcon from "@/assets/google_icon.svg"; // assuming "Email" uses Google icon
+import EmailIcon from "@/assets/google_icon.svg";
 import GithubIcon from "@/assets/github_icon.svg";
 import FirebaseIcon from "@/assets/firebase_icon.svg";
 
 // icons
 import {
-  Cog6ToothIcon,
   Bars3Icon,
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
   ArrowsPointingOutIcon,
   Squares2X2Icon,
+  ArrowPathIcon, // New icon for reload
 } from "@heroicons/react/24/solid";
-import { FaWhatsapp, FaGoogle, FaBitbucket, FaEnvelope } from "react-icons/fa";
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
 
@@ -37,12 +36,22 @@ export function DashboardNavbar() {
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
   const [showAppMenu, setShowAppMenu] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(0); // Track time since last sync
   const { user } = useUser();
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
   const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
+  // Function to reset sync time and fetch data
+  // Function to reset sync time, fetch data, and reload the page
+  const handleSync = async () => {
+    setLastSyncTime(0); // Reset timer on sync
+    await fetchData(); // Fetch data on sync
+    window.location.reload(); // Reload the page
+  };
+
+  // Function to fetch organization data
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -68,6 +77,15 @@ export function DashboardNavbar() {
     }
   };
 
+  // Update sync timer every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastSyncTime((prevTime) => prevTime + 1);
+    }, 60000); // Increment every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (user && user?.organizationMemberships?.length > 0) {
       fetchData();
@@ -86,7 +104,7 @@ export function DashboardNavbar() {
     <>
       <Navbar
         color="#183EC2"
-        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5 z-[105]"
+        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5"
         fullWidth
         blurred
       >
@@ -122,6 +140,15 @@ export function DashboardNavbar() {
             </IconButton>
 
             <SignedIn>
+              {/* Sync button styled according to uploaded image */}
+              <button
+                onClick={handleSync}
+                className="flex items-center gap-2 px-3 py-2 border rounded-full text-black border-gray-300 bg-white hover:bg-gray-100 transition"
+              >
+                <ArrowPathIcon className="h-5 w-5 text-black" />
+                <span className="text-sm">Sync {lastSyncTime} mins ago</span>
+              </button>
+
               <IconButton
                 variant="text"
                 color="white"
@@ -129,10 +156,11 @@ export function DashboardNavbar() {
               >
                 <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
               </IconButton>
-              {/* Grid Icon for Web Apps Dropdown */}
+
               <IconButton variant="text" color="white" onClick={toggleAppMenu}>
                 <Squares2X2Icon className="h-6 w-6 text-white" />
               </IconButton>
+
               {/* Web Apps Dropdown */}
               {showAppMenu && (
                 <div className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-lg w-72">
@@ -149,6 +177,7 @@ export function DashboardNavbar() {
                   <div className="border-t border-gray-300 mb-4"></div>
 
                   <div className="grid grid-cols-3 gap-4">
+                    {/* Icons for Web Apps */}
                     <button
                       className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
                       onClick={() =>
