@@ -19,9 +19,11 @@ import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 import { SlSizeFullscreen } from "react-icons/sl";
 import largeScreen from "./assets/large-screen.png";
+import { useUser } from "@clerk/clerk-react";
 
 const App = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     function handleResize() {
@@ -48,8 +50,12 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
-      <DashboardNavbar />
-      <SecondNavbar />
+      {isSignedIn && (
+        <>
+          <DashboardNavbar />
+          <SecondNavbar />
+        </>
+      )}
 
       <div className="flex flex-1 mt-28">
         <div className="flex-1">
