@@ -187,7 +187,9 @@ const CreateBooking = () => {
           pickup: "",
           baseRate: null,
           taxpaidAmount: null,
+          taxableAmount: null,
           contNumber: null,
+          gst: null,
         },
       ],
     }));
@@ -237,10 +239,22 @@ const CreateBooking = () => {
         toast.error("Item price not updated for selected warehouse");
       }
     }
+    if (field === "item") {
+      const selectedItem = itemsOptions?.find((option) => option._id === value);
+      if (selectedItem) {
+        const gst = selectedItem.gst;
+        updatedItems[index].gst = gst;
+      }
+    }
+
     if (field === "quantity" || field === "baseRate") {
+      console.log(updatedItems);
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
       updatedItems[index].taxpaidAmount = quantity * baseRate;
+      updatedItems[index].taxableAmount =
+        updatedItems[index].taxpaidAmount +
+        (updatedItems[index].taxpaidAmount * updatedItems[index].gst) / 100;
     }
     setForm((prevData) => ({
       ...prevData,
@@ -256,7 +270,7 @@ const CreateBooking = () => {
 
   const calculateTotalAmount = () => {
     return form.items.reduce((total, item) => {
-      return total + (Number(item.taxpaidAmount) || 0);
+      return total + (Number(item.taxableAmount) || 0);
     }, 0);
   };
 
@@ -635,6 +649,9 @@ const CreateBooking = () => {
                     <th className="py-4 text-center w-[200px]">
                       Tax Paid Amount
                     </th>
+                    <th className="py-4 text-center w-[200px]">
+                      Taxable Amount
+                    </th>
                     <th className="py-4 text-center w-[200px]">Payment Date</th>
                     {/* <th className="py-4 text-center w-[200px]">Description</th> */}
                     <th className="py-4 text-center w-[200px]">Action</th>
@@ -736,6 +753,7 @@ const CreateBooking = () => {
                         />
                       </td>
                       <td className="py-4 text-center">{item.taxpaidAmount}</td>
+                      <td className="py-4 text-center">{item.taxableAmount}</td>
                       <td className="py-4 text-center">{form.paymentDays}</td>
                       {/* <td className="py-4 text-center">{form.description}</td> */}
                       <td className="py-4 flex justify-center">

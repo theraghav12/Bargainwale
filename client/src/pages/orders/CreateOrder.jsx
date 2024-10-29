@@ -239,9 +239,7 @@ const CreateOrder = () => {
       updatedItems[index].taxpaidAmount = quantity * baseRate;
       updatedItems[index].taxableAmount =
         updatedItems[index].taxpaidAmount +
-        (updatedItems[index].taxpaidAmount *
-          updatedItems[index].gst) /
-          100;
+        (updatedItems[index].taxpaidAmount * updatedItems[index].gst) / 100;
     }
 
     // Update the form state
@@ -259,7 +257,7 @@ const CreateOrder = () => {
 
   const calculateTotalAmount = () => {
     return form.items.reduce((total, item) => {
-      return total + (Number(item.taxpaidAmount) || 0);
+      return total + (Number(item.taxableAmount) || 0);
     }, 0);
   };
 
