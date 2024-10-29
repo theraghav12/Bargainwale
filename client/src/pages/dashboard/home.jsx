@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import StatisticsCards from "@/components/home/StatisticsCards"; // Adjust path if necessary
 import { Dashboard } from "@/layouts";
+import PriceChart from "@/components/home/PriceChart";
 
 export default function Home() {
   const [orders, setOrders] = useState([]);
@@ -233,193 +234,177 @@ export default function Home() {
       <br></br>
       <StatisticsCards />
 
-      <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
-        <h1 className="text-[1rem] text-[#929292]">DAILY ITEM PRICE UPDATE</h1>
-        <div className="flex gap-5 items-center mt-2">
-          <div className="relative w-[400px]">
-            <select
-              id="warehouseSelect"
-              name="warehouseSelect"
-              value={selectedWarehouse}
-              onChange={handleWarehouseChange}
-              className="appearance-none w-full bg-[#F0F0F0] border-2 border-[#737373] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-            >
-              <option value="">Select Warehouse</option>
-              {warehouseOptions.map((option) => (
-                <option key={option._id} value={option._id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-            </div>
-          </div>
+      <div className="grid grid-cols-2 gap-6 mt-4">
+        {/* Left column for Bar Chart */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-[#929292]">
+          <PriceChart /> {/* Render the PriceChart component */}
         </div>
 
-        {/* Price input form for items */}
-        {loading ? (
-          <div className="flex justify-center items-center">
-            <p className="text-lg text-gray-500">Loading prices...</p>
-          </div>
-        ) : selectedWarehouse ? (
-          <div className="mt-2 p-4">
-            <table className="min-w-full bg-white border-b border-b-[2px] border-[#898484] text-[#7F7F7F]">
-              <thead>
-                <tr className="grid grid-cols-5">
-                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
-                    Item Name
-                  </th>
-                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
-                    Company Price
-                  </th>
-                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
-                    Rack Price
-                  </th>
-                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
-                    Depot Price
-                  </th>
-                  <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
-                    Plant Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {form.map((item, index) => (
-                  <tr key={index} className="grid grid-cols-5">
-                    <td className="px-4 py-2 border-r border-l border-r-[2px] border-l-[2px] border-[#898484]">
-                      {item.item?.materialdescription || "Unknown Item"}
-                    </td>
-                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
-                      <input
-                        type="number"
-                        name="companyPrice"
-                        value={item.companyPrice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value >= 0) {
-                            handleInputChange(index, e);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "e" ||
-                            e.key === "-" ||
-                            e.key === "+" ||
-                            e.key === "."
-                          ) {
-                            e.preventDefault();
-                          }
-                        }}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
-                        placeholder="Enter company price"
-                        disabled={item.pricesUpdated}
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
-                      <input
-                        type="number"
-                        name="rackPrice"
-                        value={item.rackPrice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value >= 0) {
-                            handleInputChange(index, e);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "e" ||
-                            e.key === "-" ||
-                            e.key === "+" ||
-                            e.key === "."
-                          ) {
-                            e.preventDefault();
-                          }
-                        }}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
-                        placeholder="Enter rack price"
-                        disabled={item.pricesUpdated}
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
-                      <input
-                        type="number"
-                        name="depoPrice"
-                        value={item.depoPrice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value >= 0) {
-                            handleInputChange(index, e);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "e" ||
-                            e.key === "-" ||
-                            e.key === "+" ||
-                            e.key === "."
-                          ) {
-                            e.preventDefault();
-                          }
-                        }}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
-                        placeholder="Enter depot price"
-                        disabled={item.pricesUpdated}
-                        required
-                      />
-                    </td>
-                    <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
-                      <input
-                        type="number"
-                        name="plantPrice"
-                        value={item.plantPrice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value >= 0) {
-                            handleInputChange(index, e);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "e" ||
-                            e.key === "-" ||
-                            e.key === "+" ||
-                            e.key === "."
-                          ) {
-                            e.preventDefault();
-                          }
-                        }}
-                        className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
-                        placeholder="Enter plant price"
-                        disabled={item.pricesUpdated}
-                        required
-                      />
-                    </td>
-                  </tr>
+        {/* Right column for Price Section */}
+        <div className="flex flex-col bg-white rounded-lg shadow-md border-2 border-[#929292] p-4">
+          <h1 className="text-[1rem] text-[#929292]">
+            DAILY ITEM PRICE UPDATE
+          </h1>
+          <div className="flex gap-5 items-center mt-2">
+            <div className="relative w-[400px]">
+              <select
+                id="warehouseSelect"
+                name="warehouseSelect"
+                value={selectedWarehouse}
+                onChange={handleWarehouseChange}
+                className="appearance-none w-full bg-[#F0F0F0] border-2 border-[#737373] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
+              >
+                <option value="">Select Warehouse</option>
+                {warehouseOptions.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-            <button
-              onClick={handleSubmit}
-              className="w-[120px] flex items-center justify-center mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              {submitLoading ? <Spinner /> : <span>Save Prices</span>}
-            </button>
-            {/* {!pricesFound && (
-          <p className="text-red-500">
-            Prices not found for the selected warehouse. Please enter new
-            prices.
-          </p>
-        )} */}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+              </div>
+            </div>
           </div>
-        ) : (
-          <Typography className="text-xl text-center font-bold my-5">
-            Select Warehouse!
-          </Typography>
-        )}
+
+          {/* Price input form for items */}
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <p className="text-lg text-gray-500">Loading prices...</p>
+            </div>
+          ) : selectedWarehouse ? (
+            <div className="mt-2 p-4">
+              <table className="min-w-full bg-white border-b border-b-[2px] border-[#898484] text-[#7F7F7F]">
+                <thead>
+                  <tr className="grid grid-cols-5">
+                    <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                      Item Name
+                    </th>
+                    <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                      Company Price
+                    </th>
+                    <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                      Rack Price
+                    </th>
+                    <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                      Depot Price
+                    </th>
+                    <th className="px-4 py-2 border rounded-tr-md rounded-tl-md border-[2px] border-[#898484]">
+                      Plant Price
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {form.map((item, index) => (
+                    <tr key={index} className="grid grid-cols-5">
+                      <td className="px-4 py-2 border-r border-l border-r-[2px] border-l-[2px] border-[#898484]">
+                        {item.item?.materialdescription || "Unknown Item"}
+                      </td>
+                      <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                        <input
+                          type="number"
+                          name="companyPrice"
+                          value={item.companyPrice}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleInputChange(index, e);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (["e", "-", "+", "."].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
+                          placeholder="Enter company price"
+                          disabled={item.pricesUpdated}
+                          required
+                        />
+                      </td>
+                      <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                        <input
+                          type="number"
+                          name="rackPrice"
+                          value={item.rackPrice}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleInputChange(index, e);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (["e", "-", "+", "."].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
+                          placeholder="Enter rack price"
+                          disabled={item.pricesUpdated}
+                          required
+                        />
+                      </td>
+                      <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                        <input
+                          type="number"
+                          name="depoPrice"
+                          value={item.depoPrice}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleInputChange(index, e);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (["e", "-", "+", "."].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
+                          placeholder="Enter depot price"
+                          disabled={item.pricesUpdated}
+                          required
+                        />
+                      </td>
+                      <td className="px-4 py-2 border-r border-r-[2px] border-[#898484]">
+                        <input
+                          type="number"
+                          name="plantPrice"
+                          value={item.plantPrice}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleInputChange(index, e);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (["e", "-", "+", "."].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          className="border px-2 py-1 w-full bg-[#E9E9E9] text-black rounded"
+                          placeholder="Enter plant price"
+                          disabled={item.pricesUpdated}
+                          required
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                onClick={handleSubmit}
+                className="w-[120px] flex items-center justify-center mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                {submitLoading ? <Spinner /> : <span>Save Prices</span>}
+              </button>
+            </div>
+          ) : (
+            <Typography className="text-xl text-center font-bold my-5">
+              Select Warehouse!
+            </Typography>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] my-8">

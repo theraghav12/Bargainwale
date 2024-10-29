@@ -8,11 +8,15 @@ import CreateOrder from "./pages/orders/CreateOrder";
 import Master from "./pages/dashboard/Master";
 import Inventory from "./pages/inventory/InventoryManagement";
 import { OrderHistory } from "./pages/orders/OrderHistory";
+import OrderAnalytics from "./pages/orders/OrderAnalytics";
+import BookingAnalytics from "./pages/booking/BookingAnalytics";
 import CreateBooking from "./pages/booking/CreateBooking";
 import { BookingHistory } from "./pages/booking/BookingHistory";
 import PurchaseHistory from "./pages/purchase/PurchaseHistory";
+import PurchaseAnalytics from "./pages/purchase/PurchaseAnalytics";
 import CreateSales from "./pages/sales/CreateSales";
 import SalesHistory from "./pages/sales/SalesHistory";
+import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import Home from "./pages/dashboard/home";
 import SignIn from "./pages/auth/sign-in";
 import BuyersList from "./pages/sales/BuyersList";
@@ -63,13 +67,17 @@ const App = () => {
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/orders/create" element={<CreateOrder />} />
                 <Route path="/orders/history" element={<OrderHistory />} />
+                <Route path="/orders/analytics" element={<OrderAnalytics />} />
                 <Route path="/bookings/create" element={<CreateBooking />} />
                 <Route path="/bookings/history" element={<BookingHistory />} />
+                <Route path="/bookings/analytics" element={<BookingAnalytics />} />
                 <Route path="/purchase/create" element={<CreatePurchase />} />
                 <Route path="/purchase/history" element={<PurchaseHistory />} />
+                <Route path="/purchase/analytics" element={<PurchaseAnalytics />} />
                 <Route path="/sales/create" element={<BuyersList />} />
                 <Route path="/sales/create/:id" element={<CreateSales />} />
                 <Route path="/sales/history" element={<SalesHistory />} />
+                <Route path="/sales/analytics" element={<SalesAnalytics />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>

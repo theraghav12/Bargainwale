@@ -1,6 +1,18 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { FaHome, FaCogs, FaBox, FaShoppingCart, FaClipboardList, FaBook, FaChartLine, FaBell } from "react-icons/fa";
+import { 
+  FaHome, 
+  FaCogs, 
+  FaBox, 
+  FaShoppingCart, 
+  FaClipboardList, 
+  FaBook, 
+  FaChartLine, 
+  FaBell,
+  FaPlus,          // Icon for "Create" options
+  FaHistory,       // Icon for "History" options
+  FaChartBar,      // Icon for "Analytics" options
+} from "react-icons/fa";
 
 function Dropdown({ label, links, icon }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -56,8 +68,8 @@ function Dropdown({ label, links, icon }) {
                   }`
                 }
               >
+                {link.icon}  {/* Display specific icon for each sub-link */}
                 {link.name}
-                {icon}
               </NavLink>
             </li>
           ))}
@@ -79,32 +91,36 @@ function SecondNavbar() {
     {
       label: "Orders",
       links: [
-        { name: "Create Order", to: "/orders/create" },
-        { name: "Order History", to: "/orders/history" },
+        { name: "Create Order", to: "/orders/create", icon: <FaPlus /> },       // Icon for Create Order
+        { name: "Order History", to: "/orders/history", icon: <FaHistory /> },  // Icon for Order History
+        { name: "Order Analytics", to: "/orders/analytics", icon: <FaChartBar /> },  // Icon for Order Analytics
       ],
       icon: <FaClipboardList />,
     },
     {
       label: "Bookings",
       links: [
-        { name: "Create Booking", to: "/bookings/create" },
-        { name: "Booking History", to: "/bookings/history" },
+        { name: "Create Booking", to: "/bookings/create", icon: <FaPlus /> },       // Icon for Create Booking
+        { name: "Booking History", to: "/bookings/history", icon: <FaHistory /> },  // Icon for Booking History
+        { name: "Booking Analytics", to: "/bookings/analytics", icon: <FaChartBar /> },  // Icon for Booking Analytics
       ],
       icon: <FaBook />,
     },
     {
       label: "Purchase",
       links: [
-        { name: "Create Purchase", to: "/purchase/create" },
-        { name: "Purchase History", to: "/purchase/history" },
+        { name: "Create Purchase", to: "/purchase/create", icon: <FaPlus /> },       // Icon for Create Purchase
+        { name: "Purchase History", to: "/purchase/history", icon: <FaHistory /> },  // Icon for Purchase History
+        { name: "Purchase Analytics", to: "/purchase/analytics", icon: <FaChartBar /> },  // Icon for Purchase Analytics
       ],
       icon: <FaShoppingCart />,
     },
     {
       label: "Sales",
       links: [
-        { name: "Create Sales", to: "/sales/create" },
-        { name: "Sales History", to: "/sales/history" },
+        { name: "Create Sales", to: "/sales/create", icon: <FaPlus /> },       // Icon for Create Sales
+        { name: "Sales History", to: "/sales/history", icon: <FaHistory /> },  // Icon for Sales History
+        { name: "Sales Analytics", to: "/sales/analytics", icon: <FaChartBar /> },  // Icon for Sales Analytics
       ],
       icon: <FaChartLine />,
     },
@@ -150,7 +166,7 @@ function SecondNavbar() {
   }, []);
 
   return (
-    <nav className="bg-white shadow-md border-b-[2px] border-y-light-blue-900 px-14 py-4 fixed top-16 w-full z-[0]">
+    <nav className="bg-white shadow-md border-b-[2px] border-y-light-blue-900 px-14 py-4 fixed top-16 w-full z-20">
       <ul className="flex justify-start gap-20 relative">
         {navItems.map((item) => (
           <Dropdown

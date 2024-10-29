@@ -163,7 +163,11 @@ export function DashboardNavbar() {
 
               {/* Web Apps Dropdown */}
               {showAppMenu && (
-                <div className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-lg w-72">
+                <div
+                  style={{ zIndex: 100 }}
+                  className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-lg w-72"
+                >
+                  {" "}
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-lg font-semibold text-gray-700">
                       Web Apps
@@ -172,10 +176,8 @@ export function DashboardNavbar() {
                       View all
                     </button>
                   </div>
-
                   {/* Divider */}
                   <div className="border-t border-gray-300 mb-4"></div>
-
                   <div className="grid grid-cols-3 gap-4">
                     {/* Icons for Web Apps */}
                     <button
