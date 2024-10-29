@@ -11,12 +11,15 @@ import {
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
-import StatisticsCards from "@/components/home/StatisticsCards"; // Adjust path if necessary
+import StatisticsCards from "@/components/home/StatisticsCards";
 import { Dashboard } from "@/layouts";
+<<<<<<< HEAD
 import PriceChart from "@/components/home/PriceChart";
+=======
+import { getBookings } from "@/services/bookingService";
+>>>>>>> 7989da7e6a610dddc239ef42bf6e2db9c91697af
 
 export default function Home() {
-  const [orders, setOrders] = useState([]);
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
@@ -41,28 +44,6 @@ export default function Home() {
       setCurrentPage(pageNumber);
     }
   };
-
-  useEffect(() => {
-    const fetchOrders = async () => {
-      const data = await getOrders();
-      if (data) {
-        setOrders(data);
-        setStatisticsCardsData([
-          {
-            title: "Total Orders",
-            value: data.length,
-            footer: {
-              color: "text-blue-500",
-              value: `${data.length} orders`,
-              label: "total",
-            },
-            icon: CheckCircleIcon,
-          },
-        ]);
-      }
-    };
-    fetchOrders();
-  }, [selectedWarehouse]);
 
   const fetchWarehouseOptions = async () => {
     try {
