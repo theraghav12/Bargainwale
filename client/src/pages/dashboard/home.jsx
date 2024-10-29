@@ -13,11 +13,7 @@ import { toast } from "react-toastify";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import StatisticsCards from "@/components/home/StatisticsCards";
 import { Dashboard } from "@/layouts";
-<<<<<<< HEAD
 import PriceChart from "@/components/home/PriceChart";
-=======
-import { getBookings } from "@/services/bookingService";
->>>>>>> 7989da7e6a610dddc239ef42bf6e2db9c91697af
 
 export default function Home() {
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
