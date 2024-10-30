@@ -19,7 +19,7 @@ import {
 } from "@/services/warehouseService";
 import { useNavigate } from "react-router-dom";
 import statesAndCities from "@/data/statecities.json";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import ItemForm from "@/components/master/ItemForm";
 import TransportForm from "@/components/master/TransportForm";
 import WarehouseForm from "@/components/master/WarehouseForm";
@@ -160,7 +160,7 @@ export function Master() {
             {getCurrentSectionTitle()}
             <span className="text-[1.5rem] text-black">/ Available</span>
           </h1> */}
-          <div className="p-10">{renderComponent()}</div>
+        <div className="p-10">{renderComponent()}</div>
         {/* </div> */}
       </div>
     </div>

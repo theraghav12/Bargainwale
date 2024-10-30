@@ -4,7 +4,7 @@ import { Spinner } from "@material-tailwind/react";
 import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -18,7 +18,9 @@ export default function SignIn() {
             clerkId: user.id,
           });
           if (response.status === 200) {
-            toast.success("Signed In!");
+            toast.success("Signed In!", {
+              description: `Welcome ${user.fullName}`,
+            });
             if (user.organizationMemberships.length === 0) {
               navigate("/auth/create-organization");
             } else {

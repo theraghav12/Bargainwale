@@ -5,10 +5,11 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@material-tailwind/react";
 import { MaterialTailwindControllerProvider } from "@/context";
 import "../public/css/tailwind.css";
-import { ToastContainer } from "react-toastify";
+// import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClerkProvider } from "@clerk/clerk-react";
 import "./global.css";
+import { Toaster } from "sonner";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -26,7 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </ClerkProvider>
         </MaterialTailwindControllerProvider>
       </ThemeProvider>
-      <ToastContainer />
+      <Toaster position="top-right" richColors closeButton />
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -9,7 +9,7 @@ import {
   getPrices,
 } from "@/services/itemService";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import StatisticsCards from "@/components/home/StatisticsCards";
 import { Dashboard } from "@/layouts";

@@ -36,14 +36,13 @@ export function DashboardNavbar() {
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
   const [showAppMenu, setShowAppMenu] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState(0); // Track time since last sync
-  const { user } = useUser();
+  const [lastSyncTime, setLastSyncTime] = useState(0);
+  const { user, isSignedIn } = useUser();
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
   const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
-  // Function to reset sync time and fetch data
   // Function to reset sync time, fetch data, and reload the page
   const handleSync = async () => {
     setLastSyncTime(0); // Reset timer on sync
@@ -81,7 +80,7 @@ export function DashboardNavbar() {
   useEffect(() => {
     const interval = setInterval(() => {
       setLastSyncTime((prevTime) => prevTime + 1);
-    }, 60000); // Increment every minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -92,13 +91,19 @@ export function DashboardNavbar() {
     } else if (user?.organizationMemberships?.length === 0) {
       navigate("/auth/create-organization");
     }
-  }, [user]);
+  }, [navigate]);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth/sign-in");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      localStorage.removeItem("organizationId");
+    }
+  }, [isSignedIn, navigate]);
 
   return (
     <>

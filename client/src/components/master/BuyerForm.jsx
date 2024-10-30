@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 // api services
 import {
@@ -327,7 +327,9 @@ const BuyerForm = () => {
                             onChange={(e) => handleItemChange(e, buyer._id)}
                           />
                         ) : (
-                          <span className="break-words">{buyer.buyerEmail}</span>
+                          <span className="break-words">
+                            {buyer.buyerEmail}
+                          </span>
                         )}
                       </td>
                       <td className="py-2 px-2">

@@ -1,17 +1,17 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { 
-  FaHome, 
-  FaCogs, 
-  FaBox, 
-  FaShoppingCart, 
-  FaClipboardList, 
-  FaBook, 
-  FaChartLine, 
+import {
+  FaHome,
+  FaCogs,
+  FaBox,
+  FaShoppingCart,
+  FaClipboardList,
+  FaBook,
+  FaChartLine,
   FaBell,
-  FaPlus,          // Icon for "Create" options
-  FaHistory,       // Icon for "History" options
-  FaChartBar,      // Icon for "Analytics" options
+  FaPlus,
+  FaHistory,
+  FaChartBar,
 } from "react-icons/fa";
 
 function Dropdown({ label, links, icon }) {
@@ -68,7 +68,7 @@ function Dropdown({ label, links, icon }) {
                   }`
                 }
               >
-                {link.icon}  {/* Display specific icon for each sub-link */}
+                {link.icon} {/* Display specific icon for each sub-link */}
                 {link.name}
               </NavLink>
             </li>
@@ -85,42 +85,78 @@ function SecondNavbar() {
   const drawerRef = useRef(null);
 
   const navItems = [
-    { label: "Home", links: [{ name: "Home", to: "/dashboard" }], icon: <FaHome /> },
-    { label: "Master", links: [{ name: "Master", to: "/master" }], icon: <FaCogs /> },
-    { label: "Inventory", links: [{ name: "Inventory", to: "/inventory" }], icon: <FaBox /> },
+    {
+      label: "Home",
+      links: [{ name: "Home", to: "/dashboard" }],
+      icon: <FaHome />,
+    },
+    {
+      label: "Master",
+      links: [{ name: "Master", to: "/master" }],
+      icon: <FaCogs />,
+    },
+    {
+      label: "Inventory",
+      links: [{ name: "Inventory", to: "/inventory" }],
+      icon: <FaBox />,
+    },
     {
       label: "Orders",
       links: [
-        { name: "Create Order", to: "/orders/create", icon: <FaPlus /> },       // Icon for Create Order
-        { name: "Order History", to: "/orders/history", icon: <FaHistory /> },  // Icon for Order History
-        { name: "Order Analytics", to: "/orders/analytics", icon: <FaChartBar /> },  // Icon for Order Analytics
+        { name: "Create Order", to: "/orders/create", icon: <FaPlus /> }, // Icon for Create Order
+        { name: "Order History", to: "/orders/history", icon: <FaHistory /> }, // Icon for Order History
+        {
+          name: "Order Analytics",
+          to: "/orders/analytics",
+          icon: <FaChartBar />,
+        }, // Icon for Order Analytics
       ],
       icon: <FaClipboardList />,
     },
     {
       label: "Bookings",
       links: [
-        { name: "Create Booking", to: "/bookings/create", icon: <FaPlus /> },       // Icon for Create Booking
-        { name: "Booking History", to: "/bookings/history", icon: <FaHistory /> },  // Icon for Booking History
-        { name: "Booking Analytics", to: "/bookings/analytics", icon: <FaChartBar /> },  // Icon for Booking Analytics
+        { name: "Create Booking", to: "/bookings/create", icon: <FaPlus /> }, // Icon for Create Booking
+        {
+          name: "Booking History",
+          to: "/bookings/history",
+          icon: <FaHistory />,
+        }, // Icon for Booking History
+        {
+          name: "Booking Analytics",
+          to: "/bookings/analytics",
+          icon: <FaChartBar />,
+        }, // Icon for Booking Analytics
       ],
       icon: <FaBook />,
     },
     {
       label: "Purchase",
       links: [
-        { name: "Create Purchase", to: "/purchase/create", icon: <FaPlus /> },       // Icon for Create Purchase
-        { name: "Purchase History", to: "/purchase/history", icon: <FaHistory /> },  // Icon for Purchase History
-        { name: "Purchase Analytics", to: "/purchase/analytics", icon: <FaChartBar /> },  // Icon for Purchase Analytics
+        { name: "Create Purchase", to: "/purchase/create", icon: <FaPlus /> }, // Icon for Create Purchase
+        {
+          name: "Purchase History",
+          to: "/purchase/history",
+          icon: <FaHistory />,
+        }, // Icon for Purchase History
+        {
+          name: "Purchase Analytics",
+          to: "/purchase/analytics",
+          icon: <FaChartBar />,
+        }, // Icon for Purchase Analytics
       ],
       icon: <FaShoppingCart />,
     },
     {
       label: "Sales",
       links: [
-        { name: "Create Sales", to: "/sales/create", icon: <FaPlus /> },       // Icon for Create Sales
-        { name: "Sales History", to: "/sales/history", icon: <FaHistory /> },  // Icon for Sales History
-        { name: "Sales Analytics", to: "/sales/analytics", icon: <FaChartBar /> },  // Icon for Sales Analytics
+        { name: "Create Sales", to: "/sales/create", icon: <FaPlus /> }, // Icon for Create Sales
+        { name: "Sales History", to: "/sales/history", icon: <FaHistory /> }, // Icon for Sales History
+        {
+          name: "Sales Analytics",
+          to: "/sales/analytics",
+          icon: <FaChartBar />,
+        }, // Icon for Sales Analytics
       ],
       icon: <FaChartLine />,
     },
@@ -178,7 +214,10 @@ function SecondNavbar() {
         ))}
         {/* Bell Icon for Notifications */}
         <li className="ml-auto">
-          <button onClick={toggleDrawer} className="text-[#38454A] hover:text-blue-600">
+          <button
+            onClick={toggleDrawer}
+            className="text-[#38454A] hover:text-blue-600"
+          >
             <FaBell size={20} />
           </button>
         </li>
@@ -210,7 +249,9 @@ function SecondNavbar() {
       {showDailyUpdate && (
         <div className="fixed bottom-10 right-10 bg-white p-4 shadow-lg rounded-lg border border-gray-200 w-72 z-[102]">
           <h3 className="text-lg font-semibold text-blue-600">Daily Update</h3>
-          <p className="text-gray-700 mt-2">This is your update for today at 9:30 AM.</p>
+          <p className="text-gray-700 mt-2">
+            This is your update for today at 9:30 AM.
+          </p>
           <button
             onClick={() => setShowDailyUpdate(false)}
             className="text-blue-600 mt-3 hover:underline"

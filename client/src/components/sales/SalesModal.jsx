@@ -6,7 +6,7 @@ import {
   Option,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { getTransport } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
 import { createSales } from "@/services/salesService";

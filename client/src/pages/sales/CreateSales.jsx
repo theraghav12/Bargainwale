@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 // api services
 import {

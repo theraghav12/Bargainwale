@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/services/api";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const CreateOrganizationPage = () => {
   const { user } = useUser();

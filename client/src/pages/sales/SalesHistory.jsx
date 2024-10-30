@@ -11,7 +11,7 @@ import {
 } from "@material-tailwind/react";
 import { updateBillTypePartWise } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
 import { deleteBooking, getBookings } from "@/services/bookingService";
@@ -160,7 +160,7 @@ export default function PurchaseHistory() {
     }
   };
 
-  console.log(sales)
+  console.log(sales);
 
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
