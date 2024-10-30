@@ -480,7 +480,7 @@ const ItemForm = () => {
               <Input
                 name="material"
                 label="Material"
-                type="text"
+                type="number"
                 value={form.material}
                 onChange={handleChange}
                 required

@@ -51,7 +51,7 @@ export function InventorySidenav({
               Would like to setup a new warehouse ?
             </p>
             <Link
-              to="/dashboard/home"
+              to="/master"
               className="w-full bg-[#FF0000] text-white text-center rounded-md px-2 py-1"
             >
               CREATE A WAREHOUSE
