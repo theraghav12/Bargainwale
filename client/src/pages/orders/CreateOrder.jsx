@@ -1,6 +1,7 @@
 import { Button, Spinner, Tooltip } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import Select from "react-select";
 
 // api services
 import { getItems, getManufacturer } from "@/services/masterService";
@@ -50,7 +51,11 @@ const CreateOrder = () => {
   const fetchManufacturerOptions = async () => {
     try {
       const response = await getManufacturer();
-      setManufacturerOptions(response);
+      const formattedOptions = response.map((manufacturer) => ({
+        value: manufacturer._id,
+        label: manufacturer.manufacturer,
+      }));
+      setManufacturerOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
       console.error(error);
@@ -60,7 +65,11 @@ const CreateOrder = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
+      const formattedOptions = response.map((warehouse) => ({
+        value: warehouse._id,
+        label: warehouse.name,
+      }));
+      setWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
@@ -92,8 +101,6 @@ const CreateOrder = () => {
         ...form,
         paymentDays,
       };
-
-      console.log();
 
       const response = await createOrder(updatedForm);
 
@@ -148,6 +155,15 @@ const CreateOrder = () => {
       setForm((prevData) => ({
         ...prevData,
         items: updatedItems,
+      }));
+    } else if (
+      fieldName === "warehouse" ||
+      fieldName === "manufacturer" ||
+      fieldName === "inco"
+    ) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        [fieldName]: value.value || "",
       }));
     } else if (
       fieldName === "companyBargainDate" ||
@@ -343,28 +359,18 @@ const CreateOrder = () => {
                     Warehouse
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[180px]">
-                    <select
-                      id="warehouse"
-                      name="warehouse"
-                      value={form.warehouse}
-                      onChange={(e) =>
-                        handleFormChange(0, "warehouse", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Warehouse</option>
-                      {warehouseOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={warehouseOptions}
+                    value={
+                      warehouseOptions.find(
+                        (option) => option.value === form.warehouse
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "warehouse", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="flex gap-2 items-center">
@@ -375,28 +381,18 @@ const CreateOrder = () => {
                     Manufacturer
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="manufacturer"
-                      name="manufacturer"
-                      value={form.manufacturer}
-                      onChange={(e) =>
-                        handleFormChange(0, "manufacturer", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Manufacturer</option>
-                      {manufacturerOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.manufacturer}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={manufacturerOptions}
+                    value={
+                      manufacturerOptions.find(
+                        (option) => option.value === form.manufacturer
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "manufacturer", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="w-fit flex gap-2 items-center">
@@ -447,25 +443,22 @@ const CreateOrder = () => {
                     Inco
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="inco"
-                      name="inco"
-                      value={form.inco}
-                      onChange={(e) =>
-                        handleFormChange(0, "inco", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Inco</option>
-                      <option value="EXW">EXW</option>
-                      <option value="FOR">FOR</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={[
+                      { value: "EXW", label: "EXW" },
+                      { value: "FOR", label: "FOR" },
+                    ]}
+                    value={
+                      [
+                        { value: "EXW", label: "EXW" },
+                        { value: "FOR", label: "FOR" },
+                      ].find((option) => option.value === form.inco) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "inco", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="w-fit flex gap-2 items-center">
