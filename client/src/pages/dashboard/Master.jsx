@@ -1,16 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Button,
-  Tabs,
-  TabsHeader,
-  Tab,
-  TabsBody,
-  TabPanel,
-} from "@material-tailwind/react";
 import { MasterSidenav } from "@/widgets/layout";
 import {
   createWarehouse,
@@ -18,7 +6,7 @@ import {
   getWarehouseById,
 } from "@/services/warehouseService";
 import { useNavigate } from "react-router-dom";
-import statesAndCities from "@/data/statecities.json";
+import statesAndCities from "@/constants/statecities.json";
 import { toast } from "sonner";
 import ItemForm from "@/components/master/ItemForm";
 import TransportForm from "@/components/master/TransportForm";

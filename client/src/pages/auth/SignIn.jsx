@@ -10,8 +10,6 @@ export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  console.log(user);
-
   useEffect(() => {
     const userValidation = async () => {
       try {

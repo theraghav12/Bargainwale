@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Spinner, Typography } from "@material-tailwind/react";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
-import { getOrders } from "@/services/orderService";
 import { getWarehouses } from "@/services/warehouseService";
 import {
   getPricesByWarehouse,
@@ -12,8 +10,8 @@ import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { toast } from "sonner";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import StatisticsCards from "@/components/home/StatisticsCards";
-import { Dashboard } from "@/layouts";
 import PriceChart from "@/components/home/PriceChart";
+import { useOrganization } from "@clerk/clerk-react";
 
 export default function Home() {
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
@@ -28,6 +26,8 @@ export default function Home() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const { organization } = useOrganization();
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -197,7 +197,9 @@ export default function Home() {
         style={{ borderRadius: "10px" }}
       >
         <div>
-          <h1 className="text-[1.2rem]">Welcome, Divyanshu Trading Company</h1>
+          <h1 className="text-[1.2rem]">
+            Welcome, {organization.name && <span>{organization.name}</span>}
+          </h1>
           <p className="text-[0.9rem] text-[#828282]">
             Here's what's happening with your store today.
           </p>

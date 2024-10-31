@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Auth } from "@/layouts";
 import CreatePurchase from "./pages/purchase/CreatePurchase";
-import { DashboardNavbar, Footer } from "./widgets/layout";
+import { DashboardNavbar } from "./widgets/layout";
 import SecondNavbar from "./widgets/layout/SecNavbar";
 import CreateOrder from "./pages/orders/CreateOrder";
 import Master from "./pages/dashboard/Master";
@@ -18,7 +17,7 @@ import CreateSales from "./pages/sales/CreateSales";
 import SalesHistory from "./pages/sales/SalesHistory";
 import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import Home from "./pages/dashboard/home";
-import SignIn from "./pages/auth/sign-in";
+import SignIn from "./pages/auth/SignIn";
 import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 import largeScreen from "./assets/large-screen.png";
@@ -40,7 +39,11 @@ const App = () => {
   if (!isLargeScreen) {
     return (
       <div className="flex flex-col p-4 gap-4 bg-[#38454A] items-center justify-center h-screen text-center">
-        <img src={largeScreen} className="w-14 md:w-24" alt="large screen required" />
+        <img
+          src={largeScreen}
+          className="w-14 md:w-24"
+          alt="large screen required"
+        />
         <p className="text-[1.3rem] md:text-[1.5rem] flex flex-col font-semibold text-white">
           Please use a larger screen to access the dashboard.
           <span className="text-[0.9rem] md:text-[1.2rem] font-normal text-white">
@@ -61,7 +64,10 @@ const App = () => {
             <div className="flex-1">
               <Routes>
                 <Route path="/auth/sign-in" element={<SignIn />} />
-                <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
+                <Route
+                  path="/auth/create-organization"
+                  element={<CreateOrganizationPage />}
+                />
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/master" element={<Master />} />
                 <Route path="/inventory" element={<Inventory />} />
@@ -70,24 +76,35 @@ const App = () => {
                 <Route path="/orders/analytics" element={<OrderAnalytics />} />
                 <Route path="/bookings/create" element={<CreateBooking />} />
                 <Route path="/bookings/history" element={<BookingHistory />} />
-                <Route path="/bookings/analytics" element={<BookingAnalytics />} />
+                <Route
+                  path="/bookings/analytics"
+                  element={<BookingAnalytics />}
+                />
                 <Route path="/purchase/create" element={<CreatePurchase />} />
                 <Route path="/purchase/history" element={<PurchaseHistory />} />
-                <Route path="/purchase/analytics" element={<PurchaseAnalytics />} />
+                <Route
+                  path="/purchase/analytics"
+                  element={<PurchaseAnalytics />}
+                />
                 <Route path="/sales/create" element={<BuyersList />} />
                 <Route path="/sales/create/:id" element={<CreateSales />} />
                 <Route path="/sales/history" element={<SalesHistory />} />
                 <Route path="/sales/analytics" element={<SalesAnalytics />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  path="*"
+                  element={<Navigate to="/dashboard" replace />}
+                />
               </Routes>
             </div>
           </div>
-          <Footer />
         </>
       ) : (
         <Routes>
           <Route path="/auth/sign-in" element={<SignIn />} />
-          <Route path="/auth/create-organization" element={<CreateOrganizationPage />} />
+          <Route
+            path="/auth/create-organization"
+            element={<CreateOrganizationPage />}
+          />
           <Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
         </Routes>
       )}
