@@ -61,7 +61,6 @@ export default function Home() {
     try {
       const prices = await getPricesByWarehouse(warehouseId);
       setForm(prices);
-      console.log(prices);
     } catch (error) {
       console.error("Error fetching prices:", error);
       setPricesFound(false);

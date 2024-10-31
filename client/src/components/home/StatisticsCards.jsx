@@ -22,8 +22,6 @@ export default function StatisticsCards() {
     fetchBookings();
   }, []);
 
-  console.log(bookings);
-
   let totalOrderValue = orders?.reduce((total, order) => {
     const orderTotal = order.items.reduce(
       (sum, item) => sum + (item.taxableAmount || 0),
