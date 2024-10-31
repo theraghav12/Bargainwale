@@ -10,6 +10,8 @@ export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
 
+  console.log(user);
+
   useEffect(() => {
     const userValidation = async () => {
       try {
@@ -19,7 +21,7 @@ export default function SignIn() {
           });
           if (response.status === 200) {
             toast.success("Signed In!", {
-              description: `Welcome ${user.fullName}`,
+              description: `Welcome ${user.fullName ? user.fullName : ""}`,
             });
             if (user.organizationMemberships.length === 0) {
               navigate("/auth/create-organization");
