@@ -31,6 +31,7 @@
     /* "auto" or "thin" */
     scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
     /* Thumb color and track color */
+    scroll-behavior: smooth;
 }
 
 /* On hover for Firefox */

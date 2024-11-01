@@ -278,7 +278,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <div className="w-full mt-8 mb-8 flex flex-col gap-12 px-7">
+    <div className="w-[99vw] h-full mt-8 mb-8 flex flex-col gap-12 px-7">
       <div className="">
         <div className="flex flex-row justify-between">
           <div>
@@ -519,18 +519,34 @@ const CreateOrder = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto">
                 <thead>
-                  <tr className="">
-                    <th className="py-4 px-2 text-center">CBN</th>
-                    <th className="py-4 px-2 text-center">CBD</th>
-                    <th className="py-4 px-2 text-center">Item</th>
-                    <th className="py-4 px-2 text-center">Quantity</th>
-                    <th className="py-4 px-2 text-center">Pickup</th>
-                    <th className="py-4 px-2 text-center">Cont. No.</th>
-                    <th className="py-4 px-2 text-center">Base Rate</th>
-                    <th className="py-4 px-2 text-center">Tax Paid Amount</th>
-                    <th className="py-4 px-2 text-center">GST</th>
-                    <th className="py-4 px-2 text-center">Taxable Amount</th>
-                    <th className="py-4 px-2 text-center">Action</th>
+                  <tr>
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBN</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
+                    <th className="py-4 px-2 text-center min-w-[150px">Item</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Quantity
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Pickup
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Cont. No.
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Base Rate
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Tax Paid Amount
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      GST %
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Taxable Amount
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

@@ -142,7 +142,7 @@ export function Master() {
         <MasterSidenav onSelect={setSelectedComponent} />
       </div>
 
-      <div className="w-full ml-[19%] px-5">
+      <div className="w-[80%] ml-[19%] px-5">
         {/* <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-12 mb-8">
           <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
             {getCurrentSectionTitle()}

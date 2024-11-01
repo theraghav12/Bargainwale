@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Spinner, Typography } from "@material-tailwind/react";
+import { Spinner, Switch, Typography } from "@material-tailwind/react";
 import { getWarehouses } from "@/services/warehouseService";
 import {
   getPricesByWarehouse,
@@ -201,15 +201,20 @@ export default function Home() {
             Welcome, {organization.name && <span>{organization.name}</span>}
           </h1>
           <p className="text-[0.9rem] text-[#828282]">
-            Here's what's happening with your store today.
+            Here's what's happening with your organization today.
           </p>
+          <div className="flex items-center gap-5 mt-2">
+            <p className="text-[1rem] text-gray-800">Turn on the operations</p>
+            <Switch color="green" />
+          </div>
         </div>
         <div className="flex flex-col items-end text-[#828282]">
           <span className="text-lg font-bold">{formattedDate}</span>
           <span className="text-md">{formattedTime}</span>
         </div>
       </div>
-      <br></br>
+      <br />
+
       <StatisticsCards />
 
       <div className="grid grid-cols-2 gap-6 mt-4">

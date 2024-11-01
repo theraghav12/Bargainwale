@@ -181,25 +181,25 @@ const WarehouseForm = () => {
 
         <div className="p-10">
           {/* Warehouses Table */}
-          <div className="">
+          <div className="max-w-full overflow-x-auto">
             {warehouses?.length > 0 ? (
-              <table className="min-w-full bg-white">
+              <table className="min-w-full bg-white table-auto">
                 <thead>
-                  <tr className="grid grid-cols-5">
-                    <th className="py-2 px-4 text-start">Name</th>
-                    <th className="py-2 px-4 text-start">State</th>
-                    <th className="py-2 px-4 text-start">City</th>
-                    <th className="py-2 px-4 text-start">Manager</th>
-                    <th className="py-2 px-4 text-start">Actions</th>
+                  <tr>
+                    <th className="py-2 px-4 text-start min-w-[200px]">Name</th>
+                    <th className="py-2 px-4 text-start min-w-[150px]">State</th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">City</th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">Manager</th>
+                    <th className="py-2 px-4 text-start min-w-[150px]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="flex flex-col gap-2">
+                <tbody>
                   {warehouses?.map((warehouse) => (
                     <tr
                       key={warehouse._id}
-                      className="grid grid-cols-5 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                      className="border border-[#7F7F7F] rounded-md shadow"
                     >
-                      <td className="py-2 px-4">
+                      <td className="break-all py-2 px-4">
                         {warehouse.isEditing ? (
                           <input
                             name="name"
@@ -208,7 +208,7 @@ const WarehouseForm = () => {
                             onChange={(e) =>
                               handleWarehouseChange(e, warehouse._id)
                             }
-                            placeholder="Invoice No."
+                            placeholder="Warehouse name"
                             className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                           />
                         ) : (
