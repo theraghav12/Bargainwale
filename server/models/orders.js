@@ -44,6 +44,9 @@ const orderSchema = new mongoose.Schema(
         contNumber: {
           type: Number,
         },
+        gstAmount:{
+          type:Number,
+        }
       },
     ],
     totalAmount: {
