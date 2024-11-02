@@ -200,6 +200,7 @@ const CreateOrder = () => {
           baseRate: null,
           taxpaidAmount: null,
           taxableAmount: null,
+          gstAmount: null,
           contNumber: null,
           gst: null,
           cgst: null,
@@ -226,7 +227,6 @@ const CreateOrder = () => {
       value = Number(value) || null;
     }
 
-    // Update the specific field
     updatedItems[index] = { ...updatedItems[index], [field]: value };
 
     // If the itemId is changed, update GST accordingly
@@ -243,13 +243,13 @@ const CreateOrder = () => {
         updatedItems[index].gst = gst;
 
         if (warehouseState === manufacturerState) {
-          updatedItems[index].cgst = gst / 2; // Set CGST
-          updatedItems[index].sgst = gst / 2; // Set SGST
-          updatedItems[index].igst = null; // Clear IGST
+          updatedItems[index].cgst = gst / 2;
+          updatedItems[index].sgst = gst / 2;
+          updatedItems[index].igst = null;
         } else {
-          updatedItems[index].igst = gst; // Set IGST
-          updatedItems[index].cgst = null; // Clear CGST
-          updatedItems[index].sgst = null; // Clear SGST
+          updatedItems[index].igst = gst;
+          updatedItems[index].cgst = null;
+          updatedItems[index].sgst = null;
         }
       }
     }
@@ -258,10 +258,12 @@ const CreateOrder = () => {
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
-      updatedItems[index].taxableAmount =
-        updatedItems[index].taxpaidAmount +
-        (updatedItems[index].taxpaidAmount * updatedItems[index].gst) / 100;
+      updatedItems[index].taxableAmount = quantity * baseRate;
+      updatedItems[index].gstAmount =
+        (baseRate * updatedItems[index].gst) / 100;
+      updatedItems[index].taxpaidAmount =
+        updatedItems[index].taxableAmount +
+        (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
 
     // Update the form state
@@ -692,7 +694,7 @@ const CreateOrder = () => {
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxpaidAmount}
+                        {item.taxableAmount}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {warehouseOptions?.find(
@@ -728,7 +730,10 @@ const CreateOrder = () => {
                         )}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxableAmount}
+                        {item.gstAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.taxpaidAmount}
                       </td>
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
