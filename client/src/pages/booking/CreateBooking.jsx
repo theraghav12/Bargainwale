@@ -275,7 +275,7 @@ const CreateBooking = () => {
   };
 
   return (
-    <div className="w-full mt-8 mb-8 flex flex-col gap-12">
+    <div className="w-screen mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
         <div className="flex flex-row justify-between">
           <div>
@@ -636,33 +636,51 @@ const CreateBooking = () => {
 
           <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
             <div className="overflow-x-auto">
-              <table className="max-w-full table-auto border-collapse">
+              <table className="max-w-full table-auto">
                 <thead>
                   <tr>
-                    <th className="py-4 text-center w-[200px]">CBN</th>
-                    <th className="py-4 text-center w-[200px]">CBD</th>
-                    <th className="py-4 text-center w-[200px]">Item</th>
-                    <th className="py-4 text-center w-[200px]">Quantity</th>
-                    <th className="py-4 text-center w-[200px]">Pickup</th>
-                    <th className="py-4 text-center w-[200px]">Cont. No.</th>
-                    <th className="py-4 text-center w-[200px]">Base Rate</th>
-                    <th className="py-4 text-center w-[200px]">
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBN</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Item
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Quantity
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Pickup
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Cont. No.
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Base Rate
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
                       Tax Paid Amount
                     </th>
-                    <th className="py-4 text-center w-[200px]">
+                    <th className="py-4 px-2 text-center min-w-[150px]">
                       Taxable Amount
                     </th>
-                    <th className="py-4 text-center w-[200px]">Payment Date</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Payment Date
+                    </th>
                     {/* <th className="py-4 text-center w-[200px]">Description</th> */}
-                    <th className="py-4 text-center w-[200px]">Action</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
-                      <td className="py-4 text-center">{form.BargainNo}</td>
-                      <td className="py-4 text-center">{form.BargainDate}</td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
+                        {form.BargainNo}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {form.BargainDate}
+                      </td>
+                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="item"
@@ -686,7 +704,7 @@ const CreateBooking = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="quantity"
@@ -699,7 +717,7 @@ const CreateBooking = () => {
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="pickup"
@@ -721,7 +739,7 @@ const CreateBooking = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="contNumber"
@@ -738,7 +756,7 @@ const CreateBooking = () => {
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="baseRate"
@@ -752,11 +770,17 @@ const CreateBooking = () => {
                           className="w-[150px] bg-white text-center px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-                      <td className="py-4 text-center">{item.taxpaidAmount}</td>
-                      <td className="py-4 text-center">{item.taxableAmount}</td>
-                      <td className="py-4 text-center">{form.paymentDays}</td>
-                      {/* <td className="py-4 text-center">{form.description}</td> */}
-                      <td className="py-4 flex justify-center">
+                      <td className="py-4 px-2 text-center">
+                        {item.taxpaidAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.taxableAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {form.paymentDays}
+                      </td>
+                      {/* <td className="py-4 px-2 text-center">{form.description}</td> */}
+                      <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
                           <span className="w-fit h-fit">
                             <MdDeleteOutline

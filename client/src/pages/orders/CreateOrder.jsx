@@ -18,7 +18,11 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
   const [manufacturerOptions, setManufacturerOptions] = useState([]);
+  const [selectManufacturerOptions, setSelectManufacturerOptions] = useState(
+    []
+  );
   const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
 
   const [form, setForm] = useState({
     items: [],
@@ -51,11 +55,12 @@ const CreateOrder = () => {
   const fetchManufacturerOptions = async () => {
     try {
       const response = await getManufacturer();
+      setManufacturerOptions(response);
       const formattedOptions = response.map((manufacturer) => ({
         value: manufacturer._id,
         label: manufacturer.manufacturer,
       }));
-      setManufacturerOptions(formattedOptions);
+      setSelectManufacturerOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
       console.error(error);
@@ -65,11 +70,12 @@ const CreateOrder = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
+      setWarehouseOptions(response);
       const formattedOptions = response.map((warehouse) => ({
         value: warehouse._id,
         label: warehouse.name,
       }));
-      setWarehouseOptions(formattedOptions);
+      setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
@@ -361,9 +367,9 @@ const CreateOrder = () => {
                   </label>
                   <Select
                     className="relative w-[180px]"
-                    options={warehouseOptions}
+                    options={selectWarehouseOptions}
                     value={
-                      warehouseOptions.find(
+                      selectWarehouseOptions.find(
                         (option) => option.value === form.warehouse
                       ) || null
                     }
@@ -383,9 +389,9 @@ const CreateOrder = () => {
                   </label>
                   <Select
                     className="relative w-[180px]"
-                    options={manufacturerOptions}
+                    options={selectManufacturerOptions}
                     value={
-                      manufacturerOptions.find(
+                      selectManufacturerOptions.find(
                         (option) => option.value === form.manufacturer
                       ) || null
                     }
@@ -536,13 +542,16 @@ const CreateOrder = () => {
                       Base Rate
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Tax Paid Amount
+                      Taxable Amount
                     </th>
                     <th className="py-4 px-2 text-center min-w-[200px]">
                       GST %
                     </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      GST Amount
+                    </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Taxable Amount
+                      Amount (with tax)
                     </th>
                     <th className="py-4 px-2 text-center min-w-[200px]">
                       Action
@@ -688,7 +697,7 @@ const CreateOrder = () => {
                       <td className="py-4 px-2 text-center">
                         {warehouseOptions?.find(
                           (warehouse) => warehouse._id === form?.warehouse
-                        )?.state ===
+                        )?.location?.state ===
                         manufacturerOptions?.find(
                           (man) => man._id === form?.manufacturer
                         )?.manufacturerdeliveryAddress.state ? (

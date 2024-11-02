@@ -179,7 +179,7 @@ const WarehouseForm = () => {
           <span className="text-[1.5rem] text-black">/ Available</span>
         </h1>
 
-        <div className="p-10">
+        <div className="p-10 w-full">
           {/* Warehouses Table */}
           <div className="max-w-full overflow-x-auto">
             {warehouses?.length > 0 ? (

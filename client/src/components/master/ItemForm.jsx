@@ -200,7 +200,7 @@ const ItemForm = () => {
               <table className="min-w-full bg-white table-auto">
                 <thead>
                   <tr>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
+                    <th className="py-2 px-4 text-start min-w-[250px]">
                       Item Id
                     </th>
                     <th className="py-2 px-4 text-start min-w-[200px]">Name</th>
@@ -210,20 +210,19 @@ const ItemForm = () => {
                     <th className="py-2 px-4 text-start min-w-[200px]">
                       Material
                     </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Material Desc.
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
+                    <th className="py-2 px-4 text-start min-w-[150px]">
                       Net Weight
                     </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
+                    <th className="py-2 px-4 text-start min-w-[150px]">
                       Gross Weight
                     </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">GST</th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
+                    <th className="py-2 px-4 text-start min-w-[150px]">
+                      GST %
+                    </th>
+                    <th className="py-2 px-4 text-start min-w-[150px]">
                       Packaging
                     </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
+                    <th className="py-2 px-4 text-start min-w-[150px]">
                       Pack Size
                     </th>
                     <th className="py-2 px-4 text-start min-w-[200px]">
@@ -238,19 +237,7 @@ const ItemForm = () => {
                       className="border border-[#7F7F7F] rounded-md shadow"
                     >
                       <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="staticPrice"
-                            type="number"
-                            value={item.staticPrice}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Static Price"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span className="break-words">{item._id}</span>
-                        )}
+                        <span className="break-all">{item._id}</span>
                       </td>
                       <td className="py-2 px-2">
                         {item.isEditing ? (
@@ -264,7 +251,7 @@ const ItemForm = () => {
                             className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
                           />
                         ) : (
-                          <span>{item.materialdescription}</span>
+                          <span className="break-all">{item.materialdescription}</span>
                         )}
                       </td>
                       <td className="py-2 px-2">
@@ -295,21 +282,6 @@ const ItemForm = () => {
                           />
                         ) : (
                           <span>{item.material}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="materialdescription"
-                            type="text"
-                            value={item.materialdescription}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Material Description"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.materialdescription}</span>
                         )}
                       </td>
                       <td className="py-2 px-2">

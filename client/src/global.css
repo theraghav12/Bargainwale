@@ -39,3 +39,15 @@
     scrollbar-color: rgba(0, 0, 0, 0.7) transparent;
     /* Thumb color on hover */
 }
+
+/* Hide the spinner for number input in Chrome, Safari, and Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide the spinner for Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
