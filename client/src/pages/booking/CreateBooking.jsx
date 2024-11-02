@@ -1,6 +1,7 @@
 import { Button, Spinner, Tooltip } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Select from "react-select";
 
 // api services
 import { getBuyer, getItems, getManufacturer } from "@/services/masterService";
@@ -19,7 +20,10 @@ const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
   const [buyerOptions, setBuyerOptions] = useState([]);
+  const [selectBuyerOptions, setSelectBuyerOptions] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
+  const [isDefaultAddress, setIsDefaultAddress] = useState(false);
 
   const [form, setForm] = useState({
     items: [],
@@ -58,8 +62,13 @@ const CreateBooking = () => {
     try {
       const response = await getBuyer();
       setBuyerOptions(response);
+      const formattedOptions = response.map((buyer) => ({
+        value: buyer._id,
+        label: buyer.buyer,
+      }));
+      setSelectBuyerOptions(formattedOptions);
     } catch (error) {
-      toast.error("Error fetching manufacturers!");
+      toast.error("Error fetching buyers!");
       console.error(error);
     }
   };
@@ -68,6 +77,11 @@ const CreateBooking = () => {
     try {
       const response = await getWarehouses();
       setWarehouseOptions(response);
+      const formattedOptions = response.map((warehouse) => ({
+        value: warehouse._id,
+        label: warehouse.name,
+      }));
+      setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
@@ -107,6 +121,17 @@ const CreateBooking = () => {
         paymentDays,
         organization: form.organization,
       };
+
+      if (isDefaultAddress) {
+        const buyer = buyerOptions.find((buyer) => buyer._id === form.buyer);
+        updatedForm.deliveryAddress = {
+          addressLine1: buyer.buyerdeliveryAddress.addressLine1,
+          addressLine2: buyer.buyerdeliveryAddress.addressLine2,
+          city: buyer.buyerdeliveryAddress.city,
+          state: buyer.buyerdeliveryAddress.state,
+          pinCode: buyer.buyerdeliveryAddress.pinCode,
+        };
+      }
 
       console.log(updatedForm);
       const response = await createBooking(updatedForm);
@@ -161,6 +186,15 @@ const CreateBooking = () => {
       setForm((prevData) => ({
         ...prevData,
         items: updatedItems,
+      }));
+    } else if (
+      fieldName === "warehouse" ||
+      fieldName === "buyer" ||
+      fieldName === "deliveryOption"
+    ) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        [fieldName]: value.value || "",
       }));
     } else if (fieldName === "BargainDate" || fieldName === "paymentDays") {
       const formattedDate = value.split("T")[0];
@@ -275,7 +309,7 @@ const CreateBooking = () => {
   };
 
   return (
-    <div className="w-screen mt-8 mb-8 flex flex-col gap-12">
+    <div className="w-[99vw] h-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
         <div className="flex flex-row justify-between">
           <div>
@@ -336,28 +370,18 @@ const CreateBooking = () => {
                     Warehouse
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[180px]">
-                    <select
-                      id="warehouse"
-                      name="warehouse"
-                      value={form.warehouse}
-                      onChange={(e) =>
-                        handleFormChange(0, "warehouse", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Warehouse</option>
-                      {warehouseOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectWarehouseOptions}
+                    value={
+                      selectWarehouseOptions.find(
+                        (option) => option.value === form.warehouse
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "warehouse", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="flex gap-2 items-center">
@@ -368,28 +392,18 @@ const CreateBooking = () => {
                     Buyer
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="buyer"
-                      name="buyer"
-                      value={form.buyer}
-                      onChange={(e) =>
-                        handleFormChange(0, "buyer", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Buyer</option>
-                      {buyerOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.buyer}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectBuyerOptions}
+                    value={
+                      selectBuyerOptions.find(
+                        (option) => option.value === form.buyer
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "buyer", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="w-fit flex gap-2 items-center">
@@ -440,38 +454,54 @@ const CreateBooking = () => {
                     Delivery Option
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="deliveryOption"
-                      name="deliveryOption"
-                      value={form.deliveryOption}
-                      onChange={(e) => {
-                        handleFormChange(0, "deliveryOption", e.target.value);
-                        if (form.deliveryOption === "Pickup") {
-                          setForm((prev) => ({
-                            ...prev,
-                            deliveryAddress: {
-                              addressLine1: "",
-                              addressLine2: "",
-                              city: "",
-                              state: "",
-                              pinCode: "",
-                            },
-                          }));
-                        }
-                      }}
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Option</option>
-                      <option value="Delivery">Delivery</option>
-                      <option value="Pickup">Pickup</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={[
+                      { value: "Delivery", label: "Delivery" },
+                      { value: "Pickup", label: "Pickup" },
+                    ]}
+                    value={
+                      [
+                        { value: "Delivery", label: "Delivery" },
+                        { value: "Pickup", label: "Pickup" },
+                      ].find(
+                        (option) => option.value === form.deliveryOption
+                      ) || null
+                    }
+                    onChange={(selectedOption) => {
+                      handleFormChange(0, "deliveryOption", selectedOption);
+                      if (selectedOption.value === "Pickup") {
+                        setForm((prev) => ({
+                          ...prev,
+                          addressLine1: "",
+                          addressLine2: "",
+                          city: "",
+                          state: "",
+                          pinCode: "",
+                        }));
+                      }
+                    }}
+                  />
                 </div>
+
+                {form.deliveryOption === "Delivery" && (
+                  <div className="w-fit flex gap-2 items-center">
+                    <label
+                      htmlFor="isDefault"
+                      className="text-[#38454A] text-[1rem]"
+                    >
+                      Use buyer's default address
+                    </label>
+                    <input
+                      name="isDefault"
+                      type="checkbox"
+                      value={isDefaultAddress}
+                      onChange={() => setIsDefaultAddress(!isDefaultAddress)}
+                      className="w-4 h-4 border-2 border-[#CBCDCE] cursor-pointer"
+                      placeholder="Description"
+                    />
+                  </div>
+                )}
 
                 <div className="w-fit flex gap-2 items-center">
                   <label
@@ -494,7 +524,7 @@ const CreateBooking = () => {
               </div>
 
               {/* Delivery Address Fields */}
-              {form.deliveryOption === "Delivery" && (
+              {form.deliveryOption === "Delivery" && !isDefaultAddress && (
                 <div className="flex flex-col">
                   <p className="text-[1.1rem] text-[#38454A] font-semibold mt-4">
                     Delivery Address:

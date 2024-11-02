@@ -285,6 +285,18 @@ const CreateOrder = () => {
     }, 0);
   };
 
+  const calculateTotalGrossWeight = () => {
+    return form.items.reduce((total, item) => {
+      return (
+        total +
+        (Number(
+          itemsOptions.find((it) => it._id === item.itemId)?.grossweight
+        ) || 0) *
+          (Number(item.quantity) || 0)
+      );
+    }, 0);
+  };
+
   return (
     <div className="w-[99vw] h-full mt-8 mb-8 flex flex-col gap-12 px-7">
       <div className="">
@@ -514,6 +526,7 @@ const CreateOrder = () => {
             <div className="flex justify-between items-center px-10 py-2">
               <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
                 <span>Total Qty: {calculateTotalQuantity()}</span>
+                <span>Total Gross Weight: {calculateTotalGrossWeight()}</span>
                 <span>Total Amount: {calculateTotalAmount()}</span>
               </div>
             </div>
