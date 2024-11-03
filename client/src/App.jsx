@@ -22,6 +22,7 @@ import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 import largeScreen from "./assets/large-screen.png";
 import { useUser } from "@clerk/clerk-react";
+import DiscountApprovalPage from "./pages/orders/DiscountApproval";
 
 const App = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);
@@ -90,6 +91,7 @@ const App = () => {
                 <Route path="/sales/create/:id" element={<CreateSales />} />
                 <Route path="/sales/history" element={<SalesHistory />} />
                 <Route path="/sales/analytics" element={<SalesAnalytics />} />
+                <Route path="/discount" element={<DiscountApprovalPage />} />
                 <Route
                   path="*"
                   element={<Navigate to="/dashboard" replace />}
