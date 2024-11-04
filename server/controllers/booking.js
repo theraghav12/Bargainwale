@@ -34,6 +34,7 @@ const bookingController = {
         item: itemId,
         quantity,
         pickup,
+        discount,
         taxpaidAmount,
         taxableAmount,
         gst,
@@ -58,6 +59,7 @@ const bookingController = {
           item: item._id,
           quantity,
           pickup,
+          discount,
           taxpaidAmount,
           taxableAmount,
           gst,
@@ -220,6 +222,22 @@ const bookingController = {
       res.status(200).json({ message: "Booking updated successfully", booking });
     } catch (error) {
       res.status(400).json({ message: "Error updating booking", error });
+    }
+  },
+
+  updateBookingForDiscount: async (req,res)=>{
+    try {
+      const {items}=req.body;
+      const booking= await Booking.findByIdAndUpdate(req.params.id,{
+        items,
+        discountStatus:"completed"
+      },{ new: true });
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      res.status(200).json({ message: "Booking updated successfully", booking });
+    } catch (error) {
+      res.status(400).json({ message: "Error updating booking for discount", error });
     }
   },
 
