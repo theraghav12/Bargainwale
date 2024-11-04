@@ -1,16 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Button,
-  Tabs,
-  TabsHeader,
-  Tab,
-  TabsBody,
-  TabPanel,
-} from "@material-tailwind/react";
 import { MasterSidenav } from "@/widgets/layout";
 import {
   createWarehouse,
@@ -18,7 +6,7 @@ import {
   getWarehouseById,
 } from "@/services/warehouseService";
 import { useNavigate } from "react-router-dom";
-import statesAndCities from "@/data/statecities.json";
+import statesAndCities from "@/constants/statecities.json";
 import { toast } from "sonner";
 import ItemForm from "@/components/master/ItemForm";
 import TransportForm from "@/components/master/TransportForm";
@@ -154,7 +142,7 @@ export function Master() {
         <MasterSidenav onSelect={setSelectedComponent} />
       </div>
 
-      <div className="w-full ml-[19%] px-5">
+      <div className="w-[80%] ml-[19%] px-5">
         {/* <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-12 mb-8">
           <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
             {getCurrentSectionTitle()}

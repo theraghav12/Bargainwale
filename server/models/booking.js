@@ -55,6 +55,9 @@ const bookingSchema = new mongoose.Schema(
         depoPrice: {
           type: Number,
         },
+        gstAmount:{
+          type:Number,
+        }
       },
     ],
     totalAmount: {

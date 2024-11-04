@@ -194,27 +194,41 @@ const ManufacturerForm = () => {
           <span className="text-[1.5rem] text-black">/ Available</span>
         </h1>
 
-        <div className="p-10">
+        <div className="p-10 w-full">
           {/* Manufacturers Table */}
-          <div className="mt-8">
+          <div className="max-w-[1024px] overflow-x-auto mt-8">
             {manufacturer?.length > 0 ? (
-              <table className="min-w-full bg-white">
+              <table className="min-w-full bg-white table-auto">
                 <thead>
-                  <tr className="grid grid-cols-7">
-                    <th className="py-2 px-2 text-start">Manufacturer Name</th>
-                    <th className="py-2 px-2 text-start">Company</th>
-                    <th className="py-2 px-2 text-start">Address</th>
-                    <th className="py-2 px-2 text-start">Contact</th>
-                    <th className="py-2 px-2 text-start">Email</th>
-                    <th className="py-2 px-2 text-start">GST Number</th>
-                    <th className="py-2 px-2 text-start">Actions</th>
+                  <tr>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Manufacturer Name
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Company
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Address
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Contact
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Email
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      GST Number
+                    </th>
+                    <th className="py-2 px-2 text-start min-w-[200px]">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="flex flex-col gap-2">
+                <tbody>
                   {manufacturer?.map((man) => (
                     <tr
                       key={man._id}
-                      className="grid grid-cols-7 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                      className="border border-[#7F7F7F] rounded-md shadow"
                     >
                       <td className="py-2 px-2">
                         {man.isEditing ? (
@@ -268,7 +282,7 @@ const ManufacturerForm = () => {
                               onChange={(e) => handleItemChange(e, man._id)}
                             />
                             <input
-                              name="manufacturerdeliveryAddress/city"
+                              name="manufacturerdeliveryAddress.city"
                               type="text"
                               placeholder="City"
                               value={man.manufacturerdeliveryAddress?.city}

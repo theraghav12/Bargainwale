@@ -13,6 +13,7 @@ import {
   FaHistory,
   FaChartBar,
 } from "react-icons/fa";
+import { RiDiscountPercentFill } from "react-icons/ri";
 
 function Dropdown({ label, links, icon }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -68,7 +69,7 @@ function Dropdown({ label, links, icon }) {
                   }`
                 }
               >
-                {link.icon} {/* Display specific icon for each sub-link */}
+                {link.icon}
                 {link.name}
               </NavLink>
             </li>
@@ -103,60 +104,65 @@ function SecondNavbar() {
     {
       label: "Orders",
       links: [
-        { name: "Create Order", to: "/orders/create", icon: <FaPlus /> }, // Icon for Create Order
-        { name: "Order History", to: "/orders/history", icon: <FaHistory /> }, // Icon for Order History
+        { name: "Create Order", to: "/orders/create", icon: <FaPlus /> },
+        { name: "Order History", to: "/orders/history", icon: <FaHistory /> },
         {
           name: "Order Analytics",
           to: "/orders/analytics",
           icon: <FaChartBar />,
-        }, // Icon for Order Analytics
+        },
       ],
       icon: <FaClipboardList />,
     },
     {
       label: "Bookings",
       links: [
-        { name: "Create Booking", to: "/bookings/create", icon: <FaPlus /> }, // Icon for Create Booking
+        { name: "Create Booking", to: "/bookings/create", icon: <FaPlus /> },
         {
           name: "Booking History",
           to: "/bookings/history",
           icon: <FaHistory />,
-        }, // Icon for Booking History
+        },
         {
           name: "Booking Analytics",
           to: "/bookings/analytics",
           icon: <FaChartBar />,
-        }, // Icon for Booking Analytics
+        },
+        {
+          name: "Discount Approval",
+          to: "/discount",
+          icon: <RiDiscountPercentFill />,
+        },
       ],
       icon: <FaBook />,
     },
     {
       label: "Purchase",
       links: [
-        { name: "Create Purchase", to: "/purchase/create", icon: <FaPlus /> }, // Icon for Create Purchase
+        { name: "Create Purchase", to: "/purchase/create", icon: <FaPlus /> },
         {
           name: "Purchase History",
           to: "/purchase/history",
           icon: <FaHistory />,
-        }, // Icon for Purchase History
+        },
         {
           name: "Purchase Analytics",
           to: "/purchase/analytics",
           icon: <FaChartBar />,
-        }, // Icon for Purchase Analytics
+        },
       ],
       icon: <FaShoppingCart />,
     },
     {
       label: "Sales",
       links: [
-        { name: "Create Sales", to: "/sales/create", icon: <FaPlus /> }, // Icon for Create Sales
-        { name: "Sales History", to: "/sales/history", icon: <FaHistory /> }, // Icon for Sales History
+        { name: "Create Sales", to: "/sales/create", icon: <FaPlus /> },
+        { name: "Sales History", to: "/sales/history", icon: <FaHistory /> },
         {
           name: "Sales Analytics",
           to: "/sales/analytics",
           icon: <FaChartBar />,
-        }, // Icon for Sales Analytics
+        },
       ],
       icon: <FaChartLine />,
     },
@@ -166,7 +172,6 @@ function SecondNavbar() {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  // Close the drawer if clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (drawerRef.current && !drawerRef.current.contains(event.target)) {
@@ -185,20 +190,18 @@ function SecondNavbar() {
     };
   }, [isDrawerOpen]);
 
-  // Check for daily update at 9:30 AM
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       const hours = now.getHours();
       const minutes = now.getMinutes();
 
-      // Check if it's 9:30 AM
       if (hours === 9 && minutes === 30) {
         setShowDailyUpdate(true);
       }
-    }, 60000); // Check every minute
+    }, 60000);
 
-    return () => clearInterval(interval); // Cleanup the interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (

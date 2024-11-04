@@ -31,10 +31,23 @@
     /* "auto" or "thin" */
     scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
     /* Thumb color and track color */
+    scroll-behavior: smooth;
 }
 
 /* On hover for Firefox */
 *::-webkit-scrollbar-thumb:hover {
     scrollbar-color: rgba(0, 0, 0, 0.7) transparent;
     /* Thumb color on hover */
+}
+
+/* Hide the spinner for number input in Chrome, Safari, and Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide the spinner for Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }

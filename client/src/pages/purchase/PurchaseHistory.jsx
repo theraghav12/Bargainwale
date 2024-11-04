@@ -15,12 +15,14 @@ import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
 import { deleteBooking, getBookings } from "@/services/bookingService";
-import { EditOrderForm } from "@/components/orders/EditOrder";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
 import { getPurchases } from "@/services/purchaseService";
 import { generateInvoicePDF } from "@/utils/generateInvoicePdf";
 import { FaDownload } from "react-icons/fa6";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import PurchaseInvoice from "@/utils/PurchaseInvoice";
+import { useOrganization } from "@clerk/clerk-react";
 
 export default function PurchaseHistory() {
   const [showPurchaseForm, setPurchaseForm] = useState(false);
@@ -116,6 +118,8 @@ export default function PurchaseHistory() {
   const handleTogglePurchase = (purchaseId) => {
     setOpenPurchase(openPurchase === purchaseId ? null : purchaseId);
   };
+
+  const { organization } = useOrganization();
 
   console.log(purchases);
 
@@ -302,12 +306,17 @@ export default function PurchaseHistory() {
                                 </Tooltip>
                                 <Tooltip content="Download Invoice">
                                   <span className="flex items-center justify-center">
-                                    <FaDownload
-                                      onClick={() =>
-                                        handleDownloadInvoice(purchase)
+                                    <PDFDownloadLink
+                                      document={
+                                        <PurchaseInvoice
+                                          purchase={purchase}
+                                          organization={organization.name}
+                                        />
                                       }
-                                      className="text-[1.4rem] cursor-pointer"
-                                    />
+                                      fileName={`invoice_${purchase._id}.pdf`}
+                                    >
+                                      <FaDownload className="text-[1.4rem] cursor-pointer" />
+                                    </PDFDownloadLink>
                                   </span>
                                 </Tooltip>
                               </div>

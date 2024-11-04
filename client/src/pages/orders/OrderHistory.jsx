@@ -354,10 +354,10 @@ export function OrderHistory() {
                                           "Weight",
                                           "Cont. No.",
                                           "Pickup",
-                                          "Static Price (Rs.)",
-                                          "GST",
-                                          "Tax Paid Amt.",
                                           "Quantity",
+                                          "Base Price (Rs.)",
+                                          "GST %",
+                                          "Tax Paid Amt.",
                                         ].map((header) => (
                                           <th
                                             key={header}
@@ -390,7 +390,10 @@ export function OrderHistory() {
                                             {item.pickup}
                                           </td>
                                           <td className="py-4 text-center">
-                                            {item.item.staticPrice}
+                                            {item.quantity}
+                                          </td>
+                                          <td className="py-4 text-center">
+                                            {item.baseRate}
                                           </td>
                                           <td className="py-4 text-center">
                                             {item.igst ? (
@@ -404,9 +407,6 @@ export function OrderHistory() {
                                           </td>
                                           <td className="py-4 text-center">
                                             {item.taxpaidAmount}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.quantity}
                                           </td>
                                         </tr>
                                       ))}

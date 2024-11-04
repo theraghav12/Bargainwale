@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
 import { deleteBooking, getBookings } from "@/services/bookingService";
-import { EditOrderForm } from "@/components/orders/EditOrder";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
 

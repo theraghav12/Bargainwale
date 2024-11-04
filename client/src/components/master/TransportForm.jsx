@@ -156,25 +156,33 @@ const TransportForm = () => {
           <span className="text-[1.5rem] text-black">/ Available</span>
         </h1>
 
-        <div className="p-10">
+        <div className="p-10 w-full">
           {/* Transport Table */}
-          <div className="mt-8">
+          <div className="max-w-[1024px] overflow-x-auto mt-8">
             {transport?.length > 0 ? (
-              <table className="min-w-full bg-white">
+              <table className="min-w-full bg-white table-auto">
                 <thead>
-                  <tr className="grid grid-cols-5">
-                    <th className="py-2 px-4 text-start">Transport</th>
-                    <th className="py-2 px-4 text-start">Type</th>
-                    <th className="py-2 px-4 text-start">Contact</th>
-                    <th className="py-2 px-4 text-start">Agency</th>
-                    <th className="py-2 px-4 text-start">Actions</th>
+                  <tr>
+                    <th className="py-2 px-4 text-start min-w-[200px]">
+                      Transport
+                    </th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">Type</th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">
+                      Contact
+                    </th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">
+                      Agency
+                    </th>
+                    <th className="py-2 px-4 text-start min-w-[200px]">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="flex flex-col gap-2">
+                <tbody>
                   {transport?.map((item) => (
                     <tr
                       key={item._id}
-                      className="grid grid-cols-5 items-center border border-[#7F7F7F] rounded-md shadow-md"
+                      className="border border-[#7F7F7F] rounded-md shadow"
                     >
                       <td className="py-2 px-4">
                         {item.isEditing ? (

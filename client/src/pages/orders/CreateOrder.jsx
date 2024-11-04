@@ -18,7 +18,11 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
   const [manufacturerOptions, setManufacturerOptions] = useState([]);
+  const [selectManufacturerOptions, setSelectManufacturerOptions] = useState(
+    []
+  );
   const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
 
   const [form, setForm] = useState({
     items: [],
@@ -51,11 +55,12 @@ const CreateOrder = () => {
   const fetchManufacturerOptions = async () => {
     try {
       const response = await getManufacturer();
+      setManufacturerOptions(response);
       const formattedOptions = response.map((manufacturer) => ({
         value: manufacturer._id,
         label: manufacturer.manufacturer,
       }));
-      setManufacturerOptions(formattedOptions);
+      setSelectManufacturerOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
       console.error(error);
@@ -65,11 +70,12 @@ const CreateOrder = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
+      setWarehouseOptions(response);
       const formattedOptions = response.map((warehouse) => ({
         value: warehouse._id,
         label: warehouse.name,
       }));
-      setWarehouseOptions(formattedOptions);
+      setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
@@ -194,6 +200,7 @@ const CreateOrder = () => {
           baseRate: null,
           taxpaidAmount: null,
           taxableAmount: null,
+          gstAmount: null,
           contNumber: null,
           gst: null,
           cgst: null,
@@ -220,7 +227,6 @@ const CreateOrder = () => {
       value = Number(value) || null;
     }
 
-    // Update the specific field
     updatedItems[index] = { ...updatedItems[index], [field]: value };
 
     // If the itemId is changed, update GST accordingly
@@ -237,13 +243,13 @@ const CreateOrder = () => {
         updatedItems[index].gst = gst;
 
         if (warehouseState === manufacturerState) {
-          updatedItems[index].cgst = gst / 2; // Set CGST
-          updatedItems[index].sgst = gst / 2; // Set SGST
-          updatedItems[index].igst = null; // Clear IGST
+          updatedItems[index].cgst = gst / 2;
+          updatedItems[index].sgst = gst / 2;
+          updatedItems[index].igst = null;
         } else {
-          updatedItems[index].igst = gst; // Set IGST
-          updatedItems[index].cgst = null; // Clear CGST
-          updatedItems[index].sgst = null; // Clear SGST
+          updatedItems[index].igst = gst;
+          updatedItems[index].cgst = null;
+          updatedItems[index].sgst = null;
         }
       }
     }
@@ -252,10 +258,12 @@ const CreateOrder = () => {
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
-      updatedItems[index].taxableAmount =
-        updatedItems[index].taxpaidAmount +
-        (updatedItems[index].taxpaidAmount * updatedItems[index].gst) / 100;
+      updatedItems[index].taxableAmount = quantity * baseRate;
+      updatedItems[index].gstAmount =
+        (baseRate * updatedItems[index].gst) / 100;
+      updatedItems[index].taxpaidAmount =
+        updatedItems[index].taxableAmount +
+        (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
 
     // Update the form state
@@ -277,8 +285,20 @@ const CreateOrder = () => {
     }, 0);
   };
 
+  const calculateTotalGrossWeight = () => {
+    return form.items.reduce((total, item) => {
+      return (
+        total +
+        (Number(
+          itemsOptions.find((it) => it._id === item.itemId)?.grossweight
+        ) || 0) *
+          (Number(item.quantity) || 0)
+      );
+    }, 0);
+  };
+
   return (
-    <div className="w-full mt-8 mb-8 flex flex-col gap-12 px-7">
+    <div className="w-[99vw] h-full mt-8 mb-8 flex flex-col gap-12 px-7">
       <div className="">
         <div className="flex flex-row justify-between">
           <div>
@@ -361,9 +381,9 @@ const CreateOrder = () => {
                   </label>
                   <Select
                     className="relative w-[180px]"
-                    options={warehouseOptions}
+                    options={selectWarehouseOptions}
                     value={
-                      warehouseOptions.find(
+                      selectWarehouseOptions.find(
                         (option) => option.value === form.warehouse
                       ) || null
                     }
@@ -383,9 +403,9 @@ const CreateOrder = () => {
                   </label>
                   <Select
                     className="relative w-[180px]"
-                    options={manufacturerOptions}
+                    options={selectManufacturerOptions}
                     value={
-                      manufacturerOptions.find(
+                      selectManufacturerOptions.find(
                         (option) => option.value === form.manufacturer
                       ) || null
                     }
@@ -506,6 +526,7 @@ const CreateOrder = () => {
             <div className="flex justify-between items-center px-10 py-2">
               <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
                 <span>Total Qty: {calculateTotalQuantity()}</span>
+                <span>Total Gross Weight: {calculateTotalGrossWeight()}</span>
                 <span>Total Amount: {calculateTotalAmount()}</span>
               </div>
             </div>
@@ -519,18 +540,37 @@ const CreateOrder = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto">
                 <thead>
-                  <tr className="">
-                    <th className="py-4 px-2 text-center">CBN</th>
-                    <th className="py-4 px-2 text-center">CBD</th>
-                    <th className="py-4 px-2 text-center">Item</th>
-                    <th className="py-4 px-2 text-center">Quantity</th>
-                    <th className="py-4 px-2 text-center">Pickup</th>
-                    <th className="py-4 px-2 text-center">Cont. No.</th>
-                    <th className="py-4 px-2 text-center">Base Rate</th>
-                    <th className="py-4 px-2 text-center">Tax Paid Amount</th>
-                    <th className="py-4 px-2 text-center">GST</th>
-                    <th className="py-4 px-2 text-center">Taxable Amount</th>
-                    <th className="py-4 px-2 text-center">Action</th>
+                  <tr>
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBN</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
+                    <th className="py-4 px-2 text-center min-w-[150px">Item</th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Quantity
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Pickup
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Cont. No.
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Base Rate
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Taxable Amount
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      GST %
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      GST Amount
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Amount (with tax)
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[200px]">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -667,12 +707,12 @@ const CreateOrder = () => {
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxpaidAmount}
+                        {item.taxableAmount}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {warehouseOptions?.find(
                           (warehouse) => warehouse._id === form?.warehouse
-                        )?.state ===
+                        )?.location?.state ===
                         manufacturerOptions?.find(
                           (man) => man._id === form?.manufacturer
                         )?.manufacturerdeliveryAddress.state ? (
@@ -703,7 +743,10 @@ const CreateOrder = () => {
                         )}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxableAmount}
+                        {item.gstAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.taxpaidAmount}
                       </td>
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">
