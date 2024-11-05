@@ -20,7 +20,7 @@ const bookingSchema = new mongoose.Schema(
           enum: ["rack", "depot", "plant"],
           default: "rack",
         },
-        discount:{
+        discount: {
           type: Number,
           required: true,
           default: 0,
@@ -55,18 +55,18 @@ const bookingSchema = new mongoose.Schema(
         depoPrice: {
           type: Number,
         },
-        gstAmount:{
-          type:Number,
+        gstAmount: {
+          type: Number,
         }
       },
     ],
     totalAmount: {
       type: Number,
     },
-    discountStatus:{
+    discountStatus: {
       type: String,
-      enum:["completed", "pending"],
-      default:"pending",
+      enum: ["approved", "pending"],
+      default: "pending",
     },
     validity: {
       type: Number,

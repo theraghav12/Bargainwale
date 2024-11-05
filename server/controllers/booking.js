@@ -118,7 +118,7 @@ const bookingController = {
         if (!existingSoldInventoryItem) {
           warehouseDocument.soldInventory.push({
             item: itemId,
-            virtualQuantity:quantity,
+            virtualQuantity: quantity,
             pickup,
           });
         } else {
@@ -225,13 +225,13 @@ const bookingController = {
     }
   },
 
-  updateBookingForDiscount: async (req,res)=>{
+  updateBookingForDiscount: async (req, res) => {
     try {
-      const {items}=req.body;
-      const booking= await Booking.findByIdAndUpdate(req.params.id,{
+      const { items } = req.body;
+      const booking = await Booking.findByIdAndUpdate(req.params.id, {
         items,
-        discountStatus:"completed"
-      },{ new: true });
+        discountStatus: "approved"
+      }, { new: true });
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
@@ -244,28 +244,28 @@ const bookingController = {
   deleteBooking: async (req, res) => {
     try {
       const { id } = req.params;
-  
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: 'Invalid booking ID format' });
       }
-  
+
       const booking = await Booking.findById(id).populate('warehouse');
       if (!booking) {
         return res.status(404).json({ message: 'Booking not found' });
       }
-  
+
       const { items, warehouse } = booking;
       if (!warehouse) {
         return res.status(404).json({ message: 'Associated warehouse not found' });
       }
-  
-     
+
+
       for (const { item, quantity, pickup } of items) {
-        
+
         const virtualInventoryItem = warehouse.virtualInventory.find(
           (i) => i.item && i.item.toString() === item.toString() && i.pickup === pickup
         );
-        
+
         if (virtualInventoryItem) {
           virtualInventoryItem.quantity += quantity;
         } else {
@@ -273,14 +273,14 @@ const bookingController = {
             message: `Item not found in virtual inventory for booking: ${item}`,
           });
         }
-  
-        
+
+
         const soldInventoryItem = warehouse.soldInventory.find(
           (i) => i.item && i.item.toString() === item.toString() && i.pickup === pickup
         );
         if (soldInventoryItem) {
           soldInventoryItem.virtualQuantity -= quantity;
-          
+
           if (soldInventoryItem.virtualQuantity <= 0) {
             warehouse.soldInventory = warehouse.soldInventory.filter(
               (i) => !(i.item.toString() === item.toString() && i.pickup === pickup)
@@ -292,12 +292,12 @@ const bookingController = {
           });
         }
       }
-  
-      
+
+
       await warehouse.save();
-     
+
       await Booking.findByIdAndDelete(id);
-  
+
       res.status(200).json({ message: 'Booking deleted successfully' });
     } catch (error) {
       console.error('Error deleting booking:', error.message || error);
@@ -333,7 +333,7 @@ const bookingController = {
       res.status(500).json({ success: false, message: "Server Error" });
     }
   },
-  
+
   getBookingsByBuyerId: async (req, res) => {
     try {
       const { buyerId } = req.params;
