@@ -228,13 +228,20 @@ const bookingController = {
   updateBookingForDiscount: async (req,res)=>{
     try {
       const {items}=req.body;
-      const booking= await Booking.findByIdAndUpdate(req.params.id,{
-        items,
-        discountStatus:"completed"
-      },{ new: true });
+      const booking=await Booking.findById(req.params.id);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
+      for(const item of items){
+        const itemId=item.item;
+        const bookingItem = booking.items.find((bookingItem) => bookingItem.item.toString() === itemId.toString());
+        if(!bookingItem){
+          return res.status(404).json({ message: `Item with ${itemId} not found in booking` });
+        }
+        bookingItem.discount=item.discount;
+      }
+      booking.discountStatus="approved";
+      await booking.save();
       res.status(200).json({ message: "Booking updated successfully", booking });
     } catch (error) {
       res.status(400).json({ message: "Error updating booking for discount", error });
@@ -308,29 +315,6 @@ const bookingController = {
           stack: error.stack,
         },
       });
-    }
-  },
-  getBookingBetweenDates: async (req, res) => {
-    try {
-      const { startDate, endDate } = req.body;
-
-      if (!startDate || !endDate) {
-        return res
-          .status(400)
-          .json({ message: "Both startDate and endDate are required." });
-      }
-
-      const booking = await Booking.find({
-        invoiceDate: {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate),
-        },
-      });
-
-      res.status(200).json({ success: true, sales });
-    } catch (error) {
-      console.error("Error fetching booking between dates:", error);
-      res.status(500).json({ success: false, message: "Server Error" });
     }
   },
   

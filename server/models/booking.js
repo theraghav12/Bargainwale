@@ -9,7 +9,7 @@ const bookingSchema = new mongoose.Schema(
     BargainNo: {
       type: String,
       required: true,
-    },
+    },  
     items: [
       {
         item: { type: mongoose.Schema.ObjectId, ref: "Item", required: true },
@@ -23,7 +23,6 @@ const bookingSchema = new mongoose.Schema(
         discount:{
           type: Number,
           required: true,
-          default: 0,
         },
         taxpaidAmount: {
           type: Number,
@@ -65,7 +64,7 @@ const bookingSchema = new mongoose.Schema(
     },
     discountStatus:{
       type: String,
-      enum:["completed", "pending"],
+      enum:["approved", "pending"],
       default:"pending",
     },
     validity: {
