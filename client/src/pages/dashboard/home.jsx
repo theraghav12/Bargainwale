@@ -29,6 +29,8 @@ export default function Home() {
 
   const { organization } = useOrganization();
 
+  const isOrganizationLoaded = localStorage.getItem("organizationId");
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = historyItems?.slice(indexOfFirstItem, indexOfLastItem);
@@ -82,19 +84,19 @@ export default function Home() {
 
   useEffect(() => {
     fetchWarehouseOptions();
-  }, []);
+  }, [isOrganizationLoaded]);
 
   useEffect(() => {
     if (selectedWarehouse) {
       fetchPricesForWarehouse(selectedWarehouse);
     }
-  }, [selectedWarehouse]);
+  }, [selectedWarehouse, isOrganizationLoaded]);
 
   useEffect(() => {
     if (selectedHistoryWarehouse) {
       fetchPricesForHistory(selectedHistoryWarehouse);
     }
-  }, [selectedHistoryWarehouse]);
+  }, [selectedHistoryWarehouse, isOrganizationLoaded]);
 
   const handleInputChange = (index, event) => {
     const { name, value } = event.target;
@@ -198,7 +200,7 @@ export default function Home() {
       >
         <div>
           <h1 className="text-[1.2rem]">
-            Welcome, {organization.name && <span>{organization.name}</span>}
+            Welcome, {organization?.name && <span>{organization?.name}</span>}
           </h1>
           <p className="text-[0.9rem] text-[#828282]">
             Here's what's happening with your organization today.

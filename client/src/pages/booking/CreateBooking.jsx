@@ -24,6 +24,7 @@ const CreateBooking = () => {
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
   const [isDefaultAddress, setIsDefaultAddress] = useState(false);
+  const [approval, setApproval] = useState(false);
 
   const [form, setForm] = useState({
     items: [],
@@ -220,6 +221,7 @@ const CreateBooking = () => {
           quantity: null,
           pickup: "",
           baseRate: null,
+          discount: null,
           taxpaidAmount: null,
           taxableAmount: null,
           contNumber: null,
@@ -244,7 +246,7 @@ const CreateBooking = () => {
     }
 
     const updatedItems = [...form.items];
-    if (field === "quantity" || field === "baseRate") {
+    if (field === "quantity" || field === "baseRate" || field === "discount") {
       value = Number(value) || null;
     }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
@@ -281,14 +283,15 @@ const CreateBooking = () => {
       }
     }
 
-    if (field === "quantity" || field === "baseRate") {
-      console.log(updatedItems);
+    if (field === "quantity" || field === "baseRate" || field === "discount") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
-      updatedItems[index].taxableAmount =
-        updatedItems[index].taxpaidAmount +
-        (updatedItems[index].taxpaidAmount * updatedItems[index].gst) / 100;
+      const discount = updatedItems[index].discount || 0;
+      setApproval(discount > 0);
+      updatedItems[index].taxableAmount = quantity * (baseRate - discount);
+      updatedItems[index].taxpaidAmount =
+        updatedItems[index].taxableAmount +
+        (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
     setForm((prevData) => ({
       ...prevData,
@@ -641,9 +644,15 @@ const CreateBooking = () => {
                 <Button
                   color="blue"
                   type="submit"
-                  className="w-[150px] flex items-center justify-center"
+                  className="w-fit flex items-center justify-center"
                 >
-                  {loading ? <Spinner /> : <span>Create Booking</span>}
+                  {loading ? (
+                    <Spinner />
+                  ) : approval ? (
+                    <span>Send for approval</span>
+                  ) : (
+                    <span>Create Booking</span>
+                  )}
                 </Button>
               </div>
             </div>
@@ -675,22 +684,25 @@ const CreateBooking = () => {
                       Item
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Quantity
-                    </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
                       Pickup
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Cont. No.
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
+                      Quantity
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
                       Base Rate
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Tax Paid Amount
+                      Discounted Price
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Taxable Amount
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Amount (with tax)
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Payment Date
@@ -735,19 +747,6 @@ const CreateBooking = () => {
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleItemChange(index, "quantity", e.target.value)
-                          }
-                          required
-                          placeholder="Quantity"
-                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
-                      </td>
-                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="pickup"
@@ -789,6 +788,19 @@ const CreateBooking = () => {
                       <td className="py-4 px-2 text-center">
                         <input
                           type="number"
+                          name="quantity"
+                          value={form.warehouse ? item.quantity : ""}
+                          onChange={(e) =>
+                            handleItemChange(index, "quantity", e.target.value)
+                          }
+                          required
+                          placeholder="Quantity"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        />
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        <input
+                          type="number"
                           name="baseRate"
                           value={item.baseRate}
                           onChange={(e) =>
@@ -801,10 +813,23 @@ const CreateBooking = () => {
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxpaidAmount}
+                        <input
+                          type="number"
+                          name="discount"
+                          value={item.discount}
+                          onChange={(e) =>
+                            handleItemChange(index, "discount", e.target.value)
+                          }
+                          required
+                          placeholder="Discounted Price"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        />
                       </td>
                       <td className="py-4 px-2 text-center">
                         {item.taxableAmount}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.taxpaidAmount}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {form.paymentDays}
