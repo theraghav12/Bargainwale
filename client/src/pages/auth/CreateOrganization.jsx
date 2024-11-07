@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   useOrganization,
   useOrganizationList,
   useUser,
 } from "@clerk/clerk-react";
 import axios from "axios";
-import { API_BASE_URL } from "@/services/api"; // Update this path as needed
-import { toast } from "sonner"; // Use any toast library you prefer
-import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "@/services/api";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
+import { GrFormNextLink } from "react-icons/gr";
 
 const CreateOrganizationPage = () => {
   const { createOrganization, setActive } = useOrganizationList();
@@ -99,7 +100,15 @@ const CreateOrganizationPage = () => {
             </button>
           </form>
         ) : (
-          <h1 className="text-[1rem]">Organization already created!</h1>
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="text-[1.1rem]">Organization already created!</h1>
+            <Link
+              to="/dashboard"
+              className="text-[#0000EE] text-[1rem] flex items-center hover:underline transition-all"
+            >
+              Go to Dashboard <GrFormNextLink className="text-[1.2rem]" />
+            </Link>
+          </div>
         )
       ) : (
         <h1 className="text-[1rem]">Loading...</h1>

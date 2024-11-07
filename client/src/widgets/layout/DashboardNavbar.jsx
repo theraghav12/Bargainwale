@@ -59,9 +59,11 @@ export function DashboardNavbar() {
         `${API_BASE_URL}/${user?.organizationMemberships[0]?.organization.id}/organization`
       );
       if (response.status === 200) {
-        localStorage.setItem("organizationId", response.data[0]._id);
+        if (!localStorage.getItem("organizationId")) {
+          localStorage.setItem("organizationId", response.data[0]._id);
+          navigate("/dashboard");
+        }
       }
-      navigate("/dashboard");
     } catch (err) {
       console.log("Error:", err);
     }

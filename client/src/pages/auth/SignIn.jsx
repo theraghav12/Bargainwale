@@ -28,6 +28,9 @@ export default function SignIn() {
               description: `Welcome ${user.fullName ? user.fullName : ""}`,
             });
           }
+          if (organization !== null) {
+            navigate("/dashboard");
+          }
         }
       } catch (err) {
         if (err.response && err.response.status === 404) {
