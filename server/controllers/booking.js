@@ -42,10 +42,9 @@ const bookingController = {
         sgst,
         igst,
         contNumber,
-        basePrice,
-        // rackPrice,
-        // depoPrice,
-        // plantPrice,
+        rackPrice,
+        depoPrice,
+        plantPrice,
       } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
           return res.status(400).json({ message: `Invalid itemId format: ${itemId}` });
@@ -68,10 +67,9 @@ const bookingController = {
           sgst,
           igst,
           contNumber,
-          basePrice,
-          // rackPrice,
-          // depoPrice,
-          // plantPrice,
+          rackPrice,
+          depoPrice,
+          plantPrice,
         });
       }
 
@@ -91,62 +89,54 @@ const bookingController = {
         totalAmount,
       });
 
-      let noDiscount=true;
-      for(const item of items){
-        if(item.discount!==0){
-          noDiscount=false;
-          break;
-        }
+      await booking.save();
+
+      let warehouseDocument = await Warehouse.findById(warehouseId);
+      if (!warehouseDocument) {
+        return res.status(404).json({ message: "Warehouse not found" });
       }
-      if(noDiscount){
-        let warehouseDocument = await Warehouse.findById(warehouseId);
-        if (!warehouseDocument) {
-          return res.status(404).json({ message: "Warehouse not found" });
-        }
-        
-        for (let { item: itemId, quantity, pickup } of bookingItems) {
-          quantity = Number(quantity);
-          
-          let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-            (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
-          );
-          
-          let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
-            (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
-          );
-          
-          if (!existingVirtualInventoryItem) {
-            return res.status(400).json({
-              message: `Item not found in virtual inventory: ${itemId}`,
-            });
-          }
-          
-          existingVirtualInventoryItem.quantity -= quantity;
-          
-          if (!existingSoldInventoryItem) {
-            warehouseDocument.soldInventory.push({
-              item: itemId,
-              virtualQuantity: quantity,
-              pickup,
-            });
-          } else {
-            existingSoldInventoryItem.virtualQuantity += quantity;
-          }
-          
-          await ItemHistory.create({
-            item: itemId,
-            sourceModel: "Warehouse",
-            source: warehouseId,
-            destinationModel: "Buyer",
-            destination: buyer,
-            quantity,
-            organization,
+
+      for (let { item: itemId, quantity, pickup } of bookingItems) {
+        quantity = Number(quantity);
+
+        let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
+        );
+
+        let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
+          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
+        );
+
+        if (!existingVirtualInventoryItem) {
+          return res.status(400).json({
+            message: `Item not found in virtual inventory: ${itemId}`,
           });
         }
-        await warehouseDocument.save();
-        booking.discountStatus="approved";
+
+        existingVirtualInventoryItem.quantity -= quantity;
+
+        if (!existingSoldInventoryItem) {
+          warehouseDocument.soldInventory.push({
+            item: itemId,
+            virtualQuantity: quantity,
+            pickup,
+          });
+        } else {
+          existingSoldInventoryItem.virtualQuantity += quantity;
+        }
+
+        await ItemHistory.create({
+          item: itemId,
+          sourceModel: "Warehouse",
+          source: warehouseId,
+          destinationModel: "Buyer",
+          destination: buyer,
+          quantity,
+          organization,
+        });
       }
-      await booking.save();
+
+      await warehouseDocument.save();
       res.status(201).json({ message: "Booking created successfully", booking });
     } catch (error) {
       console.error("Error creating booking:", error.message || error);
@@ -242,10 +232,6 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
-      if (booking.discountStatus==="partially approved" || booking.discountStatus==="approved") {
-        return res.status(404).json({ message: "Booking has already been approved either completely or partially" });
-      }
-      let fullyApproved=true;
       for(const item of items){
         const itemId=item.item;
         const bookingItem = booking.items.find((bookingItem) => bookingItem.item.toString() === itemId.toString());
@@ -253,70 +239,11 @@ const bookingController = {
           return res.status(404).json({ message: `Item with ${itemId} not found in booking` });
         }
         bookingItem.discount=item.discount;
-        if(item.discount===0){
-          fullyApproved=false;
-        }
       }
-      const warehouseId=booking.warehouse;
-      let warehouseDocument = await Warehouse.findById(warehouseId);
-      if (!warehouseDocument) {
-        return res.status(404).json({ message: "Warehouse not found" });
-      }
-      for (let { item: itemId, quantity, pickup } of booking.items) {
-        quantity = Number(quantity);
-        
-        let existingVirtualInventoryItem =
-        warehouseDocument.virtualInventory.find(
-          (i) =>
-            i.item &&
-          i.item.toString() === itemId.toString() &&
-          i.pickup === pickup
-        );
-        
-        let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) =>
-            i.item &&
-          i.item.toString() === itemId.toString() &&
-          i.pickup === pickup
-        );
-        
-        if (!existingVirtualInventoryItem) {
-          return res.status(400).json({
-            message: `Item not found in virtual inventory: ${itemId}`,
-          });
-        }
-        
-        existingVirtualInventoryItem.quantity -= quantity;
-        
-        if (!existingSoldInventoryItem) {
-          warehouseDocument.soldInventory.push({
-            item: itemId,
-            virtualQuantity: quantity,
-            pickup,
-          });
-        } else {
-          existingSoldInventoryItem.virtualQuantity += quantity;
-        }
-        await ItemHistory.create({
-          item: itemId,
-          sourceModel: "Warehouse",
-          source: warehouseId,
-          destinationModel: "Buyer",
-          destination: booking.buyer,
-          quantity,
-          organization:booking.organization,
-        });
-      }
-      await warehouseDocument.save();
-      if(fullyApproved){
-        booking.discountStatus="approved";
-      }else{
-        booking.discountStatus = "partially approved";
-      }
+      booking.discountStatus="approved";
       await booking.save();
       res.status(200).json({ message: "Booking updated successfully", booking });
     } catch (error) {
-      console.log(error)
       res.status(400).json({ message: "Error updating booking for discount", error });
     }
   },

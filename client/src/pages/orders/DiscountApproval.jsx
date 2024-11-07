@@ -7,7 +7,7 @@ import {
   DialogFooter,
   Button,
 } from "@material-tailwind/react";
-import { getBookings } from "@/services/bookingService";
+import { getBookings, updateDiscount } from "@/services/bookingService";
 import { toast } from "sonner";
 
 const DiscountApprovalPage = () => {
@@ -19,10 +19,12 @@ const DiscountApprovalPage = () => {
   const openModal = (booking) => {
     setSelectedBooking(booking);
     setItemApprovals(
-      booking.items.map((item) => ({
-        itemId: item.item._id,
-        approved: null,
-      }))
+      booking.items
+        ?.filter((item) => item.discount > 0)
+        ?.map((item) => ({
+          itemId: item.item._id,
+          approved: null,
+        }))
     );
     setIsModalOpen(true);
   };
@@ -71,17 +73,19 @@ const DiscountApprovalPage = () => {
   const handleSubmit = async () => {
     if (!selectedBooking) return;
 
-    const updatedItems = itemApprovals.map((item) => ({
-      item: item.itemId,
-      discount: item.approved
-        ? selectedBooking.items?.find((i) => i.item?._id === item.itemId)
-            ?.discount
-        : 0,
-    }));
+    const updatedItems = {
+      items: itemApprovals.map((item) => ({
+        item: item.itemId,
+        discount: item.approved
+          ? selectedBooking.items?.find((i) => i.item?._id === item.itemId)
+              ?.discount
+          : 0,
+      })),
+    };
 
     try {
       console.log(updatedItems);
-      // await updateDiscount(selectedBooking._id, updatedItems);
+      await updateDiscount(selectedBooking._id, updatedItems);
       await fetchBookings();
       closeModal();
       toast.success("Discount approval completed");
@@ -211,9 +215,16 @@ const DiscountApprovalPage = () => {
                     </th>
                     <th className="border p-2 min-w-[80px]">Base Rate</th>
                     <th className="border p-2 min-w-[80px]">
-                      Discount Price Requested
+                      Discount Price{" "}
+                      {selectedBooking.discountStatus === "pending" ? (
+                        <span>Requested</span>
+                      ) : (
+                        <span>Approved/Rejected</span>
+                      )}
                     </th>
-                    <th className="border p-2 min-w-[80px]">Actions</th>
+                    {selectedBooking.discountStatus === "pending" && (
+                      <th className="border p-2 min-w-[80px]">Actions</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -235,32 +246,38 @@ const DiscountApprovalPage = () => {
                         <td className="border p-2">{item.taxpaidAmount}</td>
                         <td className="border p-2">₹{item?.baseRate}</td>
                         <td className="border p-2">₹{item?.discount}</td>
-                        <td className="border p-2 flex gap-2">
-                          <button
-                            onClick={() =>
-                              handleItemApproval(item.item._id, true)
-                            }
-                            className={`text-white rounded-full p-2 hover:bg-green-700 ${getButtonStyles(
-                              approval,
-                              true
-                            )}`}
-                            title="Approve"
-                          >
-                            <MdCheck className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleItemApproval(item.item._id, false)
-                            }
-                            className={`text-white rounded-full p-2 hover:bg-red-700 ${getButtonStyles(
-                              approval,
-                              false
-                            )}`}
-                            title="Reject"
-                          >
-                            <MdClose className="h-5 w-5" />
-                          </button>
-                        </td>
+                        {selectedBooking.discountStatus === "pending" && (
+                          <td className="border p-2 flex gap-2">
+                            {item.discount > 0 && (
+                              <>
+                                <button
+                                  onClick={() =>
+                                    handleItemApproval(item.item._id, true)
+                                  }
+                                  className={`text-white rounded-full p-2 hover:bg-green-700 ${getButtonStyles(
+                                    approval,
+                                    true
+                                  )}`}
+                                  title="Approve"
+                                >
+                                  <MdCheck className="h-5 w-5" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleItemApproval(item.item._id, false)
+                                  }
+                                  className={`text-white rounded-full p-2 hover:bg-red-700 ${getButtonStyles(
+                                    approval,
+                                    false
+                                  )}`}
+                                  title="Reject"
+                                >
+                                  <MdClose className="h-5 w-5" />
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        )}
                         {/* <td className="border p-2 text-center">
                         <input
                           type="radio"
@@ -287,9 +304,11 @@ const DiscountApprovalPage = () => {
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button color="green" onClick={handleSubmit} className="mr-2">
-              Submit
-            </Button>
+            {selectedBooking.discountStatus === "pending" && (
+              <Button color="green" onClick={handleSubmit} className="mr-2">
+                Submit
+              </Button>
+            )}
             <Button color="red" onClick={closeModal}>
               Close
             </Button>

@@ -220,7 +220,7 @@ const CreateBooking = () => {
           item: "",
           quantity: null,
           pickup: "",
-          baseRate: null,
+          basePrice: null,
           discount: null,
           taxpaidAmount: null,
           taxableAmount: null,
@@ -246,7 +246,7 @@ const CreateBooking = () => {
     }
 
     const updatedItems = [...form.items];
-    if (field === "quantity" || field === "baseRate" || field === "discount") {
+    if (field === "quantity" || field === "basePrice" || field === "discount") {
       value = Number(value) || null;
     }
     updatedItems[index] = { ...updatedItems[index], [field]: value };
@@ -262,11 +262,11 @@ const CreateBooking = () => {
         );
         if (response.status === 200) {
           if (updatedItems[index].pickup === "rack") {
-            updatedItems[index].baseRate = response.data.rackPrice;
+            updatedItems[index].basePrice = response.data.rackPrice;
           } else if (updatedItems[index].pickup === "plant") {
-            updatedItems[index].baseRate = response.data.plantPrice;
+            updatedItems[index].basePrice = response.data.plantPrice;
           } else {
-            updatedItems[index].baseRate = response.data.depoPrice;
+            updatedItems[index].basePrice = response.data.depoPrice;
           }
         }
       }
@@ -283,12 +283,13 @@ const CreateBooking = () => {
       }
     }
 
-    if (field === "quantity" || field === "baseRate" || field === "discount") {
+    if (field === "quantity" || field === "basePrice" || field === "discount") {
       const quantity = updatedItems[index].quantity || 0;
-      const baseRate = updatedItems[index].baseRate || 0;
+      const basePrice = updatedItems[index].basePrice || 0;
       const discount = updatedItems[index].discount || 0;
       setApproval(discount > 0);
-      updatedItems[index].taxableAmount = quantity * (baseRate - discount);
+      updatedItems[index].taxableAmount =
+        quantity * (basePrice - discount / 100);
       updatedItems[index].taxpaidAmount =
         updatedItems[index].taxableAmount +
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
@@ -696,7 +697,7 @@ const CreateBooking = () => {
                       Base Rate
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Discounted Price
+                      Discount %
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Taxable Amount
@@ -801,10 +802,10 @@ const CreateBooking = () => {
                       <td className="py-4 px-2 text-center">
                         <input
                           type="number"
-                          name="baseRate"
-                          value={item.baseRate}
+                          name="basePrice"
+                          value={item.basePrice}
                           onChange={(e) =>
-                            handleItemChange(index, "baseRate", e.target.value)
+                            handleItemChange(index, "basePrice", e.target.value)
                           }
                           disabled
                           required
@@ -821,7 +822,7 @@ const CreateBooking = () => {
                             handleItemChange(index, "discount", e.target.value)
                           }
                           required
-                          placeholder="Discounted Price"
+                          placeholder="Discount %"
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>

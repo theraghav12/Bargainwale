@@ -29,3 +29,12 @@ export const deleteBooking = async (id) => {
         console.log(error);
     }
 };
+
+export const updateDiscount = async (id, data) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/booking/updateDiscount/${id}`, data);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+};
