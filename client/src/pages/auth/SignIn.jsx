@@ -1,5 +1,10 @@
 import { API_BASE_URL } from "@/services/api";
-import { RedirectToSignIn, SignedOut, useUser } from "@clerk/clerk-react";
+import {
+  RedirectToSignIn,
+  SignedOut,
+  useOrganization,
+  useUser,
+} from "@clerk/clerk-react";
 import { Spinner } from "@material-tailwind/react";
 import axios from "axios";
 import { useEffect } from "react";
@@ -9,6 +14,7 @@ import { toast } from "sonner";
 export default function SignIn() {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { organization } = useOrganization();
 
   useEffect(() => {
     const userValidation = async () => {
@@ -21,11 +27,6 @@ export default function SignIn() {
             toast.success("Signed In!", {
               description: `Welcome ${user.fullName ? user.fullName : ""}`,
             });
-            if (user.organizationMemberships.length === 0) {
-              navigate("/auth/create-organization");
-            } else {
-              navigate("/dashboard");
-            }
           }
         }
       } catch (err) {
@@ -37,8 +38,8 @@ export default function SignIn() {
           });
 
           toast.success("User registered successfully!");
-          if (user.organizationMemberships.length === 0) {
-            navigate("/create-organization");
+          if (organization === null) {
+            navigate("/auth/create-organization");
           } else {
             navigate("/dashboard");
           }
@@ -48,7 +49,7 @@ export default function SignIn() {
       }
     };
     userValidation();
-  }, [user, navigate]);
+  }, [user, navigate, organization]);
 
   return (
     <header>

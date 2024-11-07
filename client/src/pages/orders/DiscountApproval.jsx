@@ -90,6 +90,12 @@ const DiscountApprovalPage = () => {
     }
   };
 
+  const getButtonStyles = (approved, isApproveButton) => {
+    if (approved === true && isApproveButton) return "bg-green-500";
+    if (approved === false && !isApproveButton) return "bg-red-500";
+    return "bg-gray-500";
+  };
+
   console.log(selectedBooking);
 
   return (
@@ -142,20 +148,6 @@ const DiscountApprovalPage = () => {
                         title="View Details"
                       >
                         <MdInfoOutline className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => console.log("Approved", booking._id)}
-                        className="bg-green-500 text-white rounded-full p-2 hover:bg-green-600"
-                        title="Approve"
-                      >
-                        <MdCheck className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => console.log("Rejected", booking._id)}
-                        className="bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
-                        title="Reject"
-                      >
-                        <MdClose className="h-5 w-5" />
                       </button>
                     </div>
                   </td>
@@ -221,45 +213,55 @@ const DiscountApprovalPage = () => {
                     <th className="border p-2 min-w-[80px]">
                       Discount Price Requested
                     </th>
-                    <th className="border p-2 min-w-[80px]">Approve</th>
-                    <th className="border p-2 min-w-[80px]">Reject</th>
+                    <th className="border p-2 min-w-[80px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedBooking.items?.map((item, index) => (
-                    <tr key={index} className="border">
-                      <td className="border p-2">
-                        {item.item?.materialdescription}
-                      </td>
-                      <td className="border p-2">{item.contNumber}</td>
-                      <td className="border p-2">{item.item?.gst}</td>
-                      <td className="border p-2">{item.pickup}</td>
-                      <td className="border p-2">{item.quantity}</td>
-                      <td className="border p-2">{item.taxableAmount}</td>
-                      <td className="border p-2">{item.taxpaidAmount}</td>
-                      <td className="border p-2">₹{item?.baseRate}</td>
-                      <td className="border p-2">₹{item?.discount}</td>
-                      <td className="border p-2 flex gap-2">
-                        <button
-                          onClick={() =>
-                            handleItemApproval(item.item._id, true)
-                          }
-                          className="bg-green-500 text-white rounded-full p-2 hover:bg-green-600"
-                          title="Approve"
-                        >
-                          <MdCheck className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleItemApproval(item.item._id, false)
-                          }
-                          className="bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
-                          title="Reject"
-                        >
-                          <MdClose className="h-5 w-5" />
-                        </button>
-                      </td>
-                      {/* <td className="border p-2 text-center">
+                  {selectedBooking.items?.map((item, index) => {
+                    const approval = itemApprovals.find(
+                      (i) => i.itemId === item.item._id
+                    )?.approved;
+
+                    return (
+                      <tr key={index} className="border">
+                        <td className="border p-2">
+                          {item.item?.materialdescription}
+                        </td>
+                        <td className="border p-2">{item.contNumber}</td>
+                        <td className="border p-2">{item.item?.gst}</td>
+                        <td className="border p-2">{item.pickup}</td>
+                        <td className="border p-2">{item.quantity}</td>
+                        <td className="border p-2">{item.taxableAmount}</td>
+                        <td className="border p-2">{item.taxpaidAmount}</td>
+                        <td className="border p-2">₹{item?.baseRate}</td>
+                        <td className="border p-2">₹{item?.discount}</td>
+                        <td className="border p-2 flex gap-2">
+                          <button
+                            onClick={() =>
+                              handleItemApproval(item.item._id, true)
+                            }
+                            className={`text-white rounded-full p-2 hover:bg-green-700 ${getButtonStyles(
+                              approval,
+                              true
+                            )}`}
+                            title="Approve"
+                          >
+                            <MdCheck className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleItemApproval(item.item._id, false)
+                            }
+                            className={`text-white rounded-full p-2 hover:bg-red-700 ${getButtonStyles(
+                              approval,
+                              false
+                            )}`}
+                            title="Reject"
+                          >
+                            <MdClose className="h-5 w-5" />
+                          </button>
+                        </td>
+                        {/* <td className="border p-2 text-center">
                         <input
                           type="radio"
                           name={`approval-${item.item._id}`}
@@ -277,8 +279,9 @@ const DiscountApprovalPage = () => {
                           }
                         />
                       </td> */}
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

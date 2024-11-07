@@ -5,6 +5,7 @@ import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import {
   OrganizationProfile,
   SignedIn,
+  useOrganization,
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
@@ -24,7 +25,7 @@ import {
   MagnifyingGlassIcon,
   ArrowsPointingOutIcon,
   Squares2X2Icon,
-  ArrowPathIcon, // New icon for reload
+  ArrowPathIcon,
 } from "@heroicons/react/24/solid";
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
@@ -38,6 +39,7 @@ export function DashboardNavbar() {
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(0);
   const { user, isSignedIn } = useUser();
+  const { organization } = useOrganization();
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
@@ -59,6 +61,7 @@ export function DashboardNavbar() {
       if (response.status === 200) {
         localStorage.setItem("organizationId", response.data[0]._id);
       }
+      navigate("/dashboard");
     } catch (err) {
       console.log("Error:", err);
     }
@@ -86,20 +89,23 @@ export function DashboardNavbar() {
   }, []);
 
   useEffect(() => {
-    if (user && user?.organizationMemberships?.length > 0) {
+    if (organization !== null) {
       fetchData();
-    } else if (user?.organizationMemberships?.length === 0) {
+    } else {
       navigate("/auth/create-organization");
     }
-  }, [navigate]);
+  }, [organization, navigate]);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth/sign-in");
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
+    if (!localStorage.getItem("clerk_active_org")) {
+      localStorage.removeItem("organizationId");
+    }
     if (!isSignedIn) {
       localStorage.removeItem("organizationId");
     }
