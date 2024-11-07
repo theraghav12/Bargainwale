@@ -22,7 +22,7 @@ const bookingSchema = new mongoose.Schema(
         },
         discount: {
           type: Number,
-          required: true,
+          default: 0,
         },
         taxpaidAmount: {
           type: Number,
@@ -45,15 +45,18 @@ const bookingSchema = new mongoose.Schema(
         contNumber: {
           type: Number,
         },
-        rackPrice: {
+        basePrice:{
           type: Number,
         },
-        plantPrice: {
-          type: Number,
-        },
-        depoPrice: {
-          type: Number,
-        },
+        // rackPrice: {
+        //   type: Number,
+        // },
+        // plantPrice: {
+        //   type: Number,
+        // },
+        // depoPrice: {
+        //   type: Number,
+        // },
         gstAmount: {
           type: Number,
         }
@@ -64,7 +67,7 @@ const bookingSchema = new mongoose.Schema(
     },
     discountStatus: {
       type: String,
-      enum:["approved", "pending"],
+      enum:["approved", "pending", "partially approved"],
       default:"pending",
     },
     validity: {
