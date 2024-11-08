@@ -192,6 +192,14 @@ export default function Home() {
     }).format(date);
   };
 
+  useEffect(() => {
+    const isFirstLoad = localStorage.getItem("isFirstLoad");
+    if (!isFirstLoad) {
+      localStorage.setItem("isFirstLoad", "true");
+      window.location.reload();
+    }
+  }, []);
+
   return (
     <div className="mt-8 px-12">
       <div

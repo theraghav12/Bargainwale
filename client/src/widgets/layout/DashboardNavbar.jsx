@@ -107,9 +107,11 @@ export function DashboardNavbar() {
   useEffect(() => {
     if (!localStorage.getItem("clerk_active_org")) {
       localStorage.removeItem("organizationId");
+      localStorage.removeItem("isFirstLoad");
     }
     if (!isSignedIn) {
       localStorage.removeItem("organizationId");
+      localStorage.removeItem("isFirstLoad");
     }
   }, [isSignedIn, navigate]);
 

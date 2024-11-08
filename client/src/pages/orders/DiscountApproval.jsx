@@ -100,8 +100,6 @@ const DiscountApprovalPage = () => {
     return "bg-gray-500";
   };
 
-  console.log(selectedBooking);
-
   return (
     <div className="mt-8 mb-8 px-7">
       <h1 className="text-2xl font-bold mb-4">Discount Approval</h1>
@@ -185,29 +183,17 @@ const DiscountApprovalPage = () => {
           <DialogHeader>Discount booking Details</DialogHeader>
           <DialogBody divider>
             <p>
-              <strong>Company Name:</strong> {selectedBooking.buyer?.buyer}
+              <strong>Buyer Name:</strong> {selectedBooking.buyer?.buyer}
             </p>
             <p>
-              <strong>Bargain No:</strong> {selectedBooking.bargainNo}
+              <strong>Bargain No:</strong> {selectedBooking.BargainNo}
             </p>
             <p>
-              <strong>bookinged Discount:</strong>{" "}
-              <span className="font-bold text-red-500">
-                {selectedBooking.bookingedDiscount}%
-              </span>
+              <strong>Bargain Date:</strong>{" "}
+              {formatDate(selectedBooking.BargainDate)}
             </p>
             <p>
-              <strong>Original Price:</strong> ₹{selectedBooking.originalPrice}
-            </p>
-            <p>
-              <strong>Discounted Price:</strong> ₹
-              {selectedBooking.discountedPrice}
-            </p>
-            <p>
-              <strong>booking Date:</strong> {selectedBooking.bookingDate}
-            </p>
-            <p>
-              <strong>Description:</strong> {selectedBooking.description}
+              <strong>Delivery Type:</strong> {selectedBooking.deliveryOption}
             </p>
 
             {/* Item Details Table */}
