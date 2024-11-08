@@ -613,13 +613,26 @@ const CreatePurchase = () => {
                                                       q.itemId === item.item._id
                                                   )?.quantity || ""
                                                 }
-                                                onChange={(e) =>
-                                                  handleQuantityChange(
-                                                    item.item._id,
-                                                    e.target.value,
-                                                    item.pickup
-                                                  )
-                                                }
+                                                onChange={(e) => {
+                                                  const value = e.target.value;
+                                                  if (value >= 0) {
+                                                    handleQuantityChange(
+                                                      item.item._id,
+                                                      e.target.value,
+                                                      item.pickup
+                                                    );
+                                                  }
+                                                }}
+                                                onKeyDown={(e) => {
+                                                  if (
+                                                    e.key === "e" ||
+                                                    e.key === "-" ||
+                                                    e.key === "+" ||
+                                                    e.key === "."
+                                                  ) {
+                                                    e.preventDefault();
+                                                  }
+                                                }}
                                                 className="w-[150px] p-2 border rounded"
                                                 placeholder="Enter new qty"
                                               />

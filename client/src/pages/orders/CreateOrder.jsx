@@ -545,13 +545,13 @@ const CreateOrder = () => {
                     <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
                     <th className="py-4 px-2 text-center min-w-[150px">Item</th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
-                      Quantity
-                    </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
                       Pickup
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Cont. No.
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px]">
+                      Quantity
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px]">
                       Base Rate
@@ -607,32 +607,6 @@ const CreateOrder = () => {
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value >= 0) {
-                              handleItemChange(index, "quantity", value);
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (
-                              e.key === "e" ||
-                              e.key === "-" ||
-                              e.key === "+" ||
-                              e.key === "."
-                            ) {
-                              e.preventDefault();
-                            }
-                          }}
-                          required
-                          placeholder="Quantity"
-                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
-                      </td>
-                      <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
                           <select
                             id="pickup"
@@ -677,6 +651,32 @@ const CreateOrder = () => {
                           }}
                           required
                           placeholder="Cont. No."
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                        />
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        <input
+                          type="number"
+                          name="quantity"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value >= 0) {
+                              handleItemChange(index, "quantity", value);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "e" ||
+                              e.key === "-" ||
+                              e.key === "+" ||
+                              e.key === "."
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
+                          required
+                          placeholder="Quantity"
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
