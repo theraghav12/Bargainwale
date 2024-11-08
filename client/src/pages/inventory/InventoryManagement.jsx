@@ -144,17 +144,17 @@ export function Inventory() {
                                           "Manufacturer" ? (
                                             <span>
                                               Manufacturer:{" "}
-                                              {history.source.manufacturer}
+                                              {history.source?.manufacturer}
                                             </span>
                                           ) : history.sourceModel ===
                                             "Order" ? (
                                             <span>
-                                              Order: {history.source.order}
+                                              Order: {history.source?.order}
                                             </span>
                                           ) : (
                                             <span>
                                               Warehouse:{" "}
-                                              {history.source.warehouse}
+                                              {history.source?.warehouse}
                                             </span>
                                           )}
                                         </span>
@@ -164,11 +164,12 @@ export function Inventory() {
                                           "Warehouse" ? (
                                             <span>
                                               Warehouse:{" "}
-                                              {history.destination.name}
+                                              {history.destination?.name}
                                             </span>
                                           ) : (
                                             <span>
-                                              Buyer: {history.destination.buyer}
+                                              Buyer:{" "}
+                                              {history.destination?.buyer}
                                             </span>
                                           )}
                                         </span>
