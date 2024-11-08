@@ -329,9 +329,6 @@ const CreatePurchase = () => {
     });
   };
 
-  console.log(selectedOrder);
-  console.log(quantityInputs);
-
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -525,6 +522,9 @@ const CreatePurchase = () => {
                                   checked={isChecked}
                                   onChange={() => handleOrderSelect(order._id)}
                                   className="form-checkbox h-5 w-5"
+                                  disabled={
+                                    order.status === "billed" ? true : false
+                                  }
                                 />
                               </td>
                               <td className="py-4 text-center">
@@ -570,8 +570,8 @@ const CreatePurchase = () => {
                                             "Item Name",
                                             "Packaging",
                                             "Weight",
-                                            "Static Price (Rs.)",
                                             "Ordered Quantity",
+                                            "Quantity Available to Purchase",
                                             "Quantity to Purchase",
                                           ].map((header) => (
                                             <th
@@ -599,10 +599,11 @@ const CreatePurchase = () => {
                                               {item.item.netweight}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.item.staticPrice}
+                                              {item.quantity}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.quantity}
+                                              {item.quantity -
+                                                item.purchaseQuantity}
                                             </td>
                                             <td className="py-4 text-center">
                                               <input

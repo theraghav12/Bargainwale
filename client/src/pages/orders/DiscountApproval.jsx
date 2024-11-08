@@ -135,8 +135,19 @@ const DiscountApprovalPage = () => {
                   <td className="py-4 px-4 text-center">
                     {booking.buyer?.buyer}
                   </td>
-                  <td className="py-4 px-4 text-center">
-                    {booking.discountStatus}
+                  <td className="py-4 px-4 text-center flex items-center justify-center">
+                    <p
+                      className={`w-[100px] ${
+                        booking.discountStatus === "pending"
+                          ? "bg-red-100"
+                          : booking.discountStatus === "approved"
+                          ? "bg-green-200"
+                          : "bg-green-100"
+                      } py-1 rounded-md`}
+                    >
+                      {String(booking.discountStatus).charAt(0).toUpperCase() +
+                        String(booking.discountStatus).slice(1)}
+                    </p>
                   </td>
                   <td className="py-4 px-4 text-center">
                     {booking.deliveryOption}

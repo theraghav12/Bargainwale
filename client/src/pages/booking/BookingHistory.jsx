@@ -419,7 +419,6 @@ export function BookingHistory() {
                                           "Item Name",
                                           "Packaging",
                                           "Weight",
-                                          "Static Price (Rs.)",
                                           "Virtual Quantity",
                                           "Billed Quantity",
                                         ].map((header) => (
@@ -448,9 +447,6 @@ export function BookingHistory() {
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.item.netweight}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.item.staticPrice}
                                           </td>
                                           <td className="py-3 px-5 text-center">
                                             {item.quantity || "0"}
