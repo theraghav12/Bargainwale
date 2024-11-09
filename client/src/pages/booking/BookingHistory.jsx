@@ -22,7 +22,6 @@ export function BookingHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openBooking, setOpenBooking] = useState(null);
-  const [transferQuantities, setTransferQuantities] = useState({});
   const [quantityErrors, setQuantityErrors] = useState({});
   const [statusFilter, setStatusFilter] = useState("All");
   const [timePeriod, setTimePeriod] = useState("All");
@@ -99,26 +98,6 @@ export function BookingHistory() {
   const handleToggleBooking = (bookingId) => {
     setOpenBooking(openBooking === bookingId ? null : bookingId);
   };
-
-  const handleTransferQuantityChange = (itemName, value, availableQuantity) => {
-    const quantity = parseInt(value, 10) || 0;
-    const error =
-      quantity > availableQuantity
-        ? `Quantity exceeds available virtual quantity of ${availableQuantity}`
-        : "";
-
-    setTransferQuantities((prev) => ({
-      ...prev,
-      [itemName]: value,
-    }));
-
-    setQuantityErrors((prev) => ({
-      ...prev,
-      [itemName]: error,
-    }));
-  };
-
-  const hasErrors = Object.values(quantityErrors).some((error) => error !== "");
 
   const handleDownloadExcel = () => {
     const formattedbookings = bookings.map((booking) => ({

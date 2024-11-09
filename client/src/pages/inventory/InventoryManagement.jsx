@@ -12,19 +12,29 @@ import InventorySidenav from "@/widgets/layout/InventorySidenav";
 
 // api services
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { getItemHistoryById } from "@/services/itemService";
+
+// icons
+import { TbTriangleInvertedFilled } from "react-icons/tb";
 
 export function Inventory() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("virtual");
-  const [transferQuantities, setTransferQuantities] = useState({});
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [pickupFilter, setPickupFilter] = useState("all");
   const [expandedItem, setExpandedItem] = useState(null);
   const [itemHistory, setItemHistory] = useState([]);
+
+  const fetchWarehouses = async () => {
+    try {
+      const response = await getWarehouses();
+      setWarehouses(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     fetchWarehouses();
@@ -36,15 +46,6 @@ export function Inventory() {
       });
     }
   }, [selectedWarehouse]);
-
-  const fetchWarehouses = async () => {
-    try {
-      const response = await getWarehouses();
-      setWarehouses(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const handleItemClick = async (itemId) => {
     if (expandedItem === itemId) {
