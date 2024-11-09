@@ -86,10 +86,15 @@ export function OrderHistory() {
       }
 
       // Sort orders by companyBargainDate in descending order
-      filteredOrders.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
-      );
+      filteredOrders.sort((a, b) => {
+        const dateComparison =
+          new Date(b.companyBargainDate) - new Date(a.companyBargainDate);
+        if (dateComparison !== 0) {
+          return dateComparison;
+        } else {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+      });
 
       setOrders(filteredOrders);
     } catch (error) {

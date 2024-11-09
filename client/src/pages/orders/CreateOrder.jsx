@@ -17,6 +17,7 @@ import { createOrder } from "@/services/orderService";
 const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
+  const [selectItemsOptions, setSelectItemsOptions] = useState([]);
   const [manufacturerOptions, setManufacturerOptions] = useState([]);
   const [selectManufacturerOptions, setSelectManufacturerOptions] = useState(
     []
@@ -46,6 +47,11 @@ const CreateOrder = () => {
     try {
       const response = await getItems();
       setItemsOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.materialdescription,
+      }));
+      setSelectItemsOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching items!");
       console.error(error);
@@ -227,11 +233,20 @@ const CreateOrder = () => {
       value = Number(value) || null;
     }
 
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    if (field === "itemId" || field === "pickup") {
+      updatedItems[index] = {
+        ...updatedItems[index],
+        [field]: value.value || "",
+      };
+    } else {
+      updatedItems[index] = { ...updatedItems[index], [field]: value };
+    }
 
     // If the itemId is changed, update GST accordingly
     if (field === "itemId") {
-      const selectedItem = itemsOptions?.find((option) => option._id === value);
+      const selectedItem = itemsOptions?.find(
+        (option) => option._id === value.value
+      );
       if (selectedItem) {
         const gst = selectedItem.gst;
         const warehouseState = warehouseOptions?.find(
@@ -584,48 +599,50 @@ const CreateOrder = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
-                          <select
-                            id="itemId"
-                            name="itemId"
-                            value={item.itemId}
-                            onChange={(e) =>
-                              handleItemChange(index, "itemId", e.target.value)
+                          <Select
+                            className="relative w-[150px]"
+                            options={selectItemsOptions}
+                            value={
+                              selectItemsOptions.find(
+                                (option) => option.value === item.itemId
+                              ) || null
                             }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Item</option>
-                            {itemsOptions?.map((item) => (
-                              <option key={item._id} value={item._id}>
-                                {item.materialdescription}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
+                            onChange={(selectedOption) =>
+                              handleItemChange(index, "itemId", selectedOption)
+                            }
+                            menuPortalTarget={document.body}
+                            styles={{
+                              menuPortal: (base) => ({ ...base, zIndex: 10 }),
+                            }}
+                          />
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
-                          <select
-                            id="pickup"
-                            name="pickup"
-                            value={item.pickup}
-                            onChange={(e) =>
-                              handleItemChange(index, "pickup", e.target.value)
+                          <Select
+                            className="relative w-[150px]"
+                            options={[
+                              { value: "rack", label: "Rack" },
+                              { value: "depot", label: "Depot" },
+                              { value: "plant", label: "Plant" },
+                            ]}
+                            value={
+                              [
+                                { value: "rack", label: "Rack" },
+                                { value: "depot", label: "Depot" },
+                                { value: "plant", label: "Plant" },
+                              ].find(
+                                (option) => option.value === item.pickup
+                              ) || null
                             }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Pickup</option>
-                            <option value="rack">Rack</option>
-                            <option value="depot">Depot</option>
-                            <option value="plant">Plant</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
+                            onChange={(selectedOption) =>
+                              handleItemChange(index, "pickup", selectedOption)
+                            }
+                            menuPortalTarget={document.body}
+                            styles={{
+                              menuPortal: (base) => ({ ...base, zIndex: 10 }),
+                            }}
+                          />
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">
