@@ -4,24 +4,23 @@ import { toast } from "sonner";
 import Select from "react-select";
 
 // api services
-import { getBuyer, getItems, getManufacturer } from "@/services/masterService";
+import { getBuyer, getItems } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
+import { createBooking } from "@/services/bookingService";
+import { getPricesById } from "@/services/itemService";
 
 // icons
 import { FaPlus } from "react-icons/fa";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
-import { createOrder } from "@/services/orderService";
-import { createBooking } from "@/services/bookingService";
-import { getPricesById } from "@/services/itemService";
 
 const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
+  const [selectItemsOptions, setSelectItemsOptions] = useState([]);
   const [buyerOptions, setBuyerOptions] = useState([]);
   const [selectBuyerOptions, setSelectBuyerOptions] = useState([]);
-  const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
   const [isDefaultAddress, setIsDefaultAddress] = useState(false);
   const [approval, setApproval] = useState(false);
@@ -39,20 +38,19 @@ const CreateBooking = () => {
     city: "",
     state: "",
     pinCode: "",
+    paymentDays: "",
     organization: localStorage.getItem("organizationId"),
   });
-
-  useEffect(() => {
-    fetchItemsOptions();
-    fetchBuyerOptions();
-    fetchWarehouseOptions();
-  }, []);
 
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
-      console.log(response);
       setItemsOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.materialdescription,
+      }));
+      setSelectItemsOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching items!");
       console.error(error);
@@ -77,7 +75,6 @@ const CreateBooking = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
       const formattedOptions = response.map((warehouse) => ({
         value: warehouse._id,
         label: warehouse.name,
@@ -88,6 +85,12 @@ const CreateBooking = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    fetchItemsOptions();
+    fetchBuyerOptions();
+    fetchWarehouseOptions();
+  }, []);
 
   const calculateDaysDifference = (date1, date2) => {
     const diffTime = Math.abs(new Date(date2) - new Date(date1));
@@ -100,7 +103,7 @@ const CreateBooking = () => {
 
     try {
       const paymentDays = calculateDaysDifference(
-        form.companyBargainDate,
+        form.BargainDate,
         form.paymentDays
       );
 
@@ -133,30 +136,33 @@ const CreateBooking = () => {
           pinCode: buyer.buyerdeliveryAddress.pinCode,
         };
       }
-
-      console.log(updatedForm);
       const response = await createBooking(updatedForm);
-
-      if (response.status === 201) {
+      if (response?.status === 201) {
         toast.success("Booking created successfully!");
+        setForm({
+          items: [],
+          BargainNo: "",
+          BargainDate: "",
+          buyer: "",
+          description: "",
+          warehouse: "",
+          deliveryOption: "",
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          state: "",
+          pinCode: "",
+          paymentDays: "",
+        });
       } else {
-        toast.error(`Unexpected status code: ${response.status}`);
+        toast.error(`Unexpected status code: ${response?.status}`);
         console.error("Unexpected response:", response);
-      } // setForm({
-      //   items: [],
-      //   inco: "",
-      //   companyBargainNo: "",
-      //   companyBargainDate: "",
-      //   manufacturer: "",
-      //   paymentDays: "",
-      //   description: "",
-      //   warehouse: "",
-      // });
+      }
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
         if (status === 400) {
-          toast.error("Bad request: Please check the form data.");
+          toast.error(data.error?.message || data.message);
         } else if (status === 401) {
           toast.error("Unauthorized: Please log in again.");
         } else if (status === 500) {
@@ -249,7 +255,11 @@ const CreateBooking = () => {
     if (field === "quantity" || field === "basePrice" || field === "discount") {
       value = Number(value) || null;
     }
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    if (field === "item" || field === "pickup") {
+      updatedItems[index] = { ...updatedItems[index], [field]: value.value };
+    } else {
+      updatedItems[index] = { ...updatedItems[index], [field]: value };
+    }
     try {
       if (
         updatedItems[index].item &&
@@ -276,7 +286,9 @@ const CreateBooking = () => {
       }
     }
     if (field === "item") {
-      const selectedItem = itemsOptions?.find((option) => option._id === value);
+      const selectedItem = itemsOptions?.find(
+        (option) => option._id === value.value
+      );
       if (selectedItem) {
         const gst = selectedItem.gst;
         updatedItems[index].gst = gst;
@@ -725,23 +737,22 @@ const CreateBooking = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
-                          <select
-                            id="item"
-                            name="item"
-                            value={item.item}
-                            onChange={(e) =>
-                              handleItemChange(index, "item", e.target.value)
+                          <Select
+                            className="relative w-[150px]"
+                            options={selectItemsOptions}
+                            value={
+                              selectItemsOptions.find(
+                                (option) => option.value === item.item
+                              ) || null
                             }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Item</option>
-                            {itemsOptions?.map((item) => (
-                              <option key={item._id} value={item._id}>
-                                {item.materialdescription}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(selectedOption) =>
+                              handleItemChange(index, "item", selectedOption)
+                            }
+                            menuPortalTarget={document.body}
+                            styles={{
+                              menuPortal: (base) => ({ ...base, zIndex: 10 }),
+                            }}
+                          />
                           <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                             <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
                           </div>
@@ -749,21 +760,30 @@ const CreateBooking = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[150px]">
-                          <select
-                            id="pickup"
-                            name="pickup"
-                            value={item.pickup}
-                            onChange={(e) =>
-                              handleItemChange(index, "pickup", e.target.value)
+                          <Select
+                            className="relative w-[150px]"
+                            options={[
+                              { value: "rack", label: "Rack" },
+                              { value: "depot", label: "Depot" },
+                              { value: "plant", label: "Plant" },
+                            ]}
+                            value={
+                              [
+                                { value: "rack", label: "Rack" },
+                                { value: "depot", label: "Depot" },
+                                { value: "plant", label: "Plant" },
+                              ].find(
+                                (option) => option.value === item.pickup
+                              ) || null
                             }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Pickup</option>
-                            <option value="rack">Rack</option>
-                            <option value="depot">Depot</option>
-                            <option value="plant">Plant</option>
-                          </select>
+                            onChange={(selectedOption) =>
+                              handleItemChange(index, "pickup", selectedOption)
+                            }
+                            menuPortalTarget={document.body}
+                            styles={{
+                              menuPortal: (base) => ({ ...base, zIndex: 10 }),
+                            }}
+                          />
                           <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                             <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
                           </div>

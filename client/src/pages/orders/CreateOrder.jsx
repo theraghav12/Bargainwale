@@ -6,13 +6,12 @@ import Select from "react-select";
 // api services
 import { getItems, getManufacturer } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
+import { createOrder } from "@/services/orderService";
 
 // icons
 import { FaPlus } from "react-icons/fa";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
-import { createOrder } from "@/services/orderService";
 
 const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -36,12 +35,6 @@ const CreateOrder = () => {
     warehouse: "",
     organization: localStorage.getItem("organizationId"),
   });
-
-  useEffect(() => {
-    fetchItemsOptions();
-    fetchManufacturerOptions();
-    fetchWarehouseOptions();
-  }, []);
 
   const fetchItemsOptions = async () => {
     try {
@@ -87,6 +80,12 @@ const CreateOrder = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    fetchItemsOptions();
+    fetchManufacturerOptions();
+    fetchWarehouseOptions();
+  }, []);
 
   const calculateDaysDifference = (date1, date2) => {
     const diffTime = Math.abs(new Date(date2) - new Date(date1));
@@ -136,7 +135,7 @@ const CreateOrder = () => {
       if (error.response) {
         const { status, data } = error.response;
         if (status === 400) {
-          toast.error("Bad request: Please check the form data.");
+          toast.error(data.error?.message || data.message);
         } else if (status === 401) {
           toast.error("Unauthorized: Please log in again.");
         } else if (status === 500) {
@@ -224,8 +223,6 @@ const CreateOrder = () => {
       items: updatedItems,
     }));
   };
-
-  console.log(form);
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];

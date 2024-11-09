@@ -1,45 +1,35 @@
 import React, { useState, useEffect } from "react";
 import {
-  Card,
-  CardHeader,
-  CardBody,
   Typography,
-  Button,
   Chip,
   IconButton,
   Tooltip,
 } from "@material-tailwind/react";
-import { updateBillTypePartWise } from "@/services/orderService";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
+
+// api services
 import { deleteBooking, getBookings } from "@/services/bookingService";
+
+// icons
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
 
 export function BookingHistory() {
-  const [showBookingForm, setBookingForm] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [showEditBookingForm, setEditBookingForm] = useState(false);
   const [openBooking, setOpenBooking] = useState(null);
   const [transferQuantities, setTransferQuantities] = useState({});
   const [quantityErrors, setQuantityErrors] = useState({});
   const [statusFilter, setStatusFilter] = useState("All");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
   });
-
-  const handleCreateBookingClick = () => {
-    setBookingForm(true);
-  };
 
   const fetchBookings = async () => {
     try {
@@ -82,8 +72,6 @@ export function BookingHistory() {
       filteredBookings.sort(
         (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
       );
-
-      console.log(filteredBookings);
 
       setBookings(filteredBookings);
     } catch (error) {
@@ -131,59 +119,6 @@ export function BookingHistory() {
   };
 
   const hasErrors = Object.values(quantityErrors).some((error) => error !== "");
-
-  const handleTransferSubmit = async (booking) => {
-    if (hasErrors) {
-      toast.error("Please correct the errors before submitting.");
-      return;
-    }
-
-    try {
-      const latestbooking = await getBookings(booking._id);
-
-      const itemsToUpdate = booking.items.map((item) => {
-        const currentItem = latestbooking?.items?.find(
-          (i) => i.name === item.name
-        );
-        const currentBilledQuantity = currentItem?.billedQuantity || 0;
-
-        return {
-          name: item.name,
-          quantity: parseInt(transferQuantities[item.name], 10) || 0,
-          billType: "Virtual Billed",
-        };
-      });
-
-      console.log(itemsToUpdate);
-      await updateBillTypePartWise(booking._id, { items: itemsToUpdate });
-      toast.success("Items Billed!");
-
-      const response = await getbookings();
-      const bookingsData = response.filter(
-        (item) => item.warehouse === localStorage.getItem("warehouse")
-      );
-
-      // Filter bookings based on status
-      const filteredBookings =
-        statusFilter === "All"
-          ? bookingsData
-          : bookingsData.filter((booking) => booking.status === statusFilter);
-
-      filteredBookings.sort(
-        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
-      );
-
-      setBookings(filteredBookings);
-
-      setOpenBooking(null);
-      setTransferQuantities({});
-      setQuantityErrors({});
-    } catch (error) {
-      setError("Failed to update booking");
-    }
-  };
-
-  console.log(bookings);
 
   const handleDownloadExcel = () => {
     const formattedbookings = bookings.map((booking) => ({
@@ -256,10 +191,6 @@ export function BookingHistory() {
               value={timePeriod}
               onChange={(e) => {
                 setTimePeriod(e.target.value);
-                if (e.target.value !== "custom") {
-                  setStartDate("");
-                  setEndDate("");
-                }
               }}
               className="border-[2px] border-[#737373] rounded px-2 py-2"
             >
@@ -368,12 +299,15 @@ export function BookingHistory() {
                               {booking.deliveryOption}
                             </td>
                             <td className="py-4 text-center">
-                              {booking.deliveryOption === "Pickup" && (
+                              {booking.deliveryOption === "Pickup" ? (
                                 <span>Pickup</span>
+                              ) : (
+                                <span>
+                                  {booking.deliveryAddress?.addressLine1},
+                                  {booking.deliveryAddress?.city},
+                                  {booking.deliveryAddress?.state}
+                                </span>
                               )}
-                              {booking.deliveryAddress?.addressLine1},
-                              {booking.deliveryAddress?.city},
-                              {booking.deliveryAddress?.state}
                             </td>
                             <td className="py-4 text-center">
                               <div className="flex justify-center gap-4">
@@ -409,10 +343,7 @@ export function BookingHistory() {
                             <tr className="bg-gray-100">
                               <td colSpan="11">
                                 <div className="p-4 border-t-2 border-gray-200">
-                                  <Typography variant="h6" className="mb-4">
-                                    Items
-                                  </Typography>
-                                  <table className="w-full table-auto">
+                                  <table className="w-full table-auto border-collapse">
                                     <thead>
                                       <tr>
                                         {[
@@ -438,7 +369,10 @@ export function BookingHistory() {
                                     </thead>
                                     <tbody>
                                       {booking.items.map((item) => (
-                                        <tr key={item._id}>
+                                        <tr
+                                          key={item._id}
+                                          className="border-t-2 border-t-[#898989]"
+                                        >
                                           <td className="py-3 px-5 text-center">
                                             {item.item.materialdescription}
                                           </td>

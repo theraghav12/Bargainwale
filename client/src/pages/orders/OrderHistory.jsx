@@ -23,12 +23,8 @@ export function OrderHistory() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showEditOrderForm, setShowEditOrderForm] = useState(false);
   const [openOrder, setOpenOrder] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
@@ -139,8 +135,6 @@ export function OrderHistory() {
     setOpenOrder(openOrder === orderId ? null : orderId);
   };
 
-  console.log(orders);
-
   const handleDownloadExcel = () => {
     const formattedOrders = orders.map((order) => ({
       "Company Bargain No": order.companyBargainNo,
@@ -175,8 +169,6 @@ export function OrderHistory() {
     }
   };
 
-  console.log(orders);
-
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -205,10 +197,6 @@ export function OrderHistory() {
               value={timePeriod}
               onChange={(e) => {
                 setTimePeriod(e.target.value);
-                if (e.target.value !== "custom") {
-                  setStartDate("");
-                  setEndDate("");
-                }
               }}
               className="border-[2px] border-[#737373] rounded px-2 py-2"
             >
