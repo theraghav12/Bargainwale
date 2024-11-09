@@ -115,10 +115,10 @@ const CreateOrder = () => {
 
       const response = await createOrder(updatedForm);
 
-      if (response.status === 201) {
+      if (response?.status === 201) {
         toast.success("Order created successfully!");
       } else {
-        toast.error(`Unexpected status code: ${response.status}`);
+        toast.error(`Unexpected status code: ${response?.status}`);
         console.error("Unexpected response:", response);
       }
       setForm({

@@ -17,7 +17,7 @@ export const createOrder = async (data) => {
         const response = await axios.post(`${API_BASE_URL}/order`, data);
         return response;
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 };
 
