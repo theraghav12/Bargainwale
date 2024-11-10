@@ -1,40 +1,22 @@
-import {
-  Button,
-  Chip,
-  IconButton,
-  Spinner,
-  Tooltip,
-} from "@material-tailwind/react";
+import { Button, Chip, Spinner } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Select from "react-select";
 
 // api services
-import {
-  getItems,
-  getManufacturer,
-  getTransport,
-} from "@/services/masterService";
+import { getTransport } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
+import { getOrders } from "@/services/orderService";
+import { createPurchase } from "@/services/purchaseService";
 
 // icons
-import { FaPlus } from "react-icons/fa";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
-import { MdDeleteOutline } from "react-icons/md";
-import { createOrder, getOrders } from "@/services/orderService";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
-import { createPurchase } from "@/services/purchaseService";
 
 const CreatePurchase = () => {
   const [loading, setLoading] = useState(false);
-  const [itemsOptions, setItemsOptions] = useState([]);
-  const [transportOptions, setTransportOptions] = useState([]);
-  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectTransportOptions, setSelectTransportOptions] = useState([]);
+  const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [timePeriod, setTimePeriod] = useState("All");
-  const [openOrder, setOpenOrder] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [quantityInputs, setQuantityInputs] = useState([]);
 
@@ -48,65 +30,15 @@ const CreatePurchase = () => {
     organization: localStorage.getItem("organizationId"),
   });
 
-  useEffect(() => {
-    fetchOrders();
-    fetchItemsOptions();
-    fetchTransportOptions();
-    fetchWarehouseOptions();
-  }, []);
-
   const fetchOrders = async () => {
     try {
       const response = await getOrders();
       const ordersData = response;
-
-      let filteredOrders =
-        statusFilter === "All"
-          ? ordersData
-          : ordersData.filter((order) => order.status === statusFilter);
-
-      const now = new Date();
-      let filterDate;
-
-      if (timePeriod === "last7Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 7);
-        filteredOrders = filteredOrders.filter(
-          (order) => new Date(order.companyBargainDate) >= filterDate
-        );
-      } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 30);
-        filteredOrders = filteredOrders.filter(
-          (order) => new Date(order.companyBargainDate) >= filterDate
-        );
-      } else if (
-        timePeriod === "custom" &&
-        dateRange.startDate &&
-        dateRange.endDate
-      ) {
-        const start = new Date(dateRange.startDate);
-        const end = new Date(dateRange.endDate);
-        filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = new Date(order.companyBargainDate);
-          return orderDate >= start && orderDate <= end;
-        });
-      }
-
-      if (searchQuery) {
-        filteredOrders = filteredOrders.filter((order) =>
-          order.companyBargainNo
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        );
-      }
-
-      filteredOrders.sort(
+      ordersData.sort(
         (a, b) =>
           new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
       );
-
-      setOrders(filteredOrders);
+      setOrders(ordersData);
     } catch (error) {
       console.log(error);
     } finally {
@@ -114,20 +46,14 @@ const CreatePurchase = () => {
     }
   };
 
-  const fetchItemsOptions = async () => {
-    try {
-      const response = await getItems();
-      setItemsOptions(response);
-    } catch (error) {
-      toast.error("Error fetching items!");
-      console.error(error);
-    }
-  };
-
   const fetchTransportOptions = async () => {
     try {
       const response = await getTransport();
-      setTransportOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.transport,
+      }));
+      setSelectTransportOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching transports!");
       console.error(error);
@@ -137,17 +63,22 @@ const CreatePurchase = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
+      setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
     }
   };
 
-  const calculateDaysDifference = (date1, date2) => {
-    const diffTime = Math.abs(new Date(date2) - new Date(date1));
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
+  useEffect(() => {
+    fetchOrders();
+    fetchTransportOptions();
+    fetchWarehouseOptions();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,33 +108,28 @@ const CreatePurchase = () => {
         items: quantityInputs,
       };
 
-      console.log(updatedForm);
       const response = await createPurchase(updatedForm);
-
-      if (response.status === 201) {
+      if (response?.status === 201) {
         toast.success("Purchase created successfully!");
+        setForm({
+          warehouseId: "",
+          transporterId: "",
+          orderId: "",
+          invoiceNumber: "",
+          invoiceDate: "",
+          items: [],
+        });
+        setQuantityInputs([]);
+        setSelectedOrder(null);
       } else {
-        toast.error(`Unexpected status code: ${response.status}`);
+        toast.error(`Unexpected status code: ${response?.status}`);
         console.error("Unexpected response:", response);
       }
-
-      // Reset the form after successful submission
-      // setForm({
-      //   items: [],
-      //   inco: "",
-      //   companyBargainNo: "",
-      //   companyBargainDate: "",
-      //   manufacturer: "",
-      //   paymentDays: "",
-      //   description: "",
-      //   warehouse: "",
-      // });
     } catch (error) {
-      // Handle different types of errors (network/server-side/client-side)
       if (error.response) {
         const { status, data } = error.response;
         if (status === 400) {
-          toast.error("Bad request: Please check the form data.");
+          toast.error(data.error?.message || data.message);
         } else if (status === 401) {
           toast.error("Unauthorized: Please log in again.");
         } else if (status === 500) {
@@ -242,50 +168,18 @@ const CreatePurchase = () => {
         [fieldName]: formattedDate,
       }));
     } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: value,
-      }));
+      if (fieldName === "warehouseId" || fieldName === "transporterId") {
+        setForm((prevData) => ({
+          ...prevData,
+          [fieldName]: value.value,
+        }));
+      } else {
+        setForm((prevData) => ({
+          ...prevData,
+          [fieldName]: value,
+        }));
+      }
     }
-  };
-
-  const handleAddItem = () => {
-    setForm((prevData) => ({
-      ...prevData,
-      items: [
-        ...prevData.items,
-        {
-          itemId: "",
-          quantity: null,
-          pickup: "",
-          baseRate: null,
-          taxpaidAmount: null,
-          contNumber: null,
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveItem = (index) => {
-    const updatedItems = form.items.filter((_, i) => i !== index);
-    setForm((prevData) => ({
-      ...prevData,
-      items: updatedItems,
-    }));
-  };
-
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...form.items];
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
-    if (field === "quantity" || field === "baseRate") {
-      const quantity = updatedItems[index].quantity || 0;
-      const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
-    }
-    setForm((prevData) => ({
-      ...prevData,
-      items: updatedItems,
-    }));
   };
 
   const formatDate = (date) => {
@@ -297,10 +191,6 @@ const CreatePurchase = () => {
     const month = (d.getMonth() + 1).toString().padStart(2, "0");
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
-  };
-
-  const handleToggleOrder = (orderId) => {
-    setOpenOrder(openOrder === orderId ? null : orderId);
   };
 
   const handleOrderSelect = (orderId) => {
@@ -370,28 +260,18 @@ const CreatePurchase = () => {
                     Warehouse
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[180px]">
-                    <select
-                      id="warehouse"
-                      name="warehouse"
-                      value={form.warehouseId}
-                      onChange={(e) =>
-                        handleFormChange(0, "warehouseId", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Warehouse</option>
-                      {warehouseOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectWarehouseOptions}
+                    value={
+                      selectWarehouseOptions.find(
+                        (option) => option.value === form.warehouseId
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "warehouseId", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="w-fit flex gap-2 items-center">
@@ -443,28 +323,18 @@ const CreatePurchase = () => {
                     Transport
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="transporterId"
-                      name="transporterId"
-                      value={form.transporterId}
-                      onChange={(e) =>
-                        handleFormChange(0, "transporterId", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Transport</option>
-                      {transportOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.transport}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectTransportOptions}
+                    value={
+                      selectTransportOptions.find(
+                        (option) => option.value === form.transporterId
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "transporterId", selectedOption)
+                    }
+                  />
                 </div>
               </div>
 
@@ -495,13 +365,13 @@ const CreatePurchase = () => {
                     <thead>
                       <tr>
                         {[
-                          "Select",
                           "Company Bargain No",
                           "Company Bargain Date",
                           "Manufacturer Name",
                           "Manufacturer Company",
                           "Manufacturer Contact",
                           "Status",
+                          "Select Order",
                         ].map((el) => (
                           <th key={el} className="py-4 text-center w-[200px]">
                             {el}
@@ -516,17 +386,6 @@ const CreatePurchase = () => {
                         return (
                           <React.Fragment key={order._id}>
                             <tr className="border-t-2 border-t-[#898989]">
-                              <td className="py-4 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => handleOrderSelect(order._id)}
-                                  className="form-checkbox h-5 w-5"
-                                  disabled={
-                                    order.status === "billed" ? true : false
-                                  }
-                                />
-                              </td>
                               <td className="py-4 text-center">
                                 {order.companyBargainNo}
                               </td>
@@ -557,6 +416,21 @@ const CreatePurchase = () => {
                                   }
                                   className="w-[150px]"
                                 />
+                              </td>
+                              <td className="py-4 text-center">
+                                <div className="flex justify-center items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() =>
+                                      handleOrderSelect(order._id)
+                                    }
+                                    className="form-checkbox h-5 w-5 cursor-pointer"
+                                    disabled={
+                                      order.status === "billed" ? true : false
+                                    }
+                                  />
+                                </div>
                               </td>
                             </tr>
                             {isOpen && (

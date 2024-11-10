@@ -1,62 +1,40 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Button,
-  Chip,
-  IconButton,
-  Tooltip,
-} from "@material-tailwind/react";
-import { updateBillTypePartWise } from "@/services/orderService";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import { Typography, IconButton, Tooltip } from "@material-tailwind/react";
 import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
-import { deleteBooking, getBookings } from "@/services/bookingService";
-import { MdDeleteOutline } from "react-icons/md";
-import excel from "../../assets/excel.svg";
-import { getPurchases } from "@/services/purchaseService";
-import { generateInvoicePDF } from "@/utils/generateInvoicePdf";
-import { FaDownload } from "react-icons/fa6";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import PurchaseInvoice from "@/utils/PurchaseInvoice";
 import { useOrganization } from "@clerk/clerk-react";
 
+// utils
+import { generateInvoicePDF } from "@/utils/generateInvoicePdf";
+import PurchaseInvoice from "@/utils/PurchaseInvoice";
+
+// api services
+import { getPurchases } from "@/services/purchaseService";
+
+// icons
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import { MdDeleteOutline } from "react-icons/md";
+import excel from "../../assets/excel.svg";
+import { FaDownload } from "react-icons/fa6";
+
 export default function PurchaseHistory() {
-  const [showPurchaseForm, setPurchaseForm] = useState(false);
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedPurchase, setSelectedPurchase] = useState(null);
-  const [showEditPurchaseForm, setEditPurchaseForm] = useState(false);
   const [openPurchase, setOpenPurchase] = useState(null);
-  const [transferQuantities, setTransferQuantities] = useState({});
-  const [quantityErrors, setQuantityErrors] = useState({});
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
   });
 
-  const handleCreateBookingClick = () => {
-    setBookingForm(true);
-  };
-
   const fetchPurchases = async () => {
     try {
       const response = await getPurchases();
       const purchasesData = response.data;
-      let filteredPurchases =
-        statusFilter === "All"
-          ? purchasesData
-          : purchasesData.filter(
-              (purchase) => purchase.status === statusFilter
-            );
+      let filteredPurchases = purchasesData;
 
       const now = new Date();
       let filterDate;
@@ -102,7 +80,7 @@ export default function PurchaseHistory() {
 
   useEffect(() => {
     fetchPurchases();
-  }, [statusFilter, timePeriod, dateRange]);
+  }, [timePeriod, dateRange]);
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -120,8 +98,6 @@ export default function PurchaseHistory() {
   };
 
   const { organization } = useOrganization();
-
-  console.log(purchases);
 
   const handleDownloadExcel = () => {
     const formattedbookings = bookings.map((booking) => ({
@@ -166,14 +142,6 @@ export default function PurchaseHistory() {
     }
   };
 
-  const handleDownloadInvoice = async (purchase) => {
-    try {
-      await generateInvoicePDF(purchase);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
-
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -192,10 +160,6 @@ export default function PurchaseHistory() {
               value={timePeriod}
               onChange={(e) => {
                 setTimePeriod(e.target.value);
-                if (e.target.value !== "custom") {
-                  setStartDate("");
-                  setEndDate("");
-                }
               }}
               className="border-[2px] border-[#737373] rounded px-2 py-2"
             >

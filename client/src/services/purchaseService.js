@@ -17,7 +17,7 @@ export const createPurchase = async (data) => {
         const response = await axios.post(`${API_BASE_URL}/purchase`, data);
         return response;
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 };
 
