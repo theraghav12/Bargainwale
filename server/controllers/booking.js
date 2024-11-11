@@ -42,12 +42,15 @@ const bookingController = {
         sgst,
         igst,
         contNumber,
-        rackPrice,
-        depoPrice,
-        plantPrice,
+        basePrice,
+        // rackPrice,
+        // depoPrice,
+        // plantPrice,
       } of items) {
         if (!mongoose.Types.ObjectId.isValid(itemId)) {
-          return res.status(400).json({ message: `Invalid itemId format: ${itemId}` });
+          return res
+            .status(400)
+            .json({ message: `Invalid itemId format: ${itemId}` });
         }
 
         const item = await Item.findById(itemId);
@@ -67,9 +70,10 @@ const bookingController = {
           sgst,
           igst,
           contNumber,
-          rackPrice,
-          depoPrice,
-          plantPrice,
+          basePrice,
+          // rackPrice,
+          // depoPrice,
+          // plantPrice,
         });
       }
 
@@ -89,55 +93,72 @@ const bookingController = {
         totalAmount,
       });
 
-      await booking.save();
-
-      let warehouseDocument = await Warehouse.findById(warehouseId);
-      if (!warehouseDocument) {
-        return res.status(404).json({ message: "Warehouse not found" });
+      let noDiscount = true;
+      for (const item of items) {
+        if (item.discount !== 0) {
+          noDiscount = false;
+          break;
+        }
       }
-
-      for (let { item: itemId, quantity, pickup } of bookingItems) {
-        quantity = Number(quantity);
-
-        let existingVirtualInventoryItem = warehouseDocument.virtualInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
-        );
-
-        let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
-          (i) => i.item && i.item.toString() === itemId.toString() && i.pickup === pickup
-        );
-
-        if (!existingVirtualInventoryItem) {
-          return res.status(400).json({
-            message: `Item not found in virtual inventory: ${itemId}`,
-          });
+      if (noDiscount) {
+        let warehouseDocument = await Warehouse.findById(warehouseId);
+        if (!warehouseDocument) {
+          return res.status(404).json({ message: "Warehouse not found" });
         }
 
-        existingVirtualInventoryItem.quantity -= quantity;
+        for (let { item: itemId, quantity, pickup } of bookingItems) {
+          quantity = Number(quantity);
 
-        if (!existingSoldInventoryItem) {
-          warehouseDocument.soldInventory.push({
+          let existingVirtualInventoryItem =
+            warehouseDocument.virtualInventory.find(
+              (i) =>
+                i.item &&
+                i.item.toString() === itemId.toString() &&
+                i.pickup === pickup
+            );
+
+          let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
+            (i) =>
+              i.item &&
+              i.item.toString() === itemId.toString() &&
+              i.pickup === pickup
+          );
+
+          if (!existingVirtualInventoryItem) {
+            return res.status(400).json({
+              message: `Item not found in virtual inventory: ${itemId}`,
+            });
+          }
+
+          existingVirtualInventoryItem.quantity -= quantity;
+
+          if (!existingSoldInventoryItem) {
+            warehouseDocument.soldInventory.push({
+              item: itemId,
+              virtualQuantity: quantity,
+              pickup,
+            });
+          } else {
+            existingSoldInventoryItem.virtualQuantity += quantity;
+          }
+
+          await ItemHistory.create({
             item: itemId,
-            virtualQuantity: quantity,
-            pickup,
+            sourceModel: "Warehouse",
+            source: warehouseId,
+            destinationModel: "Buyer",
+            destination: buyer,
+            quantity,
+            organization,
           });
-        } else {
-          existingSoldInventoryItem.virtualQuantity += quantity;
         }
-
-        await ItemHistory.create({
-          item: itemId,
-          sourceModel: "Warehouse",
-          source: warehouseId,
-          destinationModel: "Buyer",
-          destination: buyer,
-          quantity,
-          organization,
-        });
+        await warehouseDocument.save();
+        booking.discountStatus = "approved";
       }
-
-      await warehouseDocument.save();
-      res.status(201).json({ message: "Booking created successfully", booking });
+      await booking.save();
+      res
+        .status(201)
+        .json({ message: "Booking created successfully", booking });
     } catch (error) {
       console.error("Error creating booking:", error.message || error);
       res.status(400).json({
@@ -153,9 +174,9 @@ const bookingController = {
   getAllBookings: async (req, res) => {
     try {
       const bookings = await Booking.find({ organization: req.params.orgId })
-        .populate('items.item')
-        .populate('warehouse')
-        .populate('buyer');
+        .populate("items.item")
+        .populate("warehouse")
+        .populate("buyer");
 
       res.status(200).json(bookings);
     } catch (error) {
@@ -167,9 +188,9 @@ const bookingController = {
     try {
       const { id, orgId } = req.params;
       const booking = await Booking.findOne({ _id: id, organization: orgId })
-        .populate('items.item')
-        .populate('warehouse')
-        .populate('buyer');
+        .populate("items.item")
+        .populate("warehouse")
+        .populate("buyer");
 
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
@@ -198,28 +219,34 @@ const bookingController = {
         totalAmount,
       } = req.body;
 
-      const booking = await Booking.findByIdAndUpdate(req.params.id, {
-        BargainDate: new Date(BargainDate),
-        items,
-        inco,
-        validity,
-        deliveryOption,
-        warehouse: warehouseId,
-        organization,
-        buyer,
-        deliveryAddress,
-        description,
-        reminderDays,
-        totalAmount,
-      }, {
-        new: true,
-      });
+      const booking = await Booking.findByIdAndUpdate(
+        req.params.id,
+        {
+          BargainDate: new Date(BargainDate),
+          items,
+          inco,
+          validity,
+          deliveryOption,
+          warehouse: warehouseId,
+          organization,
+          buyer,
+          deliveryAddress,
+          description,
+          reminderDays,
+          totalAmount,
+        },
+        {
+          new: true,
+        }
+      );
 
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
 
-      res.status(200).json({ message: "Booking updated successfully", booking });
+      res
+        .status(200)
+        .json({ message: "Booking updated successfully", booking });
     } catch (error) {
       res.status(400).json({ message: "Error updating booking", error });
     }
@@ -227,24 +254,102 @@ const bookingController = {
 
   updateBookingForDiscount: async (req, res) => {
     try {
-      const {items}=req.body;
-      const booking=await Booking.findById(req.params.id);
+      const { items } = req.body;
+      const booking = await Booking.findById(req.params.id);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
-      for(const item of items){
-        const itemId=item.item;
-        const bookingItem = booking.items.find((bookingItem) => bookingItem.item.toString() === itemId.toString());
-        if(!bookingItem){
-          return res.status(404).json({ message: `Item with ${itemId} not found in booking` });
-        }
-        bookingItem.discount=item.discount;
+      if (
+        booking.discountStatus === "partially approved" ||
+        booking.discountStatus === "approved"
+      ) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "Booking has already been approved either completely or partially",
+          });
       }
-      booking.discountStatus="approved";
+      let fullyApproved = true;
+      for (const item of items) {
+        const itemId = item.item;
+        const bookingItem = booking.items.find(
+          (bookingItem) => bookingItem.item.toString() === itemId.toString()
+        );
+        if (!bookingItem) {
+          return res
+            .status(404)
+            .json({ message: `Item with ${itemId} not found in booking` });
+        }
+        bookingItem.discount = item.discount;
+        if (item.discount === 0) {
+          fullyApproved = false;
+        }
+      }
+      const warehouseId = booking.warehouse;
+      let warehouseDocument = await Warehouse.findById(warehouseId);
+      if (!warehouseDocument) {
+        return res.status(404).json({ message: "Warehouse not found" });
+      }
+      for (let { item: itemId, quantity, pickup } of booking.items) {
+        quantity = Number(quantity);
+
+        let existingVirtualInventoryItem =
+          warehouseDocument.virtualInventory.find(
+            (i) =>
+              i.item &&
+              i.item.toString() === itemId.toString() &&
+              i.pickup === pickup
+          );
+
+        let existingSoldInventoryItem = warehouseDocument.soldInventory.find(
+          (i) =>
+            i.item &&
+            i.item.toString() === itemId.toString() &&
+            i.pickup === pickup
+        );
+
+        if (!existingVirtualInventoryItem) {
+          return res.status(400).json({
+            message: `Item not found in virtual inventory: ${itemId}`,
+          });
+        }
+
+        existingVirtualInventoryItem.quantity -= quantity;
+
+        if (!existingSoldInventoryItem) {
+          warehouseDocument.soldInventory.push({
+            item: itemId,
+            virtualQuantity: quantity,
+            pickup,
+          });
+        } else {
+          existingSoldInventoryItem.virtualQuantity += quantity;
+        }
+        await ItemHistory.create({
+          item: itemId,
+          sourceModel: "Warehouse",
+          source: warehouseId,
+          destinationModel: "Buyer",
+          destination: booking.buyer,
+          quantity,
+          organization: booking.organization,
+        });
+      }
+      await warehouseDocument.save();
+      if (fullyApproved) {
+        booking.discountStatus = "approved";
+      } else {
+        booking.discountStatus = "partially approved";
+      }
       await booking.save();
-      res.status(200).json({ message: "Booking updated successfully", booking });
+      res
+        .status(200)
+        .json({ message: "Booking updated successfully", booking });
     } catch (error) {
-      res.status(400).json({ message: "Error updating booking for discount", error });
+      res
+        .status(400)
+        .json({ message: "Error updating booking for discount", error });
     }
   },
 
@@ -253,24 +358,27 @@ const bookingController = {
       const { id } = req.params;
 
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'Invalid booking ID format' });
+        return res.status(400).json({ message: "Invalid booking ID format" });
       }
 
-      const booking = await Booking.findById(id).populate('warehouse');
+      const booking = await Booking.findById(id).populate("warehouse");
       if (!booking) {
-        return res.status(404).json({ message: 'Booking not found' });
+        return res.status(404).json({ message: "Booking not found" });
       }
 
       const { items, warehouse } = booking;
       if (!warehouse) {
-        return res.status(404).json({ message: 'Associated warehouse not found' });
+        return res
+          .status(404)
+          .json({ message: "Associated warehouse not found" });
       }
 
-
       for (const { item, quantity, pickup } of items) {
-
         const virtualInventoryItem = warehouse.virtualInventory.find(
-          (i) => i.item && i.item.toString() === item.toString() && i.pickup === pickup
+          (i) =>
+            i.item &&
+            i.item.toString() === item.toString() &&
+            i.pickup === pickup
         );
 
         if (virtualInventoryItem) {
@@ -281,16 +389,19 @@ const bookingController = {
           });
         }
 
-
         const soldInventoryItem = warehouse.soldInventory.find(
-          (i) => i.item && i.item.toString() === item.toString() && i.pickup === pickup
+          (i) =>
+            i.item &&
+            i.item.toString() === item.toString() &&
+            i.pickup === pickup
         );
         if (soldInventoryItem) {
           soldInventoryItem.virtualQuantity -= quantity;
 
           if (soldInventoryItem.virtualQuantity <= 0) {
             warehouse.soldInventory = warehouse.soldInventory.filter(
-              (i) => !(i.item.toString() === item.toString() && i.pickup === pickup)
+              (i) =>
+                !(i.item.toString() === item.toString() && i.pickup === pickup)
             );
           }
         } else {
@@ -300,18 +411,17 @@ const bookingController = {
         }
       }
 
-
       await warehouse.save();
 
       await Booking.findByIdAndDelete(id);
 
-      res.status(200).json({ message: 'Booking deleted successfully' });
+      res.status(200).json({ message: "Booking deleted successfully" });
     } catch (error) {
-      console.error('Error deleting booking:', error.message || error);
+      console.error("Error deleting booking:", error.message || error);
       res.status(400).json({
-        message: 'Error deleting booking',
+        message: "Error deleting booking",
         error: {
-          message: error.message || 'An error occurred',
+          message: error.message || "An error occurred",
           stack: error.stack,
         },
       });
@@ -346,11 +456,13 @@ const bookingController = {
       const { buyerId } = req.params;
 
       const bookings = await Booking.find({ buyer: buyerId })
-        .populate('warehouse')
-        .populate('buyer');
+        .populate("warehouse")
+        .populate("buyer");
 
       if (!bookings.length) {
-        return res.status(404).json({ message: "No bookings found for the provided buyer ID" });
+        return res
+          .status(404)
+          .json({ message: "No bookings found for the provided buyer ID" });
       }
 
       res.status(200).json(bookings);
