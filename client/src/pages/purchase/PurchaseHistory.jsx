@@ -7,7 +7,6 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useOrganization } from "@clerk/clerk-react";
 
 // utils
-import { generateInvoicePDF } from "@/utils/generateInvoicePdf";
 import PurchaseInvoice from "@/utils/PurchaseInvoice";
 
 // api services

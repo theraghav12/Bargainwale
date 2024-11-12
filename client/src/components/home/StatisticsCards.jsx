@@ -38,12 +38,14 @@ export default function StatisticsCards() {
     return total + bookingTotal;
   }, 0);
 
+  totalOrderValue = totalOrderValue.toFixed(2);
+  totalBookingValue = totalBookingValue.toFixed(2);
+
   useEffect(() => {
     const data = [
       {
         title: "No. of Active Orders",
         value: orders?.length,
-        // percentage: "+16.24%",
         percentageColor: "text-green-500",
         footerLabel: "View Orders History",
         onClick: () => navigate("/orders/history"),
@@ -51,7 +53,6 @@ export default function StatisticsCards() {
       {
         title: "No. of Active Bookings",
         value: bookings?.length,
-        // percentage: "-3.57%",
         percentageColor: "text-red-500",
         footerLabel: "View all bookings",
         onClick: () => navigate("/bookings/history"),
@@ -59,17 +60,13 @@ export default function StatisticsCards() {
       {
         title: "Total Order Value",
         value: `₹${totalOrderValue}`,
-        // percentage: "+29.08%",
         percentageColor: "text-green-500",
-        // footerLabel: "See details",
         onClick: () => navigate("/orders/history"),
       },
       {
         title: "Total Booking Value",
         value: `₹${totalBookingValue}`,
-        // percentage: "+0.00%",
         percentageColor: "text-gray-500",
-        // footerLabel: "View Details",
         onClick: () => navigate("/bookings/history"),
       },
     ];

@@ -153,6 +153,7 @@ const CreateBooking = () => {
           state: "",
           pinCode: "",
           paymentDays: "",
+          organization: localStorage.getItem("organizationId"),
         });
       } else {
         toast.error(`Unexpected status code: ${response?.status}`);
@@ -227,7 +228,7 @@ const CreateBooking = () => {
           quantity: null,
           pickup: "",
           basePrice: null,
-          discount: null,
+          discount: 0,
           taxpaidAmount: null,
           taxableAmount: null,
           contNumber: null,

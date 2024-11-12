@@ -118,9 +118,11 @@ const CreatePurchase = () => {
           invoiceNumber: "",
           invoiceDate: "",
           items: [],
+          organization: localStorage.getItem("organizationId"),
         });
         setQuantityInputs([]);
         setSelectedOrder(null);
+        fetchOrders();
       } else {
         toast.error(`Unexpected status code: ${response?.status}`);
         console.error("Unexpected response:", response);

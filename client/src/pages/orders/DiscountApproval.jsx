@@ -49,8 +49,9 @@ const DiscountApprovalPage = () => {
   const fetchBookings = async () => {
     try {
       const response = await getBookings();
-      console.log(response);
-      setBookings(response);
+      setBookings(
+        response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      );
     } catch (err) {
       console.log("Error:", err);
     }
@@ -68,8 +69,6 @@ const DiscountApprovalPage = () => {
     );
   };
 
-  console.log(itemApprovals);
-
   const handleSubmit = async () => {
     if (!selectedBooking) return;
 
@@ -84,7 +83,6 @@ const DiscountApprovalPage = () => {
     };
 
     try {
-      console.log(updatedItems);
       await updateDiscount(selectedBooking._id, updatedItems);
       await fetchBookings();
       closeModal();
@@ -241,7 +239,7 @@ const DiscountApprovalPage = () => {
                         <td className="border p-2">{item.quantity}</td>
                         <td className="border p-2">{item.taxableAmount}</td>
                         <td className="border p-2">{item.taxpaidAmount}</td>
-                        <td className="border p-2">₹{item?.baseRate}</td>
+                        <td className="border p-2">₹{item?.basePrice}</td>
                         <td className="border p-2">₹{item?.discount}</td>
                         {selectedBooking.discountStatus === "pending" && (
                           <td className="border p-2 flex gap-2">

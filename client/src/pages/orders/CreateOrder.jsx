@@ -130,6 +130,7 @@ const CreateOrder = () => {
         paymentDays: "",
         description: "",
         warehouse: "",
+        organization: localStorage.getItem("organizationId"),
       });
     } catch (error) {
       if (error.response) {
@@ -709,8 +710,7 @@ const CreateOrder = () => {
                             if (
                               e.key === "e" ||
                               e.key === "-" ||
-                              e.key === "+" ||
-                              e.key === "."
+                              e.key === "+"
                             ) {
                               e.preventDefault();
                             }
