@@ -101,6 +101,12 @@ const CreateBooking = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (form.items.length === 0) {
+      toast.error("Please add at least one item before creating the order!");
+      setLoading(false);
+      return;
+    }
+
     try {
       const paymentDays = calculateDaysDifference(
         form.BargainDate,

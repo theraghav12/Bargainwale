@@ -7,38 +7,24 @@ import {
 } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import axios from "axios";
+import Select from "react-select";
 
 // api services
-import {
-  getItems,
-  getManufacturer,
-  getTransport,
-} from "@/services/masterService";
+import { getTransport } from "@/services/masterService";
 import { getWarehouses } from "@/services/warehouseService";
+import { getBookings } from "@/services/bookingService";
+import { API_BASE_URL } from "@/services/api";
 
 // icons
-import { FaPlus } from "react-icons/fa";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
-import { MdDeleteOutline } from "react-icons/md";
-import { createOrder, getOrders } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
-import { createPurchase } from "@/services/purchaseService";
-import { getBookings } from "@/services/bookingService";
-import { useParams } from "react-router-dom";
-import { createSales } from "@/services/salesService";
-import { API_BASE_URL } from "@/services/api";
-import axios from "axios";
 
 const CreateSales = () => {
   const [loading, setLoading] = useState(false);
-  const [itemsOptions, setItemsOptions] = useState([]);
-  const [transportOptions, setTransportOptions] = useState([]);
-  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [selectTransportOptions, setSelectTransportOptions] = useState([]);
+  const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [timePeriod, setTimePeriod] = useState("All");
   const [openOrders, setOpenOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [quantityInputs, setQuantityInputs] = useState([]);
@@ -55,60 +41,10 @@ const CreateSales = () => {
     organization: localStorage.getItem("organizationId"),
   });
 
-  useEffect(() => {
-    fetchOrders();
-    fetchItemsOptions();
-    fetchTransportOptions();
-    fetchWarehouseOptions();
-  }, []);
-
-  const buyerId = useParams().id;
-
   const fetchOrders = async () => {
     try {
       const response = await getBookings();
-      const ordersData = response;
-
-      let filteredOrders =
-        statusFilter === "All"
-          ? ordersData
-          : ordersData.filter((order) => order.status === statusFilter);
-
-      const now = new Date();
-      let filterDate;
-
-      if (timePeriod === "last7Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 7);
-        filteredOrders = filteredOrders.filter(
-          (order) => new Date(order.companyBargainDate) >= filterDate
-        );
-      } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 30);
-        filteredOrders = filteredOrders.filter(
-          (order) => new Date(order.companyBargainDate) >= filterDate
-        );
-      } else if (
-        timePeriod === "custom" &&
-        dateRange.startDate &&
-        dateRange.endDate
-      ) {
-        const start = new Date(dateRange.startDate);
-        const end = new Date(dateRange.endDate);
-        filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = new Date(order.companyBargainDate);
-          return orderDate >= start && orderDate <= end;
-        });
-      }
-
-      if (searchQuery) {
-        filteredOrders = filteredOrders.filter((order) =>
-          order.companyBargainNo
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        );
-      }
+      const filteredOrders = response;
 
       filteredOrders.sort(
         (a, b) =>
@@ -123,20 +59,14 @@ const CreateSales = () => {
     }
   };
 
-  const fetchItemsOptions = async () => {
-    try {
-      const response = await getItems();
-      setItemsOptions(response);
-    } catch (error) {
-      toast.error("Error fetching items!");
-      console.error(error);
-    }
-  };
-
   const fetchTransportOptions = async () => {
     try {
       const response = await getTransport();
-      setTransportOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.transport,
+      }));
+      setSelectTransportOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching transports!");
       console.error(error);
@@ -146,171 +76,22 @@ const CreateSales = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
+      const formattedOptions = response.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
+      setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
     }
   };
 
-  const calculateDaysDifference = (date1, date2) => {
-    const diffTime = Math.abs(new Date(date2) - new Date(date1));
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   try {
-  //     if (selectedOrder.length === 0) {
-  //       toast.error("Please select at least one booking before submitting.");
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     if (
-  //       quantityInputs.length === 0 ||
-  //       quantityInputs.some((input) => !input.quantity)
-  //     ) {
-  //       toast.error(
-  //         "Please enter quantities for all items in the selected booking."
-  //       );
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     const updatedForm = {
-  //       ...form,
-  //       bookingIds: selectedOrder,
-  //       items: quantityInputs,
-  //     };
-
-  //     console.log(updatedForm);
-  //     // const response = await createSales(updatedForm);
-
-  //     if (response.status === 201) {
-  //       toast.success("Sales created successfully!");
-  //     } else {
-  //       toast.error(`Unexpected status code: ${response.status}`);
-  //       console.error("Unexpected response:", response);
-  //     }
-
-  //     // Reset the form after successful submission
-  //     // setForm({
-  //     //   items: [],
-  //     //   inco: "",
-  //     //   companyBargainNo: "",
-  //     //   companyBargainDate: "",
-  //     //   manufacturer: "",
-  //     //   paymentDays: "",
-  //     //   description: "",
-  //     //   warehouse: "",
-  //     // });
-  //   } catch (error) {
-  //     // Handle different types of errors (network/server-side/client-side)
-  //     if (error.response) {
-  //       const { status, data } = error.response;
-  //       if (status === 400) {
-  //         toast.error("Bad request: Please check the form data.");
-  //       } else if (status === 401) {
-  //         toast.error("Unauthorized: Please log in again.");
-  //       } else if (status === 500) {
-  //         toast.error("Internal server error: Please try again later.");
-  //       } else {
-  //         toast.error(`Error: ${data?.message || "Something went wrong!"}`);
-  //       }
-  //       console.error("Server-side error:", error.response);
-  //     } else if (error.request) {
-  //       toast.error("Network error: Unable to reach the server.");
-  //       console.error("Network error:", error.request);
-  //     } else {
-  //       toast.error("Error: Something went wrong!");
-  //       console.error("Error:", error.message);
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (selectedOrder.length === 0) {
-        toast.error("Please select at least one booking before submitting.");
-        setLoading(false);
-        return;
-      }
-
-      if (
-        quantityInputs.length === 0 ||
-        quantityInputs.some((input) => !input.quantity)
-      ) {
-        toast.error(
-          "Please enter quantities for all items in the selected booking."
-        );
-        setLoading(false);
-        return;
-      }
-
-      // Group items by bookingId
-      const itemQuantities = selectedOrder.map((bookingId) => {
-        const bookingItems = quantityInputs
-          .filter((input) => selectedOrder.includes(bookingId))
-          .map(({ itemId, quantity }) => ({
-            itemId,
-            quantity: parseFloat(quantity), // Ensure quantity is a number
-          }));
-
-        return {
-          bookingId,
-          items: bookingItems,
-        };
-      });
-
-      // Updated form structure with itemQuantities
-      const updatedForm = {
-        ...form,
-        bookingIds: undefined, // Remove bookingIds since we're using itemQuantities
-        itemQuantities,
-      };
-
-      console.log(updatedForm);
-      // const response = await createSales(updatedForm);
-
-      if (response.status === 201) {
-        toast.success("Sales created successfully!");
-      } else {
-        toast.error(`Unexpected status code: ${response.status}`);
-        console.error("Unexpected response:", response);
-      }
-    } catch (error) {
-      // Handle different types of errors (network/server-side/client-side)
-      if (error.response) {
-        const { status, data } = error.response;
-        if (status === 400) {
-          toast.error("Bad request: Please check the form data.");
-        } else if (status === 401) {
-          toast.error("Unauthorized: Please log in again.");
-        } else if (status === 500) {
-          toast.error("Internal server error: Please try again later.");
-        } else {
-          toast.error(`Error: ${data?.message || "Something went wrong!"}`);
-        }
-        console.error("Server-side error:", error.response);
-      } else if (error.request) {
-        toast.error("Network error: Unable to reach the server.");
-        console.error("Network error:", error.request);
-      } else {
-        toast.error("Error: Something went wrong!");
-        console.error("Error:", error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    fetchOrders();
+    fetchTransportOptions();
+    fetchWarehouseOptions();
+  }, []);
 
   const handleFormChange = (index, fieldName, value) => {
     if (fieldName === "items") {
@@ -330,50 +111,18 @@ const CreateSales = () => {
         [fieldName]: formattedDate,
       }));
     } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: value,
-      }));
+      if (fieldName === "warehouseId" || fieldName === "transporterId") {
+        setForm((prevData) => ({
+          ...prevData,
+          [fieldName]: value.value,
+        }));
+      } else {
+        setForm((prevData) => ({
+          ...prevData,
+          [fieldName]: value,
+        }));
+      }
     }
-  };
-
-  const handleAddItem = () => {
-    setForm((prevData) => ({
-      ...prevData,
-      items: [
-        ...prevData.items,
-        {
-          itemId: "",
-          quantity: null,
-          pickup: "",
-          baseRate: null,
-          taxpaidAmount: null,
-          contNumber: null,
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveItem = (index) => {
-    const updatedItems = form.items.filter((_, i) => i !== index);
-    setForm((prevData) => ({
-      ...prevData,
-      items: updatedItems,
-    }));
-  };
-
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...form.items];
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
-    if (field === "quantity" || field === "baseRate") {
-      const quantity = updatedItems[index].quantity || 0;
-      const baseRate = updatedItems[index].baseRate || 0;
-      updatedItems[index].taxpaidAmount = quantity * baseRate;
-    }
-    setForm((prevData) => ({
-      ...prevData,
-      items: updatedItems,
-    }));
   };
 
   const formatDate = (date) => {
@@ -388,11 +137,10 @@ const CreateSales = () => {
   };
 
   const handleToggleOrder = (orderId) => {
-    setOpenOrders(
-      (prevOpenOrders) =>
-        prevOpenOrders.includes(orderId)
-          ? prevOpenOrders.filter((id) => id !== orderId) // Close the order if it's open
-          : [...prevOpenOrders, orderId] // Open the order if it's not open
+    setOpenOrders((prevOpenOrders) =>
+      prevOpenOrders.includes(orderId)
+        ? prevOpenOrders.filter((id) => id !== orderId)
+        : [...prevOpenOrders, orderId]
     );
   };
 
@@ -402,8 +150,6 @@ const CreateSales = () => {
     if (!warehouseId || !invoiceNumber || !invoiceDate || !transporterId) {
       return;
     }
-
-    // Check if all items in the order have a non-zero quantity
     const allItemsHaveQuantity = quantityInputs.some(
       (booking) =>
         booking.bookingId === orderId &&
@@ -414,18 +160,13 @@ const CreateSales = () => {
       return;
     }
 
-    // console.log(orderId);
     setSelectedOrder((prevSelected) => {
-      // Check if the orderId is already in the selectedOrders array
       if (prevSelected.includes(orderId)) {
-        // Remove the order from the selection
         return prevSelected.filter((id) => id !== orderId);
       } else {
-        // Add the order to the selection
         return [...prevSelected, orderId];
       }
     });
-    setQuantityInputs([]); // Reset quantity input for newly selected order
   };
 
   const handleCreateSale = async (bookingId, buyerId, orderItems) => {
@@ -437,7 +178,6 @@ const CreateSales = () => {
       invoiceDate,
     } = form;
 
-    // // Ensure all required fields are filled
     if (!warehouseId || !invoiceNumber || !invoiceDate || !transporterId) {
       toast.error(
         "Please fill in all the required fields: Warehouse, Invoice Number, Invoice Date, and Transporter."
@@ -445,9 +185,6 @@ const CreateSales = () => {
       return;
     }
 
-    console.log(quantityInputs);
-
-    // Check if all items in the order have a non-zero quantity
     const allItemsHaveQuantity = quantityInputs.some(
       (booking) =>
         booking.bookingId === bookingId &&
@@ -455,21 +192,19 @@ const CreateSales = () => {
     );
 
     if (!allItemsHaveQuantity) {
-      toast.error("Please enter a quantity for all items in the order.");
+      toast.error("Please enter a quantity for all items in the booking.");
       return;
     }
 
-    // Format the items for the sale payload
     const saleItems = orderItems.map((item) => ({
       itemId: item.item._id,
       quantity:
         quantityInputs
           .find((booking) => booking.bookingId === bookingId)
           ?.items.find((q) => q.itemId === item.item._id)?.quantity || 0,
-      pickup: item.pickup, // Assuming "plant" as a static value
+      pickup: item.pickup,
     }));
 
-    // First API call: Create a sale
     try {
       const saleResponse = await axios.post(`${API_BASE_URL}/sale`, {
         warehouseId,
@@ -479,29 +214,22 @@ const CreateSales = () => {
         buyerId,
         items: saleItems,
       });
-      console.log({
-        warehouseId,
-        bookingId,
-        transporterId,
-        organization,
-        buyerId,
-        items: saleItems,
-      });
-      console.log(saleResponse);
-
       const newSaleId = saleResponse.data.data?._id;
       setSalesIds((prevSales) => [...prevSales, newSaleId]);
-
-      // console.log("Sale created:", newSaleId);
     } catch (error) {
       console.error("Error creating sale:", error);
     }
   };
-  // console.log(orders);
 
   const handleFinalizeSales = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (salesIds.length === 0) {
+      toast.error("Please select a booking before submitting.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await axios.post(`${API_BASE_URL}/totalsales`, {
@@ -509,15 +237,8 @@ const CreateSales = () => {
         organization: form.organization,
         totalAmount: totalAmount,
       });
-      console.log(response);
       setLoading(false);
       toast.success("Sale created successfully!");
-
-      console.log("Sales finalized:", {
-        saleIds: salesIds,
-        organization: form.organization,
-        totalAmount: totalAmount,
-      });
     } catch (error) {
       console.error("Error finalizing sales:", error);
     }
@@ -530,19 +251,16 @@ const CreateSales = () => {
     taxpaidAmount
   ) => {
     setQuantityInputs((prevInputs) => {
-      // Find the booking that matches the current bookingId
       const existingBookingIndex = prevInputs.findIndex(
         (booking) => booking.bookingId === bookingId
       );
 
       if (existingBookingIndex !== -1) {
-        // If booking exists, check if the item already exists within that booking
         const existingItemIndex = prevInputs[
           existingBookingIndex
         ].items.findIndex((item) => item.itemId === itemId);
 
         if (existingItemIndex !== -1) {
-          // If item exists, update the quantity
           return prevInputs.map((booking, bookingIndex) => {
             if (bookingIndex === existingBookingIndex) {
               return {
@@ -558,7 +276,6 @@ const CreateSales = () => {
             return booking;
           });
         } else {
-          // If item does not exist, add it to the items array of that booking
           return prevInputs.map((booking, bookingIndex) => {
             if (bookingIndex === existingBookingIndex) {
               return {
@@ -570,7 +287,6 @@ const CreateSales = () => {
           });
         }
       } else {
-        // If booking does not exist, create a new entry with the item and quantity
         return [
           ...prevInputs,
           {
@@ -581,7 +297,6 @@ const CreateSales = () => {
       }
     });
 
-    // Update the total amount based on the quantity
     if (newQuantity === "") {
       setTotalAmount((prevAmount) => prevAmount * 0);
     } else {
@@ -591,10 +306,7 @@ const CreateSales = () => {
     }
   };
 
-  // console.log("Before Update:", quantityInputs);
-
-  // console.log(selectedOrder);
-  // console.log(quantityInputs);
+  console.log(quantityInputs);
 
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
@@ -637,28 +349,18 @@ const CreateSales = () => {
                     Warehouse
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[180px]">
-                    <select
-                      id="warehouse"
-                      name="warehouse"
-                      value={form.warehouseId}
-                      onChange={(e) =>
-                        handleFormChange(0, "warehouseId", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Warehouse</option>
-                      {warehouseOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectWarehouseOptions}
+                    value={
+                      selectWarehouseOptions.find(
+                        (option) => option.value === form.warehouseId
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "warehouseId", selectedOption)
+                    }
+                  />
                 </div>
 
                 <div className="w-fit flex gap-2 items-center">
@@ -710,28 +412,18 @@ const CreateSales = () => {
                     Transport
                     <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                   </label>
-                  <div className="relative w-[200px]">
-                    <select
-                      id="transporterId"
-                      name="transporterId"
-                      value={form.transporterId}
-                      onChange={(e) =>
-                        handleFormChange(0, "transporterId", e.target.value)
-                      }
-                      className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Transport</option>
-                      {transportOptions?.map((option) => (
-                        <option key={option._id} value={option._id}>
-                          {option.transport}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                    </div>
-                  </div>
+                  <Select
+                    className="relative w-[180px]"
+                    options={selectTransportOptions}
+                    value={
+                      selectTransportOptions.find(
+                        (option) => option.value === form.transporterId
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleFormChange(0, "transporterId", selectedOption)
+                    }
+                  />
                 </div>
               </div>
 
@@ -762,7 +454,6 @@ const CreateSales = () => {
                     <thead>
                       <tr>
                         {[
-                          "Select",
                           "Bargain No",
                           "Bargain Date",
                           "Buyer Name",
@@ -786,30 +477,6 @@ const CreateSales = () => {
                         return (
                           <React.Fragment key={order._id}>
                             <tr className="border-t-2 border-t-[#898989]">
-                              <td className="py-4 text-center">
-                                <Tooltip
-                                  content={
-                                    isSoldOut
-                                      ? "Booking fully sold"
-                                      : "Select Booking"
-                                  }
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={isChecked}
-                                    onChange={() => {
-                                      handleOrderSelect(order._id);
-                                      handleCreateSale(
-                                        order._id,
-                                        order.buyer?._id,
-                                        order.items
-                                      );
-                                    }}
-                                    className="form-checkbox h-5 w-5 cursor-pointer"
-                                    disabled={isSoldOut}
-                                  />
-                                </Tooltip>
-                              </td>
                               <td className="py-4 text-center">
                                 {order.BargainNo}
                               </td>
@@ -844,7 +511,7 @@ const CreateSales = () => {
                                 {order.deliveryOption}
                               </td>
                               <td className="py-4 text-center">
-                                <div className="flex justify-center gap-4">
+                                <div className="flex justify-center items-center gap-4">
                                   <IconButton
                                     variant="text"
                                     onClick={() => handleToggleOrder(order._id)}
@@ -856,27 +523,28 @@ const CreateSales = () => {
                                       <ChevronDownIcon className="h-5 w-5" />
                                     )}
                                   </IconButton>
-                                  {/* <Button
-                                    color="blue"
-                                    onClick={() => {
-                                      setSelectedOrder(order);
-                                      setShowEditOrderForm(true);
-                                    }}
+                                  <Tooltip
+                                    content={
+                                      isSoldOut
+                                        ? "Booking fully sold"
+                                        : "Select Booking"
+                                    }
                                   >
-                                    Edit
-                                  </Button> */}
-                                  {/* {!hasFutureBookings(order, bookings) && (
-                                    <Tooltip content="Delete Order">
-                                      <span className="w-fit h-fit">
-                                        <MdDeleteOutline
-                                          onClick={() =>
-                                            handleDelete(order._id)
-                                          }
-                                          className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                        />
-                                      </span>
-                                    </Tooltip>
-                                  )} */}
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => {
+                                        handleOrderSelect(order._id);
+                                        handleCreateSale(
+                                          order._id,
+                                          order.buyer?._id,
+                                          order.items
+                                        );
+                                      }}
+                                      className="form-checkbox h-5 w-5 cursor-pointer"
+                                      disabled={isSoldOut}
+                                    />
+                                  </Tooltip>
                                 </div>
                               </td>
                             </tr>
