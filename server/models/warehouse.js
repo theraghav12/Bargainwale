@@ -21,6 +21,8 @@ const warehouseSchema = mongoose.Schema({
   },
   warehouseManager: {
     type: String,
+    required: true,
+
   },
   virtualInventory: [
     {
