@@ -41,7 +41,7 @@ const warehouseController = {
 
   getWarehouseByFilter: async (req, res) => {
     try {
-      const { name, state, city } = req.query;
+      const { name, state, city, warehouseManager } = req.query;
 
       let filter = {};
 
@@ -54,6 +54,10 @@ const warehouseController = {
       if (city) {
         filter["location.city"] = city;
       }
+      if (city) {
+        filter.warehouseManager = warehouseManager;
+      }
+
       filter.organization = req.params.orgId;
       const warehouses = await Warehouse.find(filter);
 
