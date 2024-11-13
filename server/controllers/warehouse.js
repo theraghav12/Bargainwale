@@ -54,7 +54,7 @@ const warehouseController = {
       if (city) {
         filter["location.city"] = city;
       }
-      if (city) {
+      if (warehouseManager) {
         filter.warehouseManager = warehouseManager;
       }
 
@@ -108,6 +108,9 @@ const warehouseController = {
       }
       if (name) {
         warehouse.name = name;
+      }
+      if (warehouseManager) {
+        filter.warehouseManager = warehouseManager;
       }
 
       await warehouse.save();
