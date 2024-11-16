@@ -22,6 +22,7 @@ import BuyersList from "./pages/sales/BuyersList";
 import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 import largeScreen from "./assets/large-screen.png";
 import { useUser } from "@clerk/clerk-react";
+import Documentation from "@/components/documentation/Documentation"; // Import the Documentation component
 import DiscountApprovalPage from "./pages/orders/DiscountApproval";
 
 const App = () => {
@@ -69,6 +70,7 @@ const App = () => {
                   path="/auth/create-organization"
                   element={<CreateOrganizationPage />}
                 />
+                <Route path="/docs" element={<Documentation />} />
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/master" element={<Master />} />
                 <Route path="/inventory" element={<Inventory />} />

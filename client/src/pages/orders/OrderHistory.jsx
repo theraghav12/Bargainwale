@@ -37,24 +37,20 @@ export function OrderHistory() {
       const response = await getOrders();
       const ordersData = response;
 
-      // Filter orders based on status
       let filteredOrders =
         statusFilter === "All"
           ? ordersData
           : ordersData.filter((order) => order.status === statusFilter);
 
-      // Filter orders based on time period
       const now = new Date();
-      let filterDate;
-
       if (timePeriod === "last7Days") {
-        filterDate = new Date();
+        const filterDate = new Date();
         filterDate.setDate(now.getDate() - 7);
         filteredOrders = filteredOrders.filter(
           (order) => new Date(order.companyBargainDate) >= filterDate
         );
       } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
+        const filterDate = new Date();
         filterDate.setDate(now.getDate() - 30);
         filteredOrders = filteredOrders.filter(
           (order) => new Date(order.companyBargainDate) >= filterDate
@@ -80,16 +76,7 @@ export function OrderHistory() {
         );
       }
 
-      // Sort orders by companyBargainDate in descending order
-      filteredOrders.sort((a, b) => {
-        const dateComparison =
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate);
-        if (dateComparison !== 0) {
-          return dateComparison;
-        } else {
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        }
-      });
+      filteredOrders.sort((a, b) => new Date(b.companyBargainDate) - new Date(a.companyBargainDate));
 
       setOrders(filteredOrders);
     } catch (error) {
@@ -159,6 +146,9 @@ export function OrderHistory() {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to permanently delete this order?");
+    if (!confirmDelete) return;
+
     try {
       await deleteOrder(id);
       fetchOrders();
@@ -171,21 +161,20 @@ export function OrderHistory() {
   return (
     <div className="mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
-        <div className="flex flex-row justify-between">
-          <div>
-            <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button>
-          </div>
-          <div className="flex gap-4">
+        <div className="flex flex-row justify-between items-center">
+          <button
+            onClick={handleDownloadExcel}
+            className="flex items-center bg-[#185C37] text-white font-medium rounded-lg px-8 py-2 border-2 border-[#999999] hover:bg-[#14522e] transition-colors"
+          >
+            <img className="w-5 mr-2" src={excel} alt="Download Excel" />
+            Download Excel
+          </button>
+
+          <div className="flex gap-4 items-center">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
+              className="border-2 border-[#737373] rounded px-3 py-2 focus:outline-none"
             >
               <option value="All">All Statuses</option>
               <option value="created">Created</option>
@@ -194,10 +183,8 @@ export function OrderHistory() {
             </select>
             <select
               value={timePeriod}
-              onChange={(e) => {
-                setTimePeriod(e.target.value);
-              }}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="border-2 border-[#737373] rounded px-3 py-2 focus:outline-none"
             >
               <option value="All">All Time</option>
               <option value="last7Days">Last 7 Days</option>
@@ -209,216 +196,155 @@ export function OrderHistory() {
                 value={dateRange}
                 onChange={(newValue) => setDateRange(newValue)}
                 showShortcuts={true}
-                className="w-full max-w-sm"
+                className="w-full max-w-xs"
               />
             )}
             <input
-              name="companyBargainNo"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by Bargain No."
-              className="border-[2px] border-[#737373] px-2 py-1 rounded-md placeholder-[#737373]"
-              // className=" rounded px-2 py-2"
+              className="border-2 border-[#737373] px-3 py-2 rounded-md placeholder-gray-500 focus:outline-none"
             />
-            {/* <Input
-                  type="text"
-                  value={searchQuery}
-                  label="Search by Bargain No"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="border rounded px-2 py-2"
-                /> */}
-          </div>
-          <div className="flex flex-row gap-4">
-            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button> */}
           </div>
         </div>
-        <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
+
+        <div className="overflow-x-auto mt-4">
           {loading ? (
-            <Typography className="text-center text-blue-gray-600">
-              Loading...
-            </Typography>
+            <Typography className="text-center text-gray-500">Loading...</Typography>
           ) : error ? (
-            <p className="text-center text-red-600">{error}</p>
+            <p className="text-center text-red-500">{error}</p>
           ) : orders.length > 0 ? (
-            <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-              <div className="overflow-x-auto">
-                <table className="min-w-full table-auto border-collapse">
-                  <thead>
-                    <tr>
-                      {[
-                        "Company Bargain No",
-                        "Company Bargain Date",
-                        "Manufacturer Name",
-                        "Manufacturer Company",
-                        "Manufacturer Contact",
-                        "Status",
-                        "Inco",
-                        "Actions",
-                      ].map((el) => (
-                        <th key={el} className="py-4 text-center w-[200px]">
-                          {el}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => {
-                      const isOpen = openOrder === order._id;
-                      return (
-                        <React.Fragment key={order._id}>
-                          <tr className="border-t-2 border-t-[#898989]">
-                            <td className="py-4 text-center">
-                              {order.companyBargainNo}
-                            </td>
-                            <td className="py-4 text-center">
-                              {formatDate(order.companyBargainDate)}
-                            </td>
-                            <td className="py-4 text-center">
-                              {order.manufacturer?.manufacturer}
-                            </td>
-                            <td className="py-4 text-center">
-                              {order.manufacturer?.manufacturerCompany}
-                            </td>
-                            <td className="py-4 text-center">
-                              {order.manufacturer?.manufacturerContact}
-                            </td>
-                            <td className="py-4 text-center">
-                              <Chip
-                                variant="ghost"
-                                value={order.status}
-                                color={
-                                  order.status === "created"
-                                    ? "blue"
-                                    : order.status === "partially paid"
-                                    ? "yellow"
-                                    : order.status === "billed"
-                                    ? "green"
-                                    : "red"
-                                }
-                              />
-                            </td>
-                            <td className="py-4 text-center">{order.inco}</td>
-                            <td className="py-4 text-center">
-                              <div className="flex justify-center gap-4">
-                                <IconButton
-                                  variant="text"
-                                  onClick={() => handleToggleOrder(order._id)}
-                                  className="bg-gray-300"
-                                >
-                                  {isOpen ? (
-                                    <ChevronUpIcon className="h-5 w-5" />
-                                  ) : (
-                                    <ChevronDownIcon className="h-5 w-5" />
-                                  )}
-                                </IconButton>
-                                {!hasFutureBookings(order, bookings) && (
-                                  <Tooltip content="Delete Order">
-                                    <span className="w-fit h-fit">
-                                      <MdDeleteOutline
-                                        onClick={() => handleDelete(order._id)}
-                                        className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                      />
-                                    </span>
-                                  </Tooltip>
+            <div className="bg-white border-2 border-gray-300 shadow-md rounded-lg">
+              <table className="min-w-full border-collapse">
+                <thead className="bg-gray-100">
+                  <tr>
+                    {[
+                      "Company Bargain No",
+                      "Company Bargain Date",
+                      "Manufacturer Name",
+                      "Manufacturer Company",
+                      "Manufacturer Contact",
+                      "Status",
+                      "Inco",
+                      "Actions",
+                    ].map((el) => (
+                      <th key={el} className="py-4 px-6 text-center font-semibold text-gray-700 border-b">
+                        {el}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => {
+                    const isOpen = openOrder === order._id;
+                    return (
+                      <React.Fragment key={order._id}>
+                        <tr className="hover:bg-gray-50">
+                          <td className="py-4 px-6 text-center">{order.companyBargainNo}</td>
+                          <td className="py-4 px-6 text-center">{formatDate(order.companyBargainDate)}</td>
+                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturer}</td>
+                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturerCompany}</td>
+                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturerContact}</td>
+                          <td className="py-4 px-6 text-center">
+                            <Chip
+                              variant="ghost"
+                              value={order.status}
+                              color={
+                                order.status === "created"
+                                  ? "blue"
+                                  : order.status === "partially paid"
+                                  ? "yellow"
+                                  : "green"
+                              }
+                              className="px-2 py-1 rounded-lg text-sm font-semibold"
+                            />
+                          </td>
+                          <td className="py-4 px-6 text-center">{order.inco}</td>
+                          <td className="py-4 px-6 text-center">
+                            <div className="flex justify-center gap-4">
+                              <IconButton
+                                variant="text"
+                                onClick={() => handleToggleOrder(order._id)}
+                                className="bg-gray-200 hover:bg-gray-300 transition"
+                              >
+                                {isOpen ? (
+                                  <ChevronUpIcon className="h-5 w-5 text-gray-600" />
+                                ) : (
+                                  <ChevronDownIcon className="h-5 w-5 text-gray-600" />
                                 )}
+                              </IconButton>
+                              {!hasFutureBookings(order, bookings) && (
+                                <Tooltip content="Delete Order">
+                                  <span className="w-fit h-fit">
+                                    <MdDeleteOutline
+                                      onClick={() => handleDelete(order._id)}
+                                      className="text-red-700 border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                      size={24}
+                                    />
+                                  </span>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                        {isOpen && (
+                          <tr className="bg-gray-50">
+                            <td colSpan="8">
+                              <div className="p-4">
+                                <table className="w-full">
+                                  <thead className="bg-gray-200 rounded-md">
+                                    <tr>
+                                      {[
+                                        "Item Name",
+                                        "Packaging",
+                                        "Weight",
+                                        "Cont. No.",
+                                        "Pickup",
+                                        "Quantity",
+                                        "Base Price (₹)",
+                                        "GST %",
+                                        "Tax Paid Amt.",
+                                      ].map((header) => (
+                                        <th
+                                          key={header}
+                                          className="py-3 px-4 text-center font-semibold text-gray-600 border-b"
+                                        >
+                                          {header}
+                                        </th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {order.items.map((item) => (
+                                      <tr key={item._id} className="hover:bg-gray-100">
+                                        <td className="py-3 px-4 text-center">{item.item?.materialdescription}</td>
+                                        <td className="py-3 px-4 text-center">{item.item.packaging}</td>
+                                        <td className="py-3 px-4 text-center">{item.item.netweight}</td>
+                                        <td className="py-3 px-4 text-center">{item.contNumber}</td>
+                                        <td className="py-3 px-4 text-center">{item.pickup}</td>
+                                        <td className="py-3 px-4 text-center">{item.quantity}</td>
+                                        <td className="py-3 px-4 text-center">₹{item.baseRate?.toLocaleString()}</td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.igst ? `${item.igst}% (IGST)` : `${item.cgst}% (CGST) + ${item.sgst}% (SGST)`}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">₹{item.taxpaidAmount?.toLocaleString()}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
                               </div>
                             </td>
                           </tr>
-                          {isOpen && (
-                            <tr className="bg-gray-100 border-t-2 border-t-[#898989]">
-                              <td colSpan="11">
-                                <div className="p-4 border-t border-blue-gray-200">
-                                  <table className="min-w-full table-auto border-collapse">
-                                    <thead>
-                                      <tr>
-                                        {[
-                                          "Item Name",
-                                          "Packaging",
-                                          "Weight",
-                                          "Cont. No.",
-                                          "Pickup",
-                                          "Quantity",
-                                          "Base Price (Rs.)",
-                                          "GST %",
-                                          "Tax Paid Amt.",
-                                        ].map((header) => (
-                                          <th
-                                            key={header}
-                                            className="py-4 text-center w-[200px]"
-                                          >
-                                            {header}
-                                          </th>
-                                        ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {order.items.map((item) => (
-                                        <tr
-                                          key={item._id}
-                                          className="border-t-2 border-t-[#898989]"
-                                        >
-                                          <td className="py-4 text-center">
-                                            {item.item?.materialdescription}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.item.packaging}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.item.netweight}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.contNumber}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.pickup}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.quantity}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.baseRate}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.igst ? (
-                                              <span>{item.igst}% (IGST)</span>
-                                            ) : (
-                                              <span>
-                                                {item.cgst}% (CGST) +{" "}
-                                                {item.sgst}&
-                                              </span>
-                                            )}
-                                          </td>
-                                          <td className="py-4 text-center">
-                                            {item.taxpaidAmount}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           ) : (
-            <p className="text-center text-[1.2rem] text-blue-gray-600 mt-20">
-              No orders found!
-            </p>
+            <p className="text-center text-lg text-gray-500 mt-20">No orders found!</p>
           )}
         </div>
       </div>

@@ -13,6 +13,10 @@ import { FaPlus } from "react-icons/fa";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 
+import CustomTooltip from "../../components/CustomToolTip";
+
+import { FaQuestionCircle } from "react-icons/fa";
+
 const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
@@ -294,7 +298,7 @@ const CreateOrder = () => {
 
   const calculateTotalAmount = () => {
     return form.items.reduce((total, item) => {
-      return total + (Number(item.taxableAmount) || 0);
+      return total + (Number(item.taxpaidAmount) || 0);
     }, 0);
   };
 
@@ -315,54 +319,16 @@ const CreateOrder = () => {
       <div className="">
         <div className="flex flex-row justify-between">
           <div>
-            {/* <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button> */}
           </div>
-          {/* <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button>
-          </div> */}
         </div>
 
         <div className="w-full">
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
+            className="flex flex-col gap-4 mt-4 mb-5 bg-white p-5 bg-white shadow-md border-2 border-[#CBCDCE] rounded-md"
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap gap-x-16 gap-y-5">
-                {/* {itemsOptions?.length > 0 && (
-                <Select
-                  name="itemId"
-                  label={`Select Item ${index + 1}`}
-                  value={item.itemId}
-                  onChange={(value) =>
-                    handleFormChange(index, "items", {
-                      ...item,
-                      itemId: value,
-                    })
-                  }
-                  required
-                >
-                  {itemsOptions?.map((option) => (
-                    <Option key={option._id} value={option._id}>
-                      {option.name}
-                    </Option>
-                  ))}
-                </Select>
-              )} */}
                 <div className="w-fit flex gap-2 items-center">
                   <label
                     htmlFor="companyBargainNo"
@@ -535,61 +501,128 @@ const CreateOrder = () => {
             </div>
           </form>
 
-          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] shadow-md z-[10]">
+          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] shadow-md z-[10] ">
             <div className="flex justify-between items-center px-10 py-2">
               <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
                 <span>Total Qty: {calculateTotalQuantity()}</span>
                 <span>Total Gross Weight: {calculateTotalGrossWeight()}</span>
-                <span>Total Amount: {calculateTotalAmount()}</span>
+                <span>Total Amount: ₹{calculateTotalAmount().toLocaleString()}</span>
               </div>
             </div>
             <div className="bg-white text-[1rem] flex justify-between items-center px-4 py-1">
-              <p>2024 @ Bargainwale</p>
-              <p>Design and Developed by Reduxcorporation</p>
+              <p>2024 @bargainwale</p>
+              <p>Design and developed by Reduxcorporation</p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto">
+          <div className="flex flex-col gap-4 mt-4 mb-5 bg-white shadow-md">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="min-w-full table-auto border-2 border-[#CBCDCE] rounded-md ">
                 <thead>
                   <tr>
-                    <th className="py-4 px-2 text-center min-w-[150px]">CBN</th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
-                    <th className="py-4 px-2 text-center min-w-[150px">Item</th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      CBN
+                      <CustomTooltip
+                        title="Company Bargain Number"
+                        description="This unique identifier helps in tracking the bargain associated with the company."
+                        learnMoreLink="/company-bargain-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      CBD
+                      <CustomTooltip
+                        title="Company Bargain Date"
+                        description="The date on which the bargain was finalized with the company. Useful for scheduling."
+                        learnMoreLink="/company-bargain-date-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      Item
+                      <CustomTooltip
+                        title="Item"
+                        description="Select the item involved in the order. Each item has unique properties."
+                        learnMoreLink="/item-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Pickup
+                      <CustomTooltip
+                        title="Pickup Location"
+                        description="The location from where the item will be picked up for delivery."
+                        learnMoreLink="/pickup-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Cont. No.
+                      <CustomTooltip
+                        title="Container Number"
+                        description="A unique number assigned to the container holding the item."
+                        learnMoreLink="/container-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Quantity
+                      <CustomTooltip
+                        title="Quantity"
+                        description="The number of units of the item in this order."
+                        learnMoreLink="/quantity-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Base Rate
+                      <CustomTooltip
+                        title="Base Rate"
+                        description="The basic cost per unit of the item before taxes."
+                        learnMoreLink="/base-rate-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
-                      Taxable Amount
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      Taxable Amt.
+                      <CustomTooltip
+                        title="Taxable Amount"
+                        description="The portion of the amount that is subject to tax."
+                        learnMoreLink="/taxable-amount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[200px]">
+                    <th className="py-4 px-2 text-center min-w-[200px] font-medium">
                       GST %
+                      <CustomTooltip
+                        title="GST Percentage"
+                        description="The Goods and Services Tax percentage applied to the item."
+                        learnMoreLink="/gst-percentage-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[200px]">
-                      GST Amount
+                    <th className="py-4 px-2 text-center min-w-[200px] font-medium">
+                      GST Amt.
+                      <CustomTooltip
+                        title="GST Amount"
+                        description="The tax amount calculated based on the GST percentage."
+                        learnMoreLink="/gst-amount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
-                      Amount (with tax)
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      Total Amt.
+                      <CustomTooltip
+                        title="Total Amount with Tax"
+                        description="The total cost including the base rate and applicable taxes."
+                        learnMoreLink="/total-amount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[200px]">
+                    <th className="py-4 px-2 text-center min-w-[200px] font-medium">
                       Action
+                      <CustomTooltip
+                        title="Actions"
+                        description="Options for managing the item, such as removing it from the order."
+                        learnMoreLink="/actions-info"
+                      />
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
-                      <td className="break-all py-4 px-2 text-center">
+                      <td className="break-all py-4 px-2 text-center font-medium">
                         {form.companyBargainNo}
                       </td>
                       <td className="py-4 px-2 text-center">
@@ -721,7 +754,7 @@ const CreateOrder = () => {
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxableAmount}
+                        ₹{item.taxableAmount?.toLocaleString()}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {warehouseOptions?.find(
@@ -760,7 +793,7 @@ const CreateOrder = () => {
                         {item.gstAmount}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxpaidAmount}
+                        ₹{item.taxpaidAmount?.toLocaleString()}
                       </td>
                       <td className="py-4 px-2 flex justify-center">
                         <Tooltip content="Remove Item">

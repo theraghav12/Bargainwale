@@ -22,7 +22,6 @@ import FirebaseIcon from "@/assets/firebase_icon.svg";
 import {
   Bars3Icon,
   BuildingOfficeIcon,
-  MagnifyingGlassIcon,
   ArrowsPointingOutIcon,
   Squares2X2Icon,
   ArrowPathIcon,
@@ -45,14 +44,12 @@ export function DashboardNavbar() {
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
   const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
-  // Function to reset sync time, fetch data, and reload the page
   const handleSync = async () => {
-    setLastSyncTime(0); // Reset timer on sync
-    await fetchData(); // Fetch data on sync
-    window.location.reload(); // Reload the page
+    setLastSyncTime(0);
+    await fetchData();
+    window.location.reload();
   };
 
-  // Function to fetch organization data
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -81,7 +78,6 @@ export function DashboardNavbar() {
     }
   };
 
-  // Update sync timer every minute
   useEffect(() => {
     const interval = setInterval(() => {
       setLastSyncTime((prevTime) => prevTime + 1);
@@ -119,7 +115,7 @@ export function DashboardNavbar() {
     <>
       <Navbar
         color="#183EC2"
-        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-40 py-3 shadow-md shadow-blue-gray-500/5"
+        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-[1050] py-3 shadow-2xl shadow-blue-gray-500/50"
         fullWidth
         blurred
       >
@@ -132,15 +128,20 @@ export function DashboardNavbar() {
                 className="h-8 w-auto px-8"
               />
             </Link>
-            <div className="flex items-center w-[400px] max-w-md">
-              <div className="relative w-full">
-                <input
-                  type="search"
-                  placeholder="Search"
-                  className="w-full py-2 pl-4 pr-10 text-black bg-white placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none shadow-inner-custom"
-                />
-                <MagnifyingGlassIcon className="absolute top-1/2 right-3 h-5 w-5 text-gray-500 transform -translate-y-1/2" />
-              </div>
+            {/* Tabs Section */}
+            <div className="flex gap-6">
+              <Link
+                to="/docs"
+                className="text-md font-medium text-white hover:text-blue-300 transition-colors"
+              >
+                Docs
+              </Link>
+              <Link
+                to="/our-process"
+                className="text-md font-medium text-white hover:text-blue-300 transition-colors"
+              >
+                Tutorial
+              </Link>
             </div>
           </div>
 
@@ -155,7 +156,6 @@ export function DashboardNavbar() {
             </IconButton>
 
             <SignedIn>
-              {/* Sync button styled according to uploaded image */}
               <button
                 onClick={handleSync}
                 className="flex items-center gap-2 px-3 py-2 border rounded-full text-black border-gray-300 bg-white hover:bg-gray-100 transition"
@@ -179,10 +179,9 @@ export function DashboardNavbar() {
               {/* Web Apps Dropdown */}
               {showAppMenu && (
                 <div
-                  style={{ zIndex: 100 }}
-                  className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-lg w-72"
+                  style={{ zIndex: 1100 }}
+                  className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-2xl w-72"
                 >
-                  {" "}
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-lg font-semibold text-gray-700">
                       Web Apps
@@ -191,10 +190,8 @@ export function DashboardNavbar() {
                       View all
                     </button>
                   </div>
-                  {/* Divider */}
                   <div className="border-t border-gray-300 mb-4"></div>
                   <div className="grid grid-cols-3 gap-4">
-                    {/* Icons for Web Apps */}
                     <button
                       className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
                       onClick={() =>
@@ -295,7 +292,7 @@ export function DashboardNavbar() {
         open={openOrgProfile}
         handler={handleOpenOrgProfile}
         size="lg"
-        className="p-5"
+        className="p-5 z-[1200]"
       >
         <OrganizationProfile />
       </Dialog>

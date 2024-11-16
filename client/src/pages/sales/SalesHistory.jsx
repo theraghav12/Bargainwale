@@ -1,94 +1,53 @@
 import React, { useState, useEffect } from "react";
 import {
-  Card,
-  CardHeader,
-  CardBody,
   Typography,
-  Button,
-  Chip,
   IconButton,
   Tooltip,
+  Button,
 } from "@material-tailwind/react";
-import { updateBillTypePartWise } from "@/services/orderService";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
-import { deleteBooking, getBookings } from "@/services/bookingService";
 import { MdDeleteOutline } from "react-icons/md";
+import { HiOutlineDocumentDownload } from "react-icons/hi";
 import excel from "../../assets/excel.svg";
-import { getPurchases } from "@/services/purchaseService";
+import { deleteBooking, getBookings } from "@/services/bookingService";
 import { getSales } from "@/services/salesService";
 
 export default function PurchaseHistory() {
-  const [showSalesForm, setSalesForm] = useState(false);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedSale, setSelectedSale] = useState(null);
-  const [showEditSalesForm, setEditSalesForm] = useState(false);
   const [openSale, setOpenSale] = useState(null);
-  const [transferQuantities, setTransferQuantities] = useState({});
-  const [quantityErrors, setQuantityErrors] = useState({});
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
   });
+  const [warehouseFilter, setWarehouseFilter] = useState("All");
+  const [transporterFilter, setTransporterFilter] = useState("All");
+  const [itemFilter, setItemFilter] = useState("");
 
-  const handleCreateBookingClick = () => {
-    setBookingForm(true);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("default", { month: "long" });
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    const dayWithSuffix =
+      day +
+      (["th", "st", "nd", "rd"][(day % 10 > 3 || ~~(day / 10) === 1) ? 0 : day % 10]);
+    return `${dayWithSuffix} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
   };
 
   const fetchSales = async () => {
     try {
       const response = await getSales();
-      console.log(response);
-      const salesData = response.data;
-      let filteredSales =
-        statusFilter === "All"
-          ? salesData
-          : salesData.filter((sale) => sale.status === statusFilter);
-
-      const now = new Date();
-      let filterDate;
-
-      if (timePeriod === "last7Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 7);
-        filteredSales = filteredSales.filter(
-          (sale) => new Date(sale.invoiceDate) >= filterDate
-        );
-      } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 30);
-        filteredSales = filteredSales.filter(
-          (sale) => new Date(sale.invoiceDate) >= filterDate
-        );
-      } else if (
-        timePeriod === "custom" &&
-        dateRange.startDate &&
-        dateRange.endDate
-      ) {
-        const start = new Date(dateRange.startDate);
-        const end = new Date(dateRange.endDate);
-        filteredSales = filteredSales?.filter((sale) => {
-          const saleDate = new Date(sale.invoiceDate);
-          return saleDate >= start && saleDate <= end;
-        });
-      }
-
-      // Sort sales by invoiceDate in descending order
-      filteredSales.sort(
-        (a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)
-      );
-
-      setSales(filteredSales);
+      setSales(response.data);
     } catch (error) {
-      console.log(error);
       setError("Failed to fetch sales");
     } finally {
       setLoading(false);
@@ -97,254 +56,261 @@ export default function PurchaseHistory() {
 
   useEffect(() => {
     fetchSales();
-  }, [statusFilter, timePeriod, dateRange]);
+  }, []);
 
-  const formatDate = (date) => {
-    const d = new Date(date);
-    if (isNaN(d.getTime())) {
-      throw new Error("Invalid date");
+  const warehouses = [
+    "All",
+    ...new Set(sales.map((sale) => sale.warehouseId?.name).filter(Boolean)),
+  ];
+  const transporters = [
+    "All",
+    ...new Set(
+      sales.map((sale) => sale.transporterId?.transport).filter(Boolean)
+    ),
+  ];
+
+  const filteredSales = sales.filter((sale) => {
+    const matchesWarehouse =
+      warehouseFilter === "All" || sale.warehouseId?.name === warehouseFilter;
+    const matchesTransporter =
+      transporterFilter === "All" ||
+      sale.transporterId?.transport === transporterFilter;
+    const matchesDateRange =
+      (!dateRange.startDate ||
+        new Date(sale.invoiceDate) >= new Date(dateRange.startDate)) &&
+      (!dateRange.endDate ||
+        new Date(sale.invoiceDate) <= new Date(dateRange.endDate));
+    const matchesItem =
+      !itemFilter ||
+      sale.items.some((item) =>
+        item.itemId?.materialdescription
+          ?.toLowerCase()
+          .includes(itemFilter.toLowerCase())
+      );
+
+    return (
+      matchesWarehouse && matchesTransporter && matchesDateRange && matchesItem
+    );
+  });
+
+  const handleDownloadExcel = () => {
+    const formattedSales = filteredSales.map((sale) => ({
+      "Invoice Date": formatDate(sale.invoiceDate),
+      "Invoice Number": sale.invoiceNumber,
+      "Buyer Name": sale.buyer?.name,
+      Warehouse: sale.warehouseId?.name,
+      Transporter: sale.transporterId?.transport,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedSales);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sales History");
+    XLSX.writeFile(workbook, "Sales_History.xlsx");
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this sale?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteBooking(id);
+      fetchSales();
+      toast.error("Sale deleted");
+    } catch (err) {
+      console.log("Error:", err);
     }
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
   };
 
   const handleToggleSale = (saleId) => {
     setOpenSale(openSale === saleId ? null : saleId);
   };
 
-  console.log(sales);
-
-  const handleDownloadExcel = () => {
-    const formattedbookings = bookings.map((booking) => ({
-      "Company Bargain No": booking.BargainNo,
-      // "Company Bargain Date": formatDate(booking.BargainDate),
-      "Buyer Name": booking.buyer?.buyer,
-      "Buyer Location": booking.buyer?.buyerLocation,
-      "Buyer Contact": booking.buyer?.buyerContact,
-      Status: booking.status,
-      "Delivery Type": booking.deliveryOption,
-      "Delivery Location":
-        booking.deliveryAddress?.addressLine1 +
-        ", " +
-        booking.deliveryAddress?.addressLine2 +
-        ", " +
-        booking.deliveryAddress?.city +
-        ", " +
-        booking.deliveryAddress?.state +
-        ", " +
-        booking.deliveryAddress?.pinCode,
-      "Bill Type": booking.billType,
-      Description: booking.description,
-      // "Created At": formatDate(booking.createdAt),
-      // "Updated At": formatDate(booking.updatedAt),
-      "Payment Days": booking.paymentDays,
-      "Reminder Days": booking.reminderDays.join(", "),
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(formattedbookings);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "bookings");
-    XLSX.writeFile(workbook, "bookings.xlsx");
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteBooking(id);
-      fetchPurchases();
-      toast.error("Booking Deleted");
-    } catch (err) {
-      console.log("Error:", err);
-    }
-  };
-
-  console.log(sales);
-
   return (
-    <div className="mt-8 mb-8 flex flex-col gap-12">
-      <div className="px-7">
-        <div className="flex flex-row justify-between">
-          <div>
-            <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button>
-          </div>
-          <div className="flex gap-4">
-            <select
-              value={timePeriod}
-              onChange={(e) => {
-                setTimePeriod(e.target.value);
-                if (e.target.value !== "custom") {
-                  setStartDate("");
-                  setEndDate("");
-                }
-              }}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
-            >
-              <option value="All">All Time</option>
-              <option value="last7Days">Last 7 Days</option>
-              <option value="last30Days">Last 30 Days</option>
-              <option value="custom">Custom</option>
-            </select>
-            {timePeriod === "custom" && (
-              <Datepicker
-                value={dateRange}
-                onChange={(newValue) => setDateRange(newValue)}
-                showShortcuts={true}
-                className="w-full max-w-sm"
-              />
-            )}
-          </div>
+    <div className="mt-8 mb-8 flex flex-col gap-8 px-7">
+      {/* Filter Section */}
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 shadow-md rounded-lg p-6 mb-6 border border-gray-300">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Filter Sales
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <select
+            value={warehouseFilter}
+            onChange={(e) => setWarehouseFilter(e.target.value)}
+            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
+          >
+            {warehouses.map((warehouse) => (
+              <option key={warehouse} value={warehouse}>
+                {warehouse}
+              </option>
+            ))}
+          </select>
 
-          <div className="flex flex-row gap-4">
-            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button> */}
-          </div>
+          <select
+            value={transporterFilter}
+            onChange={(e) => setTransporterFilter(e.target.value)}
+            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
+          >
+            {transporters.map((transporter) => (
+              <option key={transporter} value={transporter}>
+                {transporter}
+              </option>
+            ))}
+          </select>
+
+          <Datepicker
+            value={dateRange}
+            onChange={(newValue) => setDateRange(newValue)}
+            showShortcuts
+            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
+          />
+
+          <input
+            type="text"
+            placeholder="Search by Item Name"
+            value={itemFilter}
+            onChange={(e) => setItemFilter(e.target.value)}
+            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
+          />
         </div>
-        <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
-          {loading ? (
-            <Typography className="text-center text-blue-gray-600">
-              Loading...
-            </Typography>
-          ) : error ? (
-            <Typography className="text-center text-red-600">
-              {error}
-            </Typography>
-          ) : sales.length > 0 ? (
-            <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-              <div className="overflow-x-auto">
-                <table className="min-w-full table-auto border-collapse">
-                  <thead>
-                    <tr>
-                      {[
-                        "Invoice Date",
-                        "Invoice Number",
-                        "Booking ID",
-                        "Warehouse",
-                        "Transporter",
-                        "Actions",
-                      ].map((el) => (
-                        <th key={el} className="py-4 text-center w-[200px]">
-                          {el}
-                        </th>
-                      ))}
+
+        <div className="mt-6">
+          <Button
+            onClick={handleDownloadExcel}
+            className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-600 hover:to-green-600 text-white rounded-lg px-6 py-2 shadow-md"
+          >
+            <HiOutlineDocumentDownload className="w-5 h-5" />
+            Download as Excel
+          </Button>
+        </div>
+      </div>
+
+      {/* Sales Table */}
+      <div className="overflow-x-auto bg-white shadow-lg rounded-lg p-6 border border-gray-300">
+        {loading ? (
+          <Typography className="text-center text-blue-gray-600">
+            Loading...
+          </Typography>
+        ) : error ? (
+          <Typography className="text-center text-red-600">{error}</Typography>
+        ) : filteredSales.length > 0 ? (
+          <table className="min-w-full border-collapse">
+            <thead>
+              <tr className="bg-gradient-to-r from-teal-100 to-blue-100">
+                {[
+                  "Invoice Date",
+                  "Invoice Number",
+                  "Booking ID",
+                  "Warehouse",
+                  "Transporter",
+                  "Actions",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="py-3 px-5 text-gray-800 font-semibold text-center border-b border-gray-300"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSales.map((sale) => {
+                const isOpen = openSale === sale._id;
+                return (
+                  <React.Fragment key={sale._id}>
+                    <tr className="hover:bg-gray-50 transition border-b border-gray-200">
+                      <td className="py-3 px-5 text-center">
+                        {formatDate(sale.invoiceDate)}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        {sale.invoiceNumber}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        {sale.bookingId?._id}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        {sale.warehouseId?.name}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        {sale.transporterId?.transport}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <IconButton
+                            onClick={() => handleToggleSale(sale._id)}
+                            className="bg-gray-200 hover:bg-teal-300 rounded-full p-2 transition"
+                          >
+                            {isOpen ? (
+                              <ChevronUpIcon className="w-5 h-5 text-teal-700" />
+                            ) : (
+                              <ChevronDownIcon className="w-5 h-5 text-teal-700" />
+                            )}
+                          </IconButton>
+                          <Tooltip content="Delete Sale">
+                            <span>
+                              <MdDeleteOutline
+                                onClick={() => handleDelete(sale._id)}
+                                className="text-2xl text-red-600 hover:text-white hover:bg-red-600 p-1 rounded transition"
+                              />
+                            </span>
+                          </Tooltip>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sales.map((sale) => {
-                      const isOpen = openSale === sale._id;
-                      return (
-                        <React.Fragment key={sale._id}>
-                          <tr className="border-t-2 border-t-[#898989]">
-                            <td className="py-4 text-center">
-                              {sale.invoiceDate &&
-                                formatDate(sale?.invoiceDate)}
-                            </td>
-                            <td className="py-4 text-center">
-                              {sale?.invoiceNumber}
-                            </td>
-                            <td className="py-4 text-center">
-                              {sale?.bookingId?._id}
-                            </td>
-                            <td className="py-4 text-center">
-                              {sale?.warehouseId?.name}
-                            </td>
-                            <td className="py-4 text-center">
-                              {sale?.transporterId?.transport}
-                            </td>
-                            <td className="py-4 text-center">
-                              <div className="flex justify-center gap-4">
-                                <IconButton
-                                  variant="text"
-                                  onClick={() => handleToggleSale(sale._id)}
-                                  className="bg-gray-300"
-                                >
-                                  {isOpen ? (
-                                    <ChevronUpIcon className="h-5 w-5" />
-                                  ) : (
-                                    <ChevronDownIcon className="h-5 w-5" />
-                                  )}
-                                </IconButton>
-                                <Tooltip content="Delete Sale">
-                                  <span className="w-fit h-fit">
-                                    <MdDeleteOutline
-                                      onClick={() => handleDelete(sale._id)}
-                                      className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                    />
-                                  </span>
-                                </Tooltip>
-                              </div>
-                            </td>
-                          </tr>
-                          {isOpen && (
-                            <tr className="bg-gray-100">
-                              <td colSpan="11">
-                                <div className="p-4 border-t-2 border-gray-200">
-                                  <Typography variant="h6" className="mb-4">
-                                    Items
-                                  </Typography>
-                                  <table className="w-full table-auto">
-                                    <thead>
-                                      <tr>
-                                        {["Item Name", "Quantity"].map(
-                                          (header) => (
-                                            <th
-                                              key={header}
-                                              className="py-3 px-5 text-center"
-                                            >
-                                              <Typography
-                                                variant="small"
-                                                className="text-[11px] font-bold uppercase"
-                                              >
-                                                {header}
-                                              </Typography>
-                                            </th>
-                                          )
-                                        )}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {sale.items.map((item) => (
-                                        <tr key={item._id}>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.itemId?.materialdescription}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.quantity}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <Typography className="text-center text-blue-gray-600 mt-8">
-              No Sales found
-            </Typography>
-          )}
-        </div>
+
+                    {isOpen && (
+                      <tr className="bg-gray-50">
+                        <td colSpan="6">
+                          <div className="p-4 border-t border-gray-200">
+                            <Typography
+                              variant="h6"
+                              className="mb-4 text-gray-700"
+                            >
+                              Items
+                            </Typography>
+                            <table className="w-full text-sm text-gray-700">
+                              <thead>
+                                <tr>
+                                  <th className="py-2 px-4 text-left font-semibold">
+                                    Item Name
+                                  </th>
+                                  <th className="py-2 px-4 text-left font-semibold">
+                                    Quantity
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sale.items.map((item) => (
+                                  <tr
+                                    key={item._id}
+                                    className="border-t border-gray-200"
+                                  >
+                                    <td className="py-2 px-4">
+                                      {item.itemId?.materialdescription}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {item.quantity}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <Typography className="text-center text-blue-gray-600 mt-8">
+            No Sales found
+          </Typography>
+        )}
       </div>
     </div>
   );

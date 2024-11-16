@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Typography, IconButton, Tooltip } from "@material-tailwind/react";
-import { toast } from "sonner";
+import {
+  Typography,
+  IconButton,
+  Tooltip,
+  Card,
+} from "@material-tailwind/react";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -14,12 +18,11 @@ import { getPurchases } from "@/services/purchaseService";
 
 // icons
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
-import { MdDeleteOutline } from "react-icons/md";
-import excel from "../../assets/excel.svg";
-import { FaDownload } from "react-icons/fa6";
+import { FaDownload, FaFileExcel, FaFilter } from "react-icons/fa";
 
 export default function PurchaseHistory() {
   const [purchases, setPurchases] = useState([]);
+  const [filteredPurchases, setFilteredPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openPurchase, setOpenPurchase] = useState(null);
@@ -28,47 +31,15 @@ export default function PurchaseHistory() {
     startDate: null,
     endDate: null,
   });
+  const [selectedTransporter, setSelectedTransporter] = useState("All");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("All");
 
   const fetchPurchases = async () => {
     try {
       const response = await getPurchases();
       const purchasesData = response.data;
-      let filteredPurchases = purchasesData;
-
-      const now = new Date();
-      let filterDate;
-
-      if (timePeriod === "last7Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 7);
-        filteredPurchases = filteredPurchases.filter(
-          (purchase) => new Date(purchase.companyBargainDate) >= filterDate
-        );
-      } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 30);
-        filteredPurchases = filteredPurchases.filter(
-          (purchase) => new Date(purchase.companyBargainDate) >= filterDate
-        );
-      } else if (
-        timePeriod === "custom" &&
-        dateRange.startDate &&
-        dateRange.endDate
-      ) {
-        const start = new Date(dateRange.startDate);
-        const end = new Date(dateRange.endDate);
-        filteredPurchases = filteredPurchases?.filter((purchase) => {
-          const purchaseDate = new Date(purchase.invoiceDate);
-          return purchaseDate >= start && purchaseDate <= end;
-        });
-      }
-
-      // Sort purchases by invoiceDate in descending order
-      filteredPurchases.sort(
-        (a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)
-      );
-
-      setPurchases(filteredPurchases);
+      setPurchases(purchasesData);
+      setFilteredPurchases(purchasesData);
     } catch (error) {
       console.log(error);
       setError("Failed to fetch purchases");
@@ -77,19 +48,42 @@ export default function PurchaseHistory() {
     }
   };
 
+  const applyFilters = () => {
+    let filtered = [...purchases];
+    if (selectedTransporter !== "All") {
+      filtered = filtered.filter(
+        (purchase) => purchase.transporterId?.transport === selectedTransporter
+      );
+    }
+    if (selectedWarehouse !== "All") {
+      filtered = filtered.filter(
+        (purchase) => purchase.warehouseId?.name === selectedWarehouse
+      );
+    }
+    if (dateRange.startDate && dateRange.endDate) {
+      const start = new Date(dateRange.startDate);
+      const end = new Date(dateRange.endDate);
+      filtered = filtered.filter((purchase) => {
+        const purchaseDate = new Date(purchase.invoiceDate);
+        return purchaseDate >= start && purchaseDate <= end;
+      });
+    }
+    setFilteredPurchases(filtered);
+  };
+
   useEffect(() => {
     fetchPurchases();
-  }, [timePeriod, dateRange]);
+  }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [selectedTransporter, selectedWarehouse, dateRange]);
 
   const formatDate = (date) => {
     const d = new Date(date);
-    if (isNaN(d.getTime())) {
-      throw new Error("Invalid date");
-    }
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${d.getDate().toString().padStart(2, "0")}-${(d.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${d.getFullYear()}`;
   };
 
   const handleTogglePurchase = (purchaseId) => {
@@ -99,254 +93,244 @@ export default function PurchaseHistory() {
   const { organization } = useOrganization();
 
   const handleDownloadExcel = () => {
-    const formattedbookings = bookings.map((booking) => ({
-      "Company Bargain No": booking.BargainNo,
-      // "Company Bargain Date": formatDate(booking.BargainDate),
-      "Buyer Name": booking.buyer?.buyer,
-      "Buyer Location": booking.buyer?.buyerLocation,
-      "Buyer Contact": booking.buyer?.buyerContact,
-      Status: booking.status,
-      "Delivery Type": booking.deliveryOption,
-      "Delivery Location":
-        booking.deliveryAddress?.addressLine1 +
-        ", " +
-        booking.deliveryAddress?.addressLine2 +
-        ", " +
-        booking.deliveryAddress?.city +
-        ", " +
-        booking.deliveryAddress?.state +
-        ", " +
-        booking.deliveryAddress?.pinCode,
-      "Bill Type": booking.billType,
-      Description: booking.description,
-      // "Created At": formatDate(booking.createdAt),
-      // "Updated At": formatDate(booking.updatedAt),
-      "Payment Days": booking.paymentDays,
-      "Reminder Days": booking.reminderDays.join(", "),
+    const formattedbookings = filteredPurchases.map((purchase) => ({
+      "Invoice Date": formatDate(purchase.invoiceDate),
+      "Invoice Number": purchase.invoiceNumber,
+      "Buyer Name": purchase.buyer?.buyer,
+      Warehouse: purchase.warehouseId?.name,
+      Transporter: purchase.transporterId?.transport,
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(formattedbookings);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "bookings");
-    XLSX.writeFile(workbook, "bookings.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Purchases");
+    XLSX.writeFile(workbook, "Purchases.xlsx");
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteBookin(id);
-      fetchPurchases();
-      toast.error("Booking Deleted");
-    } catch (err) {
-      console.log("Error:", err);
-    }
-  };
+  const uniqueTransporters = [...new Set(purchases.map((p) => p.transporterId?.transport))];
+  const uniqueWarehouses = [...new Set(purchases.map((p) => p.warehouseId?.name))];
 
   return (
-    <div className="mt-8 mb-8 flex flex-col gap-12">
-      <div className="px-7">
-        <div className="flex flex-row gap-5">
-          <div>
-            <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button>
+    <div className="mt-8 mb-8 flex flex-col gap-8 px-8">
+      <Card className="p-6 shadow-lg rounded-lg bg-white border">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4 mb-4">
+            <FaFilter className="text-xl text-gray-700" />
+            <Typography variant="h5" className="text-gray-700 font-semibold">
+              Filter Purchases
+            </Typography>
           </div>
-          <div className="flex gap-4">
+          <button
+            onClick={handleDownloadExcel}
+            className="bg-green-500 py-2 px-4 text-white text-lg font-medium rounded-lg flex items-center gap-2 shadow-md hover:bg-green-600 transition duration-200"
+          >
+            <FaFileExcel className="text-2xl" />
+            Download Excel
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-6 mb-6">
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Time Period</label>
             <select
               value={timePeriod}
-              onChange={(e) => {
-                setTimePeriod(e.target.value);
-              }}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
             >
               <option value="All">All Time</option>
               <option value="last7Days">Last 7 Days</option>
               <option value="last30Days">Last 30 Days</option>
               <option value="custom">Custom</option>
             </select>
-            {timePeriod === "custom" && (
+          </div>
+
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Transporter</label>
+            <select
+              value={selectedTransporter}
+              onChange={(e) => setSelectedTransporter(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
+            >
+              <option value="All">All Transporters</option>
+              {uniqueTransporters.map((transporter) => (
+                <option key={transporter} value={transporter}>
+                  {transporter}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Warehouse</label>
+            <select
+              value={selectedWarehouse}
+              onChange={(e) => setSelectedWarehouse(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
+            >
+              <option value="All">All Warehouses</option>
+              {uniqueWarehouses.map((warehouse) => (
+                <option key={warehouse} value={warehouse}>
+                  {warehouse}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {timePeriod === "custom" && (
+            <div className="w-full md:w-1/3">
+              <label className="block mb-2 text-gray-600">Date Range</label>
               <Datepicker
                 value={dateRange}
                 onChange={(newValue) => setDateRange(newValue)}
-                showShortcuts={true}
-                className="w-full max-w-sm"
+                showShortcuts
+                className="w-full shadow-md"
               />
-            )}
-          </div>
-
-          <div className="flex flex-row gap-4">
-            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button> */}
-          </div>
-        </div>
-        <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
-          {loading ? (
-            <Typography className="text-center text-blue-gray-600">
-              Loading...
-            </Typography>
-          ) : error ? (
-            <Typography className="text-center text-red-600">
-              {error}
-            </Typography>
-          ) : purchases?.length > 0 ? (
-            <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-              <div className="overflow-x-auto">
-                <table className="min-w-full table-auto border-collapse">
-                  <thead>
-                    <tr>
-                      {[
-                        "Invoice Date",
-                        "Invoice Number",
-                        "Order ID",
-                        "Warehouse",
-                        "Transporter",
-                        "Pickup Type",
-                        "Actions",
-                      ].map((el) => (
-                        <th key={el} className="py-4 text-center w-[200px]">
-                          {el}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {purchases?.map((purchase) => {
-                      const isOpen = openPurchase === purchase._id;
-                      return (
-                        <React.Fragment key={purchase._id}>
-                          <tr className="border-t-2 border-t-[#898989]">
-                            <td className="py-4 text-center">
-                              {purchase.invoiceDate &&
-                                formatDate(purchase?.invoiceDate)}
-                            </td>
-                            <td className="py-4 text-center">
-                              {purchase?.invoiceNumber}
-                            </td>
-                            <td className="py-4 text-center">
-                              {purchase?.orderId?.companyBargainNo}
-                            </td>
-                            <td className="py-4 text-center">
-                              {purchase?.warehouseId?.name}
-                            </td>
-                            <td className="py-4 text-center">
-                              {purchase?.transporterId?.transport}
-                            </td>
-                            <td className="py-4 text-center">
-                              {purchase?.items[0]?.pickup}
-                            </td>
-                            <td className="py-4 text-center">
-                              <div className="flex justify-center gap-4">
-                                <IconButton
-                                  variant="text"
-                                  onClick={() =>
-                                    handleTogglePurchase(purchase._id)
-                                  }
-                                  className="bg-gray-300"
-                                >
-                                  {isOpen ? (
-                                    <ChevronUpIcon className="h-5 w-5" />
-                                  ) : (
-                                    <ChevronDownIcon className="h-5 w-5" />
-                                  )}
-                                </IconButton>
-                                <Tooltip content="Delete Purchase">
-                                  <span className="w-fit h-fit">
-                                    <MdDeleteOutline
-                                      onClick={() => handleDelete(purchase._id)}
-                                      className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                    />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip content="Download Invoice">
-                                  <span className="flex items-center justify-center">
-                                    <PDFDownloadLink
-                                      document={
-                                        <PurchaseInvoice
-                                          purchase={purchase}
-                                          organization={organization.name}
-                                        />
-                                      }
-                                      fileName={`invoice_${purchase._id}.pdf`}
-                                    >
-                                      <FaDownload className="text-[1.4rem] cursor-pointer" />
-                                    </PDFDownloadLink>
-                                  </span>
-                                </Tooltip>
-                              </div>
-                            </td>
-                          </tr>
-                          {isOpen && (
-                            <tr className="bg-gray-100">
-                              <td colSpan="11">
-                                <div className="p-4 border-t-2 border-gray-200">
-                                  <Typography variant="h6" className="mb-4">
-                                    Items
-                                  </Typography>
-                                  <table className="w-full table-auto">
-                                    <thead>
-                                      <tr>
-                                        {[
-                                          "Item Name",
-                                          "Quantity",
-                                          "Pickup",
-                                        ].map((header) => (
-                                          <th
-                                            key={header}
-                                            className="py-3 px-5 text-center"
-                                          >
-                                            <Typography
-                                              variant="small"
-                                              className="text-[11px] font-bold uppercase"
-                                            >
-                                              {header}
-                                            </Typography>
-                                          </th>
-                                        ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {purchase.items.map((item) => (
-                                        <tr key={item._id}>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.itemId?.materialdescription}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.quantity}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.pickup}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
             </div>
-          ) : (
-            <Typography className="text-center text-blue-gray-600 mt-8">
-              No Purchase found
-            </Typography>
           )}
         </div>
+      </Card>
+
+      <div className="overflow-x-auto bg-white shadow-lg rounded-lg mt-6">
+        {loading ? (
+          <Typography className="text-center text-gray-500 py-8">
+            Loading...
+          </Typography>
+        ) : error ? (
+          <Typography className="text-center text-red-600 py-8">
+            {error}
+          </Typography>
+        ) : filteredPurchases?.length > 0 ? (
+          <table className="min-w-full table-auto border-collapse">
+            <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
+              <tr>
+                {[
+                  "Invoice Date",
+                  "Invoice Number",
+                  "Order ID",
+                  "Warehouse",
+                  "Transporter",
+                  "Actions",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="py-4 text-center text-gray-700 font-semibold"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPurchases.map((purchase) => {
+                const isOpen = openPurchase === purchase._id;
+                return (
+                  <React.Fragment key={purchase._id}>
+                    <tr
+                      className={`border-t ${
+                        isOpen ? "bg-gray-50" : "hover:bg-gray-100"
+                      } transition-colors duration-200`}
+                    >
+                      <td className="py-3 px-4 text-center">
+                        {formatDate(purchase.invoiceDate)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {purchase.invoiceNumber}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {purchase.orderId?.companyBargainNo}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {purchase.warehouseId?.name}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {purchase.transporterId?.transport}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="flex justify-center gap-4">
+                          <Tooltip
+                            content={isOpen ? "Hide Details" : "View Details"}
+                          >
+                            <IconButton
+                              variant="text"
+                              onClick={() => handleTogglePurchase(purchase._id)}
+                            >
+                              {isOpen ? (
+                                <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+                              ) : (
+                                <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip content="Download Invoice">
+                            <PDFDownloadLink
+                              document={
+                                <PurchaseInvoice
+                                  purchase={purchase}
+                                  organization={organization.name}
+                                />
+                              }
+                              fileName={`invoice_${purchase._id}.pdf`}
+                            >
+                              <FaDownload className="text-[1.4rem] cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200" />
+                            </PDFDownloadLink>
+                          </Tooltip>
+                        </div>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr>
+                        <td colSpan="6" className="p-4 bg-gray-50 rounded-b-lg">
+                          <div className="p-4 border rounded bg-white shadow-md">
+                            <Typography variant="h6" className="mb-3">
+                              Items
+                            </Typography>
+                            <table className="w-full table-auto">
+                              <thead className="bg-gray-200">
+                                <tr>
+                                  {["Item Name", "Quantity", "Pickup"].map(
+                                    (header) => (
+                                      <th
+                                        key={header}
+                                        className="py-2 px-4 text-center font-semibold"
+                                      >
+                                        {header}
+                                      </th>
+                                    )
+                                  )}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {purchase.items.map((item) => (
+                                  <tr
+                                    key={item._id}
+                                    className="bg-white border-b last:border-none"
+                                  >
+                                    <td className="py-2 px-4 text-center">
+                                      {item.itemId?.materialdescription}
+                                    </td>
+                                    <td className="py-2 px-4 text-center">
+                                      {item.quantity}
+                                    </td>
+                                    <td className="py-2 px-4 text-center">
+                                      {item.pickup}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <Typography className="text-center text-gray-500 py-8">
+            No Purchases Found
+          </Typography>
+        )}
       </div>
     </div>
   );

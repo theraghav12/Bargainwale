@@ -8,11 +8,7 @@ import {
 import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
-
-// api services
 import { deleteBooking, getBookings } from "@/services/bookingService";
-
-// icons
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
@@ -22,373 +18,201 @@ export function BookingHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openBooking, setOpenBooking] = useState(null);
-  const [quantityErrors, setQuantityErrors] = useState({});
   const [statusFilter, setStatusFilter] = useState("All");
   const [timePeriod, setTimePeriod] = useState("All");
-  const [dateRange, setDateRange] = useState({
-    startDate: null,
-    endDate: null,
-  });
-
-  const fetchBookings = async () => {
-    try {
-      const response = await getBookings();
-      const bookingsData = response;
-      let filteredBookings =
-        statusFilter === "All"
-          ? bookingsData
-          : bookingsData.filter((booking) => booking.status === statusFilter);
-
-      const now = new Date();
-      let filterDate;
-
-      if (timePeriod === "last7Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 7);
-        filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.BargainDate) >= filterDate
-        );
-      } else if (timePeriod === "last30Days") {
-        filterDate = new Date();
-        filterDate.setDate(now.getDate() - 30);
-        filteredBookings = filteredBookings.filter(
-          (booking) => new Date(booking.BargainDate) >= filterDate
-        );
-      } else if (
-        timePeriod === "custom" &&
-        dateRange.startDate &&
-        dateRange.endDate
-      ) {
-        const start = new Date(dateRange.startDate);
-        const end = new Date(dateRange.endDate);
-        filteredBookings = filteredBookings.filter((booking) => {
-          const bookingDate = new Date(booking.BargainDate);
-          return bookingDate >= start && bookingDate <= end;
-        });
-      }
-
-      // Sort bookings by BargainDate in descending booking
-      filteredBookings.sort(
-        (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
-      );
-
-      setBookings(filteredBookings);
-    } catch (error) {
-      setError("Failed to fetch bookings");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
 
   useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await getBookings();
+        let filteredBookings = response;
+
+        if (statusFilter !== "All") {
+          filteredBookings = filteredBookings.filter((b) => b.status === statusFilter);
+        }
+        if (timePeriod !== "All") {
+          const now = new Date();
+          let filterDate;
+
+          if (timePeriod === "last7Days") {
+            filterDate = new Date(now.setDate(now.getDate() - 7));
+          } else if (timePeriod === "last30Days") {
+            filterDate = new Date(now.setDate(now.getDate() - 30));
+          } else if (timePeriod === "custom" && dateRange.startDate && dateRange.endDate) {
+            filterDate = new Date(dateRange.startDate);
+          }
+          filteredBookings = filteredBookings.filter((b) => new Date(b.BargainDate) >= filterDate);
+        }
+        
+        setBookings(filteredBookings.sort((a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)));
+      } catch {
+        setError("Failed to fetch bookings");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchBookings();
   }, [statusFilter, timePeriod, dateRange]);
 
   const formatDate = (date) => {
     const d = new Date(date);
-    if (isNaN(d.getTime())) {
-      throw new Error("Invalid date");
-    }
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
-  const handleToggleBooking = (bookingId) => {
-    setOpenBooking(openBooking === bookingId ? null : bookingId);
+    return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
   const handleDownloadExcel = () => {
-    const formattedbookings = bookings.map((booking) => ({
-      "Company Bargain No": booking.BargainNo,
-      // "Company Bargain Date": formatDate(booking.BargainDate),
-      "Buyer Name": booking.buyer?.buyer,
-      "Buyer Location": booking.buyer?.buyerLocation,
-      "Buyer Contact": booking.buyer?.buyerContact,
-      Status: booking.status,
-      "Delivery Type": booking.deliveryOption,
-      "Delivery Location":
-        booking.deliveryAddress?.addressLine1 +
-        ", " +
-        booking.deliveryAddress?.addressLine2 +
-        ", " +
-        booking.deliveryAddress?.city +
-        ", " +
-        booking.deliveryAddress?.state +
-        ", " +
-        booking.deliveryAddress?.pinCode,
-      "Bill Type": booking.billType,
-      Description: booking.description,
-      // "Created At": formatDate(booking.createdAt),
-      // "Updated At": formatDate(booking.updatedAt),
-      "Payment Days": booking.paymentDays,
-      "Reminder Days": booking.reminderDays.join(", "),
+    const formattedbookings = bookings.map((b) => ({
+      "Company Bargain No": b.BargainNo,
+      "Buyer Name": b.buyer?.buyer,
+      "Buyer Location": b.buyer?.buyerLocation,
+      "Buyer Contact": b.buyer?.buyerContact,
+      Status: b.status,
+      "Delivery Type": b.deliveryOption,
+      "Delivery Location": `${b.deliveryAddress?.addressLine1}, ${b.deliveryAddress?.city}, ${b.deliveryAddress?.state}`,
+      "Bill Type": b.billType,
+      Description: b.description,
+      "Payment Days": b.paymentDays,
+      "Reminder Days": b.reminderDays.join(", "),
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(formattedbookings);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "bookings");
-    XLSX.writeFile(workbook, "bookings.xlsx");
+    XLSX.writeFile(XLSX.utils.book_new(), worksheet, "bookings.xlsx");
   };
 
   const handleDelete = async (id) => {
-    try {
-      await deleteBooking(id);
-      fetchBookings();
-      toast.error("Booking Deleted");
-    } catch (err) {
-      console.log("Error:", err);
+    const confirmed = window.confirm("Are you sure you want to delete this booking?");
+    if (confirmed) {
+      try {
+        await deleteBooking(id);
+        setBookings((prev) => prev.filter((b) => b._id !== id));
+        toast.success("Booking Deleted");
+      } catch {
+        toast.error("Error deleting booking");
+      }
     }
   };
 
   return (
-    <div className="mt-8 mb-8 flex flex-col gap-12">
-      <div className="px-7">
-        <div className="flex flex-row justify-between">
-          <div>
-            <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button>
-          </div>
-          <div className="flex gap-4">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
-            >
-              <option value="All">All Statuses</option>
-              <option value="created">Created</option>
-              <option value="partially sold">Partially Sold</option>
-              <option value="fully sold">Fully Sold</option>
-            </select>
-            <select
-              value={timePeriod}
-              onChange={(e) => {
-                setTimePeriod(e.target.value);
-              }}
-              className="border-[2px] border-[#737373] rounded px-2 py-2"
-            >
-              <option value="All">All Time</option>
-              <option value="last7Days">Last 7 Days</option>
-              <option value="last30Days">Last 30 Days</option>
-              <option value="custom">Custom</option>
-            </select>
-            {timePeriod === "custom" && (
-              <Datepicker
-                value={dateRange}
-                onChange={(newValue) => setDateRange(newValue)}
-                showShortcuts={true}
-                className="w-full max-w-sm"
-              />
-            )}
-          </div>
-
-          <div className="flex flex-row gap-4">
-            {/* <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button> */}
-          </div>
-        </div>
-        <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
-          {loading ? (
-            <Typography className="text-center text-blue-gray-600">
-              Loading...
-            </Typography>
-          ) : error ? (
-            <Typography className="text-center text-red-600">
-              {error}
-            </Typography>
-          ) : bookings.length > 0 ? (
-            <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-              <div className="overflow-x-auto">
-                <table className="min-w-full table-auto border-collapse">
-                  <thead>
-                    <tr>
-                      {[
-                        "Bargain Date",
-                        "Bargain No",
-                        "Buyer Name",
-                        "Buyer Location",
-                        "Buyer Contact",
-                        "Status",
-                        "Delivery Type",
-                        "Delivery Location",
-                        "Actions",
-                      ].map((el) => (
-                        <th key={el} className="py-4 text-center w-[200px]">
-                          {el}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.map((booking) => {
-                      const isOpen = openBooking === booking._id;
-                      return (
-                        <React.Fragment key={booking._id}>
-                          <tr className="border-t-2 border-t-[#898989]">
-                            <td className="py-4 text-center">
-                              {booking.BargainDate &&
-                                formatDate(booking?.BargainDate)}
-                            </td>
-                            <td className="py-4 text-center">
-                              {booking?.BargainNo}
-                            </td>
-                            <td className="py-4 text-center">
-                              {booking.buyer?.buyer}
-                            </td>
-                            <td className="py-4 text-center">
-                              {
-                                booking.buyer?.buyerdeliveryAddress
-                                  ?.addressLine1
-                              }
-                              {booking.buyer?.buyerdeliveryAddress?.city},
-                              {booking.buyer?.buyerdeliveryAddress?.state}
-                            </td>
-                            <td className="py-4 text-center">
-                              {booking.buyer?.buyerContact}
-                            </td>
-                            <td className="py-4 text-center">
-                              <Chip
-                                variant="ghost"
-                                value={booking.status}
-                                color={
-                                  booking.status === "created"
-                                    ? "blue"
-                                    : booking.status === "partially sold"
-                                    ? "yellow"
-                                    : booking.status === "fully sold"
-                                    ? "green"
-                                    : "red"
-                                }
-                              />
-                            </td>
-                            <td className="py-4 text-center">
-                              {booking.deliveryOption}
-                            </td>
-                            <td className="py-4 text-center">
-                              {booking.deliveryOption === "Pickup" ? (
-                                <span>Pickup</span>
-                              ) : (
-                                <span>
-                                  {booking.deliveryAddress?.addressLine1},
-                                  {booking.deliveryAddress?.city},
-                                  {booking.deliveryAddress?.state}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-4 text-center">
-                              <div className="flex justify-center gap-4">
-                                <IconButton
-                                  variant="text"
-                                  onClick={() =>
-                                    handleToggleBooking(booking._id)
-                                  }
-                                  className="bg-gray-300"
-                                >
-                                  {isOpen ? (
-                                    <ChevronUpIcon className="h-5 w-5" />
-                                  ) : (
-                                    <ChevronDownIcon className="h-5 w-5" />
-                                  )}
-                                </IconButton>
-                                {booking.status === "created" && (
-                                  <Tooltip content="Delete Booking">
-                                    <span className="w-fit h-fit">
-                                      <MdDeleteOutline
-                                        onClick={() =>
-                                          handleDelete(booking._id)
-                                        }
-                                        className="text-[2.4rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                      />
-                                    </span>
-                                  </Tooltip>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                          {isOpen && (
-                            <tr className="bg-gray-100">
-                              <td colSpan="11">
-                                <div className="p-4 border-t-2 border-gray-200">
-                                  <table className="w-full table-auto border-collapse">
-                                    <thead>
-                                      <tr>
-                                        {[
-                                          "Item Name",
-                                          "Packaging",
-                                          "Weight",
-                                          "Virtual Quantity",
-                                          "Billed Quantity",
-                                        ].map((header) => (
-                                          <th
-                                            key={header}
-                                            className="py-3 px-5 text-center"
-                                          >
-                                            <Typography
-                                              variant="small"
-                                              className="text-[11px] font-bold uppercase"
-                                            >
-                                              {header}
-                                            </Typography>
-                                          </th>
-                                        ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {booking.items.map((item) => (
-                                        <tr
-                                          key={item._id}
-                                          className="border-t-2 border-t-[#898989]"
-                                        >
-                                          <td className="py-3 px-5 text-center">
-                                            {item.item.materialdescription}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.item.packaging}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.item.netweight}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.quantity || "0"}
-                                          </td>
-                                          <td className="py-3 px-5 text-center">
-                                            {item.billedQuantity || "0"}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <Typography className="text-center text-blue-gray-600 mt-8">
-              No bookings found
-            </Typography>
+    <div className="p-8 bg-gray-50">
+      <div className="mb-4 flex justify-between items-center">
+        <button
+          onClick={handleDownloadExcel}
+          className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
+          Download Excel
+        </button>
+        <div className="flex gap-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="All">All Statuses</option>
+            <option value="created">Created</option>
+            <option value="partially sold">Partially Sold</option>
+            <option value="fully sold">Fully Sold</option>
+          </select>
+          <select
+            value={timePeriod}
+            onChange={(e) => setTimePeriod(e.target.value)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="All">All Time</option>
+            <option value="last7Days">Last 7 Days</option>
+            <option value="last30Days">Last 30 Days</option>
+            <option value="custom">Custom</option>
+          </select>
+          {timePeriod === "custom" && (
+            <Datepicker
+              value={dateRange}
+              onChange={setDateRange}
+              className="w-full max-w-xs"
+            />
           )}
         </div>
       </div>
+
+      {loading ? (
+        <Typography className="text-center text-blue-gray-500">Loading...</Typography>
+      ) : error ? (
+        <Typography className="text-center text-red-500">{error}</Typography>
+      ) : (
+        <div className="shadow overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                {["Bargain Date", "Bargain No", "Buyer Name", "Status", "Delivery Type", "Actions"].map((header) => (
+                  <th key={header} className="px-4 py-2 border-b font-medium text-center">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((b) => {
+                const isOpen = openBooking === b._id;
+                return (
+                  <React.Fragment key={b._id}>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-4 py-2 border-b text-center">{formatDate(b.BargainDate)}</td>
+                      <td className="px-4 py-2 border-b text-center">{b.BargainNo}</td>
+                      <td className="px-4 py-2 border-b text-center">{b.buyer?.buyer}</td>
+                      <td className="px-4 py-2 border-b text-center">
+                        <Chip value={b.status} color={b.status === "created" ? "blue" : "green"} />
+                      </td>
+                      <td className="px-4 py-2 border-b text-center">{b.deliveryOption}</td>
+                      <td className="px-4 py-2 border-b text-center flex justify-center items-center gap-2">
+                        <IconButton
+                          variant="text"
+                          onClick={() => setOpenBooking(isOpen ? null : b._id)}
+                        >
+                          {isOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+                        </IconButton>
+                        {b.status === "created" && (
+                          <Tooltip content="Delete Booking">
+                            <MdDeleteOutline
+                              onClick={() => handleDelete(b._id)}
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                            />
+                          </Tooltip>
+                        )}
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="bg-gray-100">
+                        <td colSpan="6" className="p-4">
+                          <table className="min-w-full bg-gray-50">
+                            <thead>
+                              <tr>
+                                {["Item Name", "Packaging", "Weight", "Quantity"].map((header) => (
+                                  <th key={header} className="px-2 py-1 font-semibold text-gray-700">
+                                    {header}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {b.items.map((item) => (
+                                <tr key={item._id}>
+                                  <td className="px-2 py-1 text-center">{item.item.materialdescription}</td>
+                                  <td className="px-2 py-1 text-center">{item.item.packaging}</td>
+                                  <td className="px-2 py-1 text-center">{item.item.netweight}</td>
+                                  <td className="px-2 py-1 text-center">{item.quantity || "0"}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
+

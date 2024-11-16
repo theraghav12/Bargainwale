@@ -15,6 +15,8 @@ import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 
+import CustomTooltip from "../../components/CustomToolTip";
+
 const CreateBooking = () => {
   const [loading, setLoading] = useState(false);
   const [itemsOptions, setItemsOptions] = useState([]);
@@ -257,16 +259,39 @@ const CreateBooking = () => {
       toast.error("Please select a warehouse first");
       return;
     }
-
+  
     const updatedItems = [...form.items];
-    if (field === "quantity" || field === "basePrice" || field === "discount") {
+  
+    // Convert value to a number if it's meant to be numeric
+    if (["quantity", "basePrice", "discount", "contNumber"].includes(field)) {
       value = Number(value) || null;
+  
+      // Check for negative values
+      if (value < 0) {
+        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} cannot be negative.`);
+        return;
+      }
+  
+      // Discount can be zero but not negative
+      if (field === "discount" && value < 0) {
+        toast.error("Discount cannot be negative.");
+        return;
+      }
+  
+      // Quantity and contNumber cannot be zero or negative
+      if (["quantity", "contNumber"].includes(field) && value <= 0) {
+        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} must be greater than zero.`);
+        return;
+      }
     }
+  
+    // Assigning value based on type
     if (field === "item" || field === "pickup") {
       updatedItems[index] = { ...updatedItems[index], [field]: value.value };
     } else {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
+  
     try {
       if (
         updatedItems[index].item &&
@@ -292,6 +317,7 @@ const CreateBooking = () => {
         toast.error("Item price not updated for selected warehouse");
       }
     }
+  
     if (field === "item") {
       const selectedItem = itemsOptions?.find(
         (option) => option._id === value.value
@@ -301,7 +327,7 @@ const CreateBooking = () => {
         updatedItems[index].gst = gst;
       }
     }
-
+  
     if (field === "quantity" || field === "basePrice" || field === "discount") {
       const quantity = updatedItems[index].quantity || 0;
       const basePrice = updatedItems[index].basePrice || 0;
@@ -313,10 +339,19 @@ const CreateBooking = () => {
         updatedItems[index].taxableAmount +
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
+  
     setForm((prevData) => ({
       ...prevData,
       items: updatedItems,
     }));
+  };  
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+    }).format(amount);
   };
 
   const calculateTotalQuantity = () => {
@@ -327,7 +362,7 @@ const CreateBooking = () => {
 
   const calculateTotalAmount = () => {
     return form.items.reduce((total, item) => {
-      return total + (Number(item.taxableAmount) || 0);
+      return total + (Number(item.taxpaidAmount) || 0);
     }, 0);
   };
 
@@ -360,7 +395,7 @@ const CreateBooking = () => {
         <div className="w-full">
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-5 bg-white shadow-md"
+            className="flex flex-col gap-4 mt-4 mb-5 bg-white p-5 bg-white shadow-md border-2 border-[#CBCDCE] rounded-md"
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap gap-x-16 gap-y-5">
@@ -684,55 +719,121 @@ const CreateBooking = () => {
                 <span>Total Qty: {calculateTotalQuantity()}</span>
                 {/* <span>Total Gross Weight:</span>
                 <span>Total Net Weight:</span> */}
-                <span>Total Amount: {calculateTotalAmount()}</span>
+                <span>
+                  Total Amount: {formatCurrency(calculateTotalAmount())}
+                </span>
               </div>
             </div>
             <div className="bg-white text-[1rem] flex justify-between items-center px-4 py-1">
-              <p>2024 @ Bargainwale</p>
+              <p>2024 @Bargainwale</p>
               <p>Design and Developed by Reduxcorporation</p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-            <div className="overflow-x-auto">
-              <table className="max-w-full table-auto">
+          <div className="flex flex-col gap-4 mt-4 mb-5 bg-white shadow-md">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="min-w-full table-auto border-2 border-[#CBCDCE] rounded-md ">
                 <thead>
                   <tr>
-                    <th className="py-4 px-2 text-center min-w-[150px]">CBN</th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">CBD</th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      CBN
+                      <CustomTooltip
+                        title="CBN"
+                        description="Company Bargain Number: A unique identifier for tracking the company's bargain."
+                        learnMoreLink="/company-bargain-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      CBD
+                      <CustomTooltip
+                        title="CBD"
+                        description="Company Bargain Date: The date when the bargain was finalized with the company."
+                        learnMoreLink="/company-bargain-date-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Item
+                      <CustomTooltip
+                        title="Item"
+                        description="Select the item involved in the order. Each item has unique properties."
+                        learnMoreLink="/item-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Pickup
+                      <CustomTooltip
+                        title="Pickup Location"
+                        description="Location from where the item will be picked up for delivery."
+                        learnMoreLink="/pickup-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Cont. No.
+                      <CustomTooltip
+                        title="Container Number"
+                        description="A unique number assigned to the container holding the item."
+                        learnMoreLink="/container-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Quantity
+                      <CustomTooltip
+                        title="Quantity"
+                        description="Number of units of the item in this order."
+                        learnMoreLink="/quantity-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Base Rate
+                      <CustomTooltip
+                        title="Base Rate"
+                        description="Basic cost per unit of the item before taxes."
+                        learnMoreLink="/base-rate-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Discount %
+                      <CustomTooltip
+                        title="Discount Percentage"
+                        description="Percentage discount applied to the base rate of the item."
+                        learnMoreLink="/discount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
-                      Taxable Amount
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      Taxable Amt
+                      <CustomTooltip
+                        title="Taxable Amount"
+                        description="Portion of the amount subject to tax after applying discounts."
+                        learnMoreLink="/taxable-amount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
-                      Amount (with tax)
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      Total Amt
+                      <CustomTooltip
+                        title="Total Amount with Tax"
+                        description="Total cost including base rate and applicable taxes."
+                        learnMoreLink="/total-amount-info"
+                      />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Payment Date
+                      <CustomTooltip
+                        title="Payment Date"
+                        description="Date by which payment is expected to be completed."
+                        learnMoreLink="/payment-date-info"
+                      />
                     </th>
-                    {/* <th className="py-4 text-center w-[200px]">Description</th> */}
-                    <th className="py-4 px-2 text-center min-w-[150px]">
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Action
+                      <CustomTooltip
+                        title="Actions"
+                        description="Options for managing the item, such as removing it from the order."
+                        learnMoreLink="/actions-info"
+                      />
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {form.items?.map((item, index) => (
                     <tr key={index} className="border-t-2 border-t-[#898989]">
@@ -853,11 +954,16 @@ const CreateBooking = () => {
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
+
                       <td className="py-4 px-2 text-center">
-                        {item.taxableAmount}
+                        {item.taxableAmount
+                          ? formatCurrency(item.taxableAmount)
+                          : "₹0.00"}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.taxpaidAmount}
+                        {item.taxpaidAmount
+                          ? formatCurrency(item.taxpaidAmount)
+                          : "₹0.00"}
                       </td>
                       <td className="py-4 px-2 text-center">
                         {form.paymentDays}
