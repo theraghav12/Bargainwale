@@ -2,25 +2,22 @@ import {
   Button,
   Input,
   Spinner,
-  IconButton,
-  Select,
-  Option,
   Typography,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
-// api services
+import * as XLSX from "xlsx";
 import {
   createWarehouse,
   getWarehouses,
   updateWarehouse,
   deleteWarehouse,
 } from "@/services/warehouseService";
-
-// icons
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-import mapsIcon from "../../assets/maps.svg";
 
 const WarehouseForm = () => {
   const [loading, setLoading] = useState(false);
@@ -33,7 +30,9 @@ const WarehouseForm = () => {
     googleMapsLink: "",
     organization: localStorage.getItem("organizationId"),
   });
-  const [editingId, setEditingId] = useState(null);
+  const [editingWarehouse, setEditingWarehouse] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchWarehouses();
@@ -42,47 +41,9 @@ const WarehouseForm = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await getWarehouses();
-      console.log(response);
-      const warehousesWithEditingState = response.map((warehouse) => ({
-        ...warehouse,
-        isEditing: false,
-      }));
-      setWarehouses(warehousesWithEditingState);
+      setWarehouses(response || []);
     } catch (error) {
       toast.error("Error fetching warehouses!");
-      console.error(error);
-    }
-  };
-
-  const toggleEditing = async (id) => {
-    const warehouseToEdit = warehouses.find(
-      (warehouse) => warehouse._id === id
-    );
-    if (warehouseToEdit.isEditing) {
-      try {
-        const data = {
-          name: warehouseToEdit.name,
-          state: warehouseToEdit.location.state,
-          city: warehouseToEdit.location.city,
-          warehouseManager: warehouseToEdit.warehouseManager,
-        };
-        console.log(data);
-        const response = await updateWarehouse(data, id);
-        console.log(response);
-        toast.success("Warehouse updated successfully!");
-        fetchWarehouses();
-      } catch (error) {
-        toast.error("Error updating warehouse!");
-        console.error(error);
-      }
-    } else {
-      setWarehouses((prevWarehouses) =>
-        prevWarehouses.map((warehouse) =>
-          warehouse._id === id
-            ? { ...warehouse, isEditing: !warehouse.isEditing }
-            : warehouse
-        )
-      );
     }
   };
 
@@ -90,297 +51,317 @@ const WarehouseForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await createWarehouse({
+      const newWarehouse = {
         name: form.name,
         location: {
           state: form.state,
           city: form.city,
         },
         warehouseManager: form.warehouseManager,
+        googleMapsLink: form.googleMapsLink,
         organization: form.organization,
-      });
-      console.log(response);
+      };
+
+      await createWarehouse(newWarehouse);
       toast.success("Warehouse added successfully!");
       setForm({
         name: "",
         state: "",
         city: "",
         warehouseManager: "",
+        googleMapsLink: "",
         organization: localStorage.getItem("organizationId"),
       });
       fetchWarehouses();
+      setAddModalOpen(false);
     } catch (error) {
       toast.error("Error adding warehouse!");
-      console.error(error);
     } finally {
       setLoading(false);
-      setEditingId(null);
     }
   };
 
-  const handleChange = (e, fieldName) => {
-    if (e && e.target) {
-      const { name, value } = e.target;
-      setForm((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: e,
-      }));
+  const handleEdit = async () => {
+    setLoading(true);
+    try {
+      const updatedData = {
+        name: editingWarehouse.name,
+        location: {
+          state: editingWarehouse.location.state,
+          city: editingWarehouse.location.city,
+        },
+        warehouseManager: editingWarehouse.warehouseManager,
+        googleMapsLink: editingWarehouse.googleMapsLink,
+      };
+      await updateWarehouse(updatedData, editingWarehouse._id);
+      toast.success("Warehouse updated successfully!");
+      setEditModalOpen(false);
+      fetchWarehouses();
+    } catch (error) {
+      toast.error("Error updating warehouse!");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleWarehouseChange = (e, id, fieldName) => {
-    let name, value;
-
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
-
-    setWarehouses((prevWarehouses) =>
-      prevWarehouses.map((warehouse) =>
-        warehouse._id === id
-          ? {
-              ...warehouse,
-              location: {
-                ...warehouse.location,
-                [name]: value,
-              },
-              [name]: name === "state" || name === "city" ? undefined : value,
-            }
-          : warehouse
-      )
-    );
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteWarehouse(id);
-      toast.error("Warehouse deleted successfully!");
+      toast.success("Warehouse deleted successfully!");
       fetchWarehouses();
     } catch (error) {
       toast.error("Error deleting warehouse!");
-      console.error(error);
     }
   };
 
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Warehouse
-          <span className="text-[1.5rem] text-black">/ Available</span>
-        </h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        <div className="p-10 w-full">
-          {/* Warehouses Table */}
-          <div className="max-w-full overflow-x-auto">
-            {warehouses?.length > 0 ? (
-              <table className="min-w-full bg-white table-auto">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 text-start min-w-[200px]">Name</th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">State</th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">City</th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">Manager</th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {warehouses?.map((warehouse) => (
-                    <tr
-                      key={warehouse._id}
-                      className="border border-[#7F7F7F] rounded-md shadow"
-                    >
-                      <td className="break-all py-2 px-4">
-                        {warehouse.isEditing ? (
-                          <input
-                            name="name"
-                            type="text"
-                            value={warehouse.name}
-                            onChange={(e) =>
-                              handleWarehouseChange(e, warehouse._id)
-                            }
-                            placeholder="Warehouse name"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                          />
-                        ) : (
-                          <span>{warehouse.name}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {warehouse.isEditing ? (
-                          <input
-                            name="state"
-                            type="text"
-                            value={warehouse.location.state}
-                            onChange={(e) =>
-                              handleWarehouseChange(e, warehouse._id)
-                            }
-                            required
-                            placeholder="State"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                          />
-                        ) : (
-                          <span>{warehouse.location.state}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {warehouse.isEditing ? (
-                          <input
-                            name="city"
-                            type="text"
-                            value={warehouse.location.city}
-                            onChange={(e) =>
-                              handleWarehouseChange(e, warehouse._id)
-                            }
-                            required
-                            placeholder="City"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                          />
-                        ) : (
-                          <span>{warehouse.location.city}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {warehouse.isEditing ? (
-                          <input
-                            name="warehouseManager"
-                            type="text"
-                            value={warehouse.warehouseManager}
-                            onChange={(e) =>
-                              handleWarehouseChange(e, warehouse._id)
-                            }
-                            required
-                            placeholder="Warehouse Manager"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                          />
-                        ) : (
-                          <span>{warehouse.warehouseManager || "N/A"}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4 flex gap-2">
-                        {warehouse.isEditing ? (
-                          <IconButton
-                            color="green"
-                            onClick={() => toggleEditing(warehouse._id)}
-                          >
-                            Save
-                          </IconButton>
-                        ) : (
-                          <button
-                            onClick={() => toggleEditing(warehouse._id)}
-                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                          >
-                            <AiOutlineEdit />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(warehouse._id)}
-                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                        >
-                          <AiOutlineDelete />
-                        </button>
-                        {/* <IconButton
-                          color="red"
-                          onClick={() => handleDelete(warehouse._id)}
-                        >
-                          <FaTrashAlt />
-                        </IconButton> */}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <Typography className="text-xl text-center font-bold">
-                No Warehouses!
-              </Typography>
-            )}
+  const openEditModal = (warehouse) => {
+    setEditingWarehouse({ ...warehouse });
+    setEditModalOpen(true);
+  };
+
+  const handleExcelDownload = () => {
+    if (warehouses.length === 0) {
+      toast.error("No warehouses available to download!");
+      return;
+    }
+
+    const data = warehouses.map((warehouse) => ({
+      Name: warehouse.name,
+      State: warehouse.location?.state || "",
+      City: warehouse.location?.city || "",
+      Manager: warehouse.warehouseManager || "",
+      "Google Maps": warehouse.googleMapsLink || "",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Warehouses");
+
+    XLSX.writeFile(workbook, "Warehouses_List.xlsx");
+    toast.success("Warehouses list downloaded successfully!");
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Warehouses List */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <Typography variant="h4" className="font-bold">
+            Warehouses
+          </Typography>
+          <div className="flex gap-4">
+            <Button
+              color="green"
+              onClick={handleExcelDownload}
+              className="flex items-center gap-2"
+            >
+              Download Excel
+            </Button>
+            <Button
+              color="blue"
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              + Add Warehouse
+            </Button>
           </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {warehouses.map((warehouse) => (
+            <div
+              key={warehouse._id}
+              className="bg-white shadow-md rounded-md p-4 border"
+            >
+              <Typography variant="h6" className="font-bold">
+                {warehouse.name}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                State: {warehouse.location?.state}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                City: {warehouse.location?.city}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Manager: {warehouse.warehouseManager || "N/A"}
+              </Typography>
+              {warehouse.googleMapsLink && (
+                <Typography className="text-sm text-gray-600">
+                  <a
+                    href={warehouse.googleMapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View on Maps
+                  </a>
+                </Typography>
+              )}
+              <div className="mt-4 flex gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(warehouse)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => handleDelete(warehouse._id)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-4 mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Warehouse
-          <span className="text-[1.5rem] text-black">/ Create</span>
-        </h1>
+      {/* Add Warehouse Modal */}
+      <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
+        <DialogHeader>Add Warehouse</DialogHeader>
+        <DialogBody divider>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              name="name"
+              label="Warehouse Name"
+              value={form.name}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="state"
+              label="State"
+              value={form.state}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="city"
+              label="City"
+              value={form.city}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="warehouseManager"
+              label="Warehouse Manager"
+              value={form.warehouseManager}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="googleMapsLink"
+              label="Google Maps Link"
+              value={form.googleMapsLink}
+              onChange={handleInputChange}
+              className="col-span-2"
+            />
+          </form>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="blue" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Spinner /> : "Add Warehouse"}
+          </Button>
+          <Button color="gray" onClick={() => setAddModalOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
-        <div className="p-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex">
+      {/* Edit Warehouse Modal */}
+      {editingWarehouse && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <DialogHeader>Edit Warehouse</DialogHeader>
+          <DialogBody divider>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="name"
                 label="Warehouse Name"
-                type="text"
-                value={form.name}
-                onChange={handleChange}
+                value={editingWarehouse.name}
+                onChange={(e) =>
+                  setEditingWarehouse((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex flex-row gap-4">
               <Input
                 name="state"
                 label="State"
-                type="text"
-                value={form.state}
-                onChange={handleChange}
+                value={editingWarehouse.location?.state}
+                onChange={(e) =>
+                  setEditingWarehouse((prev) => ({
+                    ...prev,
+                    location: {
+                      ...prev.location,
+                      state: e.target.value,
+                    },
+                  }))
+                }
                 required
               />
               <Input
                 name="city"
                 label="City"
-                type="text"
-                value={form.city}
-                onChange={handleChange}
+                value={editingWarehouse.location?.city}
+                onChange={(e) =>
+                  setEditingWarehouse((prev) => ({
+                    ...prev,
+                    location: {
+                      ...prev.location,
+                      city: e.target.value,
+                    },
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex flex-row">
               <Input
                 name="warehouseManager"
                 label="Warehouse Manager"
-                type="text"
-                value={form.warehouseManager}
-                onChange={handleChange}
+                value={editingWarehouse.warehouseManager}
+                onChange={(e) =>
+                  setEditingWarehouse((prev) => ({
+                    ...prev,
+                    warehouseManager: e.target.value,
+                  }))
+                }
               />
-            </div>
-            <div className="relative flex items-center">
-              <img
-                src={mapsIcon}
-                className="absolute left-3 w-5 h-5 pointer-events-none"
-                alt="Map Icon"
-              />
-              <input
+              <Input
                 name="googleMapsLink"
-                type="text"
-                value={form.googleMapsLink}
-                onChange={handleChange}
-                className="pl-10 h-[40px] border-2 border-gray-300 rounded-md"
-                placeholder="Google Maps Link"
+                label="Google Maps Link"
+                value={editingWarehouse.googleMapsLink}
+                onChange={(e) =>
+                  setEditingWarehouse((prev) => ({
+                    ...prev,
+                    googleMapsLink: e.target.value,
+                  }))
+                }
+                className="col-span-2"
               />
-            </div>
-            <div>
-              <Button
-                color="blue"
-                type="submit"
-                className="flex items-center justify-center"
-              >
-                {loading ? <Spinner /> : <span>Add Warehouse</span>}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+    </div>
   );
 };
 

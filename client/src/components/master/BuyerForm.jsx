@@ -2,21 +2,21 @@ import {
   Button,
   Input,
   Spinner,
-  IconButton,
   Typography,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
-// api services
+import * as XLSX from "xlsx"; // Import SheetJS library for Excel
 import {
   createBuyer,
   deleteBuyer,
   getBuyer,
   updateBuyer,
 } from "@/services/masterService";
-
-// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const BuyerForm = () => {
@@ -36,7 +36,9 @@ const BuyerForm = () => {
     buyerGooglemaps: "",
     organization: localStorage.getItem("organizationId"),
   });
-  const [editingId, setEditingId] = useState(null);
+  const [editingBuyer, setEditingBuyer] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchBuyers();
@@ -45,49 +47,9 @@ const BuyerForm = () => {
   const fetchBuyers = async () => {
     try {
       const response = await getBuyer();
-      const buyersWithEditingState = response?.map((buyer) => ({
-        ...buyer,
-        isEditing: false,
-      }));
-      setBuyers(buyersWithEditingState);
+      setBuyers(response || []);
     } catch (error) {
       toast.error("Error fetching buyers!");
-      console.error(error);
-    }
-  };
-
-  const toggleEditing = async (id) => {
-    const buyerToEdit = buyers.find((buyer) => buyer._id === id);
-    if (buyerToEdit.isEditing) {
-      try {
-        const data = {
-          buyer: buyerToEdit.buyer,
-          buyerCompany: buyerToEdit.buyerCompany,
-          buyerdeliveryAddress: {
-            addressLine1: buyerToEdit.buyerdeliveryAddress?.addressLine1,
-            addressLine2: buyerToEdit.buyerdeliveryAddress?.addressLine2,
-            city: buyerToEdit.buyerdeliveryAddress?.city,
-            state: buyerToEdit.buyerdeliveryAddress?.state,
-            pinCode: buyerToEdit.buyerdeliveryAddress?.pinCode,
-          },
-          buyerContact: buyerToEdit.buyerContact,
-          buyerEmail: buyerToEdit.buyerEmail,
-          buyerGstno: buyerToEdit.buyerGstno,
-          buyerGooglemaps: buyerToEdit.buyerGooglemaps,
-        };
-        await updateBuyer(data, id);
-        toast.success("Buyer updated successfully!");
-        fetchBuyers();
-      } catch (error) {
-        toast.error("Error updating buyer!");
-        console.error(error);
-      }
-    } else {
-      setBuyers((prevBuyers) =>
-        prevBuyers.map((buyer) =>
-          buyer._id === id ? { ...buyer, isEditing: !buyer.isEditing } : buyer
-        )
-      );
     }
   };
 
@@ -95,7 +57,7 @@ const BuyerForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await createBuyer({
+      const newBuyer = {
         buyer: form.buyer,
         buyerCompany: form.buyerCompany,
         buyerdeliveryAddress: {
@@ -110,8 +72,9 @@ const BuyerForm = () => {
         buyerGstno: form.buyerGstno,
         buyerGooglemaps: form.buyerGooglemaps,
         organization: form.organization,
-      });
-      console.log(response);
+      };
+
+      await createBuyer(newBuyer);
       toast.success("Buyer added successfully!");
       setForm({
         buyer: "",
@@ -128,389 +91,379 @@ const BuyerForm = () => {
         organization: localStorage.getItem("organizationId"),
       });
       fetchBuyers();
+      setAddModalOpen(false); // Close the Add Buyer modal
     } catch (error) {
       toast.error("Error adding buyer!");
-      console.error(error);
     } finally {
       setLoading(false);
-      setEditingId(null);
     }
   };
 
-  const handleChange = (e, fieldName) => {
-    if (e && e.target) {
-      const { name, value } = e.target;
-      setForm((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: e,
-      }));
+  const handleEdit = async () => {
+    setLoading(true);
+    try {
+      await updateBuyer(editingBuyer, editingBuyer._id);
+      toast.success("Buyer updated successfully!");
+      setEditModalOpen(false); // Close the Edit Buyer modal
+      fetchBuyers();
+    } catch (error) {
+      toast.error("Error updating buyer!");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleItemChange = (e, id) => {
-    const { name, value } = e.target;
-
-    setBuyers((prevBuyers) =>
-      prevBuyers.map((buyer) => {
-        if (buyer._id === id) {
-          if (name.startsWith("buyerdeliveryAddress.")) {
-            const addressField = name.split(".")[1];
-            return {
-              ...buyer,
-              buyerdeliveryAddress: {
-                ...buyer.buyerdeliveryAddress,
-                [addressField]: value,
-              },
-            };
-          } else {
-            return {
-              ...buyer,
-              [name]: value,
-            };
-          }
-        }
-        return buyer;
-      })
-    );
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteBuyer(id);
-      toast.error("Buyer deleted successfully!");
+      toast.success("Buyer deleted successfully!");
       fetchBuyers();
     } catch (error) {
       toast.error("Error deleting buyer!");
-      console.error(error);
     }
   };
 
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Buyers
-          <span className="text-[1.5rem] text-black">/ Available</span>
-        </h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        <div className="p-10 w-full">
-          {/* Buyers Table */}
-          <div className="max-w-[1024px] overflow-x-auto mt-8">
-            {buyers?.length > 0 ? (
-              <table className="min-w-full bg-white table-auto">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Buyer Name
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Company
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Address
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Contact
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Email
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      GST Number
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {buyers?.map((buyer) => (
-                    <tr
-                      key={buyer._id}
-                      className="border border-[#7F7F7F] rounded-md shadow"
-                    >
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <input
-                            name="buyer"
-                            type="text"
-                            placeholder="Buyer Name"
-                            value={buyer.buyer}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, buyer._id)}
-                          />
-                        ) : (
-                          <span>{buyer.buyer}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <input
-                            name="buyerCompany"
-                            type="text"
-                            placeholder="Buyer Company"
-                            value={buyer.buyerCompany}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, buyer._id)}
-                          />
-                        ) : (
-                          <span>{buyer.buyerCompany}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <div className="flex flex-col gap-1">
-                            <input
-                              name="buyerdeliveryAddress.addressLine1"
-                              type="text"
-                              placeholder="Address Line 1"
-                              value={buyer.buyerdeliveryAddress?.addressLine1}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, buyer._id)}
-                            />
-                            <input
-                              name="buyerdeliveryAddress.addressLine2"
-                              type="text"
-                              placeholder="Address Line 2"
-                              value={buyer.buyerdeliveryAddress?.addressLine2}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, buyer._id)}
-                            />
-                            <input
-                              name="buyerdeliveryAddress.city"
-                              type="text"
-                              placeholder="City"
-                              value={buyer.buyerdeliveryAddress?.city}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, buyer._id)}
-                            />
-                            <input
-                              name="buyerdeliveryAddress.state"
-                              type="text"
-                              placeholder="State"
-                              value={buyer.buyerdeliveryAddress?.state}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, buyer._id)}
-                            />
-                            <input
-                              name="buyerdeliveryAddress.pinCode"
-                              type="text"
-                              placeholder="Pincode"
-                              value={buyer.buyerdeliveryAddress?.pinCode}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, buyer._id)}
-                            />
-                          </div>
-                        ) : (
-                          <span>
-                            {buyer.buyerdeliveryAddress?.addressLine1}{" "}
-                            {buyer.buyerdeliveryAddress?.addressLine2}{" "}
-                            {buyer.buyerdeliveryAddress?.city}{" "}
-                            {buyer.buyerdeliveryAddress?.state}{" "}
-                            {buyer.buyerdeliveryAddress?.pinCode}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <input
-                            name="buyerContact"
-                            type="text"
-                            placeholder="Buyer Contact'"
-                            value={buyer.buyerContact}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, buyer._id)}
-                          />
-                        ) : (
-                          <span>{buyer.buyerContact}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <input
-                            name="buyerEmail"
-                            type="email"
-                            placeholder="Buyer Email"
-                            value={buyer.buyerEmail}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, buyer._id)}
-                          />
-                        ) : (
-                          <span className="break-words">
-                            {buyer.buyerEmail}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {buyer.isEditing ? (
-                          <input
-                            name="buyerGstno"
-                            type="text"
-                            placeholder="Buyer GST No."
-                            value={buyer.buyerGstno}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, buyer._id)}
-                          />
-                        ) : (
-                          <span>{buyer.buyerGstno}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4 flex gap-2">
-                        {buyer.isEditing ? (
-                          <IconButton
-                            color="green"
-                            onClick={() => toggleEditing(buyer._id)}
-                          >
-                            Save
-                          </IconButton>
-                        ) : (
-                          <button
-                            onClick={() => toggleEditing(buyer._id)}
-                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                          >
-                            <AiOutlineEdit />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(buyer._id)}
-                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                        >
-                          <AiOutlineDelete />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <Typography className="text-xl text-center font-bold">
-                No Buyers!
+  const openEditModal = (buyer) => {
+    setEditingBuyer({ ...buyer });
+    setEditModalOpen(true);
+  };
+
+  // Handle Excel Download
+  const handleExcelDownload = () => {
+    if (buyers.length === 0) {
+      toast.error("No buyers available to download!");
+      return;
+    }
+
+    const data = buyers.map((buyer) => ({
+      Name: buyer.buyer,
+      Company: buyer.buyerCompany,
+      "Address Line 1": buyer.buyerdeliveryAddress?.addressLine1 || "",
+      "Address Line 2": buyer.buyerdeliveryAddress?.addressLine2 || "",
+      City: buyer.buyerdeliveryAddress?.city || "",
+      State: buyer.buyerdeliveryAddress?.state || "",
+      Pincode: buyer.buyerdeliveryAddress?.pinCode || "",
+      Contact: buyer.buyerContact,
+      Email: buyer.buyerEmail,
+      "GST Number": buyer.buyerGstno,
+      "Google Maps": buyer.buyerGooglemaps,
+    }));
+
+    // Create a new workbook and add data
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Buyers");
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, "Buyers_List.xlsx");
+    toast.success("Buyers list downloaded successfully!");
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Buyers List */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+            <Typography variant="h4" className="font-bold">
+              Buyers
+            </Typography>
+            <div className="flex gap-4">
+            <Button
+              color="green"
+              onClick={handleExcelDownload}
+              className="flex items-center gap-2"
+            >
+              Download Excel
+            </Button>
+        
+          <Button
+            color="blue"
+            onClick={() => setAddModalOpen(true)}
+            className="flex items-center gap-2"
+          >
+            + Add Buyer
+          </Button>
+        </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {buyers.map((buyer) => (
+            <div
+              key={buyer._id}
+              className="bg-white shadow-md rounded-md p-4 border"
+            >
+              <Typography variant="h6" className="font-bold">
+                {buyer.buyer}
               </Typography>
-            )}
-          </div>
+              <Typography className="text-sm text-gray-600">
+                Company: {buyer.buyerCompany}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Contact: {buyer.buyerContact}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Email: {buyer.buyerEmail}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                GST: {buyer.buyerGstno}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                {buyer.buyerdeliveryAddress?.addressLine2},{" "}
+                {buyer.buyerdeliveryAddress?.city},{" "}
+                {buyer.buyerdeliveryAddress?.state},{" "}
+                {buyer.buyerdeliveryAddress?.pinCode}
+              </Typography>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(buyer)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => handleDelete(buyer._id)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Buyers
-          <span className="text-[1.5rem] text-black">/ Create</span>
-        </h1>
+      {/* Add Buyer Modal */}
+      <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
+        <DialogHeader>Add Buyer</DialogHeader>
+        <DialogBody divider>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <Input
+              name="buyer"
+              label="Buyer Name"
+              value={form.buyer}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="buyerCompany"
+              label="Company Name"
+              value={form.buyerCompany}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="addressLine1"
+              label="Address Line 1"
+              value={form.addressLine1}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="addressLine2"
+              label="Address Line 2"
+              value={form.addressLine2}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="city"
+              label="City"
+              value={form.city}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="state"
+              label="State"
+              value={form.state}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="pinCode"
+              label="Pin Code"
+              value={form.pinCode}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="buyerContact"
+              label="Contact"
+              value={form.buyerContact}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="buyerEmail"
+              label="Email"
+              type="email"
+              value={form.buyerEmail}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="buyerGstno"
+              label="GST Number"
+              value={form.buyerGstno}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="buyerGooglemaps"
+              label="Google Maps Link"
+              value={form.buyerGooglemaps}
+              onChange={handleInputChange}
+            />
+          </form>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="blue" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Spinner /> : "Add Buyer"}
+          </Button>
+          <Button color="gray" onClick={() => setAddModalOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
-        <div className="p-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex gap-4">
+      {/* Edit Buyer Modal */}
+      {editingBuyer && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <DialogHeader>Edit Buyer</DialogHeader>
+          <DialogBody divider>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="buyer"
                 label="Buyer Name"
-                type="text"
-                value={form.buyer}
-                onChange={handleChange}
+                value={editingBuyer.buyer}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyer: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="buyerCompany"
                 label="Company Name"
-                type="text"
-                value={form.buyerCompany}
-                onChange={handleChange}
+                value={editingBuyer.buyerCompany}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerCompany: e.target.value,
+                  }))
+                }
+                required
+              />
+              <Input
+                name="buyerGstno"
+                label="GST Number"
+                value={editingBuyer.buyerGstno}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerGstno: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="addressLine1"
                 label="Address Line 1"
-                type="text"
-                value={form.addressLine1}
-                onChange={handleChange}
-                required
+                value={editingBuyer.buyerdeliveryAddress?.addressLine1}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerdeliveryAddress: {
+                      ...prev.buyerdeliveryAddress,
+                      addressLine1: e.target.value,
+                    },
+                  }))
+                }
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="addressLine2"
                 label="Address Line 2"
-                type="text"
-                value={form.addressLine2}
-                onChange={handleChange}
+                value={editingBuyer.buyerdeliveryAddress?.addressLine2}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerdeliveryAddress: {
+                      ...prev.buyerdeliveryAddress,
+                      addressLine2: e.target.value,
+                    },
+                  }))
+                }
               />
               <Input
                 name="city"
                 label="City"
-                type="text"
-                value={form.city}
-                onChange={handleChange}
-                required
+                value={editingBuyer.buyerdeliveryAddress?.city}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerdeliveryAddress: {
+                      ...prev.buyerdeliveryAddress,
+                      city: e.target.value,
+                    },
+                  }))
+                }
               />
               <Input
                 name="state"
                 label="State"
-                type="text"
-                value={form.state}
-                onChange={handleChange}
-                required
+                value={editingBuyer.buyerdeliveryAddress?.state}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerdeliveryAddress: {
+                      ...prev.buyerdeliveryAddress,
+                      state: e.target.value,
+                    },
+                  }))
+                }
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="pinCode"
                 label="Pin Code"
-                type="text"
-                value={form.pinCode}
-                onChange={handleChange}
-                required
+                value={editingBuyer.buyerdeliveryAddress?.pinCode}
+                onChange={(e) =>
+                  setEditingBuyer((prev) => ({
+                    ...prev,
+                    buyerdeliveryAddress: {
+                      ...prev.buyerdeliveryAddress,
+                      pinCode: e.target.value,
+                    },
+                  }))
+                }
               />
-              <Input
-                name="buyerContact"
-                label="Contact Number"
-                type="text"
-                value={form.buyerContact}
-                onChange={handleChange}
-                required
-              />
-              <Input
-                name="buyerEmail"
-                label="Email"
-                type="email"
-                value={form.buyerEmail}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="flex gap-4">
-              <Input
-                name="buyerGstno"
-                label="GST Number"
-                type="text"
-                value={form.buyerGstno}
-                onChange={handleChange}
-                required
-              />
-              <Input
-                name="buyerGooglemaps"
-                label="Google Maps Link"
-                type="text"
-                value={form.buyerGooglemaps}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex gap-4">
-              <Button
-                color="blue"
-                type="submit"
-                className="flex items-center justify-center"
-              >
-                {loading ? <Spinner /> : <span>Add Buyer</span>}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+    </div>
   );
 };
 

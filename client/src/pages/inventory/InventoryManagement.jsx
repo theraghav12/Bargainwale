@@ -1,21 +1,117 @@
 import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  Spinner,
-  Tabs,
-  TabsHeader,
-  Tab,
-} from "@material-tailwind/react";
-
-// components
-import InventorySidenav from "@/widgets/layout/InventorySidenav";
-
-// api services
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 import { getItemHistoryById } from "@/services/itemService";
+import { ChevronDown, Check } from "lucide-react";
 
-// icons
-import { TbTriangleInvertedFilled } from "react-icons/tb";
+const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) => {
+  // InventoryTable component remains exactly the same as before
+  if (!data?.length) {
+    return (
+      <div className="text-gray-500 p-8 text-center">
+        No items in {type} inventory.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Item ID
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Item Name
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Quantity
+            </th>
+            {type === "sold" && (
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Virtual Quantity
+              </th>
+            )}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {data.map((item, index) => (
+            <React.Fragment key={index}>
+              <tr 
+                className="hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={() => onItemClick(item.item._id)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-500">
+                  {item.item._id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.item.materialdescription}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.quantity}
+                </td>
+                {type === "sold" && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.virtualQuantity}
+                  </td>
+                )}
+              </tr>
+              {expandedItem === item.item?._id && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h3 className="font-medium text-gray-900 mb-3">Item History</h3>
+                      {itemHistory?.length > 0 ? (
+                        <div className="space-y-2">
+                          {itemHistory.map((history, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm"
+                            >
+                              <div className="flex items-center gap-2 text-sm">
+                                <span>
+                                  {history.sourceModel === "Manufacturer"
+                                    ? `Manufacturer: ${history.source?.manufacturer}`
+                                    : history.sourceModel === "Order"
+                                    ? `Order: ${history.source?.order}`
+                                    : `Warehouse: ${history.source?.warehouse}`}
+                                </span>
+                                <span className="text-gray-400">→</span>
+                                <span>
+                                  {history.destinationModel === "Warehouse"
+                                    ? `Warehouse: ${history.destination?.name}`
+                                    : `Buyer: ${history.destination?.buyer}`}
+                                </span>
+                              </div>
+                              <span
+                                className={`font-medium ${
+                                  history.destinationModel === "Warehouse"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {history.destinationModel === "Warehouse" ? "+" : "-"} 
+                                {history.quantity}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">
+                          No history available for this item.
+                        </p>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 export function Inventory() {
   const [currentWarehouse, setCurrentWarehouse] = useState(null);
@@ -27,24 +123,41 @@ export function Inventory() {
   const [expandedItem, setExpandedItem] = useState(null);
   const [itemHistory, setItemHistory] = useState([]);
 
-  const fetchWarehouses = async () => {
-    try {
-      const response = await getWarehouses();
-      setWarehouses(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const warehousesData = await getWarehouses();
+        setWarehouses(warehousesData);
+
+        // Automatically select the first warehouse if available
+        if (warehousesData.length > 0) {
+          setSelectedWarehouse(warehousesData[0]._id);
+          const warehouse = await getWarehouseById(warehousesData[0]._id);
+          setCurrentWarehouse(warehouse);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    fetchWarehouses();
-    const storedWarehouseID = selectedWarehouse;
-    if (storedWarehouseID) {
-      getWarehouseById(storedWarehouseID).then((warehouse) => {
-        setCurrentWarehouse(warehouse);
-        setLoading(false);
-      });
-    }
+    const fetchWarehouseData = async () => {
+      if (selectedWarehouse) {
+        try {
+          const warehouse = await getWarehouseById(selectedWarehouse);
+          setCurrentWarehouse(warehouse);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    fetchWarehouseData();
   }, [selectedWarehouse]);
 
   const handleItemClick = async (itemId) => {
@@ -57,238 +170,115 @@ export function Inventory() {
         const history = await getItemHistoryById(itemId);
         setItemHistory(history.data);
       } catch (error) {
-        console.log("Failed to fetch item history", error);
+        console.error("Failed to fetch item history", error);
       }
     }
   };
 
-  const renderInventoryTable = (inventoryType) => {
+  const getFilteredInventory = (type) => {
+    if (!currentWarehouse) return [];
+
     const inventory =
-      inventoryType === "virtual"
+      type === "virtual"
         ? currentWarehouse.virtualInventory
-        : inventoryType === "billed"
+        : type === "billed"
         ? currentWarehouse.billedInventory
         : currentWarehouse.soldInventory;
 
-    const tableTitle =
-      inventoryType === "virtual"
-        ? "Virtual Inventory"
-        : inventoryType === "billed"
-        ? "Billed Inventory"
-        : "Booked Items Inventory";
-
-    // Filter inventory based on pickup options
-    const filteredInventory =
-      pickupFilter === "all"
-        ? inventory
-        : inventory.filter((item) => item.pickup === pickupFilter);
-
-    return (
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mt-5 mb-8 ">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          {tableTitle}
-        </h1>
-
-        {filteredInventory.length > 0 ? (
-          <div className="p-10 pt-5">
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr
-                    className={`grid grid-cols-${
-                      inventoryType === "sold" ? "4" : "3"
-                    }`}
-                  >
-                    <th className="py-2 px-4 text-start">Item Id</th>
-                    <th className="py-2 px-4 text-start">Item Name</th>
-                    <th className="py-2 px-4 text-start">Quantity</th>
-                    {inventoryType === "sold" && (
-                      <th className="py-2 px-4 text-start">Virtual Quantity</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="flex flex-col gap-2">
-                  {filteredInventory?.map((item, index) => (
-                    <React.Fragment key={index}>
-                      <tr
-                        className={`grid grid-cols-${
-                          inventoryType === "sold" ? "4" : "3"
-                        } items-center border border-[#7F7F7F] rounded-md shadow-md cursor-pointer`}
-                        onClick={() => handleItemClick(item.item._id)}
-                      >
-                        <td className="px-4 py-2">{item.item._id}</td>
-                        <td className="px-4 py-2">
-                          {item.item.materialdescription}
-                        </td>
-                        <td className="px-4 py-2">{item.quantity}</td>
-                        {inventoryType === "sold" && (
-                          <td className="px-4 py-2">{item.virtualQuantity}</td>
-                        )}
-                      </tr>
-                      {expandedItem === item.item?._id && (
-                        <tr className="w-full bg-gray-50">
-                          <td className="w-[100vw]">
-                            <div className="w-full p-4 ">
-                              <h3 className="font-semibold text-gray-700 mb-3">
-                                Item History
-                              </h3>
-                              {itemHistory?.length > 0 ? (
-                                <ul className="w-full">
-                                  {itemHistory?.map((history, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="w-full flex items-center justify-between mb-2 p-3 px-5 bg-white rounded-md shadow-md border border-gray-200"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-gray-600 font-medium">
-                                          {history.sourceModel ===
-                                          "Manufacturer" ? (
-                                            <span>
-                                              Manufacturer:{" "}
-                                              {history.source?.manufacturer}
-                                            </span>
-                                          ) : history.sourceModel ===
-                                            "Order" ? (
-                                            <span>
-                                              Order: {history.source?.order}
-                                            </span>
-                                          ) : (
-                                            <span>
-                                              Warehouse:{" "}
-                                              {history.source?.warehouse}
-                                            </span>
-                                          )}
-                                        </span>
-                                        <span className="text-blue-500">→</span>
-                                        <span className="text-gray-600 font-medium">
-                                          {history.destinationModel ===
-                                          "Warehouse" ? (
-                                            <span>
-                                              Warehouse:{" "}
-                                              {history.destination?.name}
-                                            </span>
-                                          ) : (
-                                            <span>
-                                              Buyer:{" "}
-                                              {history.destination?.buyer}
-                                            </span>
-                                          )}
-                                        </span>
-                                      </div>
-                                      <span
-                                        className={`font-semibold text-lg ${
-                                          history.destinationModel ===
-                                          "Warehouse"
-                                            ? "text-green-600"
-                                            : "text-red-600"
-                                        }`}
-                                      >
-                                        {history.destinationModel ===
-                                        "Warehouse"
-                                          ? "+"
-                                          : "-"}{" "}
-                                        {history.quantity}
-                                      </span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-gray-500">
-                                  No history available for this item.
-                                </p>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <p className="p-5 text-[#717171]">
-            No items in {tableTitle.toLowerCase()}.
-          </p>
-        )}
-      </div>
-    );
+    return pickupFilter === "all"
+      ? inventory
+      : inventory.filter((item) => item.pickup === pickupFilter);
   };
 
   return (
-    <div className="flex">
-      <div className="fixed w-[20%] p-5">
-        <InventorySidenav
-          warehouses={warehouses}
-          selectedWarehouse={selectedWarehouse}
-          setSelectedWarehouse={setSelectedWarehouse}
-        />
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 p-4 bg-white border-r border-gray-200">
+        <div className="mb-4">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Select warehouse</h2>
+          <div className="space-y-2">
+            {warehouses.map((warehouse) => (
+              <button
+                key={warehouse._id}
+                onClick={() => setSelectedWarehouse(warehouse._id)}
+                className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm rounded-md transition-colors ${
+                  selectedWarehouse === warehouse._id
+                    ? "bg-blue-50 text-blue-600 font-medium"
+                    : "hover:bg-gray-50 text-gray-700"
+                }`}
+              >
+                <span>{warehouse.name}</span>
+                {selectedWarehouse === warehouse._id && (
+                  <Check className="h-4 w-4 text-blue-600" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="w-full ml-[19%] px-5">
-        <div className="w-full mt-12 mb-5">
-          <Tabs value="virtual">
-            <TabsHeader className="bg-[#7E8B90]">
-              <Tab value="virtual" onClick={() => setSelectedTab("virtual")}>
-                Virtual
-              </Tab>
-              <Tab value="billed" onClick={() => setSelectedTab("billed")}>
-                Billed
-              </Tab>
-              <Tab value="sold" onClick={() => setSelectedTab("sold")}>
-                Booked Items
-              </Tab>
-            </TabsHeader>
-          </Tabs>
-        </div>
-
-        {/* Pickup filter options */}
-        {selectedTab !== "billed" && (
-          <div className="px-8 flex items-center justify-end">
-            <label className="mr-2">Filter by Pickup:</label>
-            <div className="relative w-[180px]">
-              <select
-                value={pickupFilter}
-                onChange={(e) => setPickupFilter(e.target.value)}
-                className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-              >
-                <option value="all">All</option>
-                <option value="rack">Rack</option>
-                <option value="depot">Depot</option>
-                <option value="plant">Plant</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
+      {/* Main content */}
+      <div className="flex-1 p-6">
+        <div className="bg-white rounded-lg shadow">
+          {/* Tabs */}
+          <div className="border-b border-gray-200">
+            <div className="flex items-center justify-between px-4">
+              <div className="flex space-x-4">
+                {["virtual", "billed", "sold"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedTab(tab)}
+                    className={`py-4 px-4 text-sm font-medium border-b-2 ${
+                      selectedTab === tab
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
               </div>
+
+              {selectedTab !== "billed" && (
+                <div className="relative">
+                  <select
+                    value={pickupFilter}
+                    onChange={(e) => setPickupFilter(e.target.value)}
+                    className="appearance-none w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="all">All Pickups</option>
+                    <option value="rack">Rack</option>
+                    <option value="depot">Depot</option>
+                    <option value="plant">Plant</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              )}
             </div>
           </div>
-        )}
 
-        <div>
-          {currentWarehouse !== null ? (
-            loading ? (
-              <div className="flex justify-center items-center">
-                <Spinner color="blue" size="lg" />
+          {/* Content */}
+          <div className="p-4">
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
               </div>
-            ) : currentWarehouse !== "" ? (
-              selectedTab === "virtual" ? (
-                renderInventoryTable("virtual")
-              ) : selectedTab === "billed" ? (
-                renderInventoryTable("billed")
-              ) : (
-                renderInventoryTable("sold")
-              )
+            ) : !currentWarehouse ? (
+              <div className="text-center text-gray-500 py-12">
+                Please select a warehouse to view inventory
+              </div>
             ) : (
-              <Typography variant="body2" className="mt-5 text-center">
-                No warehouse selected.
-              </Typography>
-            )
-          ) : (
-            <Typography variant="body2" className="mt-5 text-center">
-              No warehouse selected.
-            </Typography>
-          )}
+              <div className="overflow-hidden">
+                <InventoryTable
+                  data={getFilteredInventory(selectedTab)}
+                  type={selectedTab}
+                  onItemClick={handleItemClick}
+                  expandedItem={expandedItem}
+                  itemHistory={itemHistory}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
