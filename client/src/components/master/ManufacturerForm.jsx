@@ -10,7 +10,11 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+<<<<<<< HEAD
 import { utils, writeFile } from "xlsx";
+=======
+import { utils, writeFile } from "xlsx"; // Import from xlsx
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 import {
   createManufacturer,
   deleteManufacturer,
@@ -38,10 +42,13 @@ const ManufacturerForm = () => {
   const [editingManufacturer, setEditingManufacturer] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+<<<<<<< HEAD
   // New states for delete confirmation
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [manufacturerToDelete, setManufacturerToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 
   useEffect(() => {
     fetchManufacturers();
@@ -102,6 +109,7 @@ const ManufacturerForm = () => {
 
   const handleEdit = async () => {
     setLoading(true);
+<<<<<<< HEAD
     try {
       await updateManufacturer(editingManufacturer, editingManufacturer._id);
       toast.success("Manufacturer updated successfully!");
@@ -128,6 +136,24 @@ const ManufacturerForm = () => {
       setDeleteModalOpen(false);
       setManufacturerToDelete(null);
       setConfirmationName("");
+=======
+    try {
+      await updateManufacturer(editingManufacturer, editingManufacturer._id);
+      toast.success("Manufacturer updated successfully!");
+      setEditModalOpen(false);
+      fetchManufacturers();
+    } catch (error) {
+      toast.error("Error updating manufacturer!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteManufacturer(id);
+      toast.success("Manufacturer deleted successfully!");
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
       fetchManufacturers();
     } catch (error) {
       toast.error("Error deleting manufacturer!");
@@ -153,6 +179,10 @@ const ManufacturerForm = () => {
       return;
     }
 
+<<<<<<< HEAD
+=======
+    // Prepare data for Excel
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     const excelData = manufacturer.map((man) => ({
       Name: man.manufacturer,
       Company: man.manufacturerCompany,
@@ -166,10 +196,18 @@ const ManufacturerForm = () => {
       GST: man.manufacturerGstno,
     }));
 
+<<<<<<< HEAD
+=======
+    // Generate worksheet and workbook
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     const ws = utils.json_to_sheet(excelData);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, "Manufacturers");
 
+<<<<<<< HEAD
+=======
+    // Download Excel file
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     writeFile(wb, "manufacturers.xlsx");
     toast.success("Excel file downloaded!");
   };
@@ -241,7 +279,11 @@ const ManufacturerForm = () => {
                 <Button
                   color="red"
                   size="sm"
+<<<<<<< HEAD
                   onClick={() => openDeleteModal(man)}
+=======
+                  onClick={() => handleDelete(man._id)}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
                   className="flex items-center gap-1"
                 >
                   <AiOutlineDelete /> Delete
@@ -478,6 +520,7 @@ const ManufacturerForm = () => {
                     manufacturerGstno: e.target.value,
                   }))
                 }
+<<<<<<< HEAD
               />
             </form>
           </DialogBody>
@@ -556,6 +599,21 @@ const ManufacturerForm = () => {
           </Button>
         </DialogFooter>
       </Dialog>
+=======
+              />
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     </div>
   );
 };

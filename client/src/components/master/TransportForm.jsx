@@ -32,9 +32,12 @@ const TransportForm = () => {
   const [editingTransport, setEditingTransport] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+<<<<<<< HEAD
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [transportToDelete, setTransportToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 
   useEffect(() => {
     fetchTransport();
@@ -73,6 +76,7 @@ const TransportForm = () => {
 
   const handleEdit = async () => {
     setLoading(true);
+<<<<<<< HEAD
     try {
       await updateTransport(editingTransport, editingTransport._id);
       toast.success("Transport updated successfully!");
@@ -104,6 +108,27 @@ const TransportForm = () => {
       toast.error("Error deleting transport!");
     } finally {
       setLoading(false);
+=======
+    try {
+      await updateTransport(editingTransport, editingTransport._id);
+      toast.success("Transport updated successfully!");
+      fetchTransport();
+      setEditModalOpen(false);
+    } catch (error) {
+      toast.error("Error updating transport!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteTransport(id);
+      toast.success("Transport deleted successfully!");
+      fetchTransport();
+    } catch (error) {
+      toast.error("Error deleting transport!");
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     }
   };
 
@@ -120,12 +145,20 @@ const TransportForm = () => {
     setEditModalOpen(true);
   };
 
+<<<<<<< HEAD
+=======
+  // Handle Excel Download
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
   const handleExcelDownload = () => {
     if (transport.length === 0) {
       toast.error("No transport data available to download!");
       return;
     }
 
+<<<<<<< HEAD
+=======
+    // Map transport data to an Excel-friendly format
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     const data = transport.map((item) => ({
       Name: item.transport,
       Type: item.transportType,
@@ -133,9 +166,18 @@ const TransportForm = () => {
       Agency: item.transportAgency,
     }));
 
+<<<<<<< HEAD
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transport");
+=======
+    // Create a new workbook and add data
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transport");
+
+    // Generate Excel file and trigger download
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     XLSX.writeFile(workbook, "Transport_List.xlsx");
     toast.success("Transport list downloaded successfully!");
   };
@@ -195,7 +237,11 @@ const TransportForm = () => {
                 <Button
                   color="red"
                   size="sm"
+<<<<<<< HEAD
                   onClick={() => openDeleteModal(item)}
+=======
+                  onClick={() => handleDelete(item._id)}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
                   className="flex items-center gap-1"
                 >
                   <AiOutlineDelete /> Delete
@@ -256,7 +302,14 @@ const TransportForm = () => {
 
       {/* Edit Transport Modal */}
       {editingTransport && (
+<<<<<<< HEAD
         <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+=======
+        <Dialog
+          open={editModalOpen}
+          handler={() => setEditModalOpen(false)}
+        >
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
           <DialogHeader>Edit Transport</DialogHeader>
           <DialogBody divider>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,6 +373,7 @@ const TransportForm = () => {
           </DialogFooter>
         </Dialog>
       )}
+<<<<<<< HEAD
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
@@ -376,6 +430,8 @@ const TransportForm = () => {
           </Button>
         </DialogFooter>
       </Dialog>
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     </div>
   );
 };

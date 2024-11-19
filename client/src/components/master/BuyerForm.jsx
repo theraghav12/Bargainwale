@@ -10,7 +10,11 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+<<<<<<< HEAD
 import * as XLSX from "xlsx";
+=======
+import * as XLSX from "xlsx"; // Import SheetJS library for Excel
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 import {
   createBuyer,
   deleteBuyer,
@@ -39,9 +43,12 @@ const BuyerForm = () => {
   const [editingBuyer, setEditingBuyer] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+<<<<<<< HEAD
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [buyerToDelete, setBuyerToDelete] = useState(null);
   const [confirmBuyerName, setConfirmBuyerName] = useState("");
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 
   useEffect(() => {
     fetchBuyers();
@@ -94,7 +101,11 @@ const BuyerForm = () => {
         organization: localStorage.getItem("organizationId"),
       });
       fetchBuyers();
+<<<<<<< HEAD
       setAddModalOpen(false);
+=======
+      setAddModalOpen(false); // Close the Add Buyer modal
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     } catch (error) {
       toast.error("Error adding buyer!");
     } finally {
@@ -104,6 +115,7 @@ const BuyerForm = () => {
 
   const handleEdit = async () => {
     setLoading(true);
+<<<<<<< HEAD
     try {
       await updateBuyer(editingBuyer, editingBuyer._id);
       toast.success("Buyer updated successfully!");
@@ -137,6 +149,30 @@ const BuyerForm = () => {
     }
   };
 
+=======
+    try {
+      await updateBuyer(editingBuyer, editingBuyer._id);
+      toast.success("Buyer updated successfully!");
+      setEditModalOpen(false); // Close the Edit Buyer modal
+      fetchBuyers();
+    } catch (error) {
+      toast.error("Error updating buyer!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteBuyer(id);
+      toast.success("Buyer deleted successfully!");
+      fetchBuyers();
+    } catch (error) {
+      toast.error("Error deleting buyer!");
+    }
+  };
+
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -150,6 +186,10 @@ const BuyerForm = () => {
     setEditModalOpen(true);
   };
 
+<<<<<<< HEAD
+=======
+  // Handle Excel Download
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
   const handleExcelDownload = () => {
     if (buyers.length === 0) {
       toast.error("No buyers available to download!");
@@ -170,21 +210,40 @@ const BuyerForm = () => {
       "Google Maps": buyer.buyerGooglemaps,
     }));
 
+<<<<<<< HEAD
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Buyers");
+=======
+    // Create a new workbook and add data
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Buyers");
+
+    // Generate Excel file and trigger download
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     XLSX.writeFile(workbook, "Buyers_List.xlsx");
     toast.success("Buyers list downloaded successfully!");
   };
 
   return (
     <div className="container mx-auto p-6">
+<<<<<<< HEAD
       <div className="mb-10">
         <div className="flex justify-between items-center mb-6">
           <Typography variant="h4" className="font-bold">
             Buyers
           </Typography>
           <div className="flex gap-4">
+=======
+      {/* Buyers List */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+            <Typography variant="h4" className="font-bold">
+              Buyers
+            </Typography>
+            <div className="flex gap-4">
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
             <Button
               color="green"
               onClick={handleExcelDownload}
@@ -192,6 +251,7 @@ const BuyerForm = () => {
             >
               Download Excel
             </Button>
+<<<<<<< HEAD
             <Button
               color="blue"
               onClick={() => setAddModalOpen(true)}
@@ -200,6 +260,66 @@ const BuyerForm = () => {
               + Add Buyer
             </Button>
           </div>
+=======
+        
+          <Button
+            color="blue"
+            onClick={() => setAddModalOpen(true)}
+            className="flex items-center gap-2"
+          >
+            + Add Buyer
+          </Button>
+        </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {buyers.map((buyer) => (
+            <div
+              key={buyer._id}
+              className="bg-white shadow-md rounded-md p-4 border"
+            >
+              <Typography variant="h6" className="font-bold">
+                {buyer.buyer}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Company: {buyer.buyerCompany}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Contact: {buyer.buyerContact}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Email: {buyer.buyerEmail}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                GST: {buyer.buyerGstno}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                {buyer.buyerdeliveryAddress?.addressLine2},{" "}
+                {buyer.buyerdeliveryAddress?.city},{" "}
+                {buyer.buyerdeliveryAddress?.state},{" "}
+                {buyer.buyerdeliveryAddress?.pinCode}
+              </Typography>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(buyer)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => handleDelete(buyer._id)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           {buyers.map((buyer) => (
@@ -471,6 +591,7 @@ const BuyerForm = () => {
           </DialogFooter>
         </Dialog>
       )}
+<<<<<<< HEAD
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
@@ -535,6 +656,8 @@ const BuyerForm = () => {
           </Button>
         </DialogFooter>
       </Dialog>
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import Item from "../models/items.js";
+import Warehouse from "../models/warehouse.js";
 
 const itemController = {
   // Create a new item
@@ -6,6 +7,7 @@ const itemController = {
     try {
       const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, organization } = req.body;
 
+      // Create the new item
       const newItem = new Item({
         flavor,
         material,
@@ -20,14 +22,43 @@ const itemController = {
         organization
       });
 
-      await newItem.save();
-      res.status(201).json({ message: "Item created successfully", item: newItem });
+      // Save the item
+      const savedItem = await newItem.save();
+
+      // Update warehouses with the new item (quantity: 0 in all inventories)
+      if (warehouses && warehouses.length > 0) {
+        const warehouseUpdates = warehouses.map(async (warehouseId) => {
+          return Warehouse.findByIdAndUpdate(
+            warehouseId,
+            {
+              $push: {
+                virtualInventory: [
+                  { item: savedItem._id, pickup: "rack", quantity: 0 },
+                  { item: savedItem._id, pickup: "plant", quantity: 0 },
+                  { item: savedItem._id, pickup: "depot", quantity: 0 },
+                ],
+                billedInventory: { item: savedItem._id, quantity: 0 },
+                soldInventory: [
+                  { item: savedItem._id, pickup: "rack", virtualQuantity: 0 },
+                  { item: savedItem._id, pickup: "plant", virtualQuantity: 0 },
+                  { item: savedItem._id, pickup: "depot", virtualQuantity: 0 },
+                ],
+              },
+            },
+            { new: true }
+          );
+        });
+
+        // Execute all updates
+        await Promise.all(warehouseUpdates);
+      }
+
+      res.status(201).json({ message: "Item created successfully and added to warehouses", item: savedItem });
     } catch (error) {
       console.error("Error creating item:", error);
       res.status(400).json({ message: "Error creating item", error });
     }
   },
-
   getAllItems: async (req, res) => {
     try {
       const items = await Item.find({ organization: req.params.orgId });

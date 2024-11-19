@@ -30,10 +30,14 @@ const ItemForm = () => {
   const [items, setItems] = useState([]);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+<<<<<<< HEAD
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+=======
+  const [editingItem, setEditingItem] = useState(null);
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
   const [form, setForm] = useState({
     flavor: "",
     material: "",
@@ -91,6 +95,7 @@ const ItemForm = () => {
 
   const handleEdit = async () => {
     setLoading(true);
+<<<<<<< HEAD
     try {
       await updateItem(editingItem, editingItem._id);
       toast.success("Item updated successfully!");
@@ -118,6 +123,25 @@ const ItemForm = () => {
       setDeleteModalOpen(false);
       setItemToDelete(null);
       setConfirmationName("");
+=======
+    try {
+      await updateItem(editingItem, editingItem._id);
+      toast.success("Item updated successfully!");
+      setEditModalOpen(false);
+      fetchItems();
+    } catch (error) {
+      toast.error("Error updating item!");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteItem(id);
+      toast.success("Item deleted successfully!");
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
       fetchItems();
     } catch (error) {
       toast.error("Error deleting item!");
@@ -140,6 +164,10 @@ const ItemForm = () => {
     setEditModalOpen(true);
   };
 
+<<<<<<< HEAD
+=======
+  // Handle Excel Download
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
   const handleExcelDownload = () => {
     if (items.length === 0) {
       toast.error("No items available to download!");
@@ -232,7 +260,11 @@ const ItemForm = () => {
                 <Button
                   color="red"
                   size="sm"
+<<<<<<< HEAD
                   onClick={() => openDeleteModal(item)}
+=======
+                  onClick={() => handleDelete(item._id)}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
                   className="flex items-center gap-1"
                 >
                   <AiOutlineDelete /> Delete
@@ -446,6 +478,7 @@ const ItemForm = () => {
           </DialogFooter>
         </Dialog>
       )}
+<<<<<<< HEAD
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
@@ -502,6 +535,8 @@ const ItemForm = () => {
           </Button>
         </DialogFooter>
       </Dialog>
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     </div>
   );
 };

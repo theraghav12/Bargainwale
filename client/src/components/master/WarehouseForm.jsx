@@ -33,9 +33,12 @@ const WarehouseForm = () => {
   const [editingWarehouse, setEditingWarehouse] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+<<<<<<< HEAD
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [warehouseToDelete, setWarehouseToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+=======
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
 
   useEffect(() => {
     fetchWarehouses();
@@ -86,6 +89,7 @@ const WarehouseForm = () => {
 
   const handleEdit = async () => {
     setLoading(true);
+<<<<<<< HEAD
     try {
       const updatedData = {
         name: editingWarehouse.name,
@@ -126,6 +130,36 @@ const WarehouseForm = () => {
       toast.error("Error deleting warehouse!");
     } finally {
       setLoading(false);
+=======
+    try {
+      const updatedData = {
+        name: editingWarehouse.name,
+        location: {
+          state: editingWarehouse.location.state,
+          city: editingWarehouse.location.city,
+        },
+        warehouseManager: editingWarehouse.warehouseManager,
+        googleMapsLink: editingWarehouse.googleMapsLink,
+      };
+      await updateWarehouse(updatedData, editingWarehouse._id);
+      toast.success("Warehouse updated successfully!");
+      setEditModalOpen(false);
+      fetchWarehouses();
+    } catch (error) {
+      toast.error("Error updating warehouse!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteWarehouse(id);
+      toast.success("Warehouse deleted successfully!");
+      fetchWarehouses();
+    } catch (error) {
+      toast.error("Error deleting warehouse!");
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     }
   };
 
@@ -231,7 +265,11 @@ const WarehouseForm = () => {
                 <Button
                   color="red"
                   size="sm"
+<<<<<<< HEAD
                   onClick={() => openDeleteModal(warehouse)}
+=======
+                  onClick={() => handleDelete(warehouse._id)}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
                   className="flex items-center gap-1"
                 >
                   <AiOutlineDelete /> Delete
@@ -363,6 +401,7 @@ const WarehouseForm = () => {
                   }))
                 }
                 className="col-span-2"
+<<<<<<< HEAD
               />
             </form>
           </DialogBody>
@@ -434,6 +473,21 @@ const WarehouseForm = () => {
           </Button>
         </DialogFooter>
       </Dialog>
+=======
+              />
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+>>>>>>> d4bbbb806ef75a47bdbd8bd865857422cb735666
     </div>
   );
 };
