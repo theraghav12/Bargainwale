@@ -32,9 +32,6 @@ const TransportForm = () => {
   const [editingTransport, setEditingTransport] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [transportToDelete, setTransportToDelete] = useState(null);
-  const [confirmationName, setConfirmationName] = useState("");
 
   useEffect(() => {
     fetchTransport();
@@ -85,25 +82,13 @@ const TransportForm = () => {
     }
   };
 
-  const openDeleteModal = (transportItem) => {
-    setTransportToDelete(transportItem);
-    setConfirmationName("");
-    setDeleteModalOpen(true);
-  };
-
-  const handleDelete = async () => {
-    setLoading(true);
+  const handleDelete = async (id) => {
     try {
-      await deleteTransport(transportToDelete._id);
+      await deleteTransport(id);
       toast.success("Transport deleted successfully!");
-      setDeleteModalOpen(false);
-      setTransportToDelete(null);
-      setConfirmationName("");
       fetchTransport();
     } catch (error) {
       toast.error("Error deleting transport!");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -120,12 +105,14 @@ const TransportForm = () => {
     setEditModalOpen(true);
   };
 
+  // Handle Excel Download
   const handleExcelDownload = () => {
     if (transport.length === 0) {
       toast.error("No transport data available to download!");
       return;
     }
 
+    // Map transport data to an Excel-friendly format
     const data = transport.map((item) => ({
       Name: item.transport,
       Type: item.transportType,
@@ -133,9 +120,12 @@ const TransportForm = () => {
       Agency: item.transportAgency,
     }));
 
+    // Create a new workbook and add data
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transport");
+
+    // Generate Excel file and trigger download
     XLSX.writeFile(workbook, "Transport_List.xlsx");
     toast.success("Transport list downloaded successfully!");
   };
@@ -195,7 +185,7 @@ const TransportForm = () => {
                 <Button
                   color="red"
                   size="sm"
-                  onClick={() => openDeleteModal(item)}
+                  onClick={() => handleDelete(item._id)}
                   className="flex items-center gap-1"
                 >
                   <AiOutlineDelete /> Delete
@@ -256,7 +246,10 @@ const TransportForm = () => {
 
       {/* Edit Transport Modal */}
       {editingTransport && (
-        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+        <Dialog
+          open={editModalOpen}
+          handler={() => setEditModalOpen(false)}
+        >
           <DialogHeader>Edit Transport</DialogHeader>
           <DialogBody divider>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,62 +313,6 @@ const TransportForm = () => {
           </DialogFooter>
         </Dialog>
       )}
-
-      {/* Delete Confirmation Modal */}
-      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
-        <DialogHeader className="text-red-500">Confirm Transport Deletion</DialogHeader>
-        <DialogBody divider>
-          <div className="space-y-4">
-            <Typography className="text-gray-800 font-medium">
-              Are you sure you want to delete this transport record?
-            </Typography>
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-              <Typography className="text-yellow-700 font-medium mb-2">
-                Warning: The following data will be permanently deleted:
-              </Typography>
-              <ul className="list-disc list-inside text-yellow-700 space-y-1">
-                <li>Transport profile and contact information</li>
-                <li>Associated transport agency details</li>
-                <li>Linked transport records</li>
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-4 rounded">
-              <Typography className="text-gray-700 mb-2">
-                To confirm deletion, please type the transport name:
-                <span className="font-bold text-red-500"> {transportToDelete?.transport}</span>
-              </Typography>
-              <Input
-                type="text"
-                label="Type transport name to confirm"
-                value={confirmationName}
-                onChange={(e) => setConfirmationName(e.target.value)}
-                className="mt-2"
-                color="red"
-              />
-            </div>
-          </div>
-        </DialogBody>
-        <DialogFooter className="space-x-2">
-          <Button
-            color="red"
-            onClick={handleDelete}
-            disabled={confirmationName !== transportToDelete?.transport}
-            className="flex items-center gap-2"
-          >
-            {loading ? <Spinner /> : "Delete Permanently"}
-          </Button>
-          <Button
-            color="gray"
-            onClick={() => {
-              setDeleteModalOpen(false);
-              setTransportToDelete(null);
-              setConfirmationName("");
-            }}
-          >
-            Cancel
-          </Button>
-        </DialogFooter>
-      </Dialog>
     </div>
   );
 };
