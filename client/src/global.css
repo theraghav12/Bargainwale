@@ -52,4 +52,32 @@ input[type="number"] {
     opacity: 1; /* Fully visible on hover */
   }
   
-  
+  /* Style the scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  height: 8px; /* Height for horizontal scrollbar */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f4f4f4; /* Track color */
+  border-radius: 10px; /* Rounded corners */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #c8c8c8; /* Scrollbar color */
+  border-radius: 10px; /* Rounded corners */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #c4c4c4; /* Darker on hover */
+}
+
+/* For Firefox */
+.scroll-container {
+  scrollbar-color: #b7b7b7 #f4f4f4; /* Thumb and track color */
+  scrollbar-width: thin; /* Makes the scrollbar thinner */
+}
+

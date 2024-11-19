@@ -224,29 +224,6 @@ const CreatePurchase = () => {
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
-        <div className="flex flex-row justify-between">
-          <div>
-            {/* <button
-              onClick={handleDownloadExcel}
-              className="w-fit bg-[#185C37] py-2 text-white text-[1rem] font-medium rounded-lg px-8 flex flex-row items-center justify-center border-2 border-[#999999] gap-1"
-            >
-              <img className="w-5" src={excel} />
-              Download as Excel
-            </button> */}
-          </div>
-          {/* <div className="flex flex-row gap-4">
-            <button className="w-fit bg-[#FF0000] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Delete
-            </button>
-            <button className="w-fit bg-[#38454A] text-white text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              Edit
-            </button>
-            <button className="w-fit bg-[#DCDCDC] text-black text-[1rem] font-medium rounded-lg px-8 py-2 flex flex-row items-center justify-center border-2 border-black gap-1">
-              PUBLISH
-            </button>
-          </div> */}
-        </div>
-
         <div className="w-full">
           <form
             onSubmit={handleSubmit}
@@ -352,13 +329,6 @@ const CreatePurchase = () => {
             </div>
           </form>
 
-          <div className="fixed bottom-0 left-0 right-0 bg-[#E4E4E4] border-t-2 border-t-[#A6A6A6] shadow-md z-[10]">
-            <div className="text-[1rem] flex justify-between items-center px-4 py-1">
-              <p>2024 @ Bargainwale</p>
-              <p>Design and Developed by Reduxcorporation</p>
-            </div>
-          </div>
-
           <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
             {orders.length > 0 ? (
               <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
@@ -385,9 +355,15 @@ const CreatePurchase = () => {
                       {orders.map((order) => {
                         const isOpen = selectedOrder === order._id;
                         const isChecked = selectedOrder === order._id;
+                        const isBilled = order.status === "billed"; // Check if "billed"
+
                         return (
                           <React.Fragment key={order._id}>
-                            <tr className="border-t-2 border-t-[#898989]">
+                            <tr
+                              className={`border-t-2 border-t-[#898989] ${
+                                isBilled ? "bg-gray-300 text-gray-500" : ""
+                              }`}
+                            >
                               <td className="py-4 text-center">
                                 {order.companyBargainNo}
                               </td>
@@ -428,10 +404,11 @@ const CreatePurchase = () => {
                                       handleOrderSelect(order._id)
                                     }
                                     className="form-checkbox h-5 w-5 cursor-pointer"
-                                    disabled={
-                                      order.status === "billed" ? true : false
-                                    }
+                                    disabled={isBilled} // Disabled for "billed"
                                   />
+                                  {isBilled && (
+                                    <span className="italic text-sm">Billed</span>
+                                  )}
                                 </div>
                               </td>
                             </tr>
@@ -466,7 +443,9 @@ const CreatePurchase = () => {
                                             className="border-t-2 border-t-[#898989]"
                                           >
                                             <td className="py-4 text-center">
-                                              {item.item.materialdescription}
+                                              {
+                                                item.item.materialdescription
+                                              }
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.packaging}
@@ -482,37 +461,45 @@ const CreatePurchase = () => {
                                                 item.purchaseQuantity}
                                             </td>
                                             <td className="py-4 text-center">
-                                              <input
-                                                type="number"
-                                                value={
-                                                  quantityInputs.find(
-                                                    (q) =>
-                                                      q.itemId === item.item._id
-                                                  )?.quantity || ""
-                                                }
-                                                onChange={(e) => {
-                                                  const value = e.target.value;
-                                                  if (value >= 0) {
-                                                    handleQuantityChange(
-                                                      item.item._id,
-                                                      e.target.value,
-                                                      item.pickup
-                                                    );
+                                              {isBilled ? (
+                                                <span className="italic text-gray-500">
+                                                  View Only
+                                                </span>
+                                              ) : (
+                                                <input
+                                                  type="number"
+                                                  value={
+                                                    quantityInputs.find(
+                                                      (q) =>
+                                                        q.itemId ===
+                                                        item.item._id
+                                                    )?.quantity || ""
                                                   }
-                                                }}
-                                                onKeyDown={(e) => {
-                                                  if (
-                                                    e.key === "e" ||
-                                                    e.key === "-" ||
-                                                    e.key === "+" ||
-                                                    e.key === "."
-                                                  ) {
-                                                    e.preventDefault();
-                                                  }
-                                                }}
-                                                className="w-[150px] p-2 border rounded"
-                                                placeholder="Enter new qty"
-                                              />
+                                                  onChange={(e) => {
+                                                    const value =
+                                                      e.target.value;
+                                                    if (value >= 0) {
+                                                      handleQuantityChange(
+                                                        item.item._id,
+                                                        e.target.value,
+                                                        item.pickup
+                                                      );
+                                                    }
+                                                  }}
+                                                  onKeyDown={(e) => {
+                                                    if (
+                                                      e.key === "e" ||
+                                                      e.key === "-" ||
+                                                      e.key === "+" ||
+                                                      e.key === "."
+                                                    ) {
+                                                      e.preventDefault();
+                                                    }
+                                                  }}
+                                                  className="w-[150px] p-2 border rounded"
+                                                  placeholder="Enter new qty"
+                                                />
+                                              )}
                                             </td>
                                           </tr>
                                         ))}
@@ -535,147 +522,6 @@ const CreatePurchase = () => {
               </p>
             )}
           </div>
-
-          {/* <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] shadow-md">
-            <div className="overflow-x-auto">
-              <table className="max-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="grid grid-cols-12">
-                    <th className="py-4 text-center">CBN</th>
-                    <th className="py-4 text-center">CBD</th>
-                    <th className="py-4 text-center">Item</th>
-                    <th className="py-4 text-center">Quantity</th>
-                    <th className="py-4 text-center">Pickup</th>
-                    <th className="py-4 text-center">Cont. No.</th>
-                    <th className="py-4 text-center">Base Rate</th>
-                    <th className="py-4 text-center">Tax Paid Amount</th>
-                    <th className="py-4 text-center">Inco</th>
-                    <th className="py-4 text-center">Payment Date</th>
-                    <th className="py-4 text-center">Description</th>
-                    <th className="py-4 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {form.items?.map((item, index) => (
-                    <tr
-                      key={index}
-                      className="grid grid-cols-12 border-t-2 border-t-[#898989]"
-                    >
-                      <td className="py-4 text-center">
-                        {form.companyBargainNo}
-                      </td>
-                      <td className="py-4 text-center">
-                        {form.companyBargainDate}
-                      </td>
-                      <td className="py-4 text-center">
-                        <div className="relative w-[150px]">
-                          <select
-                            id="itemId"
-                            name="itemId"
-                            value={item.itemId}
-                            onChange={(e) =>
-                              handleItemChange(index, "itemId", e.target.value)
-                            }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Item</option>
-                            {itemsOptions?.map((item) => (
-                              <option key={item._id} value={item._id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 text-center">
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleItemChange(index, "quantity", e.target.value)
-                          }
-                          required
-                          placeholder="Quantity"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
-                      </td>
-                      <td className="py-4 text-center">
-                        <div className="relative w-[150px]">
-                          <select
-                            id="pickup"
-                            name="pickup"
-                            value={item.pickup}
-                            onChange={(e) =>
-                              handleItemChange(index, "pickup", e.target.value)
-                            }
-                            className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            required
-                          >
-                            <option value="">Select Pickup</option>
-                            <option value="rack">Rack</option>
-                            <option value="depot">Depot</option>
-                            <option value="plant">Plant</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 text-center">
-                        <input
-                          type="number"
-                          name="contNumber"
-                          value={item.contNumber}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "contNumber",
-                              e.target.value
-                            )
-                          }
-                          required
-                          placeholder="Cont. No."
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
-                      </td>
-                      <td className="py-4 text-center">
-                        <input
-                          type="number"
-                          name="baseRate"
-                          value={item.baseRate}
-                          onChange={(e) =>
-                            handleItemChange(index, "baseRate", e.target.value)
-                          }
-                          required
-                          placeholder="Base Rate"
-                          className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
-                      </td>
-                      <td className="py-4 text-center">{item.taxpaidAmount}</td>
-                      <td className="py-4 text-center">{form.inco}</td>
-                      <td className="py-4 text-center">{form.paymentDays}</td>
-                      <td className="py-4 text-center">{form.description}</td>
-                      <td className="py-4 flex justify-center">
-                        <Tooltip content="Remove Item">
-                          <span className="w-fit h-fit">
-                            <MdDeleteOutline
-                              onClick={() => handleRemoveItem(index)}
-                              className="text-[2rem] text-red-700 border border-2 border-red-700 rounded-md hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                            />
-                          </span>
-                        </Tooltip>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

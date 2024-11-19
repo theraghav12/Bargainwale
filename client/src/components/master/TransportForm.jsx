@@ -2,21 +2,21 @@ import {
   Button,
   Input,
   Spinner,
-  IconButton,
   Typography,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
-// api services
+import * as XLSX from "xlsx"; // Import SheetJS library for Excel
 import {
   createTransport,
   deleteTransport,
   getTransport,
   updateTransport,
 } from "@/services/masterService";
-
-// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const TransportForm = () => {
@@ -29,7 +29,12 @@ const TransportForm = () => {
     transportAgency: "",
     organization: localStorage.getItem("organizationId"),
   });
-  const [editingId, setEditingId] = useState(null);
+  const [editingTransport, setEditingTransport] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [transportToDelete, setTransportToDelete] = useState(null);
+  const [confirmationName, setConfirmationName] = useState("");
 
   useEffect(() => {
     fetchTransport();
@@ -38,41 +43,9 @@ const TransportForm = () => {
   const fetchTransport = async () => {
     try {
       const response = await getTransport();
-      const transportsWithEditingState = response.map((item) => ({
-        ...item,
-        isEditing: false,
-      }));
-      setTransport(transportsWithEditingState);
+      setTransport(response || []);
     } catch (error) {
-      toast.error("Error fetching transports!");
-      console.error(error);
-    }
-  };
-
-  const toggleEditing = async (id) => {
-    const transportToEdit = transport.find((item) => item._id === id);
-    if (transportToEdit.isEditing) {
-      try {
-        const data = {
-          name: transportToEdit.name,
-          packaging: transportToEdit.packaging,
-          type: transportToEdit.type,
-          weight: transportToEdit.weight,
-          staticPrice: transportToEdit.staticPrice,
-        };
-        await updateTransport(data, id);
-        toast.success("Transport updated successfully!");
-        fetchTransport();
-      } catch (error) {
-        toast.error("Error updating transport!");
-        console.error(error);
-      }
-    } else {
-      setTransport((prevItems) =>
-        prevItems.map((item) =>
-          item._id === id ? { ...item, isEditing: !item.isEditing } : item
-        )
-      );
+      toast.error("Error fetching transport data!");
     }
   };
 
@@ -80,8 +53,7 @@ const TransportForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await createTransport(form);
-      console.log(response);
+      await createTransport(form);
       toast.success("Transport added successfully!");
       setForm({
         transport: "",
@@ -91,242 +63,320 @@ const TransportForm = () => {
         organization: localStorage.getItem("organizationId"),
       });
       fetchTransport();
+      setAddModalOpen(false);
     } catch (error) {
       toast.error("Error adding transport!");
-      console.error(error);
     } finally {
       setLoading(false);
-      setEditingId(null);
     }
   };
 
-  const handleChange = (e, fieldName) => {
-    if (e && e.target) {
-      const { name, value } = e.target;
-      setForm((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: e,
-      }));
-    }
-  };
-
-  const handleUpdateChange = (e, id, fieldName) => {
-    let name, value;
-
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
-    setTransport((prevItems) =>
-      prevItems.map((item) =>
-        item._id === id
-          ? {
-              ...item,
-              [name]: value,
-            }
-          : item
-      )
-    );
-  };
-
-  const handleDelete = async (id) => {
+  const handleEdit = async () => {
+    setLoading(true);
     try {
-      await deleteTransport(id);
-      toast.error("Transport deleted successfully!");
+      await updateTransport(editingTransport, editingTransport._id);
+      toast.success("Transport updated successfully!");
+      fetchTransport();
+      setEditModalOpen(false);
+    } catch (error) {
+      toast.error("Error updating transport!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openDeleteModal = (transportItem) => {
+    setTransportToDelete(transportItem);
+    setConfirmationName("");
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteTransport(transportToDelete._id);
+      toast.success("Transport deleted successfully!");
+      setDeleteModalOpen(false);
+      setTransportToDelete(null);
+      setConfirmationName("");
       fetchTransport();
     } catch (error) {
       toast.error("Error deleting transport!");
-      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Transportation
-          <span className="text-[1.5rem] text-black">/ Available</span>
-        </h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        <div className="p-10 w-full">
-          {/* Transport Table */}
-          <div className="max-w-[1024px] overflow-x-auto mt-8">
-            {transport?.length > 0 ? (
-              <table className="min-w-full bg-white table-auto">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Transport
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">Type</th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Contact
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Agency
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transport?.map((item) => (
-                    <tr
-                      key={item._id}
-                      className="border border-[#7F7F7F] rounded-md shadow"
-                    >
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="transport"
-                            type="text"
-                            value={item.transport}
-                            onChange={(e) => handleUpdateChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.transport}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="transportType"
-                            type="text"
-                            value={item.transportType}
-                            onChange={(e) => handleUpdateChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.transportType}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="transportContact"
-                            type="tel"
-                            value={item.transportContact}
-                            onChange={(e) => handleUpdateChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.transportContact}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {item.isEditing ? (
-                          <Input
-                            name="transportAgency"
-                            type="text"
-                            value={item.transportAgency}
-                            onChange={(e) => handleUpdateChange(e, item._id)}
-                          />
-                        ) : (
-                          <span>{item.transportAgency}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4 flex gap-2">
-                        {item.isEditing ? (
-                          <IconButton
-                            color="green"
-                            onClick={() => toggleEditing(item._id)}
-                          >
-                            Save
-                          </IconButton>
-                        ) : (
-                          <button
-                            onClick={() => toggleEditing(item._id)}
-                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                          >
-                            <AiOutlineEdit />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                        >
-                          <AiOutlineDelete />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <Typography className="text-xl text-center font-bold">
-                No Transport!
-              </Typography>
-            )}
+  const openEditModal = (transportItem) => {
+    setEditingTransport({ ...transportItem });
+    setEditModalOpen(true);
+  };
+
+  const handleExcelDownload = () => {
+    if (transport.length === 0) {
+      toast.error("No transport data available to download!");
+      return;
+    }
+
+    const data = transport.map((item) => ({
+      Name: item.transport,
+      Type: item.transportType,
+      Contact: item.transportContact,
+      Agency: item.transportAgency,
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transport");
+    XLSX.writeFile(workbook, "Transport_List.xlsx");
+    toast.success("Transport list downloaded successfully!");
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Transport List */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <Typography variant="h4" className="font-bold">
+            Transport Management
+          </Typography>
+          <div className="flex gap-4">
+            <Button
+              color="green"
+              onClick={handleExcelDownload}
+              className="flex items-center gap-2"
+            >
+              Download Excel
+            </Button>
+            <Button
+              color="blue"
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              + Add Transport
+            </Button>
           </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {transport.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white shadow-md rounded-md p-4 border"
+            >
+              <Typography variant="h6" className="font-bold">
+                {item.transport}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Type: {item.transportType}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Contact: {item.transportContact}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Agency: {item.transportAgency}
+              </Typography>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(item)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => openDeleteModal(item)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Transportation
-          <span className="text-[1.5rem] text-black">/ Create</span>
-        </h1>
+      {/* Add Transport Modal */}
+      <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
+        <DialogHeader>Add Transport</DialogHeader>
+        <DialogBody divider>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <Input
+              name="transport"
+              label="Transport Name"
+              value={form.transport}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="transportType"
+              label="Transport Type"
+              value={form.transportType}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="transportContact"
+              label="Contact"
+              value={form.transportContact}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="transportAgency"
+              label="Agency"
+              value={form.transportAgency}
+              onChange={handleInputChange}
+              required
+            />
+          </form>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="blue" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Spinner /> : "Add Transport"}
+          </Button>
+          <Button color="gray" onClick={() => setAddModalOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
-        <div className="p-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex">
+      {/* Edit Transport Modal */}
+      {editingTransport && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <DialogHeader>Edit Transport</DialogHeader>
+          <DialogBody divider>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="transport"
                 label="Transport Name"
-                type="text"
-                value={form.transport}
-                onChange={handleChange}
+                value={editingTransport.transport}
+                onChange={(e) =>
+                  setEditingTransport((prev) => ({
+                    ...prev,
+                    transport: e.target.value,
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="transportType"
                 label="Transport Type"
-                type="text"
-                value={form.transportType}
-                onChange={handleChange}
+                value={editingTransport.transportType}
+                onChange={(e) =>
+                  setEditingTransport((prev) => ({
+                    ...prev,
+                    transportType: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="transportContact"
-                label="Transport Contact"
-                type="tel"
-                value={form.transportContact}
-                onChange={handleChange}
+                label="Contact"
+                value={editingTransport.transportContact}
+                onChange={(e) =>
+                  setEditingTransport((prev) => ({
+                    ...prev,
+                    transportContact: e.target.value,
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex">
               <Input
                 name="transportAgency"
-                label="Transport Agency"
-                type="text"
-                value={form.transportAgency}
-                onChange={handleChange}
+                label="Agency"
+                value={editingTransport.transportAgency}
+                onChange={(e) =>
+                  setEditingTransport((prev) => ({
+                    ...prev,
+                    transportAgency: e.target.value,
+                  }))
+                }
                 required
               />
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+        <DialogHeader className="text-red-500">Confirm Transport Deletion</DialogHeader>
+        <DialogBody divider>
+          <div className="space-y-4">
+            <Typography className="text-gray-800 font-medium">
+              Are you sure you want to delete this transport record?
+            </Typography>
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <Typography className="text-yellow-700 font-medium mb-2">
+                Warning: The following data will be permanently deleted:
+              </Typography>
+              <ul className="list-disc list-inside text-yellow-700 space-y-1">
+                <li>Transport profile and contact information</li>
+                <li>Associated transport agency details</li>
+                <li>Linked transport records</li>
+              </ul>
             </div>
-            <div className="flex">
-              <Button
-                color="blue"
-                type="submit"
-                className="flex items-center justify-center"
-              >
-                {loading ? <Spinner /> : <span>Add Transport</span>}
-              </Button>
+            <div className="bg-gray-50 p-4 rounded">
+              <Typography className="text-gray-700 mb-2">
+                To confirm deletion, please type the transport name:
+                <span className="font-bold text-red-500"> {transportToDelete?.transport}</span>
+              </Typography>
+              <Input
+                type="text"
+                label="Type transport name to confirm"
+                value={confirmationName}
+                onChange={(e) => setConfirmationName(e.target.value)}
+                className="mt-2"
+                color="red"
+              />
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </div>
+        </DialogBody>
+        <DialogFooter className="space-x-2">
+          <Button
+            color="red"
+            onClick={handleDelete}
+            disabled={confirmationName !== transportToDelete?.transport}
+            className="flex items-center gap-2"
+          >
+            {loading ? <Spinner /> : "Delete Permanently"}
+          </Button>
+          <Button
+            color="gray"
+            onClick={() => {
+              setDeleteModalOpen(false);
+              setTransportToDelete(null);
+              setConfirmationName("");
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
+    </div>
   );
 };
 

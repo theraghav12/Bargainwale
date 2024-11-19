@@ -2,15 +2,19 @@ import {
   Button,
   Input,
   Spinner,
-  IconButton,
+  Typography,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
   Select,
   Option,
-  Typography,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
-// api services
+// API services
 import {
   createItem,
   deleteItem,
@@ -18,16 +22,18 @@ import {
   updateItem,
 } from "@/services/masterService";
 
-// icons
+// Icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { getWarehouses } from "@/services/warehouseService";
-import { TbTriangleInvertedFilled } from "react-icons/tb";
-import { FaCheck } from "react-icons/fa6";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
-  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [confirmationName, setConfirmationName] = useState("");
   const [form, setForm] = useState({
     flavor: "",
     material: "",
@@ -38,81 +44,28 @@ const ItemForm = () => {
     packaging: "box",
     packsize: "",
     staticPrice: "",
-    warehouses: [],
     organization: localStorage.getItem("organizationId"),
   });
-  const [editingId, setEditingId] = useState(null);
-
-  const fetchWarehouseOptions = async () => {
-    try {
-      const response = await getWarehouses();
-      setWarehouseOptions(response);
-    } catch (error) {
-      toast.error("Error fetching warehouses!");
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     fetchItems();
-    fetchWarehouseOptions();
   }, []);
 
   const fetchItems = async () => {
     try {
       const response = await getItems();
-      const itemsWithEditingState = response.map((item) => ({
-        ...item,
-        isEditing: false,
-      }));
-      setItems(itemsWithEditingState);
+      setItems(response || []);
     } catch (error) {
       toast.error("Error fetching items!");
       console.error(error);
     }
   };
 
-  const toggleEditing = async (id) => {
-    const itemToEdit = items.find((item) => item._id === id);
-    if (itemToEdit.isEditing) {
-      try {
-        const data = {
-          flavor: itemToEdit.flavor,
-          material: itemToEdit.material,
-          materialdescription: itemToEdit.materialdescription,
-          netweight: itemToEdit.netweight,
-          grossweight: itemToEdit.grossweight,
-          gst: itemToEdit.gst,
-          packaging: itemToEdit.packaging,
-          packsize: itemToEdit.packsize,
-          staticPrice: itemToEdit.staticPrice,
-        };
-        await updateItem(data, id);
-        toast.success("Item updated successfully!");
-        fetchItems();
-      } catch (error) {
-        toast.error("Error updating item!");
-        console.error(error);
-      }
-    } else {
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item._id === id ? { ...item, isEditing: !item.isEditing } : item
-        )
-      );
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const warehouseIds = warehouseOptions.map((warehouse) => warehouse._id);
     try {
-      const formData = {
-        ...form,
-        warehouses: warehouseIds,
-      };
-      const response = await createItem(formData);
+      await createItem(form);
       toast.success("Item added successfully!");
       setForm({
         flavor: "",
@@ -124,390 +77,345 @@ const ItemForm = () => {
         packaging: "box",
         packsize: "",
         staticPrice: "",
-        warehouses: [],
         organization: localStorage.getItem("organizationId"),
       });
       fetchItems();
+      setAddModalOpen(false);
     } catch (error) {
       toast.error("Error adding item!");
       console.error(error);
     } finally {
       setLoading(false);
-      setEditingId(null);
     }
   };
 
-  const handleChange = (e, fieldName) => {
-    if (e && e.target) {
-      const { name, value } = e.target;
-      setForm((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: e,
-      }));
-    }
-  };
-
-  const handleItemChange = (e, id, fieldName) => {
-    let name, value;
-
-    if (e && e.target) {
-      name = e.target.name;
-      value = e.target.value;
-    } else {
-      name = fieldName;
-      value = e;
-    }
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item._id === id
-          ? {
-              ...item,
-              [name]: value,
-            }
-          : item
-      )
-    );
-  };
-
-  const handleDelete = async (id) => {
+  const handleEdit = async () => {
+    setLoading(true);
     try {
-      await deleteItem(id);
-      toast.error("Item deleted successfully!");
+      await updateItem(editingItem, editingItem._id);
+      toast.success("Item updated successfully!");
+      setEditModalOpen(false);
+      fetchItems();
+    } catch (error) {
+      toast.error("Error updating item!");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openDeleteModal = (item) => {
+    setItemToDelete(item);
+    setConfirmationName("");
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteItem(itemToDelete._id);
+      toast.success("Item deleted successfully!");
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
+      setConfirmationName("");
       fetchItems();
     } catch (error) {
       toast.error("Error deleting item!");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Items
-          <span className="text-[1.5rem] text-black">/ Available</span>
-        </h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        <div className="p-10 w-full">
-          {/* Items Table */}
-          <div className="max-w-[1024px] overflow-x-auto mt-8">
-            {items?.length > 0 ? (
-              <table className="min-w-full bg-white table-auto">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 text-start min-w-[250px]">
-                      Item Id
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">Name</th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Flavor
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Material
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">
-                      Net Weight
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">
-                      Gross Weight
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">
-                      GST %
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">
-                      Packaging
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[150px]">
-                      Pack Size
-                    </th>
-                    <th className="py-2 px-4 text-start min-w-[200px]">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items?.map((item) => (
-                    <tr
-                      key={item._id}
-                      className="border border-[#7F7F7F] rounded-md shadow"
-                    >
-                      <td className="py-2 px-2">
-                        <span className="break-all">{item._id}</span>
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="name"
-                            type="text"
-                            value={item.materialdescription}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Material Description"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span className="break-all">{item.materialdescription}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="flavor"
-                            type="text"
-                            value={item.flavor}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Flavor"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.flavor}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="material"
-                            type="text"
-                            value={item.material}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Material"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.material}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="netweight"
-                            type="text"
-                            value={item.netweight}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Net Weight"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.netweight}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="grossweight"
-                            type="text"
-                            value={item.grossweight}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Gross Weight"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.grossweight}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="gst"
-                            type="text"
-                            value={item.gst}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="GST"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.gst}%</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <div className="relative w-full">
-                            <select
-                              name="packaging"
-                              value={item.packaging}
-                              onChange={(value) =>
-                                handleItemChange(value, item._id, "packaging")
-                              }
-                              className="appearance-none w-full bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                            >
-                              <option value="box">Box</option>
-                              <option value="tin">Tin</option>
-                              <option value="jar">Jar</option>
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                              <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                            </div>
-                          </div>
-                        ) : (
-                          <span>{item.packaging}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {item.isEditing ? (
-                          <input
-                            name="packsize"
-                            type="text"
-                            value={item.packsize}
-                            onChange={(e) => handleItemChange(e, item._id)}
-                            required
-                            placeholder="Pack Size"
-                            className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373] w-full"
-                          />
-                        ) : (
-                          <span>{item.packsize}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4 flex gap-2">
-                        <div className="flex gap-1">
-                          {item.isEditing ? (
-                            <button
-                              onClick={() => toggleEditing(item._id)}
-                              className="flex items-center text-sm p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200"
-                            >
-                              <FaCheck />
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => toggleEditing(item._id)}
-                              className="flex items-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                            >
-                              <AiOutlineEdit />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(item._id)}
-                            className="flex items-center p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                          >
-                            <AiOutlineDelete />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <Typography className="text-xl text-center font-bold">
-                No Items!
-              </Typography>
-            )}
+  const openEditModal = (item) => {
+    setEditingItem({ ...item });
+    setEditModalOpen(true);
+  };
+
+  const handleExcelDownload = () => {
+    if (items.length === 0) {
+      toast.error("No items available to download!");
+      return;
+    }
+
+    const data = items.map((item) => ({
+      "Item Name": item.materialdescription,
+      Flavor: item.flavor,
+      Material: item.material,
+      "Net Weight": item.netweight,
+      "Gross Weight": item.grossweight,
+      "GST %": item.gst,
+      Packaging: item.packaging,
+      "Pack Size": item.packsize,
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Items");
+    XLSX.writeFile(workbook, "Items_List.xlsx");
+    toast.success("Items list downloaded successfully!");
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Items List */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <Typography variant="h4" className="font-bold">
+            Items
+          </Typography>
+          <div className="flex gap-4">
+            <Button
+              color="green"
+              onClick={handleExcelDownload}
+              className="flex items-center gap-2"
+            >
+              Download Excel
+            </Button>
+            <Button
+              color="blue"
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              + Add Item
+            </Button>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {items.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white shadow-md rounded-md p-4 border"
+            >
+              <Typography variant="h6" className="font-bold">
+                {item.materialdescription}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Flavor: {item.flavor}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Material: {item.material}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Net Weight: {item.netweight}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Gross Weight: {item.grossweight}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                GST: {item.gst}%
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Packaging: {item.packaging}
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Pack Size: {item.packsize}
+              </Typography>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(item)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => openDeleteModal(item)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Items
-          <span className="text-[1.5rem] text-black">/ Create</span>
-        </h1>
+      {/* Add Item Modal */}
+      <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
+        <DialogHeader>Add Item</DialogHeader>
+        <DialogBody divider>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <Input
+              name="materialdescription"
+              label="Item Name"
+              value={form.materialdescription}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="flavor"
+              label="Flavor"
+              value={form.flavor}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="material"
+              label="Material"
+              value={form.material}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="netweight"
+              label="Net Weight"
+              type="number"
+              value={form.netweight}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="grossweight"
+              label="Gross Weight"
+              type="number"
+              value={form.grossweight}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="gst"
+              label="GST"
+              type="number"
+              value={form.gst}
+              onChange={handleInputChange}
+              required
+            />
+            <Select
+              name="packaging"
+              label="Packaging"
+              value={form.packaging}
+              onChange={(value) =>
+                setForm((prev) => ({ ...prev, packaging: value }))
+              }
+            >
+              <Option value="box">Box</Option>
+              <Option value="tin">Tin</Option>
+              <Option value="jar">Jar</Option>
+            </Select>
+            <Input
+              name="packsize"
+              label="Pack Size"
+              type="number"
+              value={form.packsize}
+              onChange={handleInputChange}
+              required
+            />
+          </form>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="blue" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Spinner /> : "Add Item"}
+          </Button>
+          <Button color="gray" onClick={() => setAddModalOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
-        <div className="p-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex gap-4">
-              {/* <div className="relative w-[200px]">
-                <select
-                  id="warehouse"
-                  name="warehouse"
-                  value={form.warehouse}
-                  onChange={(value) => handleChange(value, "warehouse")}
-                  className="appearance-none w-[200px] bg-white border-2 border-[#CBCDCE] text-[#38454A] px-4 py-[6px] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CBCDCE] cursor-pointer"
-                  required
-                >
-                  <option value="">Select Warehouse</option>
-                  {warehouseOptions?.map((option) => (
-                    <option key={option?._id} value={option?._id}>
-                      {option?.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                </div>
-              </div> */}
-
-              {/* <div className="relative w-[400px]">
-                <Select
-                  name="warehouse"
-                  label="Warehouse"
-                  value={form.warehouse}
-                  onChange={(value) => handleChange(value, "warehouse")}
-                >
-                  <Option value="">Select Warehouse</Option>
-                  {warehouseOptions?.map((option) => (
-                    <Option key={option?._id} value={option?._id}>
-                      {option?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </div> */}
-
+      {/* Edit Item Modal */}
+      {editingItem && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <DialogHeader>Edit Item</DialogHeader>
+          <DialogBody divider>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="materialdescription"
                 label="Item Name"
-                type="text"
-                value={form.materialdescription}
-                onChange={handleChange}
+                value={editingItem.materialdescription}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    materialdescription: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="flavor"
                 label="Flavor"
-                type="text"
-                value={form.flavor}
-                onChange={handleChange}
+                value={editingItem.flavor}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    flavor: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="material"
                 label="Material"
-                type="number"
-                value={form.material}
-                onChange={handleChange}
+                value={editingItem.material}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    material: e.target.value,
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="netweight"
                 label="Net Weight"
                 type="number"
-                value={form.netweight}
-                onChange={handleChange}
+                value={editingItem.netweight}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    netweight: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="grossweight"
                 label="Gross Weight"
                 type="number"
-                value={form.grossweight}
-                onChange={handleChange}
+                value={editingItem.grossweight}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    grossweight: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="gst"
                 label="GST"
                 type="number"
-                value={form.gst}
-                onChange={handleChange}
+                value={editingItem.gst}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    gst: e.target.value,
+                  }))
+                }
                 required
               />
-            </div>
-            <div className="flex gap-4">
               <Select
                 name="packaging"
                 label="Packaging"
-                value={form.packaging}
-                onChange={(value) => handleChange(value, "packaging")}
+                value={editingItem.packaging}
+                onChange={(value) =>
+                  setEditingItem((prev) => ({ ...prev, packaging: value }))
+                }
               >
                 <Option value="box">Box</Option>
                 <Option value="tin">Tin</Option>
@@ -517,24 +425,84 @@ const ItemForm = () => {
                 name="packsize"
                 label="Pack Size"
                 type="number"
-                value={form.packsize}
-                onChange={handleChange}
+                value={editingItem.packsize}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    packsize: e.target.value,
+                  }))
+                }
                 required
               />
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+              {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+        <DialogHeader className="text-red-500">Confirm Item Deletion</DialogHeader>
+        <DialogBody divider>
+          <div className="space-y-4">
+            <Typography className="text-gray-800 font-medium">
+              Are you sure you want to delete this item?
+            </Typography>
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <Typography className="text-yellow-700 font-medium mb-2">
+                Warning: The following data will be permanently deleted:
+              </Typography>
+              <ul className="list-disc list-inside text-yellow-700 space-y-1">
+                <li>Item profile and details</li>
+                <li>Associated inventory records</li>
+                <li>Linked transactions</li>
+              </ul>
             </div>
-            <div className="flex">
-              <Button
-                color="blue"
-                type="submit"
-                className="flex items-center justify-center"
-              >
-                {loading ? <Spinner /> : <span>Add Item</span>}
-              </Button>
+            <div className="bg-gray-50 p-4 rounded">
+              <Typography className="text-gray-700 mb-2">
+                To confirm deletion, please type the item name:
+                <span className="font-bold text-red-500"> {itemToDelete?.materialdescription}</span>
+              </Typography>
+              <Input
+                type="text"
+                label="Type item name to confirm"
+                value={confirmationName}
+                onChange={(e) => setConfirmationName(e.target.value)}
+                className="mt-2"
+                color="red"
+              />
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </div>
+        </DialogBody>
+        <DialogFooter className="space-x-2">
+          <Button
+            color="red"
+            onClick={handleDelete}
+            disabled={confirmationName !== itemToDelete?.materialdescription}
+            className="flex items-center gap-2"
+          >
+            {loading ? <Spinner /> : "Delete Permanently"}
+          </Button>
+          <Button
+            color="gray"
+            onClick={() => {
+              setDeleteModalOpen(false);
+              setItemToDelete(null);
+              setConfirmationName("");
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
+    </div>
   );
 };
 

@@ -1,22 +1,22 @@
 import {
   Button,
   Input,
-  Spinner,
-  IconButton,
   Typography,
+  Spinner,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
-// api services
+import { utils, writeFile } from "xlsx";
 import {
   createManufacturer,
   deleteManufacturer,
   getManufacturer,
   updateManufacturer,
 } from "@/services/masterService";
-
-// icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
 const ManufacturerForm = () => {
@@ -35,7 +35,13 @@ const ManufacturerForm = () => {
     manufacturerGstno: "",
     organization: localStorage.getItem("organizationId"),
   });
-  const [editingId, setEditingId] = useState(null);
+  const [editingManufacturer, setEditingManufacturer] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  // New states for delete confirmation
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [manufacturerToDelete, setManufacturerToDelete] = useState(null);
+  const [confirmationName, setConfirmationName] = useState("");
 
   useEffect(() => {
     fetchManufacturers();
@@ -44,48 +50,9 @@ const ManufacturerForm = () => {
   const fetchManufacturers = async () => {
     try {
       const response = await getManufacturer();
-      const manufatcurersWithEditingState = response?.map((man) => ({
-        ...man,
-        isEditing: false,
-      }));
-      setManufacturer(manufatcurersWithEditingState);
+      setManufacturer(response || []);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
-      console.error(error);
-    }
-  };
-
-  const toggleEditing = async (id) => {
-    const manToEdit = manufacturer.find((man) => man._id === id);
-    if (manToEdit.isEditing) {
-      try {
-        const data = {
-          manufacturer: manToEdit.manufacturer,
-          manufacturerCompany: manToEdit.manufacturerCompany,
-          manufacturerdeliveryAddress: {
-            addressLine1: manToEdit.manufacturerdeliveryAddress?.addressLine1,
-            addressLine2: manToEdit.manufacturerdeliveryAddress?.addressLine2,
-            city: manToEdit.manufacturerdeliveryAddress?.city,
-            state: manToEdit.manufacturerdeliveryAddress?.state,
-            pinCode: manToEdit.manufacturerdeliveryAddress?.pinCode,
-          },
-          manufacturerContact: manToEdit.manufacturerContact,
-          manufacturerEmail: manToEdit.manufacturerEmail,
-          manufacturerGstno: manToEdit.manufacturerGstno,
-        };
-        await updateManufacturer(data, id);
-        toast.success("Manufacturer updated successfully!");
-        fetchManufacturers();
-      } catch (error) {
-        toast.error("Error updating manufacturer!");
-        console.error(error);
-      }
-    } else {
-      setManufacturer((prevManufacturer) =>
-        prevManufacturer.map((man) =>
-          man._id === id ? { ...man, isEditing: !man.isEditing } : man
-        )
-      );
     }
   };
 
@@ -93,7 +60,7 @@ const ManufacturerForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await createManufacturer({
+      const newManufacturer = {
         manufacturer: form.manufacturer,
         manufacturerCompany: form.manufacturerCompany,
         manufacturerdeliveryAddress: {
@@ -107,8 +74,9 @@ const ManufacturerForm = () => {
         manufacturerEmail: form.manufacturerEmail,
         manufacturerGstno: form.manufacturerGstno,
         organization: form.organization,
-      });
-      console.log(response);
+      };
+
+      await createManufacturer(newManufacturer);
       toast.success("Manufacturer added successfully!");
       setForm({
         manufacturer: "",
@@ -124,385 +92,471 @@ const ManufacturerForm = () => {
         organization: localStorage.getItem("organizationId"),
       });
       fetchManufacturers();
+      setAddModalOpen(false);
     } catch (error) {
       toast.error("Error adding manufacturer!");
-      console.error(error);
     } finally {
       setLoading(false);
-      setEditingId(null);
     }
   };
 
-  const handleChange = (e, fieldName) => {
-    if (e && e.target) {
-      const { name, value } = e.target;
-      setForm((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    } else {
-      setForm((prevData) => ({
-        ...prevData,
-        [fieldName]: e,
-      }));
-    }
-  };
-
-  const handleItemChange = (e, id) => {
-    const { name, value } = e.target;
-
-    setManufacturer((prevManufacturer) =>
-      prevManufacturer.map((man) => {
-        if (man._id === id) {
-          if (name.startsWith("manufacturerdeliveryAddress.")) {
-            const addressField = name.split(".")[1];
-            return {
-              ...man,
-              manufacturerdeliveryAddress: {
-                ...man.manufacturerdeliveryAddress,
-                [addressField]: value,
-              },
-            };
-          } else {
-            return {
-              ...man,
-              [name]: value,
-            };
-          }
-        }
-        return man;
-      })
-    );
-  };
-
-  const handleDelete = async (id) => {
+  const handleEdit = async () => {
+    setLoading(true);
     try {
-      await deleteManufacturer(id);
-      toast.error("Manufacturer deleted successfully!");
+      await updateManufacturer(editingManufacturer, editingManufacturer._id);
+      toast.success("Manufacturer updated successfully!");
+      setEditModalOpen(false);
+      fetchManufacturers();
+    } catch (error) {
+      toast.error("Error updating manufacturer!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Modified delete handling
+  const openDeleteModal = (man) => {
+    setManufacturerToDelete(man);
+    setConfirmationName("");
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteManufacturer(manufacturerToDelete._id);
+      toast.success("Manufacturer deleted successfully!");
+      setDeleteModalOpen(false);
+      setManufacturerToDelete(null);
+      setConfirmationName("");
       fetchManufacturers();
     } catch (error) {
       toast.error("Error deleting manufacturer!");
-      console.error(error);
     }
   };
 
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Manufacturer
-          <span className="text-[1.5rem] text-black">/ Available</span>
-        </h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        <div className="p-10 w-full">
-          {/* Manufacturers Table */}
-          <div className="max-w-[1024px] overflow-x-auto mt-8">
-            {manufacturer?.length > 0 ? (
-              <table className="min-w-full bg-white table-auto">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Manufacturer Name
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Company
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Address
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Contact
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Email
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      GST Number
-                    </th>
-                    <th className="py-2 px-2 text-start min-w-[200px]">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {manufacturer?.map((man) => (
-                    <tr
-                      key={man._id}
-                      className="border border-[#7F7F7F] rounded-md shadow"
-                    >
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <input
-                            name="manufacturer"
-                            type="text"
-                            placeholder="Manufacturer Name"
-                            value={man.manufacturer}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, man._id)}
-                          />
-                        ) : (
-                          <span>{man.manufacturer}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <input
-                            name="manufacturerCompany"
-                            type="text"
-                            placeholder="Manufacturer Company"
-                            value={man.manufacturerCompany}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, man._id)}
-                          />
-                        ) : (
-                          <span>{man.manufacturerCompany}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <div className="flex flex-col gap-1">
-                            <input
-                              name="manufacturerdeliveryAddress.addressLine1"
-                              type="text"
-                              placeholder="Address Line 1"
-                              value={
-                                man.manufacturerdeliveryAddress?.addressLine1
-                              }
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, man._id)}
-                            />
-                            <input
-                              name="manufacturerdeliveryAddress.addressLine2"
-                              type="text"
-                              placeholder="Address Line 2"
-                              value={
-                                man.manufacturerdeliveryAddress?.addressLine2
-                              }
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, man._id)}
-                            />
-                            <input
-                              name="manufacturerdeliveryAddress.city"
-                              type="text"
-                              placeholder="City"
-                              value={man.manufacturerdeliveryAddress?.city}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, man._id)}
-                            />
-                            <input
-                              name="manufacturerdeliveryAddress.state"
-                              type="text"
-                              placeholder="State"
-                              value={man.manufacturerdeliveryAddress?.state}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, man._id)}
-                            />
-                            <input
-                              name="manufacturerdeliveryAddress.pinCode"
-                              type="text"
-                              placeholder="Pincode"
-                              value={man.manufacturerdeliveryAddress?.pinCode}
-                              className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                              onChange={(e) => handleItemChange(e, man._id)}
-                            />
-                          </div>
-                        ) : (
-                          <span>
-                            {man.manufacturerdeliveryAddress?.addressLine1}{" "}
-                            {man.manufacturerdeliveryAddress?.addressLine2}{" "}
-                            {man.manufacturerdeliveryAddress?.city}{" "}
-                            {man.manufacturerdeliveryAddress?.state}{" "}
-                            {man.manufacturerdeliveryAddress?.pinCode}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <input
-                            name="manufacturerContact"
-                            type="text"
-                            placeholder="Manufacturer Contact'"
-                            value={man.manufacturerContact}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, man._id)}
-                          />
-                        ) : (
-                          <span>{man.manufacturerContact}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <input
-                            name="manufacturerEmail"
-                            type="email"
-                            placeholder="Manufacturer Email"
-                            value={man.manufacturerEmail}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, man._id)}
-                          />
-                        ) : (
-                          <span className="break-words">
-                            {man.manufacturerEmail}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 px-2">
-                        {man.isEditing ? (
-                          <input
-                            name="manufacturerGstno"
-                            type="text"
-                            placeholder="Manufacturer GST No."
-                            value={man.manufacturerGstno}
-                            className="border border-gray-400 px-2 py-1 rounded-[4px] w-full"
-                            onChange={(e) => handleItemChange(e, man._id)}
-                          />
-                        ) : (
-                          <span>{man.manufacturerGstno}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-4 flex gap-2">
-                        {man.isEditing ? (
-                          <IconButton
-                            color="green"
-                            onClick={() => toggleEditing(man._id)}
-                          >
-                            Save
-                          </IconButton>
-                        ) : (
-                          <button
-                            onClick={() => toggleEditing(man._id)}
-                            className="flex items-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                          >
-                            <AiOutlineEdit />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(man._id)}
-                          className="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-                        >
-                          <AiOutlineDelete />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <Typography className="text-xl text-center font-bold">
-                No Manufacturers!
-              </Typography>
-            )}
-          </div>
+  const openEditModal = (manufacturer) => {
+    setEditingManufacturer({ ...manufacturer });
+    setEditModalOpen(true);
+  };
+
+  const handleDownloadExcel = () => {
+    if (manufacturer.length === 0) {
+      toast.error("No manufacturers available to download!");
+      return;
+    }
+
+    const excelData = manufacturer.map((man) => ({
+      Name: man.manufacturer,
+      Company: man.manufacturerCompany,
+      Address: `${man.manufacturerdeliveryAddress?.addressLine1 || ""}, ${
+        man.manufacturerdeliveryAddress?.addressLine2 || ""
+      }, ${man.manufacturerdeliveryAddress?.city || ""}, ${
+        man.manufacturerdeliveryAddress?.state || ""
+      }, ${man.manufacturerdeliveryAddress?.pinCode || ""}`,
+      Contact: man.manufacturerContact,
+      Email: man.manufacturerEmail,
+      GST: man.manufacturerGstno,
+    }));
+
+    const ws = utils.json_to_sheet(excelData);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, "Manufacturers");
+
+    writeFile(wb, "manufacturers.xlsx");
+    toast.success("Excel file downloaded!");
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-6">
+        <Typography variant="h4" className="font-bold">
+          Manufacturers
+        </Typography>
+        <div className="flex gap-4">
+          <Button
+            color="green"
+            onClick={handleDownloadExcel}
+            className="flex items-center gap-2"
+          >
+            Download Excel
+          </Button>
+          <Button
+            color="blue"
+            onClick={() => setAddModalOpen(true)}
+            className="flex items-center gap-2"
+          >
+            + Add Manufacturer
+          </Button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border-2 border-[#929292] mb-8">
-        <h1 className="text-[1.1rem] text-[#636363] px-8 py-2 border-b-2 border-b-[#929292]">
-          Manufacturer
-          <span className="text-[1.5rem] text-black">/ Create</span>
-        </h1>
+      {/* Manufacturers List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {manufacturer.length > 0 ? (
+          manufacturer.map((man) => (
+            <div
+              key={man._id}
+              className="bg-white shadow-md rounded-md p-4 border border-gray-200"
+            >
+              <Typography variant="h6" className="font-bold mb-2">
+                {man.manufacturer}
+              </Typography>
+              <Typography className="text-gray-600">
+                <strong>Company:</strong> {man.manufacturerCompany}
+              </Typography>
+              <Typography className="text-gray-600">
+                <strong>Address:</strong> {man.manufacturerdeliveryAddress?.addressLine1},{" "}
+                {man.manufacturerdeliveryAddress?.addressLine2},{" "}
+                {man.manufacturerdeliveryAddress?.city},{" "}
+                {man.manufacturerdeliveryAddress?.state},{" "}
+                {man.manufacturerdeliveryAddress?.pinCode}
+              </Typography>
+              <Typography className="text-gray-600">
+                <strong>Contact:</strong> {man.manufacturerContact}
+              </Typography>
+              <Typography className="text-gray-600">
+                <strong>Email:</strong> {man.manufacturerEmail}
+              </Typography>
+              <Typography className="text-gray-600">
+                <strong>GST:</strong> {man.manufacturerGstno}
+              </Typography>
+              <div className="flex justify-end mt-4 gap-2">
+                <Button
+                  color="blue"
+                  size="sm"
+                  onClick={() => openEditModal(man)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineEdit /> Edit
+                </Button>
+                <Button
+                  color="red"
+                  size="sm"
+                  onClick={() => openDeleteModal(man)}
+                  className="flex items-center gap-1"
+                >
+                  <AiOutlineDelete /> Delete
+                </Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <Typography className="text-center text-gray-600 col-span-full">
+            No manufacturers available.
+          </Typography>
+        )}
+      </div>
 
-        <div className="p-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex gap-4">
+      {/* Add Manufacturer Modal */}
+      <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
+        <DialogHeader>Add Manufacturer</DialogHeader>
+        <DialogBody divider>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              name="manufacturer"
+              label="Manufacturer Name"
+              value={form.manufacturer}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="manufacturerCompany"
+              label="Company Name"
+              value={form.manufacturerCompany}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="addressLine1"
+              label="Address Line 1"
+              value={form.addressLine1}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="addressLine2"
+              label="Address Line 2"
+              value={form.addressLine2}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="city"
+              label="City"
+              value={form.city}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="state"
+              label="State"
+              value={form.state}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="pinCode"
+              label="Pin Code"
+              value={form.pinCode}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="manufacturerContact"
+              label="Contact"
+              value={form.manufacturerContact}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="manufacturerEmail"
+              label="Email"
+              type="email"
+              value={form.manufacturerEmail}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="manufacturerGstno"
+              label="GST Number"
+              value={form.manufacturerGstno}
+              onChange={handleInputChange}
+            />
+          </form>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="blue" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Spinner /> : "Add Manufacturer"}
+          </Button>
+          <Button color="gray" onClick={() => setAddModalOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Edit Manufacturer Modal */}
+      {editingManufacturer && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <DialogHeader>Edit Manufacturer</DialogHeader>
+          <DialogBody divider>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="manufacturer"
                 label="Manufacturer Name"
-                type="text"
-                value={form.manufacturer}
-                onChange={handleChange}
+                value={editingManufacturer.manufacturer}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturer: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="manufacturerCompany"
                 label="Company Name"
-                type="text"
-                value={form.manufacturerCompany}
-                onChange={handleChange}
+                value={editingManufacturer.manufacturerCompany}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerCompany: e.target.value,
+                  }))
+                }
                 required
               />
               <Input
                 name="addressLine1"
                 label="Address Line 1"
-                type="text"
-                value={form.addressLine1}
-                onChange={handleChange}
-                required
+                value={
+                  editingManufacturer.manufacturerdeliveryAddress?.addressLine1
+                }
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerdeliveryAddress: {
+                      ...prev.manufacturerdeliveryAddress,
+                      addressLine1: e.target.value,
+                    },
+                  }))
+                }
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="addressLine2"
                 label="Address Line 2"
-                type="text"
-                value={form.addressLine2}
-                onChange={handleChange}
+                value={
+                  editingManufacturer.manufacturerdeliveryAddress?.addressLine2
+                }
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerdeliveryAddress: {
+                      ...prev.manufacturerdeliveryAddress,
+                      addressLine2: e.target.value,
+                    },
+                  }))
+                }
               />
               <Input
                 name="city"
                 label="City"
-                type="text"
-                value={form.city}
-                onChange={handleChange}
-                required
+                value={editingManufacturer.manufacturerdeliveryAddress?.city}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerdeliveryAddress: {
+                      ...prev.manufacturerdeliveryAddress,
+                      city: e.target.value,
+                    },
+                  }))
+                }
               />
               <Input
                 name="state"
                 label="State"
-                type="text"
-                value={form.state}
-                onChange={handleChange}
-                required
+                value={editingManufacturer.manufacturerdeliveryAddress?.state}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerdeliveryAddress: {
+                      ...prev.manufacturerdeliveryAddress,
+                      state: e.target.value,
+                    },
+                  }))
+                }
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="pinCode"
                 label="Pin Code"
-                type="text"
-                value={form.pinCode}
-                onChange={handleChange}
-                required
+                value={editingManufacturer.manufacturerdeliveryAddress?.pinCode}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerdeliveryAddress: {
+                      ...prev.manufacturerdeliveryAddress,
+                      pinCode: e.target.value,
+                    },
+                  }))
+                }
               />
               <Input
                 name="manufacturerContact"
-                label="Contact Number"
-                type="text"
-                value={form.manufacturerContact}
-                onChange={handleChange}
-                required
+                label="Contact"
+                value={editingManufacturer.manufacturerContact}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerContact: e.target.value,
+                  }))
+                }
               />
               <Input
                 name="manufacturerEmail"
                 label="Email"
-                type="email"
-                value={form.manufacturerEmail}
-                onChange={handleChange}
-                required
+                value={editingManufacturer.manufacturerEmail}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerEmail: e.target.value,
+                  }))
+                }
               />
-            </div>
-            <div className="flex gap-4">
               <Input
                 name="manufacturerGstno"
                 label="GST Number"
+                value={editingManufacturer.manufacturerGstno}
+                onChange={(e) =>
+                  setEditingManufacturer((prev) => ({
+                    ...prev,
+                    manufacturerGstno: e.target.value,
+                  }))
+                }
+              />
+            </form>
+          </DialogBody>
+          <DialogFooter>
+            <Button color="blue" onClick={handleEdit} disabled={loading}>
+            {loading ? <Spinner /> : "Save Changes"}
+            </Button>
+            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+        <DialogHeader className="text-red-500">
+          Confirm Manufacturer Deletion
+        </DialogHeader>
+        <DialogBody divider>
+          <div className="space-y-4">
+            <Typography className="text-gray-800 font-medium">
+              Are you sure you want to delete this manufacturer?
+            </Typography>
+            
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <Typography className="text-yellow-700 font-medium mb-2">
+                Warning: The following data will be permanently deleted:
+              </Typography>
+              <ul className="list-disc list-inside text-yellow-700 space-y-1">
+                <li>Manufacturer profile and contact information</li>
+                <li>All associated purchase orders and history</li>
+                <li>Related inventory records</li>
+                <li>Payment and transaction records</li>
+                <li>Product associations and specifications</li>
+              </ul>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded">
+              <Typography className="text-gray-700 mb-2">
+                To confirm deletion, please type the manufacturer name:
+                <span className="font-bold text-red-500">
+                  {" "}
+                  {manufacturerToDelete?.manufacturer}
+                </span>
+              </Typography>
+              <Input
                 type="text"
-                value={form.manufacturerGstno}
-                onChange={handleChange}
+                label="Type manufacturer name to confirm"
+                value={confirmationName}
+                onChange={(e) => setConfirmationName(e.target.value)}
+                className="mt-2"
+                color="red"
               />
             </div>
-            <div className="flex gap-4">
-              <Button
-                color="blue"
-                type="submit"
-                className="flex items-center justify-center"
-              >
-                {loading ? <Spinner /> : <span>Add Manufacturer</span>}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </div>
+        </DialogBody>
+        <DialogFooter className="space-x-2">
+          <Button
+            color="red"
+            onClick={handleDelete}
+            disabled={confirmationName !== manufacturerToDelete?.manufacturer}
+            className="flex items-center gap-2"
+          >
+            {loading ? <Spinner /> : "Delete Permanently"}
+          </Button>
+          <Button 
+            color="gray" 
+            onClick={() => {
+              setDeleteModalOpen(false);
+              setConfirmationName("");
+              setManufacturerToDelete(null);
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
+      </Dialog>
+    </div>
   );
 };
 

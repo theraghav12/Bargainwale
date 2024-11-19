@@ -10,7 +10,7 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 
-import BargainwaleIcon from "@/assets/logo.png";
+import BargainwaleIcon from "@/assets/logo.svg";
 import WhatsappIcon from "@/assets/whatsapp_icon.svg";
 import GmailIcon from "@/assets/gmail_icon.svg";
 import BitbucketIcon from "@/assets/bitbucket_icon.svg";
@@ -18,7 +18,6 @@ import EmailIcon from "@/assets/google_icon.svg";
 import GithubIcon from "@/assets/github_icon.svg";
 import FirebaseIcon from "@/assets/firebase_icon.svg";
 
-// icons
 import {
   Bars3Icon,
   BuildingOfficeIcon,
@@ -37,6 +36,7 @@ export function DashboardNavbar() {
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { user, isSignedIn } = useUser();
   const { organization } = useOrganization();
   const navigate = useNavigate();
@@ -73,8 +73,10 @@ export function DashboardNavbar() {
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
     } else if (document.exitFullscreen) {
       document.exitFullscreen();
+      setIsFullscreen(false);
     }
   };
 
@@ -82,7 +84,6 @@ export function DashboardNavbar() {
     const interval = setInterval(() => {
       setLastSyncTime((prevTime) => prevTime + 1);
     }, 60000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -95,204 +96,116 @@ export function DashboardNavbar() {
   }, [organization, navigate]);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth/sign-in");
-    }
+    if (!user) navigate("/auth/sign-in");
   }, [user]);
 
   useEffect(() => {
-    if (!localStorage.getItem("clerk_active_org")) {
+    if (!localStorage.getItem("clerk_active_org") || !isSignedIn) {
       localStorage.removeItem("organizationId");
       localStorage.removeItem("isFirstLoad");
     }
-    if (!isSignedIn) {
-      localStorage.removeItem("organizationId");
-      localStorage.removeItem("isFirstLoad");
-    }
-  }, [isSignedIn, navigate]);
+  }, [isSignedIn]);
+
+  const AppButton = ({ icon, name, url }) => (
+    <button
+      className="flex flex-col items-center p-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:scale-105"
+      onClick={() => window.open(url, "_blank")}
+    >
+      <img src={icon} alt={name} className="h-6 w-6 mb-1" />
+      <span className="text-xs font-medium text-gray-700">{name}</span>
+    </button>
+  );
 
   return (
     <>
       <Navbar
-        color="#183EC2"
-        className="bg-gradient-to-b from-[#183EC2] to-[#0B1D5C] fixed top-0 left-0 right-0 z-[1050] py-3 shadow-2xl shadow-blue-gray-500/50"
+        color="white"
+        className="fixed top-0 left-0 right-0 z-[1050] bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg"
         fullWidth
         blurred
       >
-        <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
+        <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center px-4">
           <div className="flex items-center gap-16">
-            <Link to={`/${layout}`}>
-              <img
-                src={BargainwaleIcon}
-                alt="Bargainwale"
-                className="h-8 w-auto px-8"
-              />
+            {/* Enhanced Logo Section */}
+            <Link 
+              to={`/${layout}`} 
+              className="flex items-center group relative overflow-hidden"
+            >
+              <div className="relative flex items-center">
+                <img
+                  src={BargainwaleIcon}
+                  alt="Logo"
+                  className="h-8 md:h-10 w-auto object-contain transition-all duration-300 
+                           group-hover:transform group-hover:scale-105"
+                />
+                {/* Logo Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+                              translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+              {/* Optional: Add your company name next to logo */}
+              <span className="ml-3 text-white font-semibold text-lg hidden md:block
+                             transition-colors duration-300 group-hover:text-blue-200">
+                Bargainwale
+              </span>
             </Link>
-            {/* Tabs Section */}
-            <div className="flex gap-6">
-              <Link
-                to="/docs"
-                className="text-md font-medium text-white hover:text-blue-300 transition-colors"
-              >
-                Docs
-              </Link>
-              <Link
-                to="/our-process"
-                className="text-md font-medium text-white hover:text-blue-300 transition-colors"
-              >
-                Tutorial
-              </Link>
+
+            {/* Enhanced Navigation Links */}
+            <div className="hidden md:flex gap-8">
+              <NavLink to="/docs" label="Documentation" />
+              <NavLink to="/tutorial" label="Tutorial" />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 relative">
-            <IconButton
-              variant="text"
-              color="white"
-              className="grid sm:hidden"
-              onClick={() => setOpenSidenav(dispatch, !openSidenav)}
-            >
-              <Bars3Icon strokeWidth={3} className="h-6 w-6 text-white" />
-            </IconButton>
-
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-4 relative">
             <SignedIn>
+              {/* Sync Button with Enhanced Animation */}
               <button
                 onClick={handleSync}
-                className="flex items-center gap-2 px-3 py-2 border rounded-full text-black border-gray-300 bg-white hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-4 py-2 rounded-full 
+                         bg-gradient-to-r from-white/10 to-white/20 hover:from-white/15 hover:to-white/25
+                         transition-all duration-300 text-white backdrop-blur-sm
+                         transform hover:scale-105 active:scale-95"
               >
-                <ArrowPathIcon className="h-5 w-5 text-black" />
-                <span className="text-sm">Sync {lastSyncTime} mins ago</span>
+                <ArrowPathIcon className="h-4 w-4" />
+                <span className="text-sm font-medium">{`Sync ${lastSyncTime}m ago`}</span>
               </button>
 
-              <IconButton
-                variant="text"
-                color="white"
-                onClick={toggleFullScreen}
-              >
-                <ArrowsPointingOutIcon className="h-6 w-6 text-white" />
-              </IconButton>
-
-              <IconButton variant="text" color="white" onClick={toggleAppMenu}>
-                <Squares2X2Icon className="h-6 w-6 text-white" />
-              </IconButton>
-
-              {/* Web Apps Dropdown */}
-              {showAppMenu && (
-                <div
-                  style={{ zIndex: 1100 }}
-                  className="absolute top-12 right-0 bg-white p-4 rounded-md shadow-2xl w-72"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold text-gray-700">
-                      Web Apps
-                    </h3>
-                    <button className="text-blue-500 text-sm hover:underline">
-                      View all
-                    </button>
-                  </div>
-                  <div className="border-t border-gray-300 mb-4"></div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() =>
-                        window.open("https://web.whatsapp.com", "_blank")
-                      }
-                    >
-                      <img
-                        src={WhatsappIcon}
-                        alt="WhatsApp"
-                        className="h-6 w-6"
-                      />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        WhatsApp
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() =>
-                        window.open("https://mail.google.com", "_blank")
-                      }
-                    >
-                      <img src={GmailIcon} alt="Gmail" className="h-6 w-6" />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        Gmail
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() =>
-                        window.open("https://bitbucket.org", "_blank")
-                      }
-                    >
-                      <img
-                        src={BitbucketIcon}
-                        alt="Bitbucket"
-                        className="h-6 w-6"
-                      />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        Bitbucket
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() => window.open("https://mail.com", "_blank")}
-                    >
-                      <img src={EmailIcon} alt="Email" className="h-6 w-6" />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        Email
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() =>
-                        window.open("https://github.com", "_blank")
-                      }
-                    >
-                      <img src={GithubIcon} alt="GitHub" className="h-6 w-6" />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        GitHub
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center p-4 cursor-pointer hover:bg-gray-100 rounded-md"
-                      onClick={() =>
-                        window.open("https://firebase.google.com", "_blank")
-                      }
-                    >
-                      <img
-                        src={FirebaseIcon}
-                        alt="Firebase"
-                        className="h-6 w-6"
-                      />
-                      <span className="text-[12px] font-medium text-gray-700 p-1">
-                        Firebase
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <UserButton
-                afterSignOutUrl="/auth/sign-in"
-                signOutCallback={handleSignOut}
+              {/* Action Buttons */}
+              <ActionButtons 
+                isFullscreen={isFullscreen}
+                toggleFullScreen={toggleFullScreen}
+                toggleAppMenu={toggleAppMenu}
+                handleOpenOrgProfile={handleOpenOrgProfile}
               />
-              <IconButton
-                variant="text"
-                color="white"
-                onClick={handleOpenOrgProfile}
-              >
-                <BuildingOfficeIcon className="h-6 w-6 text-white" />
-              </IconButton>
+
+              {/* User Profile Button */}
+              <div className="relative group">
+                <UserButton
+                  afterSignOutUrl="/auth/sign-in"
+                  signOutCallback={handleSignOut}
+                  appearance={{
+                    elements: {
+                      avatarBox: "hover:scale-105 transition-transform duration-200"
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Enhanced Apps Menu */}
+              {showAppMenu && (
+                <AppsMenu onClose={() => setShowAppMenu(false)} />
+              )}
             </SignedIn>
           </div>
         </div>
       </Navbar>
 
+      {/* Dialogs and Modals */}
       <Dialog
         open={openOrgProfile}
         handler={handleOpenOrgProfile}
-        size="lg"
-        className="p-5 z-[1200]"
+        className="bg-white rounded-xl shadow-xl max-w-2xl mx-auto"
       >
         <OrganizationProfile />
       </Dialog>
@@ -300,6 +213,106 @@ export function DashboardNavbar() {
   );
 }
 
-DashboardNavbar.displayName = "/src/widgets/layout/dashboard-navbar.jsx";
+// New Component: Navigation Link
+const NavLink = ({ to, label }) => (
+  <Link
+    to={to}
+    className="relative group text-white text-sm font-medium hover:text-blue-200 
+               transition-colors duration-200 py-2"
+  >
+    {label}
+    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-200 
+                    transition-all duration-300 group-hover:w-full" />
+  </Link>
+);
+
+// New Component: Action Buttons
+const ActionButtons = ({ isFullscreen, toggleFullScreen, toggleAppMenu, handleOpenOrgProfile }) => {
+  const buttons = [
+    {
+      icon: <ArrowsPointingOutIcon className="h-5 w-5" />,
+      onClick: toggleFullScreen,
+      tooltip: isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen",
+    },
+    {
+      icon: <Squares2X2Icon className="h-5 w-5" />,
+      onClick: toggleAppMenu,
+      tooltip: "Quick Access",
+    },
+    {
+      icon: <BuildingOfficeIcon className="h-5 w-5" />,
+      onClick: handleOpenOrgProfile,
+      tooltip: "Organization Settings",
+    },
+  ];
+
+  return (
+    <div className="flex gap-2">
+      {buttons.map((btn, idx) => (
+        <div key={idx} className="relative group">
+          <IconButton
+            variant="text"
+            color="white"
+            onClick={btn.onClick}
+            className="hover:bg-white/10 transition-all duration-200 
+                     transform hover:scale-105 active:scale-95"
+          >
+            {btn.icon}
+          </IconButton>
+          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 
+                         whitespace-nowrap bg-gray-900 text-white text-xs 
+                         px-2 py-1 rounded opacity-0 group-hover:opacity-100 
+                         transition-opacity duration-200 pointer-events-none">
+            {btn.tooltip}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// New Component: Apps Menu
+const AppsMenu = ({ onClose }) => {
+  const apps = [
+    { icon: WhatsappIcon, name: "WhatsApp", url: "https://web.whatsapp.com" },
+    { icon: GmailIcon, name: "Gmail", url: "https://mail.google.com" },
+    { icon: BitbucketIcon, name: "Bitbucket", url: "https://bitbucket.org" },
+    { icon: EmailIcon, name: "Email", url: "https://mail.com" },
+    { icon: GithubIcon, name: "GitHub", url: "https://github.com" },
+    { icon: FirebaseIcon, name: "Firebase", url: "https://firebase.google.com" },
+  ];
+
+  return (
+    <div className="absolute top-16 right-0 bg-white rounded-xl shadow-2xl w-80 p-4 
+                    transform transition-all duration-300 ease-out animate-fadeIn">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">Quick Access</h3>
+        <button className="text-blue-600 text-sm hover:underline">View all</button>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {apps.map((app, idx) => (
+          <button
+            key={idx}
+            className="flex flex-col items-center p-3 rounded-lg 
+                     transition-all duration-200 hover:bg-blue-50 
+                     hover:scale-105 group"
+            onClick={() => window.open(app.url, "_blank")}
+          >
+            <img 
+              src={app.icon} 
+              alt={app.name} 
+              className="h-6 w-6 mb-1 transition-transform 
+                       duration-200 group-hover:scale-110" 
+            />
+            <span className="text-xs font-medium text-gray-700 
+                          group-hover:text-blue-600">
+              {app.name}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default DashboardNavbar;

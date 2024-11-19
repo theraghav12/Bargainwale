@@ -1,18 +1,21 @@
 import PropTypes from "prop-types";
 import { useMaterialTailwindController } from "@/context";
+import { FiHome, FiBox, FiTruck, FiUsers, FiSettings } from "react-icons/fi";
 
 export function MasterSidenav({ onSelect }) {
   const [controller] = useMaterialTailwindController();
   const { sidenavType } = controller;
+
   const sidenavTypes = {
-    dark: "bg-gradient-to-br from-gray-800 to-gray-900",
-    white: "bg-white shadow-sm",
-    transparent: "bg-transparent",
+    dark: "bg-gray-900 text-white border-gray-700",
+    white: "bg-white text-gray-800 border-gray-300 shadow-lg",
+    transparent: "bg-transparent text-gray-700 border-gray-300",
   };
 
   const sidenavData = [
     {
       heading: "Warehouse",
+      icon: <FiHome />,
       links: [
         { title: "Warehouse available", link: "warehouse" },
         { title: "Create warehouse", link: "warehouse" },
@@ -20,6 +23,7 @@ export function MasterSidenav({ onSelect }) {
     },
     {
       heading: "Items",
+      icon: <FiBox />,
       links: [
         { title: "Items available", link: "addItems" },
         { title: "Add Item", link: "addItems" },
@@ -27,6 +31,7 @@ export function MasterSidenav({ onSelect }) {
     },
     {
       heading: "Transportation",
+      icon: <FiTruck />,
       links: [
         { title: "Transport available", link: "addTransportation" },
         { title: "Add transport", link: "addTransportation" },
@@ -34,6 +39,7 @@ export function MasterSidenav({ onSelect }) {
     },
     {
       heading: "Buyers",
+      icon: <FiUsers />,
       links: [
         { title: "Buyers available", link: "addBuyer" },
         { title: "Add buyer", link: "addBuyer" },
@@ -41,50 +47,58 @@ export function MasterSidenav({ onSelect }) {
     },
     {
       heading: "Manufacturer",
+      icon: <FiSettings />,
       links: [
         { title: "Manufacturer available", link: "addManufacturer" },
         { title: "Add manufacturer", link: "addManufacturer" },
       ],
     },
-    // Additional items if needed...
   ];
 
   return (
-    <>
-      <aside
-        className={`${sidenavTypes[sidenavType]} flex flex-col w-full h-[70vh] rounded-md border border-blue-gray-200`}
-      >
-        <div className="my-4 text-center">
-          <h1 className="text-[1.3rem] font-bold mt-2">Menu</h1>
-        </div>
-        <div className="flex-grow m-4 flex flex-col items-center overflow-y-auto">
-          <ul className="mb-4 flex flex-col gap-5 list-disc text-[#38454A] text-[1.1rem]">
-            {sidenavData.map((item) => (
-              <li key={item.heading}>
-                <p className="font-semibold mb-2">{item.heading}</p>
-                <ul className="ml-5 flex flex-col gap-2 list-disc text-[#565656] text-[1rem]">
-                  {item.links.map((subitem) => (
-                    <li
-                      key={subitem.title}
-                      className="hover:underline transition-all"
-                    >
-                      <button onClick={() => onSelect(subitem.link)}>
-                        {subitem.title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
-      <div
-        className={`${sidenavTypes[sidenavType]} w-full p-4 mt-2 text-[#38454A] font-bold text-[1.1rem] text-center rounded-md border border-blue-gray-200`}
-      >
-        2024 @ Bargainwale
+    <div
+      className={`flex flex-col w-64 h-screen ${sidenavTypes[sidenavType]} border rounded-lg`}
+    >
+      {/* Header */}
+      <div className="px-6 py-4 border-b">
+        <h1 className="text-lg font-bold tracking-wide">BargainWala Menu</h1>
       </div>
-    </>
+
+      {/* Menu Items */}
+      <nav className="flex-grow overflow-y-auto px-4 py-6">
+        {sidenavData.map((item) => (
+          <div key={item.heading} className="mb-6">
+            {/* Section Heading */}
+            <div className="flex items-center mb-2">
+              <div className="text-lg text-blue-500 mr-3">{item.icon}</div>
+              <h2 className="text-base font-semibold">{item.heading}</h2>
+            </div>
+
+            {/* Links */}
+            <ul className="pl-10 space-y-2">
+              {item.links.map((subitem) => (
+                <li key={subitem.title}>
+                  <button
+                    onClick={() => onSelect(subitem.link)}
+                    className="text-sm text-gray-600 hover:text-blue-500 transition-colors"
+                  >
+                    {subitem.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <footer className="px-6 py-4 border-t">
+        <div className="text-center text-sm font-medium">
+          <span className="block">© 2024 Bargainwale</span>
+          <span className="text-gray-500">All rights reserved</span>
+        </div>
+      </footer>
+    </div>
   );
 }
 

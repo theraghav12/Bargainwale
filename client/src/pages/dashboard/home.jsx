@@ -12,6 +12,7 @@ import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import StatisticsCards from "@/components/home/StatisticsCards";
 import PriceChart from "@/components/home/PriceChart";
 import { useOrganization } from "@clerk/clerk-react";
+import Footer from "@/components/home/Footer";
 
 export default function Home() {
   const [statisticsCardsData, setStatisticsCardsData] = useState([]);
