@@ -18,7 +18,7 @@ const itemController = {
         packaging,
         packsize,
         staticPrice,
-        warehouse,
+        warehouses,
         warehouses,
         organization
       });
