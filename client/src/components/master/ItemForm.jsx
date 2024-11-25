@@ -24,6 +24,7 @@ import {
 
 // Icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { getWarehouses } from "@/services/warehouseService";
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,7 @@ const ItemForm = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [form, setForm] = useState({
     flavor: "",
     material: "",
@@ -44,11 +46,13 @@ const ItemForm = () => {
     packaging: "box",
     packsize: "",
     staticPrice: "",
+    warehouses: [],
     organization: localStorage.getItem("organizationId"),
   });
 
   useEffect(() => {
     fetchItems();
+    fetchWarehouseOptions();
   }, []);
 
   const fetchItems = async () => {
@@ -61,10 +65,26 @@ const ItemForm = () => {
     }
   };
 
+  const fetchWarehouseOptions = async () => {
+    try {
+      const response = await getWarehouses();
+      setWarehouseOptions(response);
+    } catch (error) {
+      toast.error("Error fetching warehouses!");
+      console.error(error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const warehouseIds = warehouseOptions.map((warehouse) => warehouse._id);
     try {
+      const formData = {
+        ...form,
+        warehouses: warehouseIds,
+      };
+      const response = await createItem(formData);
       await createItem(form);
       toast.success("Item added successfully!");
       setForm({
@@ -449,7 +469,9 @@ const ItemForm = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
-        <DialogHeader className="text-red-500">Confirm Item Deletion</DialogHeader>
+        <DialogHeader className="text-red-500">
+          Confirm Item Deletion
+        </DialogHeader>
         <DialogBody divider>
           <div className="space-y-4">
             <Typography className="text-gray-800 font-medium">
@@ -468,7 +490,10 @@ const ItemForm = () => {
             <div className="bg-gray-50 p-4 rounded">
               <Typography className="text-gray-700 mb-2">
                 To confirm deletion, please type the item name:
-                <span className="font-bold text-red-500"> {itemToDelete?.materialdescription}</span>
+                <span className="font-bold text-red-500">
+                  {" "}
+                  {itemToDelete?.materialdescription}
+                </span>
               </Typography>
               <Input
                 type="text"
