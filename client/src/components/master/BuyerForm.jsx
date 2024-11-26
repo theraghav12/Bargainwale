@@ -202,53 +202,59 @@ const BuyerForm = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {buyers.map((buyer) => (
-            <div
-              key={buyer._id}
-              className="bg-white shadow-md rounded-md p-4 border"
-            >
-              <Typography variant="h6" className="font-bold">
-                {buyer.buyer}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Company: {buyer.buyerCompany}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Contact: {buyer.buyerContact}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Email: {buyer.buyerEmail}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                GST: {buyer.buyerGstno}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
-                {buyer.buyerdeliveryAddress?.addressLine2},{" "}
-                {buyer.buyerdeliveryAddress?.city},{" "}
-                {buyer.buyerdeliveryAddress?.state},{" "}
-                {buyer.buyerdeliveryAddress?.pinCode}
-              </Typography>
-              <div className="mt-4 flex gap-2">
-                <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => openEditModal(buyer)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineEdit /> Edit
-                </Button>
-                <Button
-                  color="red"
-                  size="sm"
-                  onClick={() => handleDeleteClick(buyer)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineDelete /> Delete
-                </Button>
+          {buyers.length > 0 ? (
+            buyers.map((buyer) => (
+              <div
+                key={buyer._id}
+                className="bg-white shadow-md rounded-md p-4 border"
+              >
+                <Typography variant="h6" className="font-bold">
+                  {buyer.buyer}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Company: {buyer.buyerCompany}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Contact: {buyer.buyerContact}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Email: {buyer.buyerEmail}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  GST: {buyer.buyerGstno}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                  {buyer.buyerdeliveryAddress?.addressLine2},{" "}
+                  {buyer.buyerdeliveryAddress?.city},{" "}
+                  {buyer.buyerdeliveryAddress?.state},{" "}
+                  {buyer.buyerdeliveryAddress?.pinCode}
+                </Typography>
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    color="blue"
+                    size="sm"
+                    onClick={() => openEditModal(buyer)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineEdit /> Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    size="sm"
+                    onClick={() => handleDeleteClick(buyer)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineDelete /> Delete
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No buyers available.
+            </p>
+          )}
         </div>
       </div>
 
@@ -337,7 +343,7 @@ const BuyerForm = () => {
             />
           </form>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button color="blue" onClick={handleSubmit} disabled={loading}>
             {loading ? <Spinner /> : "Add Buyer"}
           </Button>
@@ -461,7 +467,7 @@ const BuyerForm = () => {
               />
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button color="blue" onClick={handleEdit} disabled={loading}>
               {loading ? <Spinner /> : "Save Changes"}
             </Button>
@@ -480,11 +486,11 @@ const BuyerForm = () => {
             <Typography className="font-bold text-lg">
               Are you sure you want to delete this buyer?
             </Typography>
-            
+
             <Typography className="text-red-500 font-semibold">
               Warning: The following items will be permanently deleted:
             </Typography>
-            
+
             <ul className="list-disc pl-6 space-y-2">
               <li>Buyer profile and contact information</li>
               <li>All associated purchase records</li>

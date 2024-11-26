@@ -127,8 +127,8 @@ export function DashboardNavbar() {
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center px-4">
           <div className="flex items-center gap-16">
             {/* Enhanced Logo Section */}
-            <Link 
-              to={`/${layout}`} 
+            <Link
+              to={`/${layout}`}
               className="flex items-center group relative overflow-hidden"
             >
               <div className="relative flex items-center">
@@ -139,12 +139,16 @@ export function DashboardNavbar() {
                            group-hover:transform group-hover:scale-105"
                 />
                 {/* Logo Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
-                              translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+                              translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"
+                />
               </div>
               {/* Optional: Add your company name next to logo */}
-              <span className="ml-3 text-white font-semibold text-lg hidden md:block
-                             transition-colors duration-300 group-hover:text-blue-200">
+              <span
+                className="ml-3 text-white font-semibold text-lg hidden md:block
+                             transition-colors duration-300 group-hover:text-blue-200"
+              >
                 Bargainwale
               </span>
             </Link>
@@ -172,7 +176,7 @@ export function DashboardNavbar() {
               </button>
 
               {/* Action Buttons */}
-              <ActionButtons 
+              <ActionButtons
                 isFullscreen={isFullscreen}
                 toggleFullScreen={toggleFullScreen}
                 toggleAppMenu={toggleAppMenu}
@@ -186,8 +190,9 @@ export function DashboardNavbar() {
                   signOutCallback={handleSignOut}
                   appearance={{
                     elements: {
-                      avatarBox: "hover:scale-105 transition-transform duration-200"
-                    }
+                      avatarBox:
+                        "hover:scale-105 transition-transform duration-200",
+                    },
                   }}
                 />
               </div>
@@ -221,13 +226,20 @@ const NavLink = ({ to, label }) => (
                transition-colors duration-200 py-2"
   >
     {label}
-    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-200 
-                    transition-all duration-300 group-hover:w-full" />
+    <span
+      className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-200 
+                    transition-all duration-300 group-hover:w-full"
+    />
   </Link>
 );
 
 // New Component: Action Buttons
-const ActionButtons = ({ isFullscreen, toggleFullScreen, toggleAppMenu, handleOpenOrgProfile }) => {
+const ActionButtons = ({
+  isFullscreen,
+  toggleFullScreen,
+  toggleAppMenu,
+  handleOpenOrgProfile,
+}) => {
   const buttons = [
     {
       icon: <ArrowsPointingOutIcon className="h-5 w-5" />,
@@ -259,10 +271,12 @@ const ActionButtons = ({ isFullscreen, toggleFullScreen, toggleAppMenu, handleOp
           >
             {btn.icon}
           </IconButton>
-          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 
+          <span
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 
                          whitespace-nowrap bg-gray-900 text-white text-xs 
                          px-2 py-1 rounded opacity-0 group-hover:opacity-100 
-                         transition-opacity duration-200 pointer-events-none">
+                         transition-opacity duration-200 pointer-events-none"
+          >
             {btn.tooltip}
           </span>
         </div>
@@ -279,15 +293,23 @@ const AppsMenu = ({ onClose }) => {
     { icon: BitbucketIcon, name: "Bitbucket", url: "https://bitbucket.org" },
     { icon: EmailIcon, name: "Email", url: "https://mail.com" },
     { icon: GithubIcon, name: "GitHub", url: "https://github.com" },
-    { icon: FirebaseIcon, name: "Firebase", url: "https://firebase.google.com" },
+    {
+      icon: FirebaseIcon,
+      name: "Firebase",
+      url: "https://firebase.google.com",
+    },
   ];
 
   return (
-    <div className="absolute top-16 right-0 bg-white rounded-xl shadow-2xl w-80 p-4 
-                    transform transition-all duration-300 ease-out animate-fadeIn">
+    <div
+      className="absolute top-16 right-0 bg-white rounded-xl shadow-2xl w-80 p-4 
+                    transform transition-all duration-300 ease-out animate-fadeIn"
+    >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">Quick Access</h3>
-        <button className="text-blue-600 text-sm hover:underline">View all</button>
+        <button className="text-blue-600 text-sm hover:underline">
+          View all
+        </button>
       </div>
       <div className="grid grid-cols-3 gap-3">
         {apps.map((app, idx) => (
@@ -298,14 +320,16 @@ const AppsMenu = ({ onClose }) => {
                      hover:scale-105 group"
             onClick={() => window.open(app.url, "_blank")}
           >
-            <img 
-              src={app.icon} 
-              alt={app.name} 
+            <img
+              src={app.icon}
+              alt={app.name}
               className="h-6 w-6 mb-1 transition-transform 
-                       duration-200 group-hover:scale-110" 
+                       duration-200 group-hover:scale-110"
             />
-            <span className="text-xs font-medium text-gray-700 
-                          group-hover:text-blue-600">
+            <span
+              className="text-xs font-medium text-gray-700 
+                          group-hover:text-blue-600"
+            >
               {app.name}
             </span>
           </button>

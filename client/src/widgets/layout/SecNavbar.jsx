@@ -134,7 +134,11 @@ const ModernNavbar = () => {
       links: [
         { name: "Create Booking", to: "/bookings/create", icon: Plus },
         { name: "Booking History", to: "/bookings/history", icon: History },
-        { name: "Booking Analytics", to: "/bookings/analytics", icon: BarChart },
+        {
+          name: "Booking Analytics",
+          to: "/bookings/analytics",
+          icon: BarChart,
+        },
         { name: "Discount Approval", to: "/discount", icon: Percent },
       ],
       icon: Book,
@@ -144,7 +148,11 @@ const ModernNavbar = () => {
       links: [
         { name: "Create Purchase", to: "/purchase/create", icon: Plus },
         { name: "Purchase History", to: "/purchase/history", icon: History },
-        { name: "Purchase Analytics", to: "/purchase/analytics", icon: BarChart },
+        {
+          name: "Purchase Analytics",
+          to: "/purchase/analytics",
+          icon: BarChart,
+        },
       ],
       icon: ShoppingCart,
     },
@@ -176,7 +184,7 @@ const ModernNavbar = () => {
   }, [isDrawerOpen]);
 
   return (
-    <div className="fixed top-16 w-full z-40 bg-white border-b border-gray-200">
+    <div className="fixed top-[4.5rem] w-full z-40 bg-white border-b border-gray-200">
       <div className="max-w-1xl mx-auto px-4 py-1">
         <div className="flex items-center justify-between h-14">
           <div className="flex items-center space-x-1">
@@ -189,7 +197,7 @@ const ModernNavbar = () => {
               />
             ))}
           </div>
-          
+
           <button
             onClick={() => setIsDrawerOpen(!isDrawerOpen)}
             className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors duration-200"
@@ -211,14 +219,24 @@ const ModernNavbar = () => {
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Notifications
+                </h2>
                 <button
                   onClick={() => setIsDrawerOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <span className="sr-only">Close</span>
-                  <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </div>

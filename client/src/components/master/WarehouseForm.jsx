@@ -190,55 +190,61 @@ const WarehouseForm = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {warehouses.map((warehouse) => (
-            <div
-              key={warehouse._id}
-              className="bg-white shadow-md rounded-md p-4 border"
-            >
-              <Typography variant="h6" className="font-bold">
-                {warehouse.name}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                State: {warehouse.location?.state}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                City: {warehouse.location?.city}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Manager: {warehouse.warehouseManager || "N/A"}
-              </Typography>
-              {warehouse.googleMapsLink && (
-                <Typography className="text-sm text-gray-600">
-                  <a
-                    href={warehouse.googleMapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    View on Maps
-                  </a>
+          {warehouses.length > 0 ? (
+            warehouses.map((warehouse) => (
+              <div
+                key={warehouse._id}
+                className="bg-white shadow-md rounded-md p-4 border"
+              >
+                <Typography variant="h6" className="font-bold">
+                  {warehouse.name}
                 </Typography>
-              )}
-              <div className="mt-4 flex gap-2">
-                <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => openEditModal(warehouse)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineEdit /> Edit
-                </Button>
-                <Button
-                  color="red"
-                  size="sm"
-                  onClick={() => openDeleteModal(warehouse)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineDelete /> Delete
-                </Button>
+                <Typography className="text-sm text-gray-600">
+                  State: {warehouse.location?.state}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  City: {warehouse.location?.city}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Manager: {warehouse.warehouseManager || "N/A"}
+                </Typography>
+                {warehouse.googleMapsLink && (
+                  <Typography className="text-sm text-gray-600">
+                    <a
+                      href={warehouse.googleMapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      View on Maps
+                    </a>
+                  </Typography>
+                )}
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    color="blue"
+                    size="sm"
+                    onClick={() => openEditModal(warehouse)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineEdit /> Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    size="sm"
+                    onClick={() => openDeleteModal(warehouse)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineDelete /> Delete
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No warehouses available.
+            </p>
+          )}
         </div>
       </div>
 
@@ -246,7 +252,10 @@ const WarehouseForm = () => {
       <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
         <DialogHeader>Add Warehouse</DialogHeader>
         <DialogBody divider>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
             <Input
               name="name"
               label="Warehouse Name"
@@ -283,7 +292,7 @@ const WarehouseForm = () => {
             />
           </form>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button color="blue" onClick={handleSubmit} disabled={loading}>
             {loading ? <Spinner /> : "Add Warehouse"}
           </Button>
@@ -366,7 +375,7 @@ const WarehouseForm = () => {
               />
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button color="blue" onClick={handleEdit} disabled={loading}>
               {loading ? <Spinner /> : "Save Changes"}
             </Button>
@@ -379,7 +388,9 @@ const WarehouseForm = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
-        <DialogHeader className="text-red-500">Confirm Warehouse Deletion</DialogHeader>
+        <DialogHeader className="text-red-500">
+          Confirm Warehouse Deletion
+        </DialogHeader>
         <DialogBody divider>
           <div className="space-y-4">
             <Typography className="text-gray-800 font-medium">
@@ -400,7 +411,10 @@ const WarehouseForm = () => {
             <div className="bg-gray-50 p-4 rounded">
               <Typography className="text-gray-700 mb-2">
                 To confirm deletion, please type the warehouse name:
-                <span className="font-bold text-red-500"> {warehouseToDelete?.name}</span>
+                <span className="font-bold text-red-500">
+                  {" "}
+                  {warehouseToDelete?.name}
+                </span>
               </Typography>
               <Input
                 type="text"

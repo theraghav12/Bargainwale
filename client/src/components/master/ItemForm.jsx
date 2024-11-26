@@ -211,55 +211,61 @@ const ItemForm = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {items.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white shadow-md rounded-md p-4 border"
-            >
-              <Typography variant="h6" className="font-bold">
-                {item.materialdescription}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Flavor: {item.flavor}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Material: {item.material}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Net Weight: {item.netweight}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Gross Weight: {item.grossweight}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                GST: {item.gst}%
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Packaging: {item.packaging}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Pack Size: {item.packsize}
-              </Typography>
-              <div className="mt-4 flex gap-2">
-                <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => openEditModal(item)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineEdit /> Edit
-                </Button>
-                <Button
-                  color="red"
-                  size="sm"
-                  onClick={() => openDeleteModal(item)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineDelete /> Delete
-                </Button>
+          {items.length > 0 ? (
+            items.map((item) => (
+              <div
+                key={item._id}
+                className="bg-white shadow-md rounded-md p-4 border"
+              >
+                <Typography variant="h6" className="font-bold">
+                  {item.materialdescription}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Flavor: {item.flavor}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Material: {item.material}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Net Weight: {item.netweight}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Gross Weight: {item.grossweight}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  GST: {item.gst}%
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Packaging: {item.packaging}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Pack Size: {item.packsize}
+                </Typography>
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    color="blue"
+                    size="sm"
+                    onClick={() => openEditModal(item)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineEdit /> Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    size="sm"
+                    onClick={() => openDeleteModal(item)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineDelete /> Delete
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No items available.
+            </p>
+          )}
         </div>
       </div>
 
@@ -338,7 +344,7 @@ const ItemForm = () => {
             />
           </form>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button color="blue" onClick={handleSubmit} disabled={loading}>
             {loading ? <Spinner /> : "Add Item"}
           </Button>
@@ -456,7 +462,7 @@ const ItemForm = () => {
               />
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button color="blue" onClick={handleEdit} disabled={loading}>
               {loading ? <Spinner /> : "Save Changes"}
             </Button>

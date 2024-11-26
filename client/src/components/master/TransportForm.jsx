@@ -156,43 +156,49 @@ const TransportForm = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {transport.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white shadow-md rounded-md p-4 border"
-            >
-              <Typography variant="h6" className="font-bold">
-                {item.transport}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Type: {item.transportType}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Contact: {item.transportContact}
-              </Typography>
-              <Typography className="text-sm text-gray-600">
-                Agency: {item.transportAgency}
-              </Typography>
-              <div className="mt-4 flex gap-2">
-                <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => openEditModal(item)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineEdit /> Edit
-                </Button>
-                <Button
-                  color="red"
-                  size="sm"
-                  onClick={() => handleDelete(item._id)}
-                  className="flex items-center gap-1"
-                >
-                  <AiOutlineDelete /> Delete
-                </Button>
+          {transport.length > 0 ? (
+            transport.map((item) => (
+              <div
+                key={item._id}
+                className="bg-white shadow-md rounded-md p-4 border"
+              >
+                <Typography variant="h6" className="font-bold">
+                  {item.transport}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Type: {item.transportType}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Contact: {item.transportContact}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Agency: {item.transportAgency}
+                </Typography>
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    color="blue"
+                    size="sm"
+                    onClick={() => openEditModal(item)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineEdit /> Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    size="sm"
+                    onClick={() => handleDelete(item._id)}
+                    className="flex items-center gap-1"
+                  >
+                    <AiOutlineDelete /> Delete
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No transports available.
+            </p>
+          )}
         </div>
       </div>
 
@@ -234,7 +240,7 @@ const TransportForm = () => {
             />
           </form>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button color="blue" onClick={handleSubmit} disabled={loading}>
             {loading ? <Spinner /> : "Add Transport"}
           </Button>
@@ -246,10 +252,7 @@ const TransportForm = () => {
 
       {/* Edit Transport Modal */}
       {editingTransport && (
-        <Dialog
-          open={editModalOpen}
-          handler={() => setEditModalOpen(false)}
-        >
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
           <DialogHeader>Edit Transport</DialogHeader>
           <DialogBody divider>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -303,7 +306,7 @@ const TransportForm = () => {
               />
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button color="blue" onClick={handleEdit} disabled={loading}>
               {loading ? <Spinner /> : "Save Changes"}
             </Button>

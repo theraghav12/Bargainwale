@@ -214,7 +214,8 @@ const ManufacturerForm = () => {
                 <strong>Company:</strong> {man.manufacturerCompany}
               </Typography>
               <Typography className="text-gray-600">
-                <strong>Address:</strong> {man.manufacturerdeliveryAddress?.addressLine1},{" "}
+                <strong>Address:</strong>{" "}
+                {man.manufacturerdeliveryAddress?.addressLine1},{" "}
                 {man.manufacturerdeliveryAddress?.addressLine2},{" "}
                 {man.manufacturerdeliveryAddress?.city},{" "}
                 {man.manufacturerdeliveryAddress?.state},{" "}
@@ -250,9 +251,9 @@ const ManufacturerForm = () => {
             </div>
           ))
         ) : (
-          <Typography className="text-center text-gray-600 col-span-full">
+          <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
             No manufacturers available.
-          </Typography>
+          </p>
         )}
       </div>
 
@@ -332,7 +333,7 @@ const ManufacturerForm = () => {
             />
           </form>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button color="blue" onClick={handleSubmit} disabled={loading}>
             {loading ? <Spinner /> : "Add Manufacturer"}
           </Button>
@@ -481,9 +482,9 @@ const ManufacturerForm = () => {
               />
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button color="blue" onClick={handleEdit} disabled={loading}>
-            {loading ? <Spinner /> : "Save Changes"}
+              {loading ? <Spinner /> : "Save Changes"}
             </Button>
             <Button color="gray" onClick={() => setEditModalOpen(false)}>
               Cancel
@@ -502,7 +503,7 @@ const ManufacturerForm = () => {
             <Typography className="text-gray-800 font-medium">
               Are you sure you want to delete this manufacturer?
             </Typography>
-            
+
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
               <Typography className="text-yellow-700 font-medium mb-2">
                 Warning: The following data will be permanently deleted:
@@ -544,8 +545,8 @@ const ManufacturerForm = () => {
           >
             {loading ? <Spinner /> : "Delete Permanently"}
           </Button>
-          <Button 
-            color="gray" 
+          <Button
+            color="gray"
             onClick={() => {
               setDeleteModalOpen(false);
               setConfirmationName("");
