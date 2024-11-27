@@ -103,9 +103,9 @@ const warehouseController = {
       }
   
       // Validate warehouseManager ID if provided
-      if (warehouseManager && !mongoose.Types.ObjectId.isValid(warehouseManager)) {
-        return res.status(400).json({ message: "Invalid warehouseManager ID" });
-      }
+      // if (warehouseManager && !mongoose.Types.ObjectId.isValid(warehouseManager)) {
+      //   return res.status(400).json({ message: "Invalid warehouseManager ID" });
+      // }
   
       const warehouse = await Warehouse.findById(id);
   
