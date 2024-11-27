@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx"; // Import SheetJS library for Excel
+import * as XLSX from "xlsx";
 import {
   createTransport,
   deleteTransport,
@@ -48,6 +48,15 @@ const TransportForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !form.transport ||
+      !form.transportType ||
+      !form.transportContact ||
+      !form.transportAgency
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       await createTransport(form);
@@ -69,6 +78,15 @@ const TransportForm = () => {
   };
 
   const handleEdit = async () => {
+    if (
+      !editingTransport.transport ||
+      !editingTransport.transportType ||
+      !editingTransport.transportContact ||
+      !editingTransport.transportAgency
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       await updateTransport(editingTransport, editingTransport._id);

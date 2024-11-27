@@ -38,7 +38,6 @@ const ManufacturerForm = () => {
   const [editingManufacturer, setEditingManufacturer] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  // New states for delete confirmation
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [manufacturerToDelete, setManufacturerToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
@@ -58,6 +57,19 @@ const ManufacturerForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !form.manufacturer ||
+      !form.manufacturerCompany ||
+      !form.addressLine1 ||
+      !form.city ||
+      !form.state ||
+      !form.pinCode ||
+      !form.manufacturerContact ||
+      !form.manufacturerEmail
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       const newManufacturer = {
@@ -101,6 +113,19 @@ const ManufacturerForm = () => {
   };
 
   const handleEdit = async () => {
+    if (
+      !editingManufacturer.manufacturer ||
+      !editingManufacturer.manufacturerCompany ||
+      !editingManufacturer.addressLine1 ||
+      !editingManufacturer.city ||
+      !editingManufacturer.state ||
+      !editingManufacturer.pinCode ||
+      !editingManufacturer.manufacturerContact ||
+      !editingManufacturer.manufacturerEmail
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       await updateManufacturer(editingManufacturer, editingManufacturer._id);

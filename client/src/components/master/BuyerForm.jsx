@@ -58,6 +58,19 @@ const BuyerForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !form.buyer ||
+      !form.buyerCompany ||
+      !form.addressLine1 ||
+      !form.city ||
+      !form.state ||
+      !form.pinCode ||
+      !form.buyerContact ||
+      !form.buyerEmail
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       const newBuyer = {
@@ -103,6 +116,19 @@ const BuyerForm = () => {
   };
 
   const handleEdit = async () => {
+    if (
+      !editingBuyer.buyer ||
+      !editingBuyer.buyerCompany ||
+      !editingBuyer.addressLine1 ||
+      !editingBuyer.city ||
+      !editingBuyer.state ||
+      !editingBuyer.pinCode ||
+      !editingBuyer.buyerContact ||
+      !editingBuyer.buyerEmail
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       await updateBuyer(editingBuyer, editingBuyer._id);

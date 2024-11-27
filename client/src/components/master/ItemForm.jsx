@@ -77,6 +77,19 @@ const ItemForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !form.flavor ||
+      !form.materialdescription ||
+      !form.material ||
+      !form.netweight ||
+      !form.grossweight ||
+      !form.gst ||
+      !form.packsize ||
+      !form.packaging
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     const warehouseIds = warehouseOptions.map((warehouse) => warehouse._id);
     try {
@@ -110,6 +123,19 @@ const ItemForm = () => {
   };
 
   const handleEdit = async () => {
+    if (
+      !editingItem.flavor ||
+      !editingItem.materialdescription ||
+      !editingItem.material ||
+      !editingItem.netweight ||
+      !editingItem.grossweight ||
+      !editingItem.gst ||
+      !editingItem.packsize ||
+      !editingItem.packaging
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
     setLoading(true);
     try {
       await updateItem(editingItem, editingItem._id);
