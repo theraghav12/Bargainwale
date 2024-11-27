@@ -13,9 +13,8 @@ import { FaPlus } from "react-icons/fa";
 import { LuAsterisk } from "react-icons/lu";
 import { MdDeleteOutline } from "react-icons/md";
 
+// components
 import CustomTooltip from "../../components/CustomToolTip";
-
-import { FaQuestionCircle } from "react-icons/fa";
 
 const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -199,6 +198,16 @@ const CreateOrder = () => {
   };
 
   const handleAddItem = () => {
+    // Check if the item with the same rack and name already exists
+    const isDuplicate = form.items.some(
+      (item) => item.itemId === "" && item.pickup === ""
+    );
+
+    if (isDuplicate) {
+      toast.error("An item with the same rack and name already exists!");
+      return;
+    }
+
     setForm((prevData) => ({
       ...prevData,
       items: [
@@ -240,11 +249,26 @@ const CreateOrder = () => {
         ...updatedItems[index],
         [field]: value.value || "",
       };
+
+      // Validation for duplicate item
+      const isDuplicate = updatedItems.some(
+        (item, idx) =>
+          idx !== index &&
+          item.itemId === updatedItems[index].itemId &&
+          item.pickup === updatedItems[index].pickup
+      );
+
+      if (isDuplicate) {
+        toast.error(
+          "Duplicate item with the same pickup and name is not allowed!"
+        );
+        return;
+      }
     } else {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
 
-    // If the itemId is changed, update GST accordingly
+    // Additional logic for updating GST and tax amounts
     if (field === "itemId") {
       const selectedItem = itemsOptions?.find(
         (option) => option._id === value.value
@@ -271,7 +295,6 @@ const CreateOrder = () => {
       }
     }
 
-    // Calculate tax paid amount if needed
     if (field === "quantity" || field === "baseRate") {
       const quantity = updatedItems[index].quantity || 0;
       const baseRate = updatedItems[index].baseRate || 0;
@@ -283,13 +306,11 @@ const CreateOrder = () => {
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
 
-    // Update the form state
     setForm((prevData) => ({
       ...prevData,
       items: updatedItems,
     }));
   };
-
   const calculateTotalQuantity = () => {
     return form.items.reduce((total, item) => {
       return total + (Number(item.quantity) || 0);

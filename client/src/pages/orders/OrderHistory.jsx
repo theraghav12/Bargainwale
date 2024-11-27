@@ -76,10 +76,14 @@ export function OrderHistory() {
         );
       }
 
-      filteredOrders.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
-      );
+      filteredOrders.sort((a, b) => {
+        const bargainDateComparison =
+          new Date(b.companyBargainDate) - new Date(a.companyBargainDate);
+        if (bargainDateComparison !== 0) {
+          return bargainDateComparison;
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
 
       setOrders(filteredOrders);
     } catch (error) {

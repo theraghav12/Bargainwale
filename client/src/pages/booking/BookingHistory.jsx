@@ -57,9 +57,14 @@ export function BookingHistory() {
         }
 
         setBookings(
-          filteredBookings.sort(
-            (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
-          )
+          filteredBookings.sort((a, b) => {
+            const bargainDateComparison =
+              new Date(b.BargainDate) - new Date(a.BargainDate);
+            if (bargainDateComparison !== 0) {
+              return bargainDateComparison;
+            }
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          })
         );
       } catch {
         setError("Failed to fetch bookings");

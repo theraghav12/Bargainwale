@@ -34,10 +34,14 @@ const CreatePurchase = () => {
     try {
       const response = await getOrders();
       const ordersData = response;
-      ordersData.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
-      );
+      ordersData.sort((a, b) => {
+        const bargainDateComparison =
+          new Date(b.companyBargainDate) - new Date(a.companyBargainDate);
+        if (bargainDateComparison !== 0) {
+          return bargainDateComparison;
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
       setOrders(ordersData);
     } catch (error) {
       console.log(error);
@@ -206,17 +210,17 @@ const CreatePurchase = () => {
 
   const handleQuantityChange = (itemId, newQuantity, pickup) => {
     const quantity = Number(newQuantity);
+    const uniqueKey = `${itemId}-${pickup}`;
+
     setQuantityInputs((prevInputs) => {
-      const existingItem = prevInputs.find((item) => item.itemId === itemId);
+      const existingItem = prevInputs.find((item) => item.key === uniqueKey);
 
       if (existingItem) {
         return prevInputs.map((item) =>
-          item.itemId === itemId
-            ? { ...item, quantity: quantity, pickup: pickup }
-            : item
+          item.key === uniqueKey ? { ...item, quantity: quantity } : item
         );
       } else {
-        return [...prevInputs, { itemId, quantity: quantity, pickup: pickup }];
+        return [...prevInputs, { key: uniqueKey, itemId, pickup, quantity }];
       }
     });
   };
@@ -407,7 +411,9 @@ const CreatePurchase = () => {
                                     disabled={isBilled} // Disabled for "billed"
                                   />
                                   {isBilled && (
-                                    <span className="italic text-sm">Billed</span>
+                                    <span className="italic text-sm">
+                                      Billed
+                                    </span>
                                   )}
                                 </div>
                               </td>
@@ -443,9 +449,7 @@ const CreatePurchase = () => {
                                             className="border-t-2 border-t-[#898989]"
                                           >
                                             <td className="py-4 text-center">
-                                              {
-                                                item.item.materialdescription
-                                              }
+                                              {item.item.materialdescription}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.packaging}
@@ -471,8 +475,8 @@ const CreatePurchase = () => {
                                                   value={
                                                     quantityInputs.find(
                                                       (q) =>
-                                                        q.itemId ===
-                                                        item.item._id
+                                                        q.key ===
+                                                        `${item.item._id}-${item.pickup}`
                                                     )?.quantity || ""
                                                   }
                                                   onChange={(e) => {

@@ -45,10 +45,14 @@ const CreateSales = () => {
     try {
       const response = await getBookings();
       const filteredOrders = response;
-      filteredOrders.sort(
-        (a, b) =>
-          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
-      );
+      filteredOrders.sort((a, b) => {
+        const bargainDateComparison =
+          new Date(b.companyBargainDate) - new Date(a.companyBargainDate);
+        if (bargainDateComparison !== 0) {
+          return bargainDateComparison;
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
       setOrders(filteredOrders);
     } catch (error) {
       console.log(error);
@@ -293,9 +297,7 @@ const CreateSales = () => {
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
         <div className="flex flex-row justify-between">
-          <div>
-            {/* Additional buttons or actions can be added here */}
-          </div>
+          <div>{/* Additional buttons or actions can be added here */}</div>
         </div>
 
         <div className="w-full">
@@ -492,7 +494,9 @@ const CreateSales = () => {
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
-                                      onChange={() => handleOrderSelect(order._id)}
+                                      onChange={() =>
+                                        handleOrderSelect(order._id)
+                                      }
                                       className="form-checkbox h-5 w-5 cursor-pointer"
                                       disabled={isSoldOut}
                                     />

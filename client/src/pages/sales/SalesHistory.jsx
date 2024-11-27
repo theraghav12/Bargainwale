@@ -39,14 +39,24 @@ export default function PurchaseHistory() {
     const formattedHours = hours % 12 || 12;
     const dayWithSuffix =
       day +
-      (["th", "st", "nd", "rd"][(day % 10 > 3 || ~~(day / 10) === 1) ? 0 : day % 10]);
+      ["th", "st", "nd", "rd"][
+        day % 10 > 3 || ~~(day / 10) === 1 ? 0 : day % 10
+      ];
     return `${dayWithSuffix} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
   };
 
   const fetchSales = async () => {
     try {
       const response = await getSales();
-      setSales(response.data);
+      const sortedData = response.data?.sort((a, b) => {
+        const invoiceDateComparison =
+          new Date(b.invoiceDate) - new Date(a.invoiceDate);
+        if (invoiceDateComparison !== 0) {
+          return invoiceDateComparison;
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+      setSales(sortedData);
     } catch (error) {
       setError("Failed to fetch sales");
     } finally {

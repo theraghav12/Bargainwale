@@ -38,6 +38,14 @@ export default function PurchaseHistory() {
     try {
       const response = await getPurchases();
       const purchasesData = response.data;
+      purchasesData?.sort((a, b) => {
+        const invoiceDateComparison =
+          new Date(b.invoiceDate) - new Date(a.invoiceDate);
+        if (invoiceDateComparison !== 0) {
+          return invoiceDateComparison;
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
       setPurchases(purchasesData);
       setFilteredPurchases(purchasesData);
     } catch (error) {
@@ -106,8 +114,12 @@ export default function PurchaseHistory() {
     XLSX.writeFile(workbook, "Purchases.xlsx");
   };
 
-  const uniqueTransporters = [...new Set(purchases.map((p) => p.transporterId?.transport))];
-  const uniqueWarehouses = [...new Set(purchases.map((p) => p.warehouseId?.name))];
+  const uniqueTransporters = [
+    ...new Set(purchases.map((p) => p.transporterId?.transport)),
+  ];
+  const uniqueWarehouses = [
+    ...new Set(purchases.map((p) => p.warehouseId?.name)),
+  ];
 
   return (
     <div className="mt-8 mb-8 flex flex-col gap-8 px-8">
