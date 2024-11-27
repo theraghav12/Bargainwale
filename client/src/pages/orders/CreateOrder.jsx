@@ -277,7 +277,7 @@ const CreateOrder = () => {
       const baseRate = updatedItems[index].baseRate || 0;
       updatedItems[index].taxableAmount = quantity * baseRate;
       updatedItems[index].gstAmount =
-        (baseRate * updatedItems[index].gst) / 100;
+        (baseRate * updatedItems[index].gst * quantity) / 100;
       updatedItems[index].taxpaidAmount =
         updatedItems[index].taxableAmount +
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
@@ -318,8 +318,7 @@ const CreateOrder = () => {
     <div className="w-[99vw] h-full mt-8 mb-8 flex flex-col gap-12 px-7">
       <div className="">
         <div className="flex flex-row justify-between">
-          <div>
-          </div>
+          <div></div>
         </div>
 
         <div className="w-full">
@@ -506,7 +505,9 @@ const CreateOrder = () => {
               <div className="w-full flex flex-row justify-between text-[1rem] font-medium">
                 <span>Total Qty: {calculateTotalQuantity()}</span>
                 <span>Total Gross Weight: {calculateTotalGrossWeight()}</span>
-                <span>Total Amount: ₹{calculateTotalAmount().toLocaleString()}</span>
+                <span>
+                  Total Amount: ₹{calculateTotalAmount().toLocaleString()}
+                </span>
               </div>
             </div>
             <div className="bg-white text-[1rem] flex justify-between items-center px-4 py-1">
@@ -629,9 +630,9 @@ const CreateOrder = () => {
                         {form.companyBargainDate}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <div className="relative w-[150px]">
+                        <div className="relative w-[220px]">
                           <Select
-                            className="relative w-[150px]"
+                            className="relative w-[220px]"
                             options={selectItemsOptions}
                             value={
                               selectItemsOptions.find(
@@ -790,7 +791,7 @@ const CreateOrder = () => {
                         )}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        {item.gstAmount}
+                        ₹{item.gstAmount}
                       </td>
                       <td className="py-4 px-2 text-center">
                         ₹{item.taxpaidAmount?.toLocaleString()}

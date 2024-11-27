@@ -57,7 +57,7 @@ export function MasterSidenav({ onSelect }) {
 
   return (
     <div
-      className={`flex flex-col w-64 h-screen ${sidenavTypes[sidenavType]} border rounded-lg`}
+      className={`flex flex-col w-64 h-screen pb-7 ${sidenavTypes[sidenavType]} border rounded-lg`}
     >
       {/* Header */}
       <div className="px-6 py-4 border-b">

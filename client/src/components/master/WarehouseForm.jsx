@@ -89,10 +89,8 @@ const WarehouseForm = () => {
     try {
       const updatedData = {
         name: editingWarehouse.name,
-        location: {
-          state: editingWarehouse.location.state,
-          city: editingWarehouse.location.city,
-        },
+        state: editingWarehouse.location.state,
+        city: editingWarehouse.location.city,
         warehouseManager: editingWarehouse.warehouseManager,
         googleMapsLink: editingWarehouse.googleMapsLink,
       };

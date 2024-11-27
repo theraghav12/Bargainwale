@@ -20,7 +20,10 @@ export function BookingHistory() {
   const [openBooking, setOpenBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const [timePeriod, setTimePeriod] = useState("All");
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -29,7 +32,9 @@ export function BookingHistory() {
         let filteredBookings = response;
 
         if (statusFilter !== "All") {
-          filteredBookings = filteredBookings.filter((b) => b.status === statusFilter);
+          filteredBookings = filteredBookings.filter(
+            (b) => b.status === statusFilter
+          );
         }
         if (timePeriod !== "All") {
           const now = new Date();
@@ -39,13 +44,23 @@ export function BookingHistory() {
             filterDate = new Date(now.setDate(now.getDate() - 7));
           } else if (timePeriod === "last30Days") {
             filterDate = new Date(now.setDate(now.getDate() - 30));
-          } else if (timePeriod === "custom" && dateRange.startDate && dateRange.endDate) {
+          } else if (
+            timePeriod === "custom" &&
+            dateRange.startDate &&
+            dateRange.endDate
+          ) {
             filterDate = new Date(dateRange.startDate);
           }
-          filteredBookings = filteredBookings.filter((b) => new Date(b.BargainDate) >= filterDate);
+          filteredBookings = filteredBookings.filter(
+            (b) => new Date(b.BargainDate) >= filterDate
+          );
         }
-        
-        setBookings(filteredBookings.sort((a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)));
+
+        setBookings(
+          filteredBookings.sort(
+            (a, b) => new Date(b.BargainDate) - new Date(a.BargainDate)
+          )
+        );
       } catch {
         setError("Failed to fetch bookings");
       } finally {
@@ -57,7 +72,9 @@ export function BookingHistory() {
 
   const formatDate = (date) => {
     const d = new Date(date);
-    return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
+    return `${String(d.getDate()).padStart(2, "0")}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
   const handleDownloadExcel = () => {
@@ -79,7 +96,9 @@ export function BookingHistory() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this booking?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this booking?"
+    );
     if (confirmed) {
       try {
         await deleteBooking(id);
@@ -90,6 +109,8 @@ export function BookingHistory() {
       }
     }
   };
+
+  console.log(bookings);
 
   return (
     <div className="p-8 bg-gray-50">
@@ -133,7 +154,9 @@ export function BookingHistory() {
       </div>
 
       {loading ? (
-        <Typography className="text-center text-blue-gray-500">Loading...</Typography>
+        <Typography className="text-center text-blue-gray-500">
+          Loading...
+        </Typography>
       ) : error ? (
         <Typography className="text-center text-red-500">{error}</Typography>
       ) : (
@@ -141,8 +164,18 @@ export function BookingHistory() {
           <table className="min-w-full bg-white">
             <thead>
               <tr>
-                {["Bargain Date", "Bargain No", "Buyer Name", "Status", "Delivery Type", "Actions"].map((header) => (
-                  <th key={header} className="px-4 py-2 border-b font-medium text-center">
+                {[
+                  "Bargain Date",
+                  "Bargain No",
+                  "Buyer Name",
+                  "Status",
+                  "Delivery Type",
+                  "Actions",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="px-4 py-2 border-b font-medium text-center"
+                  >
                     {header}
                   </th>
                 ))}
@@ -154,25 +187,45 @@ export function BookingHistory() {
                 return (
                   <React.Fragment key={b._id}>
                     <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b text-center">{formatDate(b.BargainDate)}</td>
-                      <td className="px-4 py-2 border-b text-center">{b.BargainNo}</td>
-                      <td className="px-4 py-2 border-b text-center">{b.buyer?.buyer}</td>
                       <td className="px-4 py-2 border-b text-center">
-                        <Chip value={b.status} color={b.status === "created" ? "blue" : "green"} />
+                        {formatDate(b.BargainDate)}
                       </td>
-                      <td className="px-4 py-2 border-b text-center">{b.deliveryOption}</td>
+                      <td className="px-4 py-2 border-b text-center">
+                        {b.BargainNo}
+                      </td>
+                      <td className="px-4 py-2 border-b text-center">
+                        {b.buyer?.buyer}
+                      </td>
+                      <td className="py-2 border-b text-center">
+                        {b.discountStatus === "pending" ? (
+                          <Chip value="Approval Pending" color="red" />
+                        ) : (
+                          <Chip
+                            value={b.status}
+                            color={b.status === "created" ? "blue" : "green"}
+                          />
+                        )}
+                      </td>
+                      <td className="px-4 py-2 border-b text-center">
+                        {b.deliveryOption}
+                      </td>
                       <td className="px-4 py-2 border-b text-center flex justify-center items-center gap-2">
                         <IconButton
                           variant="text"
                           onClick={() => setOpenBooking(isOpen ? null : b._id)}
+                          className="bg-gray-200 hover:bg-gray-300 transition"
                         >
-                          {isOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+                          {isOpen ? (
+                            <ChevronUpIcon className="h-5 w-5 text-gray-600" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5 text-gray-600" />
+                          )}
                         </IconButton>
                         {b.status === "created" && (
                           <Tooltip content="Delete Booking">
                             <MdDeleteOutline
                               onClick={() => handleDelete(b._id)}
-                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                              className="text-red-700 text-[2.4rem] border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
                             />
                           </Tooltip>
                         )}
@@ -184,8 +237,17 @@ export function BookingHistory() {
                           <table className="min-w-full bg-gray-50">
                             <thead>
                               <tr>
-                                {["Item Name", "Packaging", "Weight", "Quantity"].map((header) => (
-                                  <th key={header} className="px-2 py-1 font-semibold text-gray-700">
+                                {[
+                                  "Item Name",
+                                  "Packaging",
+                                  "Rate (With tax)",
+                                  "Weight",
+                                  "Quantity",
+                                ].map((header) => (
+                                  <th
+                                    key={header}
+                                    className="px-2 py-1 font-semibold text-gray-700"
+                                  >
                                     {header}
                                   </th>
                                 ))}
@@ -194,10 +256,21 @@ export function BookingHistory() {
                             <tbody>
                               {b.items.map((item) => (
                                 <tr key={item._id}>
-                                  <td className="px-2 py-1 text-center">{item.item.materialdescription}</td>
-                                  <td className="px-2 py-1 text-center">{item.item.packaging}</td>
-                                  <td className="px-2 py-1 text-center">{item.item.netweight}</td>
-                                  <td className="px-2 py-1 text-center">{item.quantity || "0"}</td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.item.materialdescription}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.item.packaging}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    ₹{item.taxpaidAmount}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.item.netweight}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.quantity || "0"}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -215,4 +288,3 @@ export function BookingHistory() {
     </div>
   );
 }
-

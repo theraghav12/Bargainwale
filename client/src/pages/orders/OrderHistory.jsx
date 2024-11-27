@@ -76,7 +76,10 @@ export function OrderHistory() {
         );
       }
 
-      filteredOrders.sort((a, b) => new Date(b.companyBargainDate) - new Date(a.companyBargainDate));
+      filteredOrders.sort(
+        (a, b) =>
+          new Date(b.companyBargainDate) - new Date(a.companyBargainDate)
+      );
 
       setOrders(filteredOrders);
     } catch (error) {
@@ -146,7 +149,9 @@ export function OrderHistory() {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to permanently delete this order?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to permanently delete this order?"
+    );
     if (!confirmDelete) return;
 
     try {
@@ -211,7 +216,9 @@ export function OrderHistory() {
 
         <div className="overflow-x-auto mt-4">
           {loading ? (
-            <Typography className="text-center text-gray-500">Loading...</Typography>
+            <Typography className="text-center text-gray-500">
+              Loading...
+            </Typography>
           ) : error ? (
             <p className="text-center text-red-500">{error}</p>
           ) : orders.length > 0 ? (
@@ -229,7 +236,10 @@ export function OrderHistory() {
                       "Inco",
                       "Actions",
                     ].map((el) => (
-                      <th key={el} className="py-4 px-6 text-center font-semibold text-gray-700 border-b">
+                      <th
+                        key={el}
+                        className="py-4 px-6 text-center font-semibold text-gray-700 border-b"
+                      >
                         {el}
                       </th>
                     ))}
@@ -241,11 +251,21 @@ export function OrderHistory() {
                     return (
                       <React.Fragment key={order._id}>
                         <tr className="hover:bg-gray-50">
-                          <td className="py-4 px-6 text-center">{order.companyBargainNo}</td>
-                          <td className="py-4 px-6 text-center">{formatDate(order.companyBargainDate)}</td>
-                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturer}</td>
-                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturerCompany}</td>
-                          <td className="py-4 px-6 text-center">{order.manufacturer?.manufacturerContact}</td>
+                          <td className="py-4 px-6 text-center">
+                            {order.companyBargainNo}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {formatDate(order.companyBargainDate)}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {order.manufacturer?.manufacturer}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {order.manufacturer?.manufacturerCompany}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {order.manufacturer?.manufacturerContact}
+                          </td>
                           <td className="py-4 px-6 text-center">
                             <Chip
                               variant="ghost"
@@ -260,7 +280,9 @@ export function OrderHistory() {
                               className="px-2 py-1 rounded-lg text-sm font-semibold"
                             />
                           </td>
-                          <td className="py-4 px-6 text-center">{order.inco}</td>
+                          <td className="py-4 px-6 text-center">
+                            {order.inco}
+                          </td>
                           <td className="py-4 px-6 text-center">
                             <div className="flex justify-center gap-4">
                               <IconButton
@@ -279,8 +301,7 @@ export function OrderHistory() {
                                   <span className="w-fit h-fit">
                                     <MdDeleteOutline
                                       onClick={() => handleDelete(order._id)}
-                                      className="text-red-700 border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                      size={24}
+                                      className="text-red-700 text-[2.4rem] border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
                                     />
                                   </span>
                                 </Tooltip>
@@ -317,18 +338,40 @@ export function OrderHistory() {
                                   </thead>
                                   <tbody>
                                     {order.items.map((item) => (
-                                      <tr key={item._id} className="hover:bg-gray-100">
-                                        <td className="py-3 px-4 text-center">{item.item?.materialdescription}</td>
-                                        <td className="py-3 px-4 text-center">{item.item.packaging}</td>
-                                        <td className="py-3 px-4 text-center">{item.item.netweight}</td>
-                                        <td className="py-3 px-4 text-center">{item.contNumber}</td>
-                                        <td className="py-3 px-4 text-center">{item.pickup}</td>
-                                        <td className="py-3 px-4 text-center">{item.quantity}</td>
-                                        <td className="py-3 px-4 text-center">₹{item.baseRate?.toLocaleString()}</td>
+                                      <tr
+                                        key={item._id}
+                                        className="hover:bg-gray-100"
+                                      >
                                         <td className="py-3 px-4 text-center">
-                                          {item.igst ? `${item.igst}% (IGST)` : `${item.cgst}% (CGST) + ${item.sgst}% (SGST)`}
+                                          {item.item?.materialdescription}
                                         </td>
-                                        <td className="py-3 px-4 text-center">₹{item.taxpaidAmount?.toLocaleString()}</td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.item.packaging}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.item.netweight}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.contNumber}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.pickup}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.quantity}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          ₹{item.baseRate?.toLocaleString()}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {item.igst
+                                            ? `${item.igst}% (IGST)`
+                                            : `${item.cgst}% (CGST) + ${item.sgst}% (SGST)`}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          ₹
+                                          {item.taxpaidAmount?.toLocaleString()}
+                                        </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -344,7 +387,9 @@ export function OrderHistory() {
               </table>
             </div>
           ) : (
-            <p className="text-center text-lg text-gray-500 mt-20">No orders found!</p>
+            <p className="text-center text-lg text-gray-500 mt-20">
+              No orders found!
+            </p>
           )}
         </div>
       </div>

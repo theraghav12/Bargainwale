@@ -844,9 +844,9 @@ const CreateBooking = () => {
                         {form.BargainDate}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <div className="relative w-[150px]">
+                        <div className="relative w-[220px]">
                           <Select
-                            className="relative w-[150px]"
+                            className="relative w-[220px]"
                             options={selectItemsOptions}
                             value={
                               selectItemsOptions.find(
