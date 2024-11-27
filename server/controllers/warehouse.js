@@ -1,4 +1,6 @@
 import Warehouse from "../models/warehouse.js";
+import mongoose from "mongoose";
+
 
 const warehouseController = {
   createWarehouse: async (req, res) => {
@@ -92,38 +94,47 @@ const warehouseController = {
 
   updateWarehouse: async (req, res) => {
     try {
-      let warehouse = await Warehouse.findById(req.params.id);
-
+      const { id } = req.params;
+      const { warehouseManager, name, state, city } = req.body;
+  
+      // Validate warehouse ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid warehouse ID" });
+      }
+  
+      // Validate warehouseManager ID if provided
+      if (warehouseManager && !mongoose.Types.ObjectId.isValid(warehouseManager)) {
+        return res.status(400).json({ message: "Invalid warehouseManager ID" });
+      }
+  
+      const warehouse = await Warehouse.findById(id);
+  
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
-
-      const { name, state, city } = req.body;
-
-      if (state) {
-        warehouse.location.state = state;
-      }
-      if (city) {
-        warehouse.location.city = city;
-      }
-      if (name) {
-        warehouse.name = name;
-      }
-      if (warehouseManager) {
-        filter.warehouseManager = warehouseManager;
-      }
-
+  
+      // Update fields
+      if (name) warehouse.name = name;
+      if (state) warehouse.location.state = state;
+      if (city) warehouse.location.city = city;
+      if (warehouseManager) warehouse.warehouseManager = warehouseManager;
+  
       await warehouse.save();
-
+  
       res.status(200).json({
         message: "Warehouse details updated successfully",
         warehouse,
       });
     } catch (error) {
-      res.status(400).json({ message: "Error updating warehouse", error });
+      console.error("Error updating warehouse:", error);
+      res.status(400).json({
+        message: "Error updating warehouse",
+        error: error.message || error,
+      });
     }
   },
-
+  
+  
   deleteWarehouse: async (req, res) => {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);
