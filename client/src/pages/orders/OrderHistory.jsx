@@ -350,7 +350,12 @@ export function OrderHistory() {
                                           {item.item?.materialdescription}
                                         </td>
                                         <td className="py-3 px-4 text-center">
-                                          {item.item.packaging}
+                                          {String(item.item.packaging)
+                                            ?.charAt(0)
+                                            .toUpperCase() +
+                                            String(item.item.packaging).slice(
+                                              1
+                                            )}
                                         </td>
                                         <td className="py-3 px-4 text-center">
                                           {item.item.netweight}
@@ -359,7 +364,10 @@ export function OrderHistory() {
                                           {item.contNumber}
                                         </td>
                                         <td className="py-3 px-4 text-center">
-                                          {item.pickup}
+                                          {String(item.pickup)
+                                            ?.charAt(0)
+                                            .toUpperCase() +
+                                            String(item.pickup).slice(1)}
                                         </td>
                                         <td className="py-3 px-4 text-center">
                                           {item.quantity}

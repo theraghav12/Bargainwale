@@ -115,8 +115,6 @@ export function BookingHistory() {
     }
   };
 
-  console.log(bookings);
-
   return (
     <div className="p-8 bg-gray-50">
       <div className="mb-4 flex justify-between items-center">
@@ -245,6 +243,7 @@ export function BookingHistory() {
                                 {[
                                   "Item Name",
                                   "Packaging",
+                                  "Pickup",
                                   "Base Price",
                                   "Weight",
                                   "Quantity",
@@ -265,7 +264,16 @@ export function BookingHistory() {
                                     {item.item.materialdescription}
                                   </td>
                                   <td className="px-2 py-1 text-center">
-                                    {item.item.packaging}
+                                    {String(item.item.packaging)
+                                      ?.charAt(0)
+                                      .toUpperCase() +
+                                      String(item.item.packaging).slice(1)}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {String(item.pickup)
+                                      ?.charAt(0)
+                                      .toUpperCase() +
+                                      String(item.pickup).slice(1)}
                                   </td>
                                   <td className="px-2 py-1 text-center">
                                     ₹{item.basePrice}

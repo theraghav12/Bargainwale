@@ -246,8 +246,6 @@ const CreatePurchase = () => {
     });
   };
 
-  console.log(inputQuantityInputs);
-
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -450,6 +448,8 @@ const CreatePurchase = () => {
                                         <tr>
                                           {[
                                             "Item Name",
+                                            "Pickup",
+                                            "Base Price",
                                             "Packaging",
                                             "Weight",
                                             "Ordered Quantity",
@@ -475,7 +475,21 @@ const CreatePurchase = () => {
                                               {item.item.materialdescription}
                                             </td>
                                             <td className="py-4 text-center">
-                                              {item.item.packaging}
+                                              {String(item.pickup)
+                                                ?.charAt(0)
+                                                .toUpperCase() +
+                                                String(item.pickup).slice(1)}
+                                            </td>
+                                            <td className="py-4 text-center">
+                                              ₹{item.baseRate}
+                                            </td>
+                                            <td className="py-4 text-center">
+                                              {String(item.item.packaging)
+                                                ?.charAt(0)
+                                                .toUpperCase() +
+                                                String(
+                                                  item.item.packaging
+                                                ).slice(1)}
                                             </td>
                                             <td className="py-4 text-center">
                                               {item.item.netweight}
