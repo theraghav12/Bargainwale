@@ -324,7 +324,7 @@ export function OrderHistory() {
                                         "Item Name",
                                         "Packaging",
                                         "Weight",
-                                        "Cont. No.",
+                                        // "Cont. No.",
                                         "Pickup",
                                         "Quantity",
                                         "Base Price (₹)",
@@ -360,9 +360,9 @@ export function OrderHistory() {
                                         <td className="py-3 px-4 text-center">
                                           {item.item.netweight}
                                         </td>
-                                        <td className="py-3 px-4 text-center">
+                                        {/* <td className="py-3 px-4 text-center">
                                           {item.contNumber}
-                                        </td>
+                                        </td> */}
                                         <td className="py-3 px-4 text-center">
                                           {String(item.pickup)
                                             ?.charAt(0)

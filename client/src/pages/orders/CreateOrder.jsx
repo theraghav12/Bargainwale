@@ -199,14 +199,14 @@ const CreateOrder = () => {
 
   const handleAddItem = () => {
     // Check if the item with the same rack and name already exists
-    const isDuplicate = form.items.some(
-      (item) => item.itemId === "" && item.pickup === ""
-    );
+    // const isDuplicate = form.items.some(
+    //   (item) => item.itemId === "" && item.pickup === ""
+    // );
 
-    if (isDuplicate) {
-      toast.error("An item with the same rack and name already exists!");
-      return;
-    }
+    // if (isDuplicate) {
+    //   toast.error("An item with the same rack and name already exists!");
+    //   return;
+    // }
 
     setForm((prevData) => ({
       ...prevData,
@@ -574,14 +574,14 @@ const CreateOrder = () => {
                         learnMoreLink="/pickup-info"
                       />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                    {/* <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Cont. No.
                       <CustomTooltip
                         title="Container Number"
                         description="A unique number assigned to the container holding the item."
                         learnMoreLink="/container-info"
                       />
-                    </th>
+                    </th> */}
                     <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Quantity
                       <CustomTooltip
@@ -651,9 +651,9 @@ const CreateOrder = () => {
                         {form.companyBargainDate}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <div className="relative w-[220px]">
+                        <div className="relative w-[500px]">
                           <Select
-                            className="relative w-[220px]"
+                            className="relative w-[500px] text-[0.9rem]"
                             options={selectItemsOptions}
                             value={
                               selectItemsOptions.find(
@@ -698,7 +698,7 @@ const CreateOrder = () => {
                           />
                         </div>
                       </td>
-                      <td className="py-4 px-2 text-center">
+                      {/* <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="contNumber"
@@ -723,7 +723,7 @@ const CreateOrder = () => {
                           placeholder="Cont. No."
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
-                      </td>
+                      </td> */}
                       <td className="py-4 px-2 text-center">
                         <input
                           type="number"

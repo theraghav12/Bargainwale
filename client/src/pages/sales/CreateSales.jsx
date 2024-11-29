@@ -306,16 +306,16 @@ const CreateSales = () => {
             className="flex flex-col gap-6 mt-4 mb-5 bg-white border-[2px] border-[#737373] p-6 rounded-lg shadow-md"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
                 <label
                   htmlFor="warehouseId"
-                  className="flex text-[#38454A] text-[1rem] font-semibold"
+                  className="flex text-[#38454A] text-[1rem]"
                 >
                   Warehouse
-                  <LuAsterisk className="text-[#FF0000] text-[0.7rem] ml-1" />
+                  <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                 </label>
                 <Select
-                  className="relative"
+                  className="relative w-[180px]"
                   options={selectWarehouseOptions}
                   value={
                     selectWarehouseOptions.find(
@@ -323,62 +323,62 @@ const CreateSales = () => {
                     ) || null
                   }
                   onChange={(selectedOption) =>
-                    handleFormChange("warehouseId", selectedOption)
+                    handleFormChange(0, "warehouseId", selectedOption)
                   }
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="w-fit flex gap-2 items-center">
                 <label
                   htmlFor="invoiceNumber"
-                  className="flex text-[#38454A] text-[1rem] font-semibold"
+                  className="flex text-[#38454A] text-[1rem]"
                 >
                   Invoice No.
-                  <LuAsterisk className="text-[#FF0000] text-[0.7rem] ml-1" />
+                  <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                 </label>
                 <input
                   name="invoiceNumber"
                   type="text"
                   value={form.invoiceNumber}
                   onChange={(e) =>
-                    handleFormChange("invoiceNumber", e.target.value)
+                    handleFormChange(0, "invoiceNumber", e.target.value)
                   }
                   required
                   placeholder="Invoice No."
-                  className="border-2 border-[#CBCDCE] px-3 py-2 rounded-md placeholder-[#737373] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="w-fit flex gap-2 items-center">
                 <label
                   htmlFor="invoiceDate"
-                  className="flex text-[#38454A] text-[1rem] font-semibold"
+                  className="flex text-[#38454A] text-[1rem]"
                 >
                   Invoice Date
-                  <LuAsterisk className="text-[#FF0000] text-[0.7rem] ml-1" />
+                  <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                 </label>
                 <input
                   name="invoiceDate"
                   type="date"
                   value={form.invoiceDate}
                   onChange={(e) =>
-                    handleFormChange("invoiceDate", e.target.value)
+                    handleFormChange(0, "invoiceDate", e.target.value)
                   }
                   required
-                  className="border-2 border-[#CBCDCE] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
                 <label
                   htmlFor="transporterId"
-                  className="flex text-[#38454A] text-[1rem] font-semibold"
+                  className="flex text-[#38454A] text-[1rem]"
                 >
                   Transport
-                  <LuAsterisk className="text-[#FF0000] text-[0.7rem] ml-1" />
+                  <LuAsterisk className="text-[#FF0000] text-[0.7rem]" />
                 </label>
                 <Select
-                  className="relative"
+                  className="relative w-[180px]"
                   options={selectTransportOptions}
                   value={
                     selectTransportOptions.find(
@@ -386,7 +386,7 @@ const CreateSales = () => {
                     ) || null
                   }
                   onChange={(selectedOption) =>
-                    handleFormChange("transporterId", selectedOption)
+                    handleFormChange(0, "transporterId", selectedOption)
                   }
                 />
               </div>

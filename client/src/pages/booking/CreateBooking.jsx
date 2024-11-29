@@ -767,14 +767,14 @@ const CreateBooking = () => {
                         learnMoreLink="/pickup-info"
                       />
                     </th>
-                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                    {/* <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Cont. No.
                       <CustomTooltip
                         title="Container Number"
                         description="A unique number assigned to the container holding the item."
                         learnMoreLink="/container-info"
                       />
-                    </th>
+                    </th> */}
                     <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Quantity
                       <CustomTooltip
@@ -844,9 +844,9 @@ const CreateBooking = () => {
                         {form.BargainDate}
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <div className="relative w-[220px]">
+                        <div className="relative w-[500px] text-[0.9rem]">
                           <Select
-                            className="relative w-[220px]"
+                            className="relative w-[500px]"
                             options={selectItemsOptions}
                             value={
                               selectItemsOptions.find(
@@ -897,7 +897,7 @@ const CreateBooking = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-2 text-center">
+                      {/* <td className="py-4 px-2 text-center">
                         <input
                           type="number"
                           name="contNumber"
@@ -913,7 +913,7 @@ const CreateBooking = () => {
                           placeholder="Cont. No."
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
-                      </td>
+                      </td> */}
                       <td className="py-4 px-2 text-center">
                         <input
                           type="number"
