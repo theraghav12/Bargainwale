@@ -98,7 +98,7 @@ const CreatePurchase = () => {
 
       if (
         quantityInputs.length === 0 ||
-        quantityInputs.some((input) => !input.quantity)
+        quantityInputs.some((input) => input.quantity === null)
       ) {
         toast.error(
           "Please enter quantities for all items in the selected order."
@@ -245,6 +245,8 @@ const CreatePurchase = () => {
       }
     });
   };
+
+  console.log(inputQuantityInputs);
 
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
@@ -498,7 +500,7 @@ const CreatePurchase = () => {
                                                       (q) =>
                                                         q.key ===
                                                         `${item._id}-${item.pickup}`
-                                                    )?.quantity || ""
+                                                    )?.quantity || null
                                                   }
                                                   onChange={(e) => {
                                                     const value =
