@@ -213,8 +213,7 @@ const CreatePurchase = () => {
 
   const handleQuantityChange = (item, newQuantity, pickup) => {
     const quantity = Number(newQuantity);
-    const uniqueKey = `${item.item._id}-${pickup}`;
-    const inputUniqueKey = `${item._id}-${pickup}`;
+    const uniqueKey = `${item._id}-${pickup}`;
 
     setQuantityInputs((prevInputs) => {
       const existingItem = prevInputs.find((item) => item.key === uniqueKey);
@@ -232,18 +231,16 @@ const CreatePurchase = () => {
     });
 
     setInputQuantityInputs((prevInputs) => {
-      const existingItem = prevInputs.find(
-        (item) => item.key === inputUniqueKey
-      );
+      const existingItem = prevInputs.find((item) => item.key === uniqueKey);
 
       if (existingItem) {
         return prevInputs.map((item) =>
-          item.key === inputUniqueKey ? { ...item, quantity: quantity } : item
+          item.key === uniqueKey ? { ...item, quantity: quantity } : item
         );
       } else {
         return [
           ...prevInputs,
-          { key: inputUniqueKey, itemId: item._id, pickup, quantity },
+          { key: uniqueKey, itemId: item._id, pickup, quantity },
         ];
       }
     });
@@ -506,10 +503,13 @@ const CreatePurchase = () => {
                                                   onChange={(e) => {
                                                     const value =
                                                       e.target.value;
-                                                    if (value >= 0) {
+                                                    if (
+                                                      value === "" ||
+                                                      Number(value) >= 0
+                                                    ) {
                                                       handleQuantityChange(
                                                         item,
-                                                        e.target.value,
+                                                        value,
                                                         item.pickup
                                                       );
                                                     }
