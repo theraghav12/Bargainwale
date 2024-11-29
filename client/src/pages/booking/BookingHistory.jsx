@@ -245,7 +245,7 @@ export function BookingHistory() {
                                 {[
                                   "Item Name",
                                   "Packaging",
-                                  "Rate (With tax)",
+                                  "Base Price",
                                   "Weight",
                                   "Quantity",
                                 ].map((header) => (
@@ -268,7 +268,7 @@ export function BookingHistory() {
                                     {item.item.packaging}
                                   </td>
                                   <td className="px-2 py-1 text-center">
-                                    ₹{item.taxpaidAmount}
+                                    ₹{item.basePrice}
                                   </td>
                                   <td className="px-2 py-1 text-center">
                                     {item.item.netweight}
