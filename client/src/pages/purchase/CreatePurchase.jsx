@@ -19,6 +19,7 @@ const CreatePurchase = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [quantityInputs, setQuantityInputs] = useState([]);
+  const [inputQuantityInputs, setInputQuantityInputs] = useState([]);
 
   const [form, setForm] = useState({
     warehouseId: "",
@@ -125,6 +126,7 @@ const CreatePurchase = () => {
           organization: localStorage.getItem("organizationId"),
         });
         setQuantityInputs([]);
+        setInputQuantityInputs([]);
         setSelectedOrder(null);
         fetchOrders();
       } else {
@@ -205,12 +207,14 @@ const CreatePurchase = () => {
     } else {
       setSelectedOrder(orderId);
       setQuantityInputs([]);
+      setInputQuantityInputs([]);
     }
   };
 
-  const handleQuantityChange = (itemId, newQuantity, pickup) => {
+  const handleQuantityChange = (item, newQuantity, pickup) => {
     const quantity = Number(newQuantity);
-    const uniqueKey = `${itemId}-${pickup}`;
+    const uniqueKey = `${item.item._id}-${pickup}`;
+    const inputUniqueKey = `${item._id}-${pickup}`;
 
     setQuantityInputs((prevInputs) => {
       const existingItem = prevInputs.find((item) => item.key === uniqueKey);
@@ -220,7 +224,27 @@ const CreatePurchase = () => {
           item.key === uniqueKey ? { ...item, quantity: quantity } : item
         );
       } else {
-        return [...prevInputs, { key: uniqueKey, itemId, pickup, quantity }];
+        return [
+          ...prevInputs,
+          { key: uniqueKey, itemId: item.item._id, pickup, quantity },
+        ];
+      }
+    });
+
+    setInputQuantityInputs((prevInputs) => {
+      const existingItem = prevInputs.find(
+        (item) => item.key === inputUniqueKey
+      );
+
+      if (existingItem) {
+        return prevInputs.map((item) =>
+          item.key === inputUniqueKey ? { ...item, quantity: quantity } : item
+        );
+      } else {
+        return [
+          ...prevInputs,
+          { key: inputUniqueKey, itemId: item._id, pickup, quantity },
+        ];
       }
     });
   };
@@ -473,10 +497,10 @@ const CreatePurchase = () => {
                                                 <input
                                                   type="number"
                                                   value={
-                                                    quantityInputs.find(
+                                                    inputQuantityInputs.find(
                                                       (q) =>
                                                         q.key ===
-                                                        `${item.item._id}-${item.pickup}`
+                                                        `${item._id}-${item.pickup}`
                                                     )?.quantity || ""
                                                   }
                                                   onChange={(e) => {
@@ -484,7 +508,7 @@ const CreatePurchase = () => {
                                                       e.target.value;
                                                     if (value >= 0) {
                                                       handleQuantityChange(
-                                                        item.item._id,
+                                                        item,
                                                         e.target.value,
                                                         item.pickup
                                                       );

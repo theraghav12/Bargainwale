@@ -251,19 +251,19 @@ const CreateOrder = () => {
       };
 
       // Validation for duplicate item
-      const isDuplicate = updatedItems.some(
-        (item, idx) =>
-          idx !== index &&
-          item.itemId === updatedItems[index].itemId &&
-          item.pickup === updatedItems[index].pickup
-      );
+      // const isDuplicate = updatedItems.some(
+      //   (item, idx) =>
+      //     idx !== index &&
+      //     item.itemId === updatedItems[index].itemId &&
+      //     item.pickup === updatedItems[index].pickup
+      // );
 
-      if (isDuplicate) {
-        toast.error(
-          "Duplicate item with the same pickup and name is not allowed!"
-        );
-        return;
-      }
+      // if (isDuplicate) {
+      //   toast.error(
+      //     "Duplicate item with the same pickup and name is not allowed!"
+      //   );
+      //   return;
+      // }
     } else {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
