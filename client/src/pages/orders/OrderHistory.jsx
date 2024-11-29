@@ -129,22 +129,54 @@ export function OrderHistory() {
   };
 
   const handleDownloadExcel = () => {
-    const formattedOrders = orders.map((order) => ({
-      "Company Bargain No": order.companyBargainNo,
-      "Company Bargain Date": formatDate(order.companyBargainDate),
-      "Seller Name": order.sellerName,
-      "Seller Location": order.sellerLocation,
-      "Seller Contact": order.sellerContact,
-      Status: order.status,
-      "Transport Type": order.transportType,
-      "Transport Location": order.transportLocation,
-      "Bill Type": order.billType,
-      Description: order.description,
-      "Created At": formatDate(order.createdAt),
-      "Updated At": formatDate(order.updatedAt),
-      "Payment Days": order.paymentDays,
-      "Reminder Days": order.reminderDays.join(", "),
-    }));
+    const formattedOrders = orders.flatMap((order) =>
+      order.items.map((item) => ({
+        "Company Bargain No": order.companyBargainNo,
+        "Company Bargain Date": formatDate(order.companyBargainDate),
+        "Manufacturer Name": order.manufacturer?.manufacturer || "N/A",
+        "Manufacturer Location": [
+          order.manufacturer?.manufacturerdeliveryAddress?.addressLine1,
+          order.manufacturer?.manufacturerdeliveryAddress?.addressLine2,
+          order.manufacturer?.manufacturerdeliveryAddress?.city,
+          order.manufacturer?.manufacturerdeliveryAddress?.state,
+          order.manufacturer?.manufacturerdeliveryAddress?.pinCode,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        "Manufacturer Contact":
+          order.manufacturer?.manufacturerContact || "N/A",
+        "Warehouse Name": order.warehouse?.name || "N/A",
+        "Warehouse Location": [
+          order.warehouse?.location?.addressLine1,
+          order.warehouse?.location?.addressLine2,
+          order.warehouse?.location?.city,
+          order.warehouse?.location?.state,
+          order.warehouse?.location?.pinCode,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        Status: order.status,
+        Inco: order.inco,
+        "Bill Type": order.billType,
+        Description: order.description || "N/A",
+        "Item Flavor": item.item?.flavor || "N/A",
+        "Item Material": item.item?.material || "N/A",
+        "Item Description": item.item?.materialdescription || "",
+        "Item Net Weight": item.item?.netweight || "N/A",
+        "Item Gross Weight": item.item?.grossweight || "N/A",
+        "Item Container Number": item.contNumber || "N/A",
+        "Item Quantity": item.quantity || "N/A",
+        "Purchase Quantity": item.purchaseQuantity || "N/A",
+        "Pickup Location": item.pickup || "N/A",
+        "Base Rate": item.baseRate || "N/A",
+        "Taxable Amount": item.taxableAmount || "N/A",
+        "Tax Paid Amount": item.taxpaidAmount || "N/A",
+        GST: item.gst || "N/A",
+        SGST: item.sgst || "N/A",
+        CGST: item.cgst || "N/A",
+        IGST: item.igst || "N/A",
+      }))
+    );
 
     const worksheet = XLSX.utils.json_to_sheet(formattedOrders);
     const workbook = XLSX.utils.book_new();

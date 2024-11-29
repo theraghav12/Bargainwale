@@ -83,21 +83,52 @@ export function BookingHistory() {
   };
 
   const handleDownloadExcel = () => {
-    const formattedbookings = bookings.map((b) => ({
-      "Company Bargain No": b.BargainNo,
-      "Buyer Name": b.buyer?.buyer,
-      "Buyer Location": b.buyer?.buyerLocation,
-      "Buyer Contact": b.buyer?.buyerContact,
-      Status: b.status,
-      "Delivery Type": b.deliveryOption,
-      "Delivery Location": `${b.deliveryAddress?.addressLine1}, ${b.deliveryAddress?.city}, ${b.deliveryAddress?.state}`,
-      "Bill Type": b.billType,
-      Description: b.description,
-      "Payment Days": b.paymentDays,
-      "Reminder Days": b.reminderDays.join(", "),
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(formattedbookings);
-    XLSX.writeFile(XLSX.utils.book_new(), worksheet, "bookings.xlsx");
+    const formattedBookings = bookings.flatMap((b) =>
+      b.items.map((item, index) => ({
+        "Bargain No": b.BargainNo,
+        "Bargain Date": formatDate(b.BargainDate),
+        "Buyer Name": b.buyer?.buyer,
+        "Buyer Company": b.buyer?.buyerCompany,
+        "Buyer Location": [
+          b.buyer?.buyerdeliveryAddress?.addressLine1,
+          b.buyer?.buyerdeliveryAddress?.addressLine2,
+          b.buyer?.buyerdeliveryAddress?.city,
+          b.buyer?.buyerdeliveryAddress?.state,
+          b.buyer?.buyerdeliveryAddress?.pinCode,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        "Buyer Contact": b.buyer?.buyerContact,
+        Status: b.status,
+        "Delivery Type": b.deliveryOption,
+        "Delivery Location": [
+          b.buyer?.deliveryAddress?.addressLine1,
+          b.buyer?.deliveryAddress?.addressLine2,
+          b.buyer?.deliveryAddress?.city,
+          b.buyer?.deliveryAddress?.state,
+          b.buyer?.deliveryAddress?.pinCode,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        Description: b.description,
+        "Item Material": item.item?.material || "",
+        "Item Description": item.item?.materialdescription || "",
+        "Item Flavor": item.item?.flavor || "",
+        "Item Quantity": item.quantity,
+        "Sold Quantity": item.soldQuantity,
+        "Pickup Location": item.pickup || "",
+        "Base Price": item.basePrice,
+        Discount: item.discount,
+        GST: item.gst,
+        "Taxable Amount": item.taxableAmount,
+        "Tax Paid Amount": item.taxpaidAmount,
+      }))
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedBookings);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+    XLSX.writeFile(workbook, "bookings.xlsx");
   };
 
   const handleDelete = async (id) => {
