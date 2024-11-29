@@ -1,20 +1,25 @@
 import Warehouse from "../models/warehouse.js";
 import mongoose from "mongoose";
 
-
 const warehouseController = {
   createWarehouse: async (req, res) => {
     try {
       const { name, location, organization, warehouseManager } = req.body;
+
+      if (!warehouseManager || !warehouseManager.name || !warehouseManager.email) {
+        return res.status(400).json({ message: "Warehouse manager name and email are required" });
+      }
+
       const warehouse = new Warehouse({
         name,
         location,
         organization,
-        warehouseManager,
+        warehouseManager, // Expecting { name, email }
         virtualInventory: [],
         billedInventory: [],
         soldInventory: [],
       });
+
       await warehouse.save();
       res.status(201).json({
         message: "Warehouse created successfully",
@@ -31,9 +36,9 @@ const warehouseController = {
   getAllWarehouses: async (req, res) => {
     try {
       const warehouses = await Warehouse.find({ organization: req.params.orgId })
-      .populate('virtualInventory.item') 
-      .populate('billedInventory.item')  
-      .populate('soldInventory.item');   
+        .populate("virtualInventory.item")
+        .populate("billedInventory.item")
+        .populate("soldInventory.item");
 
       res.status(200).json(warehouses);
     } catch (error) {
@@ -43,31 +48,23 @@ const warehouseController = {
 
   getWarehouseByFilter: async (req, res) => {
     try {
-      const { name, state, city, warehouseManager } = req.query;
+      const { name, state, city, warehouseManagerName, warehouseManagerEmail } = req.query;
 
       let filter = {};
 
-      if (name) {
-        filter.name = name;
-      }
-      if (state) {
-        filter["location.state"] = state;
-      }
-      if (city) {
-        filter["location.city"] = city;
-      }
-      if (warehouseManager) {
-        filter.warehouseManager = warehouseManager;
-      }
+      if (name) filter.name = name;
+      if (state) filter["location.state"] = state;
+      if (city) filter["location.city"] = city;
+      if (warehouseManagerName) filter["warehouseManager.name"] = warehouseManagerName;
+      if (warehouseManagerEmail) filter["warehouseManager.email"] = warehouseManagerEmail;
 
       filter.organization = req.params.orgId;
       const warehouses = await Warehouse.find(filter);
 
       if (warehouses.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No warehouses found matching the criteria." });
+        return res.status(404).json({ message: "No warehouses found matching the criteria." });
       }
+
       res.status(200).json({ warehouses });
     } catch (error) {
       res.status(500).json({ message: "Error retrieving warehouses", error });
@@ -78,14 +75,14 @@ const warehouseController = {
     try {
       const { id, orgId } = req.params;
       const warehouse = await Warehouse.findOne({ _id: id, organization: orgId })
-      .populate('virtualInventory.item') 
-      .populate('billedInventory.item') 
-      .populate('soldInventory.item');   
+        .populate("virtualInventory.item")
+        .populate("billedInventory.item")
+        .populate("soldInventory.item");
 
-    
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
+
       res.status(200).json(warehouse);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving warehouse", error });
@@ -102,11 +99,6 @@ const warehouseController = {
         return res.status(400).json({ message: "Invalid warehouse ID" });
       }
   
-      // Validate warehouseManager ID if provided
-      // if (warehouseManager && !mongoose.Types.ObjectId.isValid(warehouseManager)) {
-      //   return res.status(400).json({ message: "Invalid warehouseManager ID" });
-      // }
-  
       const warehouse = await Warehouse.findById(id);
   
       if (!warehouse) {
@@ -117,7 +109,18 @@ const warehouseController = {
       if (name) warehouse.name = name;
       if (state) warehouse.location.state = state;
       if (city) warehouse.location.city = city;
-      if (warehouseManager) warehouse.warehouseManager = warehouseManager;
+  
+      // Ensure warehouseManager is an object
+      if (warehouseManager) {
+        if (typeof warehouseManager === "object") {
+          if (warehouseManager.name) warehouse.warehouseManager.name = warehouseManager.name;
+          if (warehouseManager.email) warehouse.warehouseManager.email = warehouseManager.email;
+        } else {
+          return res.status(400).json({
+            message: "Invalid warehouseManager format. It should be an object with 'name' and 'email'.",
+          });
+        }
+      }
   
       await warehouse.save();
   
@@ -134,7 +137,7 @@ const warehouseController = {
     }
   },
   
-  
+
   deleteWarehouse: async (req, res) => {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);
