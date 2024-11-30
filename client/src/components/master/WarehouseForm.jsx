@@ -26,7 +26,8 @@ const WarehouseForm = () => {
     name: "",
     state: "",
     city: "",
-    warehouseManager: "",
+    warehouseManagerName: "",
+    warehouseManagerEmail: "",
     googleMapsLink: "",
     organization: localStorage.getItem("organizationId"),
   });
@@ -64,7 +65,10 @@ const WarehouseForm = () => {
           state: form.state,
           city: form.city,
         },
-        warehouseManager: form.warehouseManager,
+        warehouseManager: {
+          name: form.warehouseManagerName,
+          email: form.warehouseManagerEmail,
+        },
         googleMapsLink: form.googleMapsLink,
         organization: form.organization,
       };
@@ -75,7 +79,8 @@ const WarehouseForm = () => {
         name: "",
         state: "",
         city: "",
-        warehouseManager: "",
+        warehouseManagerName: "",
+        warehouseManagerEmail: "",
         googleMapsLink: "",
         organization: localStorage.getItem("organizationId"),
       });
@@ -88,7 +93,8 @@ const WarehouseForm = () => {
     }
   };
 
-  const handleEdit = async () => {
+  const handleEdit = async (e) => {
+    e.preventDefault();
     if (
       !editingWarehouse.name ||
       !editingWarehouse.location.state ||
@@ -103,7 +109,10 @@ const WarehouseForm = () => {
         name: editingWarehouse.name,
         state: editingWarehouse.location.state,
         city: editingWarehouse.location.city,
-        warehouseManager: editingWarehouse.warehouseManager,
+        warehouseManager: {
+          name: editingWarehouse.warehouseManagerName,
+          email: editingWarehouse.warehouseManagerEmail,
+        },
         googleMapsLink: editingWarehouse.googleMapsLink,
       };
       await updateWarehouse(updatedData, editingWarehouse._id);
@@ -260,139 +269,159 @@ const WarehouseForm = () => {
 
       {/* Add Warehouse Modal */}
       <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
-        <DialogHeader>Add Warehouse</DialogHeader>
-        <DialogBody divider>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            <Input
-              name="name"
-              label="Warehouse Name"
-              value={form.name}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="state"
-              label="State"
-              value={form.state}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="city"
-              label="City"
-              value={form.city}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="warehouseManager"
-              label="Warehouse Manager"
-              value={form.warehouseManager}
-              onChange={handleInputChange}
-            />
-            <Input
-              name="googleMapsLink"
-              label="Google Maps Link"
-              value={form.googleMapsLink}
-              onChange={handleInputChange}
-              className="col-span-2"
-            />
-          </form>
-        </DialogBody>
-        <DialogFooter className="flex gap-2">
-          <Button color="blue" onClick={handleSubmit} disabled={loading}>
-            {loading ? <Spinner /> : "Add Warehouse"}
-          </Button>
-          <Button color="gray" onClick={() => setAddModalOpen(false)}>
-            Cancel
-          </Button>
-        </DialogFooter>
-      </Dialog>
-
-      {/* Edit Warehouse Modal */}
-      {editingWarehouse && (
-        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
-          <DialogHeader>Edit Warehouse</DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>Add Warehouse</DialogHeader>
           <DialogBody divider>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="name"
                 label="Warehouse Name"
-                value={editingWarehouse.name}
-                onChange={(e) =>
-                  setEditingWarehouse((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
+                value={form.name}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="state"
                 label="State"
-                value={editingWarehouse.location?.state}
-                onChange={(e) =>
-                  setEditingWarehouse((prev) => ({
-                    ...prev,
-                    location: {
-                      ...prev.location,
-                      state: e.target.value,
-                    },
-                  }))
-                }
+                value={form.state}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="city"
                 label="City"
-                value={editingWarehouse.location?.city}
-                onChange={(e) =>
-                  setEditingWarehouse((prev) => ({
-                    ...prev,
-                    location: {
-                      ...prev.location,
-                      city: e.target.value,
-                    },
-                  }))
-                }
+                value={form.city}
+                onChange={handleInputChange}
                 required
               />
               <Input
-                name="warehouseManager"
-                label="Warehouse Manager"
-                value={editingWarehouse.warehouseManager}
-                onChange={(e) =>
-                  setEditingWarehouse((prev) => ({
-                    ...prev,
-                    warehouseManager: e.target.value,
-                  }))
-                }
+                name="warehouseManagerName"
+                label="Warehouse Manager Name"
+                value={form.warehouseManagerName}
+                onChange={handleInputChange}
+              />
+              <Input
+                name="warehouseManagerEmail"
+                label="Warehouse Manager Email"
+                value={form.warehouseManagerEmail}
+                onChange={handleInputChange}
+                type="email"
               />
               <Input
                 name="googleMapsLink"
                 label="Google Maps Link"
-                value={editingWarehouse.googleMapsLink}
-                onChange={(e) =>
-                  setEditingWarehouse((prev) => ({
-                    ...prev,
-                    googleMapsLink: e.target.value,
-                  }))
-                }
+                value={form.googleMapsLink}
+                onChange={handleInputChange}
                 className="col-span-2"
               />
-            </form>
+            </div>
           </DialogBody>
           <DialogFooter className="flex gap-2">
-            <Button color="blue" onClick={handleEdit} disabled={loading}>
-              {loading ? <Spinner /> : "Save Changes"}
+            <Button color="blue" type="submit" disabled={loading}>
+              {loading ? <Spinner /> : "Add Warehouse"}
             </Button>
-            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+            <Button color="gray" onClick={() => setAddModalOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>
+        </form>
+      </Dialog>
+
+      {/* Edit Warehouse Modal */}
+      {editingWarehouse && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <form onSubmit={handleEdit}>
+            <DialogHeader>Edit Warehouse</DialogHeader>
+            <DialogBody divider>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  name="name"
+                  label="Warehouse Name"
+                  value={editingWarehouse.name}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="state"
+                  label="State"
+                  value={editingWarehouse.location?.state}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      location: {
+                        ...prev.location,
+                        state: e.target.value,
+                      },
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="city"
+                  label="City"
+                  value={editingWarehouse.location?.city}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      location: {
+                        ...prev.location,
+                        city: e.target.value,
+                      },
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="warehouseManagerName"
+                  label="Warehouse Manager Name"
+                  value={editingWarehouse.warehouseManagerName}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      warehouseManagerName: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  name="warehouseManagerEmail"
+                  label="Warehouse Manager Email"
+                  value={editingWarehouse.warehouseManagerEmail}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      warehouseManagerEmail: e.target.value,
+                    }))
+                  }
+                  type="email"
+                />
+                <Input
+                  name="googleMapsLink"
+                  label="Google Maps Link"
+                  value={editingWarehouse.googleMapsLink}
+                  onChange={(e) =>
+                    setEditingWarehouse((prev) => ({
+                      ...prev,
+                      googleMapsLink: e.target.value,
+                    }))
+                  }
+                  className="col-span-2"
+                />
+              </div>
+            </DialogBody>
+            <DialogFooter className="flex gap-2">
+              <Button color="blue" type="submit" disabled={loading}>
+                {loading ? <Spinner /> : "Save Changes"}
+              </Button>
+              <Button color="gray" onClick={() => setEditModalOpen(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
         </Dialog>
       )}
 

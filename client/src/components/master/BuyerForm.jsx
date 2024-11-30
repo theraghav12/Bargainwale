@@ -115,20 +115,8 @@ const BuyerForm = () => {
     }
   };
 
-  const handleEdit = async () => {
-    if (
-      !editingBuyer.buyer ||
-      !editingBuyer.buyerCompany ||
-      !editingBuyer.addressLine1 ||
-      !editingBuyer.city ||
-      !editingBuyer.state ||
-      !editingBuyer.pinCode ||
-      !editingBuyer.buyerContact ||
-      !editingBuyer.buyerEmail
-    ) {
-      toast.error("Please fill out all required fields!");
-      return;
-    }
+  const handleEdit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       await updateBuyer(editingBuyer, editingBuyer._id);
@@ -286,221 +274,256 @@ const BuyerForm = () => {
 
       {/* Add Buyer Modal */}
       <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
-        <DialogHeader>Add Buyer</DialogHeader>
-        <DialogBody divider>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            <Input
-              name="buyer"
-              label="Buyer Name"
-              value={form.buyer}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="buyerCompany"
-              label="Company Name"
-              value={form.buyerCompany}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="addressLine1"
-              label="Address Line 1"
-              value={form.addressLine1}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="addressLine2"
-              label="Address Line 2"
-              value={form.addressLine2}
-              onChange={handleInputChange}
-            />
-            <Input
-              name="city"
-              label="City"
-              value={form.city}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="state"
-              label="State"
-              value={form.state}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="pinCode"
-              label="Pin Code"
-              value={form.pinCode}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="buyerContact"
-              label="Contact"
-              value={form.buyerContact}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="buyerEmail"
-              label="Email"
-              type="email"
-              value={form.buyerEmail}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="buyerGstno"
-              label="GST Number"
-              value={form.buyerGstno}
-              onChange={handleInputChange}
-            />
-            <Input
-              name="buyerGooglemaps"
-              label="Google Maps Link"
-              value={form.buyerGooglemaps}
-              onChange={handleInputChange}
-            />
-          </form>
-        </DialogBody>
-        <DialogFooter className="flex gap-2">
-          <Button color="blue" onClick={handleSubmit} disabled={loading}>
-            {loading ? <Spinner /> : "Add Buyer"}
-          </Button>
-          <Button color="gray" onClick={() => setAddModalOpen(false)}>
-            Cancel
-          </Button>
-        </DialogFooter>
-      </Dialog>
-
-      {/* Edit Buyer Modal */}
-      {editingBuyer && (
-        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
-          <DialogHeader>Edit Buyer</DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>Add Buyer</DialogHeader>
           <DialogBody divider>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="buyer"
                 label="Buyer Name"
-                value={editingBuyer.buyer}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyer: e.target.value,
-                  }))
-                }
+                value={form.buyer}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="buyerCompany"
                 label="Company Name"
-                value={editingBuyer.buyerCompany}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerCompany: e.target.value,
-                  }))
-                }
-                required
-              />
-              <Input
-                name="buyerGstno"
-                label="GST Number"
-                value={editingBuyer.buyerGstno}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerGstno: e.target.value,
-                  }))
-                }
+                value={form.buyerCompany}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="addressLine1"
                 label="Address Line 1"
-                value={editingBuyer.buyerdeliveryAddress?.addressLine1}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerdeliveryAddress: {
-                      ...prev.buyerdeliveryAddress,
-                      addressLine1: e.target.value,
-                    },
-                  }))
-                }
+                value={form.addressLine1}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="addressLine2"
                 label="Address Line 2"
-                value={editingBuyer.buyerdeliveryAddress?.addressLine2}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerdeliveryAddress: {
-                      ...prev.buyerdeliveryAddress,
-                      addressLine2: e.target.value,
-                    },
-                  }))
-                }
+                value={form.addressLine2}
+                onChange={handleInputChange}
               />
               <Input
                 name="city"
                 label="City"
-                value={editingBuyer.buyerdeliveryAddress?.city}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerdeliveryAddress: {
-                      ...prev.buyerdeliveryAddress,
-                      city: e.target.value,
-                    },
-                  }))
-                }
+                value={form.city}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="state"
                 label="State"
-                value={editingBuyer.buyerdeliveryAddress?.state}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerdeliveryAddress: {
-                      ...prev.buyerdeliveryAddress,
-                      state: e.target.value,
-                    },
-                  }))
-                }
+                value={form.state}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="pinCode"
                 label="Pin Code"
-                value={editingBuyer.buyerdeliveryAddress?.pinCode}
-                onChange={(e) =>
-                  setEditingBuyer((prev) => ({
-                    ...prev,
-                    buyerdeliveryAddress: {
-                      ...prev.buyerdeliveryAddress,
-                      pinCode: e.target.value,
-                    },
-                  }))
-                }
+                value={form.pinCode}
+                onChange={handleInputChange}
+                required
               />
-            </form>
+              <Input
+                name="buyerContact"
+                label="Contact"
+                value={form.buyerContact}
+                onChange={handleInputChange}
+                required
+              />
+              <Input
+                name="buyerEmail"
+                label="Email"
+                type="email"
+                value={form.buyerEmail}
+                onChange={handleInputChange}
+                required
+              />
+              <Input
+                name="buyerGstno"
+                label="GST Number"
+                value={form.buyerGstno}
+                onChange={handleInputChange}
+              />
+              <Input
+                name="buyerGooglemaps"
+                label="Google Maps Link"
+                value={form.buyerGooglemaps}
+                onChange={handleInputChange}
+              />
+            </div>
           </DialogBody>
           <DialogFooter className="flex gap-2">
-            <Button color="blue" onClick={handleEdit} disabled={loading}>
-              {loading ? <Spinner /> : "Save Changes"}
+            <Button color="blue" type="submit" disabled={loading}>
+              {loading ? <Spinner /> : "Add Buyer"}
             </Button>
-            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+            <Button color="gray" onClick={() => setAddModalOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>
+        </form>
+      </Dialog>
+
+      {/* Edit Buyer Modal */}
+      {editingBuyer && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <form onSubmit={handleEdit}>
+            <DialogHeader>Edit Buyer</DialogHeader>
+            <DialogBody divider>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  name="buyer"
+                  label="Buyer Name"
+                  value={editingBuyer.buyer}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyer: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="buyerCompany"
+                  label="Company Name"
+                  value={editingBuyer.buyerCompany}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerCompany: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="addressLine1"
+                  label="Address Line 1"
+                  value={editingBuyer.buyerdeliveryAddress?.addressLine1}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerdeliveryAddress: {
+                        ...prev.buyerdeliveryAddress,
+                        addressLine1: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="addressLine2"
+                  label="Address Line 2"
+                  value={editingBuyer.buyerdeliveryAddress?.addressLine2}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerdeliveryAddress: {
+                        ...prev.buyerdeliveryAddress,
+                        addressLine2: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="city"
+                  label="City"
+                  value={editingBuyer.buyerdeliveryAddress?.city}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerdeliveryAddress: {
+                        ...prev.buyerdeliveryAddress,
+                        city: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="state"
+                  label="State"
+                  value={editingBuyer.buyerdeliveryAddress?.state}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerdeliveryAddress: {
+                        ...prev.buyerdeliveryAddress,
+                        state: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="pinCode"
+                  label="Pin Code"
+                  value={editingBuyer.buyerdeliveryAddress?.pinCode}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerdeliveryAddress: {
+                        ...prev.buyerdeliveryAddress,
+                        pinCode: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="buyerContact"
+                  label="Contact"
+                  value={editingBuyer.buyerContact}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerContact: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="buyerEmail"
+                  label="Email"
+                  value={editingBuyer.buyerEmail}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerEmail: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="buyerGstno"
+                  label="GST Number"
+                  value={editingBuyer.buyerGstno}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerGstno: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  name="buyerGooglemaps"
+                  label="Google Maps Link"
+                  value={editingBuyer.buyerGooglemaps}
+                  onChange={(e) =>
+                    setEditingBuyer((prev) => ({
+                      ...prev,
+                      buyerGooglemaps: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </DialogBody>
+            <DialogFooter className="flex gap-2">
+              <Button color="blue" type="submit" disabled={loading}>
+                {loading ? <Spinner /> : "Save Changes"}
+              </Button>
+              <Button color="gray" onClick={() => setEditModalOpen(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
         </Dialog>
       )}
 

@@ -112,20 +112,8 @@ const ManufacturerForm = () => {
     }
   };
 
-  const handleEdit = async () => {
-    if (
-      !editingManufacturer.manufacturer ||
-      !editingManufacturer.manufacturerCompany ||
-      !editingManufacturer.addressLine1 ||
-      !editingManufacturer.city ||
-      !editingManufacturer.state ||
-      !editingManufacturer.pinCode ||
-      !editingManufacturer.manufacturerContact ||
-      !editingManufacturer.manufacturerEmail
-    ) {
-      toast.error("Please fill out all required fields!");
-      return;
-    }
+  const handleEdit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       await updateManufacturer(editingManufacturer, editingManufacturer._id);
@@ -284,237 +272,262 @@ const ManufacturerForm = () => {
 
       {/* Add Manufacturer Modal */}
       <Dialog open={addModalOpen} handler={() => setAddModalOpen(false)}>
-        <DialogHeader>Add Manufacturer</DialogHeader>
-        <DialogBody divider>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              name="manufacturer"
-              label="Manufacturer Name"
-              value={form.manufacturer}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="manufacturerCompany"
-              label="Company Name"
-              value={form.manufacturerCompany}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="addressLine1"
-              label="Address Line 1"
-              value={form.addressLine1}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="addressLine2"
-              label="Address Line 2"
-              value={form.addressLine2}
-              onChange={handleInputChange}
-            />
-            <Input
-              name="city"
-              label="City"
-              value={form.city}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="state"
-              label="State"
-              value={form.state}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="pinCode"
-              label="Pin Code"
-              value={form.pinCode}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="manufacturerContact"
-              label="Contact"
-              value={form.manufacturerContact}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="manufacturerEmail"
-              label="Email"
-              type="email"
-              value={form.manufacturerEmail}
-              onChange={handleInputChange}
-              required
-            />
-            <Input
-              name="manufacturerGstno"
-              label="GST Number"
-              value={form.manufacturerGstno}
-              onChange={handleInputChange}
-            />
-          </form>
-        </DialogBody>
-        <DialogFooter className="flex gap-2">
-          <Button color="blue" onClick={handleSubmit} disabled={loading}>
-            {loading ? <Spinner /> : "Add Manufacturer"}
-          </Button>
-          <Button color="gray" onClick={() => setAddModalOpen(false)}>
-            Cancel
-          </Button>
-        </DialogFooter>
-      </Dialog>
-
-      {/* Edit Manufacturer Modal */}
-      {editingManufacturer && (
-        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
-          <DialogHeader>Edit Manufacturer</DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>Add Manufacturer</DialogHeader>
           <DialogBody divider>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 name="manufacturer"
                 label="Manufacturer Name"
-                value={editingManufacturer.manufacturer}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturer: e.target.value,
-                  }))
-                }
+                value={form.manufacturer}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="manufacturerCompany"
                 label="Company Name"
-                value={editingManufacturer.manufacturerCompany}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerCompany: e.target.value,
-                  }))
-                }
+                value={form.manufacturerCompany}
+                onChange={handleInputChange}
                 required
               />
               <Input
                 name="addressLine1"
                 label="Address Line 1"
-                value={
-                  editingManufacturer.manufacturerdeliveryAddress?.addressLine1
-                }
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerdeliveryAddress: {
-                      ...prev.manufacturerdeliveryAddress,
-                      addressLine1: e.target.value,
-                    },
-                  }))
-                }
+                value={form.addressLine1}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="addressLine2"
                 label="Address Line 2"
-                value={
-                  editingManufacturer.manufacturerdeliveryAddress?.addressLine2
-                }
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerdeliveryAddress: {
-                      ...prev.manufacturerdeliveryAddress,
-                      addressLine2: e.target.value,
-                    },
-                  }))
-                }
+                value={form.addressLine2}
+                onChange={handleInputChange}
               />
               <Input
                 name="city"
                 label="City"
-                value={editingManufacturer.manufacturerdeliveryAddress?.city}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerdeliveryAddress: {
-                      ...prev.manufacturerdeliveryAddress,
-                      city: e.target.value,
-                    },
-                  }))
-                }
+                value={form.city}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="state"
                 label="State"
-                value={editingManufacturer.manufacturerdeliveryAddress?.state}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerdeliveryAddress: {
-                      ...prev.manufacturerdeliveryAddress,
-                      state: e.target.value,
-                    },
-                  }))
-                }
+                value={form.state}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="pinCode"
                 label="Pin Code"
-                value={editingManufacturer.manufacturerdeliveryAddress?.pinCode}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerdeliveryAddress: {
-                      ...prev.manufacturerdeliveryAddress,
-                      pinCode: e.target.value,
-                    },
-                  }))
-                }
+                value={form.pinCode}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="manufacturerContact"
                 label="Contact"
-                value={editingManufacturer.manufacturerContact}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerContact: e.target.value,
-                  }))
-                }
+                value={form.manufacturerContact}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="manufacturerEmail"
                 label="Email"
-                value={editingManufacturer.manufacturerEmail}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerEmail: e.target.value,
-                  }))
-                }
+                type="email"
+                value={form.manufacturerEmail}
+                onChange={handleInputChange}
+                required
               />
               <Input
                 name="manufacturerGstno"
                 label="GST Number"
-                value={editingManufacturer.manufacturerGstno}
-                onChange={(e) =>
-                  setEditingManufacturer((prev) => ({
-                    ...prev,
-                    manufacturerGstno: e.target.value,
-                  }))
-                }
+                value={form.manufacturerGstno}
+                onChange={handleInputChange}
               />
-            </form>
+              <Input
+                name="manufacturerGooglemaps"
+                label="Google Maps Link"
+                value={form.manufacturerGooglemaps}
+                onChange={handleInputChange}
+              />
+            </div>
           </DialogBody>
           <DialogFooter className="flex gap-2">
-            <Button color="blue" onClick={handleEdit} disabled={loading}>
-              {loading ? <Spinner /> : "Save Changes"}
+            <Button color="blue" type="submit" disabled={loading}>
+              {loading ? <Spinner /> : "Add Manufacturer"}
             </Button>
-            <Button color="gray" onClick={() => setEditModalOpen(false)}>
+            <Button color="gray" onClick={() => setAddModalOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>
+        </form>
+      </Dialog>
+
+      {/* Edit Manufacturer Modal */}
+      {editingManufacturer && (
+        <Dialog open={editModalOpen} handler={() => setEditModalOpen(false)}>
+          <form onSubmit={handleEdit}>
+            <DialogHeader>Edit Manufacturer</DialogHeader>
+            <DialogBody divider>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  name="manufacturer"
+                  label="Manufacturer Name"
+                  value={editingManufacturer.manufacturer}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturer: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="manufacturerCompany"
+                  label="Company Name"
+                  value={editingManufacturer.manufacturerCompany}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerCompany: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <Input
+                  name="addressLine1"
+                  label="Address Line 1"
+                  value={
+                    editingManufacturer.manufacturerdeliveryAddress
+                      ?.addressLine1
+                  }
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerdeliveryAddress: {
+                        ...prev.manufacturerdeliveryAddress,
+                        addressLine1: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="addressLine2"
+                  label="Address Line 2"
+                  value={
+                    editingManufacturer.manufacturerdeliveryAddress
+                      ?.addressLine2
+                  }
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerdeliveryAddress: {
+                        ...prev.manufacturerdeliveryAddress,
+                        addressLine2: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="city"
+                  label="City"
+                  value={editingManufacturer.manufacturerdeliveryAddress?.city}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerdeliveryAddress: {
+                        ...prev.manufacturerdeliveryAddress,
+                        city: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="state"
+                  label="State"
+                  value={editingManufacturer.manufacturerdeliveryAddress?.state}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerdeliveryAddress: {
+                        ...prev.manufacturerdeliveryAddress,
+                        state: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="pinCode"
+                  label="Pin Code"
+                  value={
+                    editingManufacturer.manufacturerdeliveryAddress?.pinCode
+                  }
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerdeliveryAddress: {
+                        ...prev.manufacturerdeliveryAddress,
+                        pinCode: e.target.value,
+                      },
+                    }))
+                  }
+                />
+                <Input
+                  name="manufacturerContact"
+                  label="Contact"
+                  value={editingManufacturer.manufacturerContact}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerContact: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  name="manufacturerEmail"
+                  label="Email"
+                  value={editingManufacturer.manufacturerEmail}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerEmail: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  name="manufacturerGstno"
+                  label="GST Number"
+                  value={editingManufacturer.manufacturerGstno}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerGstno: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  name="manufacturerGooglemaps"
+                  label="Google Maps Link"
+                  value={editingManufacturer.manufacturerGooglemaps}
+                  onChange={(e) =>
+                    setEditingManufacturer((prev) => ({
+                      ...prev,
+                      manufacturerGooglemaps: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </DialogBody>
+            <DialogFooter className="flex gap-2">
+              <Button color="blue" type="submit" disabled={loading}>
+                {loading ? <Spinner /> : "Save Changes"}
+              </Button>
+              <Button color="gray" onClick={() => setEditModalOpen(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
         </Dialog>
       )}
 
