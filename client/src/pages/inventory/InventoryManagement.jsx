@@ -3,8 +3,13 @@ import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 import { getItemHistoryById } from "@/services/itemService";
 import { ChevronDown, Check } from "lucide-react";
 
-const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) => {
-  // InventoryTable component remains exactly the same as before
+const InventoryTable = ({
+  data,
+  type,
+  onItemClick,
+  expandedItem,
+  itemHistory,
+}) => {
   if (!data?.length) {
     return (
       <div className="text-gray-500 p-8 text-center">
@@ -25,6 +30,9 @@ const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) 
               Item Name
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Item Pickup
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Quantity
             </th>
             {type === "sold" && (
@@ -37,7 +45,7 @@ const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) 
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item, index) => (
             <React.Fragment key={index}>
-              <tr 
+              <tr
                 className="hover:bg-gray-50 cursor-pointer transition-colors"
                 onClick={() => onItemClick(item.item._id)}
               >
@@ -46,6 +54,10 @@ const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) 
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {item.item.materialdescription}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {String(item.pickup)?.charAt(0).toUpperCase() +
+                    String(item.pickup).slice(1)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {item.quantity}
@@ -60,7 +72,9 @@ const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) 
                 <tr>
                   <td colSpan={4} className="px-6 py-4">
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-3">Item History</h3>
+                      <h3 className="font-medium text-gray-900 mb-3">
+                        Item History
+                      </h3>
                       {itemHistory?.length > 0 ? (
                         <div className="space-y-2">
                           {itemHistory.map((history, idx) => (
@@ -90,7 +104,9 @@ const InventoryTable = ({ data, type, onItemClick, expandedItem, itemHistory }) 
                                     : "text-red-600"
                                 }`}
                               >
-                                {history.destinationModel === "Warehouse" ? "+" : "-"} 
+                                {history.destinationModel === "Warehouse"
+                                  ? "+"
+                                  : "-"}
                                 {history.quantity}
                               </span>
                             </div>
@@ -190,12 +206,16 @@ export function Inventory() {
       : inventory.filter((item) => item.pickup === pickupFilter);
   };
 
+  console.log(warehouses);
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 p-4 bg-white border-r border-gray-200">
         <div className="mb-4">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Select warehouse</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">
+            Select warehouse
+          </h2>
           <div className="space-y-2">
             {warehouses.map((warehouse) => (
               <button
