@@ -95,14 +95,6 @@ const WarehouseForm = () => {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-    if (
-      !editingWarehouse.name ||
-      !editingWarehouse.location.state ||
-      !editingWarehouse.location.city
-    ) {
-      toast.error("Please fill out all required fields!");
-      return;
-    }
     setLoading(true);
     try {
       const updatedData = {
