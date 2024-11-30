@@ -101,17 +101,39 @@ export default function PurchaseHistory() {
   const { organization } = useOrganization();
 
   const handleDownloadExcel = () => {
-    const formattedbookings = filteredPurchases.map((purchase) => ({
-      "Invoice Date": formatDate(purchase.invoiceDate),
-      "Invoice Number": purchase.invoiceNumber,
-      "Buyer Name": purchase.buyer?.buyer,
-      Warehouse: purchase.warehouseId?.name,
-      Transporter: purchase.transporterId?.transport,
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(formattedbookings);
+    const formattedInvoices = purchases.flatMap((purchase) =>
+      purchase.items.map((item) => ({
+        "Invoice Number": purchase.invoiceNumber,
+        "Invoice Date": formatDate(purchase.invoiceDate),
+        "Order Number": purchase.orderId?.companyBargainNo || "",
+        "Order Date": formatDate(purchase.orderId?.companyBargainDate || ""),
+        "Transport Agency": purchase.transporterId?.transportAgency || "",
+        "Transport Type": purchase.transporterId?.transportType || "",
+        "Transport Contact": purchase.transporterId?.transportContact || "",
+        "Warehouse Name": purchase.warehouseId?.name || "",
+        "Warehouse Location": [
+          purchase.warehouseId?.location?.addressLine1,
+          purchase.warehouseId?.location?.addressLine2,
+          purchase.warehouseId?.location?.city,
+          purchase.warehouseId?.location?.state,
+          purchase.warehouseId?.location?.pinCode,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        "Item Material": item.itemId?.material || "",
+        "Item Description": item.itemId?.materialdescription || "",
+        "Item Flavor": item.itemId?.flavor || "",
+        "Item Net Weight": item.itemId?.netweight || "",
+        "Pickup Location": item.pickup || "",
+        "Item Quantity": item.quantity,
+      }))
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedInvoices);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Purchases");
     XLSX.writeFile(workbook, "Purchases.xlsx");
+    toast.success("Purchase history downloaded successfully!");
   };
 
   const uniqueTransporters = [

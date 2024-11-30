@@ -169,22 +169,27 @@ const ManufacturerForm = () => {
     const excelData = manufacturer.map((man) => ({
       Name: man.manufacturer,
       Company: man.manufacturerCompany,
-      Address: `${man.manufacturerdeliveryAddress?.addressLine1 || ""}, ${
-        man.manufacturerdeliveryAddress?.addressLine2 || ""
-      }, ${man.manufacturerdeliveryAddress?.city || ""}, ${
-        man.manufacturerdeliveryAddress?.state || ""
-      }, ${man.manufacturerdeliveryAddress?.pinCode || ""}`,
+      Address: [
+        man.manufacturerdeliveryAddress?.addressLine1,
+        man.manufacturerdeliveryAddress?.addressLine2,
+        man.manufacturerdeliveryAddress?.city,
+        man.manufacturerdeliveryAddress?.state,
+        man.manufacturerdeliveryAddress?.pinCode,
+      ]
+        .filter(Boolean)
+        .join(", "),
       Contact: man.manufacturerContact,
       Email: man.manufacturerEmail,
-      GST: man.manufacturerGstno,
+      "GST Number": man.manufacturerGstno,
+      "Google Maps Link": man.manufacturerGooglemaps,
     }));
 
     const ws = utils.json_to_sheet(excelData);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, "Manufacturers");
 
-    writeFile(wb, "manufacturers.xlsx");
-    toast.success("Excel file downloaded!");
+    writeFile(wb, "Manufacturers_List.xlsx");
+    toast.success("Manufacturers list downloaded successfully!");
   };
 
   return (

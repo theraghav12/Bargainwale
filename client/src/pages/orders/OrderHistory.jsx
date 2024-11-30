@@ -181,7 +181,8 @@ export function OrderHistory() {
     const worksheet = XLSX.utils.json_to_sheet(formattedOrders);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-    XLSX.writeFile(workbook, "orders.xlsx");
+    XLSX.writeFile(workbook, "Orders.xlsx");
+    toast.success("Order history downloaded successfully!");
   };
 
   const handleDelete = async (id) => {

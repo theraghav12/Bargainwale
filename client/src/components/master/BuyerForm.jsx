@@ -173,15 +173,19 @@ const BuyerForm = () => {
     const data = buyers.map((buyer) => ({
       Name: buyer.buyer,
       Company: buyer.buyerCompany,
-      "Address Line 1": buyer.buyerdeliveryAddress?.addressLine1 || "",
-      "Address Line 2": buyer.buyerdeliveryAddress?.addressLine2 || "",
-      City: buyer.buyerdeliveryAddress?.city || "",
-      State: buyer.buyerdeliveryAddress?.state || "",
-      Pincode: buyer.buyerdeliveryAddress?.pinCode || "",
+      Address: [
+        buyer.buyerdeliveryAddress?.addressLine1,
+        buyer.buyerdeliveryAddress?.addressLine2,
+        buyer.buyerdeliveryAddress?.city,
+        buyer.buyerdeliveryAddress?.state,
+        buyer.buyerdeliveryAddress?.pinCode,
+      ]
+        .filter(Boolean)
+        .join(", "),
       Contact: buyer.buyerContact,
       Email: buyer.buyerEmail,
       "GST Number": buyer.buyerGstno,
-      "Google Maps": buyer.buyerGooglemaps,
+      "Google Maps Link": buyer.buyerGooglemaps,
     }));
 
     const workbook = XLSX.utils.book_new();

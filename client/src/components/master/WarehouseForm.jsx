@@ -160,8 +160,9 @@ const WarehouseForm = () => {
       Name: warehouse.name,
       State: warehouse.location?.state || "",
       City: warehouse.location?.city || "",
-      Manager: warehouse.warehouseManager || "",
-      "Google Maps": warehouse.googleMapsLink || "",
+      "Manager Name": warehouse.warehouseManager?.name || "",
+      "Manager Email": warehouse.warehouseManager?.email || "",
+      "Google Maps Link": warehouse.googleMapsLink || "",
     }));
 
     const workbook = XLSX.utils.book_new();
