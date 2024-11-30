@@ -109,10 +109,7 @@ const WarehouseForm = () => {
         name: editingWarehouse.name,
         state: editingWarehouse.location.state,
         city: editingWarehouse.location.city,
-        warehouseManager: {
-          name: editingWarehouse.warehouseManagerName,
-          email: editingWarehouse.warehouseManagerEmail,
-        },
+        warehouseManager: editingWarehouse.warehouseManager,
         googleMapsLink: editingWarehouse.googleMapsLink,
       };
       await updateWarehouse(updatedData, editingWarehouse._id);
@@ -225,7 +222,10 @@ const WarehouseForm = () => {
                   City: {warehouse.location?.city}
                 </Typography>
                 <Typography className="text-sm text-gray-600">
-                  Manager: {warehouse.warehouseManager || "N/A"}
+                  Manager Name: {warehouse.warehouseManager?.name || "N/A"}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Manager Email: {warehouse.warehouseManager?.email || "N/A"}
                 </Typography>
                 {warehouse.googleMapsLink && (
                   <Typography className="text-sm text-gray-600">
@@ -377,24 +377,30 @@ const WarehouseForm = () => {
                   required
                 />
                 <Input
-                  name="warehouseManagerName"
+                  name="name"
                   label="Warehouse Manager Name"
-                  value={editingWarehouse.warehouseManagerName}
+                  value={editingWarehouse.warehouseManager.name}
                   onChange={(e) =>
                     setEditingWarehouse((prev) => ({
                       ...prev,
-                      warehouseManagerName: e.target.value,
+                      warehouseManager: {
+                        ...prev.warehouseManager,
+                        name: e.target.value,
+                      },
                     }))
                   }
                 />
                 <Input
-                  name="warehouseManagerEmail"
+                  name="email"
                   label="Warehouse Manager Email"
-                  value={editingWarehouse.warehouseManagerEmail}
+                  value={editingWarehouse.warehouseManager.email}
                   onChange={(e) =>
                     setEditingWarehouse((prev) => ({
                       ...prev,
-                      warehouseManagerEmail: e.target.value,
+                      warehouseManager: {
+                        ...prev.warehouseManager,
+                        email: e.target.value,
+                      },
                     }))
                   }
                   type="email"
