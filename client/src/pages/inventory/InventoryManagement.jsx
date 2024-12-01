@@ -4,6 +4,7 @@ import { getItemHistoryById } from "@/services/itemService";
 import { ChevronDown, Check } from "lucide-react";
 
 const InventoryTable = ({
+  selectedTab,
   data,
   type,
   onItemClick,
@@ -29,9 +30,11 @@ const InventoryTable = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Item Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Item Pickup
-            </th>
+            {selectedTab !== "billed" && (
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Item Pickup
+              </th>
+            )}
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Quantity
             </th>
@@ -55,10 +58,12 @@ const InventoryTable = ({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {item.item.materialdescription}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {String(item.pickup)?.charAt(0).toUpperCase() +
-                    String(item.pickup).slice(1)}
-                </td>
+                {selectedTab !== "billed" && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {String(item.pickup)?.charAt(0).toUpperCase() +
+                      String(item.pickup).slice(1)}
+                  </td>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {item.quantity}
                 </td>
@@ -138,12 +143,21 @@ export function Inventory() {
   const [pickupFilter, setPickupFilter] = useState("all");
   const [expandedItem, setExpandedItem] = useState(null);
   const [itemHistory, setItemHistory] = useState([]);
+  const [cityFilter, setCityFilter] = useState("all");
+  const [cities, setCities] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const warehousesData = await getWarehouses();
         setWarehouses(warehousesData);
+
+        const uniqueCities = [
+          ...new Set(
+            warehousesData.map((warehouse) => warehouse.location?.city)
+          ),
+        ];
+        setCities(uniqueCities);
 
         // Automatically select the first warehouse if available
         if (warehousesData.length > 0) {
@@ -206,31 +220,50 @@ export function Inventory() {
       : inventory.filter((item) => item.pickup === pickupFilter);
   };
 
-  console.log(warehouses);
+  const filteredWarehouses =
+    cityFilter === "all"
+      ? warehouses
+      : warehouses.filter(
+          (warehouse) => warehouse.location?.city === cityFilter
+        );
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="w-64 p-4 bg-white border-r border-gray-200">
+      <div className="w-64 p-4 bg-white border-r border-gray-200 mt-5">
         <div className="mb-4">
           <h2 className="text-lg font-medium text-gray-900 mb-4">
-            Select warehouse
+            Select city
           </h2>
           <div className="space-y-2">
-            {warehouses.map((warehouse) => (
+            <select
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+            >
+              <option value="all">All Cities</option>
+              {cities?.map((city, index) => (
+                <option key={index} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="mb-4">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Warehouses</h2>
+          <div className="space-y-2">
+            {filteredWarehouses.map((warehouse) => (
               <button
                 key={warehouse._id}
                 onClick={() => setSelectedWarehouse(warehouse._id)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm rounded-md transition-colors ${
+                className={`w-full px-3 py-2 text-left rounded-md shadow-sm ${
                   selectedWarehouse === warehouse._id
-                    ? "bg-blue-50 text-blue-600 font-medium"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
                 }`}
               >
-                <span>{warehouse.name}</span>
-                {selectedWarehouse === warehouse._id && (
-                  <Check className="h-4 w-4 text-blue-600" />
-                )}
+                {warehouse.name}
               </button>
             ))}
           </div>
@@ -290,6 +323,7 @@ export function Inventory() {
             ) : (
               <div className="overflow-hidden">
                 <InventoryTable
+                  selectedTab={selectedTab}
                   data={getFilteredInventory(selectedTab)}
                   type={selectedTab}
                   onItemClick={handleItemClick}

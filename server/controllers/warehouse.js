@@ -6,9 +6,9 @@ const warehouseController = {
     try {
       const { name, location, organization, warehouseManager } = req.body;
 
-      if (!warehouseManager || !warehouseManager.name || !warehouseManager.email) {
-        return res.status(400).json({ message: "Warehouse manager name and email are required" });
-      }
+      // if (!warehouseManager || !warehouseManager.name || !warehouseManager.email) {
+      //   return res.status(400).json({ message: "Warehouse manager name and email are required" });
+      // }
 
       const warehouse = new Warehouse({
         name,
@@ -93,23 +93,23 @@ const warehouseController = {
     try {
       const { id } = req.params;
       const { warehouseManager, name, state, city } = req.body;
-  
+
       // Validate warehouse ID
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid warehouse ID" });
       }
-  
+
       const warehouse = await Warehouse.findById(id);
-  
+
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found" });
       }
-  
+
       // Update fields
       if (name) warehouse.name = name;
       if (state) warehouse.location.state = state;
       if (city) warehouse.location.city = city;
-  
+
       // Ensure warehouseManager is an object
       if (warehouseManager) {
         if (typeof warehouseManager === "object") {
@@ -121,9 +121,9 @@ const warehouseController = {
           });
         }
       }
-  
+
       await warehouse.save();
-  
+
       res.status(200).json({
         message: "Warehouse details updated successfully",
         warehouse,
@@ -136,7 +136,7 @@ const warehouseController = {
       });
     }
   },
-  
+
 
   deleteWarehouse: async (req, res) => {
     try {

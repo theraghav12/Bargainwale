@@ -317,6 +317,7 @@ const CreateBooking = () => {
               `Base price cannot be greater than ${formatCurrency(apiPrice)}`
             );
             updatedItems[index].basePrice = apiPrice;
+            return;
           }
 
           if (!updatedItems[index].basePrice) {
