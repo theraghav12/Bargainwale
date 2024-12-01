@@ -30,7 +30,7 @@ export function BookingHistory() {
       try {
         const response = await getBookings();
 
-        const filteredBookings = response.map((booking) => {
+        let filteredBookings = response.map((booking) => {
           const isDiscounted = booking.items?.some((item) => item.discount > 0);
           return { ...booking, isDiscountRequested: isDiscounted };
         });
