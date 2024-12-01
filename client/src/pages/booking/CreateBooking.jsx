@@ -132,6 +132,7 @@ const CreateBooking = () => {
         },
         paymentDays,
         organization: form.organization,
+        totalAmount: calculateTotalAmount(),
       };
 
       if (isDefaultAddress) {
@@ -259,92 +260,96 @@ const CreateBooking = () => {
       toast.error("Please select a warehouse first");
       return;
     }
-  
+
     const updatedItems = [...form.items];
-  
-    // Convert value to a number if it's meant to be numeric
+
+    if (value === "" || value === null) {
+      value = null;
+    }
+
     if (["quantity", "basePrice", "discount", "contNumber"].includes(field)) {
       value = Number(value) || null;
-  
-      // Check for negative values
       if (value < 0) {
-        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} cannot be negative.`);
+        toast.error(
+          `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } cannot be negative.`
+        );
         return;
       }
-  
-      // Discount can be zero but not negative
+
       if (field === "discount" && value < 0) {
         toast.error("Discount cannot be negative.");
         return;
       }
-  
-      // Quantity and contNumber cannot be zero or negative
-      if (["quantity", "contNumber"].includes(field) && value <= 0) {
-        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} must be greater than zero.`);
-        return;
-      }
+
+      // if (["quantity", "contNumber"].includes(field) && value <= 0) {
+      //   toast.error(
+      //     `${
+      //       field.charAt(0).toUpperCase() + field.slice(1)
+      //     } must be greater than zero.`
+      //   );
+      //   return;
+      // }
     }
-  
-    // Assigning value based on type
+
     if (field === "item" || field === "pickup") {
       updatedItems[index] = { ...updatedItems[index], [field]: value.value };
     } else {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
-  
-    try {
-      if (
-        updatedItems[index].item &&
-        updatedItems[index].pickup &&
-        form.warehouse
-      ) {
+
+    if (
+      updatedItems[index].item &&
+      updatedItems[index].pickup &&
+      form.warehouse
+    ) {
+      try {
         const response = await getPricesById(
           updatedItems[index].item,
           form.warehouse
         );
         if (response.status === 200) {
-          if (updatedItems[index].pickup === "rack") {
-            updatedItems[index].basePrice = response.data.rackPrice;
-          } else if (updatedItems[index].pickup === "plant") {
-            updatedItems[index].basePrice = response.data.plantPrice;
-          } else {
-            updatedItems[index].basePrice = response.data.depoPrice;
+          const apiPrice = response.data[updatedItems[index].pickup + "Price"];
+
+          if (updatedItems[index].basePrice > apiPrice) {
+            toast.error(
+              `Base price cannot be greater than ${formatCurrency(apiPrice)}`
+            );
+            updatedItems[index].basePrice = apiPrice;
+          }
+
+          if (!updatedItems[index].basePrice) {
+            updatedItems[index].basePrice = apiPrice;
           }
         }
-      }
-    } catch (err) {
-      if (err.response.status === 404) {
-        toast.error("Item price not updated for selected warehouse");
-      }
-    }
-  
-    if (field === "item") {
-      const selectedItem = itemsOptions?.find(
-        (option) => option._id === value.value
-      );
-      if (selectedItem) {
-        const gst = selectedItem.gst;
-        updatedItems[index].gst = gst;
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          toast.error("Item price not found for the selected warehouse.");
+        }
       }
     }
-  
-    if (field === "quantity" || field === "basePrice" || field === "discount") {
+
+    if (["quantity", "basePrice", "discount"].includes(field)) {
       const quantity = updatedItems[index].quantity || 0;
       const basePrice = updatedItems[index].basePrice || 0;
       const discount = updatedItems[index].discount || 0;
-      setApproval(discount > 0);
       updatedItems[index].taxableAmount =
         quantity * (basePrice - discount / 100);
       updatedItems[index].taxpaidAmount =
         updatedItems[index].taxableAmount +
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
     }
-  
+
+    if (field === "basePrice") {
+      updatedItems[index] = { ...updatedItems[index], [field]: value };
+    }
+
     setForm((prevData) => ({
       ...prevData,
       items: updatedItems,
     }));
-  };  
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -935,10 +940,9 @@ const CreateBooking = () => {
                           onChange={(e) =>
                             handleItemChange(index, "basePrice", e.target.value)
                           }
-                          disabled
                           required
                           placeholder="Base Rate"
-                          className="w-[150px] bg-white text-center px-2 py-1 rounded-md placeholder-[#737373]"
+                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
                       <td className="py-4 px-2 text-center">

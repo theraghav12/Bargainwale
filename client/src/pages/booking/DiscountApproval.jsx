@@ -6,6 +6,7 @@ import {
   DialogBody,
   DialogFooter,
   Button,
+  Input,
 } from "@material-tailwind/react";
 import { getBookings, updateDiscount } from "@/services/bookingService";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ const DiscountApprovalPage = () => {
     setSelectedBooking(null);
     setIsModalOpen(false);
     setItemApprovals([]);
+    setManualDiscounts({});
   };
 
   const formatDate = (date) => {
@@ -61,22 +63,47 @@ const DiscountApprovalPage = () => {
     fetchBookings();
   }, []);
 
-  const handleItemApproval = (itemId, approved) => {
+  const [manualDiscounts, setManualDiscounts] = useState({});
+
+  // Update manual discounts for a specific item
+  const handleManualDiscountChange = (itemId, value) => {
+    setManualDiscounts((prev) => ({
+      ...prev,
+      [itemId]: Number(value),
+    }));
+  };
+
+  const handleItemApproval = (itemId, approved, discountValue = null) => {
     setItemApprovals((prevApprovals) =>
       prevApprovals.map((item) =>
         item.itemId === itemId ? { ...item, approved } : item
       )
     );
+    if (approved && discountValue !== null) {
+      handleManualDiscountChange(itemId, discountValue);
+    }
   };
 
   const handleSubmit = async () => {
     if (!selectedBooking) return;
 
+    const unapprovedItems = itemApprovals.some(
+      (item) => item.approved === null
+    );
+
+    if (unapprovedItems) {
+      toast.error(
+        "Please approve or reject all discount items before submitting."
+      );
+      return;
+    }
+
     const updatedItems = {
       items: itemApprovals.map((item) => ({
         item: item.itemId,
         discount: item.approved
-          ? selectedBooking.items?.find((i) => i.item?._id === item.itemId)
+          ? manualDiscounts[item.itemId] ||
+            selectedBooking.items?.find((i) => i.item?._id === item.itemId)
               ?.discount
           : 0,
       })),
@@ -240,14 +267,48 @@ const DiscountApprovalPage = () => {
                         <td className="border p-2">{item.taxableAmount}</td>
                         <td className="border p-2">{item.taxpaidAmount}</td>
                         <td className="border p-2">₹{item?.basePrice}</td>
-                        <td className="border p-2">₹{item?.discount}</td>
+                        <td className="border p-2">
+                          {approval === true ? (
+                            <Input
+                              type="number"
+                              value={
+                                manualDiscounts[item.item._id] !== undefined
+                                  ? manualDiscounts[item.item._id]
+                                  : item?.discount/100 || ""
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const numericValue =
+                                  value === "" ? "" : Number(value);
+
+                                if (numericValue <= item.basePrice) {
+                                  setManualDiscounts((prev) => ({
+                                    ...prev,
+                                    [item.item._id]: numericValue,
+                                  }));
+                                } else {
+                                  toast.error(
+                                    "Discount cannot be greater than the base price."
+                                  );
+                                }
+                              }}
+                              className="border p-1 rounded"
+                            />
+                          ) : (
+                            `₹${item?.discount/100}`
+                          )}
+                        </td>
                         {selectedBooking.discountStatus === "pending" && (
                           <td className="border p-2 flex gap-2">
                             {item.discount > 0 && (
                               <>
                                 <button
                                   onClick={() =>
-                                    handleItemApproval(item.item._id, true)
+                                    handleItemApproval(
+                                      item.item._id,
+                                      true,
+                                      manualDiscounts[item.item._id]
+                                    )
                                   }
                                   className={`text-white rounded-full p-2 hover:bg-green-700 ${getButtonStyles(
                                     approval,
@@ -273,24 +334,6 @@ const DiscountApprovalPage = () => {
                             )}
                           </td>
                         )}
-                        {/* <td className="border p-2 text-center">
-                        <input
-                          type="radio"
-                          name={`approval-${item.item._id}`}
-                          onChange={() =>
-                            handleItemApproval(item.item._id, true)
-                          }
-                        />
-                      </td>
-                      <td className="border p-2 text-center">
-                        <input
-                          type="radio"
-                          name={`approval-${item.item._id}`}
-                          onChange={() =>
-                            handleItemApproval(item.item._id, false)
-                          }
-                        />
-                      </td> */}
                       </tr>
                     );
                   })}

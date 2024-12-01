@@ -23,7 +23,7 @@ import CreateOrganizationPage from "./pages/auth/CreateOrganization";
 import largeScreen from "./assets/large-screen.png";
 import { useUser } from "@clerk/clerk-react";
 import Documentation from "@/components/documentation/Documentation"; // Import the Documentation component
-import DiscountApprovalPage from "./pages/orders/DiscountApproval";
+import DiscountApprovalPage from "./pages/booking/DiscountApproval";
 
 const App = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);

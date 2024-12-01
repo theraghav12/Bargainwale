@@ -29,7 +29,11 @@ export function BookingHistory() {
     const fetchBookings = async () => {
       try {
         const response = await getBookings();
-        let filteredBookings = response;
+
+        const filteredBookings = response.map((booking) => {
+          const isDiscounted = booking.items?.some((item) => item.discount > 0);
+          return { ...booking, isDiscountRequested: isDiscounted };
+        });
 
         if (statusFilter !== "All") {
           filteredBookings = filteredBookings.filter(
@@ -231,15 +235,28 @@ export function BookingHistory() {
                       <td className="px-4 py-2 border-b text-center">
                         {b.buyer?.buyer}
                       </td>
-                      <td className="py-2 border-b text-center">
+                      <td className="py-2 border-b text-center flex justify-center gap-2">
                         {b.discountStatus === "pending" ? (
-                          <Chip value="Approval Pending" color="red" />
+                          <Chip
+                            className="w-fit"
+                            value="Approval Pending"
+                            color="red"
+                          />
                         ) : (
                           <Chip
+                            className="w-fit"
                             value={b.status}
                             color={b.status === "created" ? "blue" : "green"}
                           />
                         )}
+                        {b.isDiscountRequested &&
+                          b.discountStatus === "approved" && (
+                            <Chip
+                              className="w-fit"
+                              value="Discount Approved"
+                              color="green"
+                            />
+                          )}
                       </td>
                       <td className="px-4 py-2 border-b text-center">
                         {b.deliveryOption}
@@ -277,6 +294,7 @@ export function BookingHistory() {
                                   "Packaging",
                                   "Pickup",
                                   "Base Price",
+                                  "Discount",
                                   "Weight",
                                   "Quantity",
                                 ].map((header) => (
@@ -309,6 +327,9 @@ export function BookingHistory() {
                                   </td>
                                   <td className="px-2 py-1 text-center">
                                     ₹{item.basePrice}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    ₹{item.discount / 100}
                                   </td>
                                   <td className="px-2 py-1 text-center">
                                     {item.item.netweight}
