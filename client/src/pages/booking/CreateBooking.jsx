@@ -338,6 +338,7 @@ const CreateBooking = () => {
       const quantity = updatedItems[index].quantity || 0;
       const basePrice = updatedItems[index].basePrice || 0;
       const discount = updatedItems[index].discount || 0;
+      setApproval(discount > 0);
       updatedItems[index].taxableAmount =
         quantity * (basePrice - (discount * basePrice) / 100);
       updatedItems[index].gstAmount =

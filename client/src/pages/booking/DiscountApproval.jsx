@@ -236,12 +236,12 @@ const DiscountApprovalPage = () => {
                       Amount (with tax)
                     </th>
                     <th className="border p-2 min-w-[80px]">Base Rate</th>
-                    <th className="border p-2 min-w-[80px]">
-                      Discount Price{" "}
+                    <th className="border p-2 min-w-[100px]">
+                      Discount %
                       {selectedBooking.discountStatus === "pending" ? (
-                        <span>Requested</span>
+                        <span> Requested</span>
                       ) : (
-                        <span>Approved/Rejected</span>
+                        <span> Approved/Rejected</span>
                       )}
                     </th>
                     {selectedBooking.discountStatus === "pending" && (
@@ -274,28 +274,21 @@ const DiscountApprovalPage = () => {
                               value={
                                 manualDiscounts[item.item._id] !== undefined
                                   ? manualDiscounts[item.item._id]
-                                  : item?.discount/100 || ""
+                                  : item?.discount || ""
                               }
                               onChange={(e) => {
                                 const value = e.target.value;
                                 const numericValue =
                                   value === "" ? "" : Number(value);
-
-                                if (numericValue <= item.basePrice) {
-                                  setManualDiscounts((prev) => ({
-                                    ...prev,
-                                    [item.item._id]: numericValue,
-                                  }));
-                                } else {
-                                  toast.error(
-                                    "Discount cannot be greater than the base price."
-                                  );
-                                }
+                                setManualDiscounts((prev) => ({
+                                  ...prev,
+                                  [item.item._id]: numericValue,
+                                }));
                               }}
                               className="border p-1 rounded"
                             />
                           ) : (
-                            `₹${item?.discount/100}`
+                            `${item?.discount}%`
                           )}
                         </td>
                         {selectedBooking.discountStatus === "pending" && (

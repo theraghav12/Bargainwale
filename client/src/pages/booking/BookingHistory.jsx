@@ -329,7 +329,7 @@ export function BookingHistory() {
                                     ₹{item.basePrice}
                                   </td>
                                   <td className="px-2 py-1 text-center">
-                                    ₹{item.discount / 100}
+                                    {item.discount}%
                                   </td>
                                   <td className="px-2 py-1 text-center">
                                     {item.item.netweight}
