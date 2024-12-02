@@ -263,12 +263,10 @@ const bookingController = {
         booking.discountStatus === "partially approved" ||
         booking.discountStatus === "approved"
       ) {
-        return res
-          .status(404)
-          .json({
-            message:
-              "Booking has already been approved either completely or partially",
-          });
+        return res.status(404).json({
+          message:
+            "Booking has already been approved either completely or partially",
+        });
       }
       let fullyApproved = true;
       for (const item of items) {
@@ -282,6 +280,8 @@ const bookingController = {
             .json({ message: `Item with ${itemId} not found in booking` });
         }
         bookingItem.discount = item.discount;
+        bookingItem.taxableAmount = item.taxableAmount;
+        bookingItem.taxpaidAmount = item.taxpaidAmount;
         if (item.discount === 0) {
           fullyApproved = false;
         }
