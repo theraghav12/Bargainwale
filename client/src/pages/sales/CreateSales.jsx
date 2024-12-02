@@ -323,7 +323,7 @@ const CreateSales = () => {
                     ) || null
                   }
                   onChange={(selectedOption) =>
-                    handleFormChange(0, "warehouseId", selectedOption)
+                    handleFormChange("warehouseId", selectedOption)
                   }
                 />
               </div>
@@ -341,7 +341,7 @@ const CreateSales = () => {
                   type="text"
                   value={form.invoiceNumber}
                   onChange={(e) =>
-                    handleFormChange(0, "invoiceNumber", e.target.value)
+                    handleFormChange("invoiceNumber", e.target.value)
                   }
                   required
                   placeholder="Invoice No."
@@ -362,7 +362,7 @@ const CreateSales = () => {
                   type="date"
                   value={form.invoiceDate}
                   onChange={(e) =>
-                    handleFormChange(0, "invoiceDate", e.target.value)
+                    handleFormChange("invoiceDate", e.target.value)
                   }
                   required
                   className="border-2 border-[#CBCDCE] px-2 py-1 rounded-md"
@@ -386,7 +386,7 @@ const CreateSales = () => {
                     ) || null
                   }
                   onChange={(selectedOption) =>
-                    handleFormChange(0, "transporterId", selectedOption)
+                    handleFormChange("transporterId", selectedOption)
                   }
                 />
               </div>

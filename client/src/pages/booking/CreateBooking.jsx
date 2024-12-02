@@ -23,6 +23,7 @@ const CreateBooking = () => {
   const [selectItemsOptions, setSelectItemsOptions] = useState([]);
   const [buyerOptions, setBuyerOptions] = useState([]);
   const [selectBuyerOptions, setSelectBuyerOptions] = useState([]);
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectWarehouseOptions, setSelectWarehouseOptions] = useState([]);
   const [isDefaultAddress, setIsDefaultAddress] = useState(false);
   const [approval, setApproval] = useState(false);
@@ -77,6 +78,7 @@ const CreateBooking = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
+      setWarehouseOptions(response);
       const formattedOptions = response.map((warehouse) => ({
         value: warehouse._id,
         label: warehouse.name,
@@ -242,6 +244,7 @@ const CreateBooking = () => {
           taxableAmount: null,
           contNumber: null,
           gst: null,
+          gstAmount: null,
         },
       ],
     }));
@@ -331,15 +334,27 @@ const CreateBooking = () => {
       }
     }
 
-    if (["quantity", "basePrice", "discount"].includes(field)) {
+    if (["quantity", "basePrice", "discount", "basePrice"].includes(field)) {
       const quantity = updatedItems[index].quantity || 0;
       const basePrice = updatedItems[index].basePrice || 0;
       const discount = updatedItems[index].discount || 0;
       updatedItems[index].taxableAmount =
-        quantity * (basePrice - discount / 100);
+        quantity * (basePrice - (discount * basePrice) / 100);
+      updatedItems[index].gstAmount =
+        (basePrice * updatedItems[index].gst * quantity) / 100;
       updatedItems[index].taxpaidAmount =
         updatedItems[index].taxableAmount +
         (updatedItems[index].taxableAmount * updatedItems[index].gst) / 100;
+    }
+
+    if (field === "item") {
+      const selectedItem = itemsOptions?.find(
+        (option) => option._id === value.value
+      );
+      if (selectedItem) {
+        const gst = selectedItem.gst;
+        updatedItems[index].gst = gst;
+      }
     }
 
     if (field === "basePrice") {
@@ -814,6 +829,22 @@ const CreateBooking = () => {
                       />
                     </th>
                     <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      GST %
+                      <CustomTooltip
+                        title="GST Percentage"
+                        description="The Goods and Services Tax percentage applied to the item."
+                        learnMoreLink="/taxable-amount-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
+                      GST Amt.
+                      <CustomTooltip
+                        title="GST Amount"
+                        description="The tax amount calculated based on the GST percentage."
+                        learnMoreLink="/taxable-amount-info"
+                      />
+                    </th>
+                    <th className="py-4 px-2 text-center min-w-[150px] font-medium">
                       Total Amt
                       <CustomTooltip
                         title="Total Amount with Tax"
@@ -867,9 +898,6 @@ const CreateBooking = () => {
                               menuPortal: (base) => ({ ...base, zIndex: 10 }),
                             }}
                           />
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">
@@ -898,9 +926,6 @@ const CreateBooking = () => {
                               menuPortal: (base) => ({ ...base, zIndex: 10 }),
                             }}
                           />
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <TbTriangleInvertedFilled className="text-[#5E5E5E]" />
-                          </div>
                         </div>
                       </td>
                       {/* <td className="py-4 px-2 text-center">
@@ -959,10 +984,46 @@ const CreateBooking = () => {
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
                         />
                       </td>
-
                       <td className="py-4 px-2 text-center">
                         {item.taxableAmount
                           ? formatCurrency(item.taxableAmount)
+                          : "₹0.00"}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {warehouseOptions?.find(
+                          (warehouse) => warehouse._id === form?.warehouse
+                        )?.location?.state ===
+                        buyerOptions?.find((buyer) => buyer._id === form?.buyer)
+                          ?.buyerdeliveryAddress.state ? (
+                          <>
+                            <span>
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.item
+                              )?.gst / 2 || "N/A"}
+                              {"% "}
+                              (CGST) +{" "}
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.item
+                              )?.gst / 2 || "N/A"}
+                              {"% "}
+                              (SGST)
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span>
+                              {itemsOptions?.find(
+                                (option) => option._id === item?.item
+                              )?.gst || "N/A"}
+                              {"% "}
+                              (IGST)
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        {item.gstAmount
+                          ? formatCurrency(item.gstAmount)
                           : "₹0.00"}
                       </td>
                       <td className="py-4 px-2 text-center">
