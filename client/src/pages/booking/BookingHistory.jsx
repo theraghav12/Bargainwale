@@ -86,6 +86,16 @@ export function BookingHistory() {
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
+  function formatTimestamp(isoTimestamp) {
+    const date = new Date(isoTimestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+
   const handleDownloadExcel = () => {
     const formattedBookings = bookings.flatMap((b) =>
       b.items.map((item, index) => ({
@@ -204,8 +214,9 @@ export function BookingHistory() {
             <thead>
               <tr>
                 {[
-                  "Bargain Date",
+                  "Created At",
                   "Bargain No",
+                  "Bargain Date",
                   "Buyer Name",
                   "Status",
                   "Delivery Type",
@@ -227,10 +238,13 @@ export function BookingHistory() {
                   <React.Fragment key={b._id}>
                     <tr className="hover:bg-gray-50">
                       <td className="px-4 py-2 border-b text-center">
-                        {formatDate(b.BargainDate)}
+                        {formatTimestamp(b.createdAt)}
                       </td>
                       <td className="px-4 py-2 border-b text-center">
                         {b.BargainNo}
+                      </td>
+                      <td className="px-4 py-2 border-b text-center">
+                        {formatDate(b.BargainDate)}
                       </td>
                       <td className="px-4 py-2 border-b text-center">
                         {b.buyer?.buyer}
@@ -285,7 +299,7 @@ export function BookingHistory() {
                     </tr>
                     {isOpen && (
                       <tr className="bg-gray-100">
-                        <td colSpan="6" className="p-4">
+                        <td colSpan="7" className="p-4">
                           <table className="min-w-full bg-gray-50">
                             <thead>
                               <tr>

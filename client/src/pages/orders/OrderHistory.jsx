@@ -124,6 +124,16 @@ export function OrderHistory() {
     return `${day}-${month}-${year}`;
   };
 
+  function formatTimestamp(isoTimestamp) {
+    const date = new Date(isoTimestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+
   const handleToggleOrder = (orderId) => {
     setOpenOrder(openOrder === orderId ? null : orderId);
   };
@@ -264,6 +274,7 @@ export function OrderHistory() {
                 <thead className="bg-gray-100">
                   <tr>
                     {[
+                      "Created At",
                       "Company Bargain No",
                       "Company Bargain Date",
                       "Manufacturer Name",
@@ -288,6 +299,9 @@ export function OrderHistory() {
                     return (
                       <React.Fragment key={order._id}>
                         <tr className="hover:bg-gray-50">
+                          <td className="py-4 px-6 text-center min-w-[180px]">
+                            {formatTimestamp(order.createdAt)}
+                          </td>
                           <td className="py-4 px-6 text-center">
                             {order.companyBargainNo}
                           </td>
@@ -348,7 +362,7 @@ export function OrderHistory() {
                         </tr>
                         {isOpen && (
                           <tr className="bg-gray-50">
-                            <td colSpan="8">
+                            <td colSpan="9">
                               <div className="p-4">
                                 <table className="w-full">
                                   <thead className="bg-gray-200 rounded-md">

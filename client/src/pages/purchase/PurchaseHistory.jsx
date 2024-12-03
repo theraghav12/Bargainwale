@@ -94,6 +94,16 @@ export default function PurchaseHistory() {
       .padStart(2, "0")}-${d.getFullYear()}`;
   };
 
+  function formatTimestamp(isoTimestamp) {
+    const date = new Date(isoTimestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+
   const handleTogglePurchase = (purchaseId) => {
     setOpenPurchase(openPurchase === purchaseId ? null : purchaseId);
   };
@@ -237,8 +247,9 @@ export default function PurchaseHistory() {
             <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
               <tr>
                 {[
-                  "Invoice Date",
+                  "Created At",
                   "Invoice Number",
+                  "Invoice Date",
                   "Order ID",
                   "Warehouse",
                   "Transporter",
@@ -264,10 +275,13 @@ export default function PurchaseHistory() {
                       } transition-colors duration-200`}
                     >
                       <td className="py-3 px-4 text-center">
-                        {formatDate(purchase.invoiceDate)}
+                        {formatTimestamp(purchase.createdAt)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         {purchase.invoiceNumber}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {formatDate(purchase.invoiceDate)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         {purchase.orderId?.companyBargainNo}

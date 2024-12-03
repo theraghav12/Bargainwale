@@ -45,6 +45,16 @@ export default function PurchaseHistory() {
     return `${dayWithSuffix} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
   };
 
+  function formatTimestamp(isoTimestamp) {
+    const date = new Date(isoTimestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+
   const fetchSales = async () => {
     try {
       const response = await getSales();
@@ -209,8 +219,9 @@ export default function PurchaseHistory() {
             <thead>
               <tr className="bg-gradient-to-r from-teal-100 to-blue-100">
                 {[
-                  "Invoice Date",
+                  "Created At",
                   "Invoice Number",
+                  "Invoice Date",
                   "Booking ID",
                   "Warehouse",
                   "Transporter",
@@ -232,10 +243,13 @@ export default function PurchaseHistory() {
                   <React.Fragment key={sale._id}>
                     <tr className="hover:bg-gray-50 transition border-b border-gray-200">
                       <td className="py-3 px-5 text-center">
-                        {formatDate(sale.invoiceDate)}
+                        {formatTimestamp(sale.createdAt)}
                       </td>
                       <td className="py-3 px-5 text-center">
                         {sale.invoiceNumber}
+                      </td>
+                      <td className="py-3 px-5 text-center">
+                        {formatDate(sale.invoiceDate)}
                       </td>
                       <td className="py-3 px-5 text-center">
                         {sale.bookingId?._id}
