@@ -60,7 +60,7 @@ export default function Home() {
     setLoading(true);
     try {
       const prices = await getPricesByWarehouse(warehouseId);
-      setForm(prices);
+      setForm(prices.prices);
     } catch (error) {
       console.error("Error fetching prices:", error);
       setPricesFound(false);
@@ -276,57 +276,58 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {form.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-100">
-                      <td className="px-4 py-2 border-t border-gray-200">
-                        {item.item?.materialdescription || "Unknown Item"}
-                      </td>
-                      <td className="px-4 py-2 border-t border-gray-200">
-                        <input
-                          type="number"
-                          name="companyPrice"
-                          value={item.companyPrice}
-                          onChange={(e) => handleInputChange(index, e)}
-                          className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
-                          placeholder="Company Price"
-                          disabled={item.pricesUpdated}
-                        />
-                      </td>
-                      <td className="px-4 py-2 border-t border-gray-200">
-                        <input
-                          type="number"
-                          name="rackPrice"
-                          value={item.rackPrice}
-                          onChange={(e) => handleInputChange(index, e)}
-                          className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
-                          placeholder="Rack Price"
-                          disabled={item.pricesUpdated}
-                        />
-                      </td>
-                      <td className="px-4 py-2 border-t border-gray-200">
-                        <input
-                          type="number"
-                          name="depoPrice"
-                          value={item.depoPrice}
-                          onChange={(e) => handleInputChange(index, e)}
-                          className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
-                          placeholder="Depot Price"
-                          disabled={item.pricesUpdated}
-                        />
-                      </td>
-                      <td className="px-4 py-2 border-t border-gray-200">
-                        <input
-                          type="number"
-                          name="plantPrice"
-                          value={item.plantPrice}
-                          onChange={(e) => handleInputChange(index, e)}
-                          className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
-                          placeholder="Plant Price"
-                          disabled={item.pricesUpdated}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                  {form?.length > 0 &&
+                    form?.map((item, index) => (
+                      <tr key={index} className="hover:bg-gray-100">
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          {item.item?.materialdescription || "Unknown Item"}
+                        </td>
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          <input
+                            type="number"
+                            name="companyPrice"
+                            value={item.companyPrice}
+                            onChange={(e) => handleInputChange(index, e)}
+                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            placeholder="Company Price"
+                            disabled={item.pricesUpdated}
+                          />
+                        </td>
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          <input
+                            type="number"
+                            name="rackPrice"
+                            value={item.rackPrice}
+                            onChange={(e) => handleInputChange(index, e)}
+                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            placeholder="Rack Price"
+                            disabled={item.pricesUpdated}
+                          />
+                        </td>
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          <input
+                            type="number"
+                            name="depoPrice"
+                            value={item.depoPrice}
+                            onChange={(e) => handleInputChange(index, e)}
+                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            placeholder="Depot Price"
+                            disabled={item.pricesUpdated}
+                          />
+                        </td>
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          <input
+                            type="number"
+                            name="plantPrice"
+                            value={item.plantPrice}
+                            onChange={(e) => handleInputChange(index, e)}
+                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            placeholder="Plant Price"
+                            disabled={item.pricesUpdated}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
               <button
