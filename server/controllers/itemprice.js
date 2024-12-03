@@ -46,9 +46,9 @@ const priceController = {
   getAllPrices: async (req, res) => {
     try {
       const prices = await Price.find()
-        .populate("warehouse", "name")
-        .populate("item", "name")
-        .populate("organization", "name");
+        .populate("warehouse")
+        .populate("item")
+        .populate("organization");
       res.status(200).json({ message: "Prices fetched successfully", prices });
     } catch (error) {
       console.error("Error fetching all prices:", error);
@@ -56,14 +56,13 @@ const priceController = {
     }
   },
 
-  // Fetch item price by warehouse
   getItemPriceByWarehouse: async (req, res) => {
     try {
       const { warehouseId, itemId } = req.params;
 
       const price = await Price.findOne({ warehouse: warehouseId, item: itemId })
-        .populate("warehouse", "name")
-        .populate("item", "name");
+        .populate("warehouse")
+        .populate("item");
 
       if (!price) {
         return res.status(404).json({ message: "Price not found for the specified warehouse and item" });
@@ -84,10 +83,10 @@ const priceController = {
         return res.status(400).json({ message: "Warehouse ID is required" });
       }
   
-      // Fetch all prices for the given warehouse
+   
       const prices = await Price.find({ warehouse: warehouseId })
-        .populate("warehouse", "name") 
-        .populate("item", "name")     
+        .populate("warehouse") 
+        .populate("item")     
         
   
       if (prices.length === 0) {
