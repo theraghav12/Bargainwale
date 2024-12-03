@@ -48,7 +48,7 @@ const priceController = {
       const prices = await Price.find()
         .populate("warehouse")
         .populate("item")
-        .populate("organization");
+        
       res.status(200).json({ message: "Prices fetched successfully", prices });
     } catch (error) {
       console.error("Error fetching all prices:", error);
