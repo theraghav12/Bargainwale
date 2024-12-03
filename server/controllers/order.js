@@ -20,6 +20,7 @@ const orderController = {
         manufacturer,
         paymentDays = 21,
         reminderDays = [7, 3, 1],
+        totalAmount
       } = req.body;
 
       if (!Array.isArray(items)) {
@@ -78,6 +79,7 @@ const orderController = {
         manufacturer,
         paymentDays,
         reminderDays,
+        totalAmount
       });
 
       await order.save();
@@ -188,6 +190,7 @@ const orderController = {
         manufacturer,
         paymentDays = 21,
         reminderDays = [7, 3, 1],
+        totalAmount
       } = req.body;
 
       const order = await Order.findByIdAndUpdate(req.params.id, {
@@ -203,6 +206,7 @@ const orderController = {
         manufacturer,
         paymentDays,
         reminderDays,
+        totalAmount
       }, {
         new: true,
       });

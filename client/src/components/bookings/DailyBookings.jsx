@@ -10,17 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const dailyBookingsData = [
-  { date: "07/01", bookings: 45 },
-  { date: "07/02", bookings: 52 },
-  { date: "07/03", bookings: 49 },
-  { date: "07/04", bookings: 60 },
-  { date: "07/05", bookings: 55 },
-  { date: "07/06", bookings: 58 },
-  { date: "07/07", bookings: 62 },
-];
-
-const DailyBookings = () => {
+const DailyBookings = ({ data }) => {
   return (
     <motion.div
       style={{ backgroundColor: "#173dbd" }}
@@ -33,7 +23,7 @@ const DailyBookings = () => {
 
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
-          <LineChart data={dailyBookingsData}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" />
             <XAxis dataKey="date" stroke="#ffffff" />
             <YAxis stroke="#ffffff" />
@@ -57,4 +47,5 @@ const DailyBookings = () => {
     </motion.div>
   );
 };
+
 export default DailyBookings;

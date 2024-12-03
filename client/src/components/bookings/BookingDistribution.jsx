@@ -8,15 +8,9 @@ import {
   Legend,
 } from "recharts";
 
-const bookingStatusData = [
-  { name: "Pending", value: 30 },
-  { name: "Processing", value: 45 },
-  { name: "Shipped", value: 60 },
-  { name: "Delivered", value: 120 },
-];
-const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FED766", "#2AB7CA"];
+const COLORS = ["#FF6B6B", "#FED766", "#4ECDC4"];
 
-const BookingDistribution = () => {
+const BookingDistribution = ({ bookingStatusData }) => {
   return (
     <motion.div
       className="bg-[#173DBD] bg-opacity-100 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
@@ -25,7 +19,7 @@ const BookingDistribution = () => {
       transition={{ delay: 0.3 }}
     >
       <h2 className="text-xl font-semibold text-gray-100 mb-4">
-      Booking Status Distribution
+        Booking Status Distribution
       </h2>
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
@@ -37,9 +31,7 @@ const BookingDistribution = () => {
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
+              label={({ name, value }) => `${name}: ${value}`}
             >
               {bookingStatusData.map((entry, index) => (
                 <Cell
