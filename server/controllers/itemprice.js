@@ -80,21 +80,28 @@ const priceController = {
   getPricesByWarehouse: async (req, res) => {
     try {
       const { warehouseId } = req.params;
-
+      if (!warehouseId) {
+        return res.status(400).json({ message: "Warehouse ID is required" });
+      }
+  
+      // Fetch all prices for the given warehouse
       const prices = await Price.find({ warehouse: warehouseId })
-        .populate("item", "name")
-        .populate("organization", "name");
-
-      if (!prices || prices.length === 0) {
+        .populate("warehouse", "name") 
+        .populate("item", "name")     
+        
+  
+      if (prices.length === 0) {
         return res.status(404).json({ message: "No prices found for the specified warehouse" });
       }
-
+  
       res.status(200).json({ message: "Prices fetched successfully", prices });
     } catch (error) {
-      console.error("Error fetching prices by warehouse:", error);
+      console.error("Error fetching prices for the warehouse:", error);
       res.status(500).json({ message: "Error fetching prices", error });
     }
   },
+  
+
 
 
  // updateItemPriceByWarehouse: async (req, res) => {
