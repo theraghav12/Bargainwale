@@ -5,21 +5,11 @@ pipeline {
         // Environment variables
         GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
         PATH = "/root/.nvm/versions/node/v20.17.0/bin:${env.PATH}"
-        // DEPLOY_USER = 'root'  // Username for SSH
-        // DEPLOY_SERVER = '82.112.238.34'  // Your VPS IP address
+        DEPLOY_USER = 'root'  // Username for SSH
+        DEPLOY_SERVER = '82.112.238.34'  // Your VPS IP address
     }
 
     stages {
-        stage('Load Environment') {
-            steps {
-                script {
-                    def props = readProperties file: '/var/lib/jenkins/vps_config.env'
-                    env.DEPLOY_USER = props['DEPLOY_USER']
-                    env.DEPLOY_SERVER = props['DEPLOY_SERVER']
-                }
-            }
-        }
-        
         stage('Checkout') {
             steps {
                 script {
