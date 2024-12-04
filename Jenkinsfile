@@ -10,6 +10,16 @@ pipeline {
     }
 
     stages {
+        stage('Load Environment') {
+            steps {
+                script {
+                    def props = readProperties file: '/var/lib/jenkins/vps_config.env'
+                    env.DEPLOY_USER = props['DEPLOY_USER']
+                    env.DEPLOY_SERVER = props['DEPLOY_SERVER']
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 script {
