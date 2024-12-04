@@ -5,10 +5,8 @@ pipeline {
         // Environment variables
         GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
         PATH = "/root/.nvm/versions/node/v20.17.0/bin:${env.PATH}"
-        environment {
         DEPLOY_USER = 'root'  // Username for SSH
         DEPLOY_SERVER = '82.112.238.34'  // Your VPS IP address
-    }
     }
 
     stages {
