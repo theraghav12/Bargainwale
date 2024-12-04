@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
-        PATH = "/root/.nvm/versions/node/v20.17.0/bin:${env.PATH}"
         DEPLOY_USER = 'root'
         DEPLOY_SERVER = '82.112.238.34'
     }
