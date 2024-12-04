@@ -55,16 +55,18 @@ pipeline {
        stage('Deploy to VPS') {
             steps {
                 script {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} <<EOF
-                    cd /var/www/Finance
-                    git pull origin main
-                    cd server && npm install
-                    cd client && npm run build
-                    pm2 restart all
-                    sudo systemctl restart nginx
-                    EOF
-                    """
+                    withCredentials([sshUserPrivateKey(credentialsId: 'bargainwale', keyFileVariable: 'SSH_KEY')]) {
+                        sh """
+                        ssh -i \${SSH_KEY} -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
+                        cd /path/to/your/project
+                        git pull origin main
+                        cd server && npm install
+                        cd client && npm run build
+                        pm2 restart all
+                        sudo systemctl restart nginx
+                        '
+                        """
+                    }
                 }
             }
         }
