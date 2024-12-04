@@ -58,7 +58,7 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'bargainwale', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                         ssh -i \${SSH_KEY} -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                        cd /path/to/your/project
+                        cd /var/www/Finance
                         git pull origin main
                         cd server && npm install
                         cd client && npm run build
