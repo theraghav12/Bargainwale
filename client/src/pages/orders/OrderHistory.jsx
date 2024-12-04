@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
 
-// services
+// api services
 import { deleteOrder, getOrders } from "@/services/orderService";
 import { getBookings } from "@/services/bookingService";
 

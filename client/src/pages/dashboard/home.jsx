@@ -1,46 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { Spinner, Switch, Typography } from "@material-tailwind/react";
+import { toast } from "sonner";
+import { useOrganization } from "@clerk/clerk-react";
+
+// api services
 import { getWarehouses } from "@/services/warehouseService";
 import {
   getPricesByWarehouse,
   addPrice,
   getPrices,
 } from "@/services/itemService";
+
+// icons
 import { TbTriangleInvertedFilled } from "react-icons/tb";
-import { toast } from "sonner";
-import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+
+// components
 import StatisticsCards from "@/components/home/StatisticsCards";
 import PriceChart from "@/components/home/PriceChart";
-import { useOrganization } from "@clerk/clerk-react";
-import Footer from "@/components/home/Footer";
 
 export default function Home() {
-  const [statisticsCardsData, setStatisticsCardsData] = useState([]);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedHistoryWarehouse, setSelectedHistoryWarehouse] = useState("");
-  const [items, setItems] = useState([]);
   const [historyItems, setHistoryItems] = useState([]);
   const [form, setForm] = useState([]);
-  const [pricesFound, setPricesFound] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editedPrice, setEditedPrice] = useState(null);
 
   const { organization } = useOrganization();
   const isOrganizationLoaded = localStorage.getItem("organizationId");
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = historyItems?.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(historyItems?.length / itemsPerPage);
-
-  const paginate = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
 
   const fetchWarehouseOptions = async () => {
     try {
@@ -63,7 +53,6 @@ export default function Home() {
       setForm(prices.prices);
     } catch (error) {
       console.error("Error fetching prices:", error);
-      setPricesFound(false);
     } finally {
       setLoading(false);
     }
@@ -73,7 +62,7 @@ export default function Home() {
     try {
       const response = await getPrices();
       setHistoryItems(
-        response?.filter((item) => item.warehouse?._id === warehouseId)
+        response.prices?.filter((item) => item.warehouse?._id === warehouseId)
       );
     } catch (error) {
       console.error("Error fetching prices:", error);
@@ -121,7 +110,7 @@ export default function Home() {
         item.plantPrice &&
         String(item.plantPrice).trim() !== ""
     );
-    if (itemsToSubmit.length > 0) {
+    if (itemsToSubmit?.length > 0) {
       if (eligibleItems.length === 0) {
         setSubmitLoading(false);
         toast.error("Fill all prices!");
@@ -384,7 +373,7 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems?.map((item) => (
+                  {historyItems?.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{formatDate(item.date)}</td>
                       <td className="px-4 py-2">

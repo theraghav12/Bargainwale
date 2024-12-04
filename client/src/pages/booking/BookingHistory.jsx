@@ -8,7 +8,11 @@ import {
 import { toast } from "sonner";
 import Datepicker from "react-tailwindcss-datepicker";
 import * as XLSX from "xlsx";
+
+// api services
 import { deleteBooking, getBookings } from "@/services/bookingService";
+
+// icons
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { MdDeleteOutline } from "react-icons/md";
 import excel from "../../assets/excel.svg";
