@@ -15,10 +15,10 @@ pipeline {
                 script {
                     // Fetch SSH credentials securely from Jenkins
                     def deployCreds = credentials('bargainwale') // Replace with your SSH credential ID
-                    // def vpsIp = credentials('vps-ip') // Optional: If you also have the VPS IP as a credential
+                    def vpsIp = credentials('vps-ip') // Optional: If you also have the VPS IP as a credential
                     env.DEPLOY_USER = deployCreds.username
                     env.DEPLOY_KEY = deployCreds.password  // The private key will be stored as a password
-                    // env.DEPLOY_SERVER = vpsIp ?: '82.112.238.34'  // Default to the original IP if not provided in credentials
+                    env.DEPLOY_SERVER = vpsIp  // Default to the original IP if not provided in credentials
                 }
             }
         }
