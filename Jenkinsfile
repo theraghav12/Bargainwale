@@ -8,15 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('Set Permissions') {
-            steps {
-                script {
-                    sh 'chmod -R 755 /var/lib/jenkins/workspace/deploy\\ bargainwale'
-                    sh 'chmod +x /root/.nvm/versions/node/v20.17.0/bin/npm'
-                }
-            }
-        }
-        
         stage('Checkout') {
             steps {
                 script {
