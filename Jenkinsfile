@@ -32,23 +32,25 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies - Server') {
-            steps {
-                script {
-                    // Navigate to the server folder and install dependencies
-                    dir('server') {
-                        sh 'npm install'
+        stage('Install Dependencies') {
+            parallel {
+                stage('Server Dependencies') {
+                    steps {
+                        script {
+                            dir('server') {
+                                sh 'npm install'
+                            }
+                        }
                     }
                 }
-            }
-        }
-        
-        stage('Install Dependencies - Client') {
-            steps {
-                script {
-                    // Navigate to the client folder and install dependencies
-                    dir('client') {
-                        sh 'npm install'
+
+                stage('Client Dependencies') {
+                    steps {
+                        script {
+                            dir('client') {
+                                sh 'npm install'
+                            }
+                        }
                     }
                 }
             }
