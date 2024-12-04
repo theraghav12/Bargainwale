@@ -69,6 +69,8 @@ export default function Home() {
     }
   };
 
+  console.log()
+
   const fetchPricesForHistory = async (warehouseId) => {
     try {
       const response = await getPrices();
