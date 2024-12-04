@@ -5,6 +5,10 @@ pipeline {
         // Environment variables
         GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
         PATH = "/root/.nvm/versions/node/v20.17.0/bin:${env.PATH}"
+        environment {
+        DEPLOY_USER = 'root'  // Username for SSH
+        DEPLOY_SERVER = '82.112.238.34'  // Your VPS IP address
+    }
     }
 
     stages {
@@ -50,22 +54,19 @@ pipeline {
             }
         }
         
-        stage('Restart Server') {
+       stage('Deploy to VPS') {
             steps {
                 script {
-                    // Restart PM2 to apply changes on the server
-                    dir('server') {
-                        sh 'pm2 restart server'
-                    }
-                }
-            }
-        }
-        
-        stage('Restart Nginx') {
-            steps {
-                script {
-                    // Restart Nginx to serve the newly built client
-                    sh 'sudo systemctl restart nginx'
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} <<EOF
+                    cd /var/www/Finance
+                    git pull origin main
+                    cd server && npm install
+                    cd client && npm run build
+                    pm2 restart all
+                    sudo systemctl restart nginx
+                    EOF
+                    """
                 }
             }
         }
