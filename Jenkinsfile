@@ -2,11 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Environment variables
-        GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
-        PATH = "/root/.nvm/versions/node/v20.17.0/bin:${env.PATH}"
-        DEPLOY_USER = 'root'  // Username for SSH
-        DEPLOY_SERVER = '82.112.238.34'  // Your VPS IP address
+        DEPLOY_USER = 'root'
+        DEPLOY_SERVER = '82.112.238.34'
     }
 
     stages {
@@ -19,23 +16,25 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies - Server') {
-            steps {
-                script {
-                    // Navigate to the server folder and install dependencies
-                    dir('server') {
-                        sh 'npm install'
+        stage('Install Dependencies') {
+            parallel {
+                stage('Server Dependencies') {
+                    steps {
+                        script {
+                            dir('server') {
+                                sh 'npm install'
+                            }
+                        }
                     }
                 }
-            }
-        }
-        
-        stage('Install Dependencies - Client') {
-            steps {
-                script {
-                    // Navigate to the client folder and install dependencies
-                    dir('client') {
-                        sh 'npm install'
+
+                stage('Client Dependencies') {
+                    steps {
+                        script {
+                            dir('client') {
+                                sh 'npm install'
+                            }
+                        }
                     }
                 }
             }
