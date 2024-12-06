@@ -97,8 +97,7 @@ const ItemForm = () => {
         ...form,
         warehouses: warehouseIds,
       };
-      const response = await createItem(formData);
-      await createItem(form);
+      await createItem(formData);
       toast.success("Item added successfully!");
       setForm({
         flavor: "",
