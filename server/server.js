@@ -23,20 +23,7 @@ const PORT = 3000 || process.env.PORT;
 const app = express();
 connectDB();
 app.use(express.json());
-
-const whitelist = ['http://localhost:5173', 'https://dashboard.bargainwale.com'];
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (whitelist.includes(origin) || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(userRoutes);
 
