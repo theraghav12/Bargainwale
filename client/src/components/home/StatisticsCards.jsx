@@ -38,8 +38,8 @@ export default function StatisticsCards() {
     return total + bookingTotal;
   }, 0);
 
-  totalOrderValue = totalOrderValue.toFixed(2);
-  totalBookingValue = totalBookingValue.toFixed(2);
+  totalOrderValue = totalOrderValue?.toFixed(2);
+  totalBookingValue = totalBookingValue?.toFixed(2);
 
   useEffect(() => {
     const data = [
