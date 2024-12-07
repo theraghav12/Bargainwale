@@ -10,7 +10,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout the code from GitHub
                     git branch: 'main', credentialsId: 'bargainwale', url: 'git@github.com:rishvant/Bargainwale.git'
                 }
             }
@@ -43,7 +42,6 @@ pipeline {
         stage('Build Client') {
             steps {
                 script {
-                    // Build the client (for production)
                     dir('client') {
                         sh 'npm run build'
                     }
@@ -56,7 +54,7 @@ pipeline {
                 script {
                     sh """
                     ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                    cd /var/www/Finance
+                    cd /var/www/Bargainwale
                     git pull origin main
                     cd server && npm install
                     cd client && npm run build
