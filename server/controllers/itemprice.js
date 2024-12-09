@@ -1,164 +1,166 @@
 import Price from "../models/itemprice.js";
-import Item from "../models/items.js";
 import Warehouse from "../models/warehouse.js";
+import Item from "../models/items.js";
+import PriceHistory from "../models/pricehistory.js";
 
 const priceController = {
-
-  addPrice: async (req, res) => {
+  addOrUpdatePrice: async (req, res) => {
     try {
       const { warehouseId, prices, organization } = req.body;
-
-      const warehouse = await Warehouse.findById(warehouseId);
+  
+      // Validate Warehouse
+      const warehouse = await Warehouse.findOne({ _id: warehouseId });
       if (!warehouse) {
-        return res.status(404).json({ message: "Warehouse not found" });
+        return res.status(404).json({ message: "Warehouse not found or does not belong to the organization" });
       }
-      const savedPrices = [];
-      for (const price of prices) {
-        const { itemId, companyPrice, rackPrice, plantPrice, depoPrice, pricesUpdated } = price;
-        const item = await Item.findById(itemId);
+  
+      // Loop through Prices to Update or Add
+      for (const { itemId, companyPrice, rackPrice, plantPrice, depoPrice } of prices) {
+        // Validate Item
+        const item = await Item.findOne({ _id: itemId });
         if (!item) {
-          return res.status(404).json({ message: `Item not found: ${itemId}` });
+          return res.status(404).json({ message: `Item not found for ID: ${itemId}` });
         }
-
-        const today = new Date();
-        today.setUTCHours(0, 0, 0, 0);
-        const existingPrice = await Price.findOne({
-          warehouse: warehouseId,
-          item: itemId,
-          date: {
-            $gte: today,
-            $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-          }
-        });
-        if (existingPrice) {
-          return res.status(400).json({ message: `Price already set for item ${itemId} on this day` });
-        }
-
-        const newPrice = new Price({
-          warehouse: warehouseId,
-          item: itemId,
-          companyPrice,
-          rackPrice,
-          plantPrice,
-          depoPrice,
-          pricesUpdated,
-          organization
-        });
-        await newPrice.save();
-        savedPrices.push(newPrice);
-      }
-
-      res.status(201).json({ message: "Prices added successfully", prices: savedPrices });
-    } catch (error) {
-      console.error("Error adding prices:", error);
-      res.status(500).json({ message: "Error adding prices", error });
-    }
-  },
-
-
-  getPricesByWarehouse: async (req, res) => {
-    try {
-      const { warehouseId, orgId } = req.params;
-      const { date } = req.query;
-
-      // Parse the date, default to today if not provided
-      const queryDate = date ? new Date(date) : new Date();
-      const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
-      const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
-
-      // Fetch all items from the selected warehouse using $in to match warehouses array
-      const items = await Item.find({
-        warehouses: { $in: [warehouseId] },
-        organization: orgId
-      });
-
-      if (!items.length) {
-        return res.status(404).json({ message: "No items found for the selected warehouse" });
-      }
-
-      const result = [];
-
-      // Loop through each item and find the price for the selected day
-      for (const item of items) {
-        const price = await Price.findOne({
-          warehouse: warehouseId,
-          item: item._id,
-          date: { $gte: startOfDay, $lt: endOfDay },
-          organization: orgId
-        });
+  
+        // Find existing price record
+        let price = await Price.findOne({ warehouse: warehouseId, item: itemId });
+  
         if (price) {
-          result.push({
-            item: item,
+          const priceHistory = new PriceHistory({
+            warehouse: warehouseId,
+            item: itemId,
             companyPrice: price.companyPrice,
             rackPrice: price.rackPrice,
             plantPrice: price.plantPrice,
             depoPrice: price.depoPrice,
-            pricesUpdated: price.pricesUpdated,
-            date: price.date,
-            message: "Price updated"
+            organization,
+            effectiveDate: price.updatedAt,
           });
+          await priceHistory.save();
+  
+          // Update Existing Price
+          price.companyPrice = companyPrice;
+          price.rackPrice = rackPrice;
+          price.plantPrice = plantPrice;
+          price.depoPrice = depoPrice;
+          price.pricesUpdated = true;
+          price.date = new Date();
+          await price.save();
         } else {
-          result.push({
-            item: item,
-            message: "Price not updated"
+          // Create New Price Record
+          price = new Price({
+            warehouse: warehouseId,
+            item: itemId,
+            companyPrice,
+            rackPrice,
+            plantPrice,
+            depoPrice,
+            organization,
+            pricesUpdated: true,
           });
+          await price.save();
+  
+          // Log New Price in History
+          const priceHistory = new PriceHistory({
+            warehouse: warehouseId,
+            item: itemId,
+            companyPrice,
+            rackPrice,
+            plantPrice,
+            depoPrice,
+            organization,
+          });
+          await priceHistory.save();
         }
       }
-      if (!result.length) {
-        return res.status(404).json({ message: "No prices found for the selected warehouse and date" });
-      }
-      res.status(200).json(result);
+  
+      res.status(200).json({ message: "Prices updated successfully" });
     } catch (error) {
-      console.error("Error fetching prices:", error);
-      res.status(500).json({ message: "Error fetching prices", error });
+      console.error("Error adding or updating price:", error);
+      res.status(500).json({ message: "Server error", error });
     }
   },
+  
+
+  getPricesByWarehouse: async (req, res) => {
+    try {
+      const { warehouseId } = req.params;
+
+      const prices = await Price.find({ warehouse: warehouseId })
+        .populate("item", "flavor material")
+        .populate("warehouse", "name location");
+
+      if (!prices.length) {
+        return res.status(404).json({ message: "No prices found for this warehouse" });
+      }
+
+      res.status(200).json({ message: "Prices retrieved successfully", prices });
+    } catch (error) {
+      console.error("Error retrieving prices by warehouse:", error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  },
+
+
   getAllPrices: async (req, res) => {
     try {
-      const { orgId } = req.params;
-      const prices = await Price.find({ organization: orgId })
-        .populate('item')
-        .populate('warehouse')
-        .sort({ date: -1 });
+      const prices = await Price.find()
+        .populate("item", "flavor material")
+        .populate("warehouse", "name location");
+
       if (!prices.length) {
         return res.status(404).json({ message: "No prices found" });
       }
 
-      res.status(200).json(prices);
+      res.status(200).json({ message: "All prices retrieved successfully", prices });
     } catch (error) {
-      console.error("Error fetching all prices:", error);
-      res.status(500).json({ message: "Error fetching all prices", error });
+      console.error("Error retrieving all prices:", error);
+      res.status(500).json({ message: "Server error", error });
     }
   },
+
+
   getItemPriceByWarehouse: async (req, res) => {
     try {
-      const { warehouseId, itemId, orgId } = req.params;
-      const { date } = req.query;
-      // Parse the date, default to today if not provided
-      const queryDate = date ? new Date(date) : new Date();
+      const { warehouseId, itemId } = req.params;
 
-      // Set the start and end of the day (for the entire day range)
-      const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
-      const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
-
-      // Query for the price of the item in the warehouse for the specific day
-      const price = await Price.findOne({
-        warehouse: warehouseId,
-        item: itemId,
-        date: { $gte: startOfDay, $lt: endOfDay },
-        organization: orgId
-      }).populate("item").populate("warehouse");
+      const price = await Price.findOne({ warehouse: warehouseId, item: itemId })
+        .populate("item", "flavor material")
+        .populate("warehouse", "name location");
 
       if (!price) {
-        return res.status(404).json({ message: `No price found for item ${itemId} in warehouse ${warehouseId} on the selected day` });
+        return res
+          .status(404)
+          .json({ message: "Price not found for the specified item and warehouse" });
       }
 
-      res.status(200).json(price);
+      res.status(200).json({ message: "Price retrieved successfully", price });
     } catch (error) {
-      console.error("Error fetching item price by warehouse:", error);
-      res.status(500).json({ message: "Error fetching item price", error });
+      console.error("Error retrieving price by item and warehouse:", error);
+      res.status(500).json({ message: "Server error", error });
     }
-  }
+  },
+  getPriceHistory: async (req, res) => {
+    try {
+      const { warehouseId, itemId } = req.params;
+
+      const priceHistory = await PriceHistory.find({ warehouse: warehouseId, item: itemId })
+        .populate("item", "flavor material")
+        .populate("warehouse", "name location")
+        .sort({ effectiveDate: -1 }); 
+      if (!priceHistory.length) {
+        return res
+          .status(404)
+          .json({ message: "No price history found for the specified item and warehouse" });
+      }
+
+      res.status(200).json({ message: "Price history retrieved successfully", priceHistory });
+    } catch (error) {
+      console.error("Error retrieving price history:", error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  },
 };
+
 
 export default priceController;
