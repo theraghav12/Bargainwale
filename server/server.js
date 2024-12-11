@@ -19,30 +19,29 @@ import totalSaleRoutes from "./routes/totalsale.js";
 import itemHistoryRoutes from "./routes/itemHistory.js";
 dotenv.config();
 
-const allowedOrigins = [
-    "http://localhost:5173",
-    "https://dashboard.bargainwale.com",
-    "https://bargainwale.com",
-];
-
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-};
-app.use(cors(corsOptions));
-
-
 const PORT = 3000 || process.env.PORT;
 const app = express();
 connectDB();
 app.use(express.json());
+
+// const allowedOrigins = [
+//     "http://localhost:5173",
+//     "https://dashboard.bargainwale.com",
+//     "https://bargainwale.com",
+// ];
+
+// const corsOptions = {
+//     origin: (origin, callback) => {
+//         if (!origin || allowedOrigins.includes(origin)) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error("Not allowed by CORS"));
+//         }
+//     },
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+// };
+app.use(cors());
 
 app.use(userRoutes);
 
