@@ -85,22 +85,50 @@ const priceController = {
   getPricesByWarehouse: async (req, res) => {
     try {
       const { warehouseId } = req.params;
-
-      const prices = await Price.find({ warehouse: warehouseId })
-        .populate("item", "flavor material")
-        .populate("warehouse", "name location");
-
-      if (!prices.length) {
-        return res.status(404).json({ message: "No prices found for this warehouse" });
+  
+     
+      const items = await Item.find({ warehouses: { $in: [warehouseId] } });
+  
+      if (!items.length) {
+        return res.status(404).json({ message: "No items found for the specified warehouse" });
       }
-
-      res.status(200).json({ message: "Prices retrieved successfully", prices });
+  
+      const result = [];
+  
+    
+      for (const item of items) {
+        const price = await Price.findOne({ warehouse: warehouseId, item: item._id });
+  
+        if (price) {
+          result.push({
+            item,
+            companyPrice: price.companyPrice,
+            rackPrice: price.rackPrice,
+            plantPrice: price.plantPrice,
+            depoPrice: price.depoPrice,
+            pricesUpdated: price.pricesUpdated,
+            date: price.date,
+            message: "Price updated"
+          });
+        } else {
+          result.push({
+            item,
+            message: "Price not updated"
+          });
+        }
+      }
+  
+      if (!result.length) {
+        return res.status(404).json({ message: "No prices found for the specified warehouse" });
+      }
+  
+      res.status(200).json({ message: "Prices retrieved successfully", items: result });
     } catch (error) {
       console.error("Error retrieving prices by warehouse:", error);
       res.status(500).json({ message: "Server error", error });
     }
   },
-
+  
 
   getAllPrices: async (req, res) => {
     try {
