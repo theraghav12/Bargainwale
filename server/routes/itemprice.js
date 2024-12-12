@@ -11,7 +11,9 @@ router.get('/api/:orgId/prices', priceController.getAllPrices);
 
 router.get('/api/:orgId/warehouse/:warehouseId/itemprice/:itemId', priceController.getItemPriceByWarehouse);
 
-router.get("/api/:orgId/history/:warehouseId/:itemId", priceController.getPriceHistory);
+router.get("/api/:orgId/history/:warehouseId", priceController.getPriceHistory);
+
+
 
 
 

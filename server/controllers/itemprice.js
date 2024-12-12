@@ -142,24 +142,41 @@ const priceController = {
   },
   getPriceHistory: async (req, res) => {
     try {
-      const { warehouseId, itemId } = req.params;
-
-      const priceHistory = await PriceHistory.find({ warehouse: warehouseId, item: itemId })
+      const { orgId, warehouseId } = req.params;
+      const { itemId } = req.query;
+  
+      console.log("getPriceHistory called with:", req.params, req.query);
+  
+      // Base query
+      const query = { warehouse: warehouseId, organization: orgId };
+      if (itemId) {
+        query.item = itemId; // Filter by item if itemId is provided
+      }
+  
+      console.log("Constructed Query:", query);
+  
+      // Fetch price history
+      const priceHistory = await PriceHistory.find(query)
         .populate("item", "flavor material")
         .populate("warehouse", "name location")
-        .sort({ effectiveDate: -1 }); 
+        .sort({ effectiveDate: -1 });
+  
       if (!priceHistory.length) {
+        console.log("No price history found for query:", query);
         return res
           .status(404)
-          .json({ message: "No price history found for the specified item and warehouse" });
+          .json({ message: "No price history found for the specified warehouse and/or item" });
       }
-
+  
+      console.log("Price history retrieved successfully:", priceHistory);
+  
       res.status(200).json({ message: "Price history retrieved successfully", priceHistory });
     } catch (error) {
       console.error("Error retrieving price history:", error);
       res.status(500).json({ message: "Server error", error });
     }
   },
+  
 };
 
 
