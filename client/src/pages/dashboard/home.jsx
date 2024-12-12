@@ -8,7 +8,7 @@ import { getWarehouses } from "@/services/warehouseService";
 import {
   getPricesByWarehouse,
   addPrice,
-  getPrices,
+  getItemHistoryById,
 } from "@/services/itemService";
 
 // icons
@@ -60,7 +60,8 @@ export default function Home() {
 
   const fetchPricesForHistory = async (warehouseId) => {
     try {
-      const response = await getPrices();
+      const response = await getItemHistoryById(warehouseId);
+      console.log(response);
       setHistoryItems(
         response.prices?.filter((item) => item.warehouse?._id === warehouseId)
       );

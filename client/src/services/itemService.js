@@ -53,9 +53,9 @@ export const addPrice = async (data) => {
     }
 };
 
-export const getItemHistoryById = async (itemId) => {
+export const getItemHistoryById = async (warehouseId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/${orgId}/itemhistory/${itemId}`);
+        const response = await axios.get(`${API_BASE_URL}/${orgId}/history/${warehouseId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching prices:", error);
