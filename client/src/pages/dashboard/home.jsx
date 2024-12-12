@@ -13,6 +13,8 @@ import {
 
 // icons
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import { FaLock } from "react-icons/fa";
+import { FaLockOpen } from "react-icons/fa";
 
 // components
 import StatisticsCards from "@/components/home/StatisticsCards";
@@ -50,7 +52,15 @@ export default function Home() {
     setLoading(true);
     try {
       const prices = await getPricesByWarehouse(warehouseId);
-      setForm(prices.prices);
+      const updatedItems = prices.items.map((item) => ({
+        ...item,
+        originalCompanyPrice: item.companyPrice,
+        originalRackPrice: item.rackPrice,
+        originalDepoPrice: item.depoPrice,
+        originalPlantPrice: item.plantPrice,
+        locked: true,
+      }));
+      setForm(updatedItems);
     } catch (error) {
       console.error("Error fetching prices:", error);
     } finally {
@@ -61,9 +71,10 @@ export default function Home() {
   const fetchPricesForHistory = async (warehouseId) => {
     try {
       const response = await getItemHistoryById(warehouseId);
-      console.log(response);
       setHistoryItems(
-        response.prices?.filter((item) => item.warehouse?._id === warehouseId)
+        response.priceHistory?.filter(
+          (item) => item.warehouse?._id === warehouseId
+        )
       );
     } catch (error) {
       console.error("Error fetching prices:", error);
@@ -99,8 +110,8 @@ export default function Home() {
 
   const handleSubmit = async () => {
     setSubmitLoading(true);
-    const itemsToSubmit = form?.filter((item) => !item.pricesUpdated);
-    const eligibleItems = itemsToSubmit?.filter(
+    const itemsToSubmit = form;
+    const eligibleItems = form?.filter(
       (item) =>
         item.companyPrice &&
         String(item.companyPrice).trim() !== "" &&
@@ -115,6 +126,27 @@ export default function Home() {
       if (eligibleItems.length === 0) {
         setSubmitLoading(false);
         toast.error("Fill all prices!");
+        return;
+      }
+
+      const allLocked = form?.every((item) => item.locked);
+      const pricesChanged = form?.some(
+        (item) =>
+          item.companyPrice !== item.originalCompanyPrice ||
+          item.rackPrice !== item.originalRackPrice ||
+          item.depoPrice !== item.originalDepoPrice ||
+          item.plantPrice !== item.originalPlantPrice
+      );
+
+      if (allLocked && !pricesChanged) {
+        setSubmitLoading(false);
+        toast.error("Unlock items to modify prices.");
+        return;
+      }
+
+      if (!pricesChanged) {
+        setSubmitLoading(false);
+        toast.error("Please enter new price values.");
         return;
       }
       try {
@@ -139,9 +171,6 @@ export default function Home() {
         setSubmitLoading(false);
         toast.error("Error updating prices!");
       }
-    } else {
-      setSubmitLoading(false);
-      toast.error("All prices are already updated.");
     }
   };
 
@@ -183,6 +212,12 @@ export default function Home() {
       window.location.reload();
     }
   }, []);
+
+  const handleLockToggle = (index) => {
+    const updatedForm = [...form];
+    updatedForm[index].locked = !updatedForm[index].locked;
+    setForm(updatedForm);
+  };
 
   return (
     <div className="mt-8 px-12">
@@ -263,6 +298,7 @@ export default function Home() {
                     <th className="px-4 py-2 text-left font-semibold text-gray-600">
                       Plant Price
                     </th>
+                    <th className="px-4 py-2 text-left font-semibold text-gray-600"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -278,9 +314,9 @@ export default function Home() {
                             name="companyPrice"
                             value={item.companyPrice}
                             onChange={(e) => handleInputChange(index, e)}
-                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            className="w-[80px] bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
                             placeholder="Company Price"
-                            disabled={item.pricesUpdated}
+                            disabled={item.locked}
                           />
                         </td>
                         <td className="px-4 py-2 border-t border-gray-200">
@@ -289,9 +325,9 @@ export default function Home() {
                             name="rackPrice"
                             value={item.rackPrice}
                             onChange={(e) => handleInputChange(index, e)}
-                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            className="w-[80px] bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
                             placeholder="Rack Price"
-                            disabled={item.pricesUpdated}
+                            disabled={item.locked}
                           />
                         </td>
                         <td className="px-4 py-2 border-t border-gray-200">
@@ -300,9 +336,9 @@ export default function Home() {
                             name="depoPrice"
                             value={item.depoPrice}
                             onChange={(e) => handleInputChange(index, e)}
-                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            className="w-[80px] bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
                             placeholder="Depot Price"
-                            disabled={item.pricesUpdated}
+                            disabled={item.locked}
                           />
                         </td>
                         <td className="px-4 py-2 border-t border-gray-200">
@@ -311,10 +347,32 @@ export default function Home() {
                             name="plantPrice"
                             value={item.plantPrice}
                             onChange={(e) => handleInputChange(index, e)}
-                            className="w-full bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
+                            className="w-[80px] bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
                             placeholder="Plant Price"
-                            disabled={item.pricesUpdated}
+                            disabled={item.locked}
                           />
+                        </td>
+                        <td className="px-4 py-2 border-t border-gray-200">
+                          <button
+                            onClick={() => handleLockToggle(index)}
+                            className={`w-[100px] px-3 py-1 rounded-lg text-white ${
+                              item.locked
+                                ? "bg-green-500 hover:bg-green-600"
+                                : "bg-red-500 hover:bg-red-600"
+                            }`}
+                          >
+                            {item.locked ? (
+                              <span className="flex flex-row items-center gap-2">
+                                <FaLock className="text-[1rem]" />
+                                Unlock
+                              </span>
+                            ) : (
+                              <span className="flex flex-row items-center gap-2">
+                                <FaLockOpen className="text-[1rem]" />
+                                Lock
+                              </span>
+                            )}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -364,7 +422,7 @@ export default function Home() {
             historyItems?.length > 0 ? (
               <table className="w-full bg-white rounded-lg shadow-md">
                 <thead>
-                  <tr className="bg-gray-200 text-gray-700 font-semibold">
+                  <tr className="bg-gray-200 text-gray-700 font-semibold text-center">
                     <th className="px-4 py-2">Date</th>
                     <th className="px-4 py-2">Item</th>
                     <th className="px-4 py-2">Company Price</th>
@@ -375,11 +433,11 @@ export default function Home() {
                 </thead>
                 <tbody>
                   {historyItems?.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2">{formatDate(item.date)}</td>
+                    <tr key={item._id} className="hover:bg-gray-50 text-center">
                       <td className="px-4 py-2">
-                        {item.item?.materialdescription}
+                        {formatDate(item.effectiveDate)}
                       </td>
+                      <td className="px-4 py-2">{item.item?.material}</td>
                       <td className="px-4 py-2">{item.companyPrice}</td>
                       <td className="px-4 py-2">{item.rackPrice}</td>
                       <td className="px-4 py-2">{item.depoPrice}</td>
