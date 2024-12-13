@@ -28,8 +28,6 @@ export default function Home() {
   const [form, setForm] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [editedPrice, setEditedPrice] = useState(null);
 
   const { organization } = useOrganization();
   const isOrganizationLoaded = localStorage.getItem("organizationId");
@@ -52,12 +50,12 @@ export default function Home() {
     setLoading(true);
     try {
       const prices = await getPricesByWarehouse(warehouseId);
-      const updatedItems = prices.items.map((item) => ({
+      const updatedItems = prices?.items?.map((item) => ({
         ...item,
-        originalCompanyPrice: item.companyPrice,
-        originalRackPrice: item.rackPrice,
-        originalDepoPrice: item.depoPrice,
-        originalPlantPrice: item.plantPrice,
+        originalCompanyPrice: item?.companyPrice,
+        originalRackPrice: item?.rackPrice,
+        originalDepoPrice: item?.depoPrice,
+        originalPlantPrice: item?.plantPrice,
         locked: true,
       }));
       setForm(updatedItems);
