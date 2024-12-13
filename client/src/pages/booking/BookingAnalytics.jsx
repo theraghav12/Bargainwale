@@ -32,7 +32,7 @@ const BookingAnalytics = () => {
       const completedBookings = response.filter(
         (booking) => booking.status === "fully sold"
       ).length;
-      const totalRevenue = response.reduce(
+      const totalRevenue = response?.reduce(
         (sum, booking) => sum + (booking.total || 0),
         0
       );
@@ -45,7 +45,7 @@ const BookingAnalytics = () => {
       });
 
       // Calculate order status distribution
-      const statusCounts = response.reduce(
+      const statusCounts = response?.reduce(
         (acc, booking) => {
           acc[booking.status] = (acc[booking.status] || 0) + 1;
           return acc;
@@ -89,7 +89,7 @@ const BookingAnalytics = () => {
   }, []);
 
   let totalBookingValue = bookings?.reduce((total, booking) => {
-    const bookingTotal = booking.items.reduce(
+    const bookingTotal = booking?.items?.reduce(
       (sum, item) => sum + (item.taxableAmount || 0),
       0
     );

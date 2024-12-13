@@ -312,19 +312,19 @@ const CreateOrder = () => {
     }));
   };
   const calculateTotalQuantity = () => {
-    return form.items.reduce((total, item) => {
+    return form?.items?.reduce((total, item) => {
       return total + (Number(item.quantity) || 0);
     }, 0);
   };
 
   const calculateTotalAmount = () => {
-    return form.items.reduce((total, item) => {
+    return form?.items?.reduce((total, item) => {
       return total + (Number(item.taxpaidAmount) || 0);
     }, 0);
   };
 
   const calculateTotalGrossWeight = () => {
-    return form.items.reduce((total, item) => {
+    return form?.items?.reduce((total, item) => {
       return (
         total +
         (Number(

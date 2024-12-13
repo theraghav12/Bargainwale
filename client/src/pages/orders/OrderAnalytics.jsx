@@ -86,7 +86,7 @@ const OrderAnalytics = () => {
   }, []);
 
   let totalOrderValue = orders?.reduce((total, order) => {
-    const orderTotal = order.items.reduce(
+    const orderTotal = order?.items?.reduce(
       (sum, item) => sum + (item.taxableAmount || 0),
       0
     );

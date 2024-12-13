@@ -23,7 +23,7 @@ export default function StatisticsCards() {
   }, []);
 
   let totalOrderValue = orders?.reduce((total, order) => {
-    const orderTotal = order.items.reduce(
+    const orderTotal = order?.items?.reduce(
       (sum, item) => sum + (item.taxableAmount || 0),
       0
     );
@@ -31,7 +31,7 @@ export default function StatisticsCards() {
   }, 0);
 
   let totalBookingValue = bookings?.reduce((total, booking) => {
-    const bookingTotal = booking.items.reduce(
+    const bookingTotal = booking?.items?.reduce(
       (sum, item) => sum + (item.taxpaidAmount || 0),
       0
     );
