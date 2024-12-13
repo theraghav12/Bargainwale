@@ -20,9 +20,12 @@ export default function SignIn() {
     const userValidation = async () => {
       try {
         if (user) {
-          const response = await axios.post(`${API_BASE_URL}/checkUser`, {
-            clerkId: user.id,
-          });
+          const response = await axios.post(
+            `https://api.bargainwale.com/api/checkUser`,
+            {
+              clerkId: user.id,
+            }
+          );
           if (response.status === 200) {
             toast.success("Signed In!", {
               description: `Welcome ${user.fullName ? user.fullName : ""}`,
