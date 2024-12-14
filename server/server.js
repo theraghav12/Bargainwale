@@ -19,12 +19,16 @@ import totalSaleRoutes from "./routes/totalsale.js";
 import itemHistoryRoutes from "./routes/itemHistory.js";
 dotenv.config();
 
-const PORT = 3000 || process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const app = express();
 connectDB();
 app.use(express.json());
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: false,
+}));
 
 app.use(userRoutes);
 
