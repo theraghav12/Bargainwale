@@ -42,11 +42,13 @@ const CreateOrder = () => {
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
-      setItemsOptions(response);
-      const formattedOptions = response.map((item) => ({
-        value: item._id,
-        label: item.materialdescription,
-      }));
+      setItemsOptions(response?.filter((item) => item.isActive));
+      const formattedOptions = response
+        ?.filter((item) => item.isActive)
+        ?.map((item) => ({
+          value: item._id,
+          label: item.materialdescription,
+        }));
       setSelectItemsOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching items!");
@@ -57,11 +59,15 @@ const CreateOrder = () => {
   const fetchManufacturerOptions = async () => {
     try {
       const response = await getManufacturer();
-      setManufacturerOptions(response);
-      const formattedOptions = response.map((manufacturer) => ({
-        value: manufacturer._id,
-        label: manufacturer.manufacturer,
-      }));
+      setManufacturerOptions(
+        response?.filter((manufacturer) => manufacturer.isActive)
+      );
+      const formattedOptions = response
+        ?.filter((manufacturer) => manufacturer.isActive)
+        ?.map((manufacturer) => ({
+          value: manufacturer._id,
+          label: manufacturer.manufacturer,
+        }));
       setSelectManufacturerOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching manufacturers!");
@@ -72,11 +78,13 @@ const CreateOrder = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
-      const formattedOptions = response.map((warehouse) => ({
-        value: warehouse._id,
-        label: warehouse.name,
-      }));
+      setWarehouseOptions(response?.filter((warehouse) => warehouse.isActive));
+      const formattedOptions = response
+        ?.filter((warehouse) => warehouse.isActive)
+        ?.map((warehouse) => ({
+          value: warehouse._id,
+          label: warehouse.name,
+        }));
       setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");

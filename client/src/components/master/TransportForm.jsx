@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Switch,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -100,6 +101,15 @@ const TransportForm = () => {
     }
   };
 
+  const toggleStatus = async (isActive, id) => {
+    try {
+      const response = await updateTransport({ isActive: !isActive }, id);
+      fetchTransport();
+    } catch (error) {
+      console.error("Error updating transport status:", error);
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await deleteTransport(id);
@@ -173,50 +183,123 @@ const TransportForm = () => {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {transport.length > 0 ? (
-            transport.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white shadow-md rounded-md p-4 border"
-              >
-                <Typography variant="h6" className="font-bold">
-                  {item.transport}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Type: {item.transportType}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Contact: {item.transportContact}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Agency: {item.transportAgency}
-                </Typography>
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    color="blue"
-                    size="sm"
-                    onClick={() => openEditModal(item)}
-                    className="flex items-center gap-1"
+        <div className="flex flex-col">
+          <h3 className="text-[1.2rem] font-[500]">Active Transports</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {transport?.filter((transport) => transport.isActive)?.length >
+            0 ? (
+              transport
+                ?.filter((transport) => transport.isActive)
+                ?.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white shadow-md rounded-md p-4 border"
                   >
-                    <AiOutlineEdit /> Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    size="sm"
-                    onClick={() => handleDelete(item._id)}
-                    className="flex items-center gap-1"
+                    <Typography variant="h6" className="font-bold">
+                      {item.transport}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Type: {item.transportType}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Contact: {item.transportContact}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Agency: {item.transportAgency}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={item.isActive}
+                        onChange={() => toggleStatus(item.isActive, item._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDelete(item._id)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No transports available.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col mt-14">
+          <h3 className="text-[1.2rem] font-[500]">Deactive Transports</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {transport?.filter((transport) => !transport.isActive)?.length >
+            0 ? (
+              transport
+                ?.filter((transport) => !transport.isActive)
+                ?.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <AiOutlineDelete /> Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
-              No transports available.
-            </p>
-          )}
+                    <Typography variant="h6" className="font-bold">
+                      {item.transport}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Type: {item.transportType}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Contact: {item.transportContact}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Agency: {item.transportAgency}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={item.isActive}
+                        onChange={() => toggleStatus(item.isActive, item._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDelete(item._id)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No transports available.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

@@ -35,11 +35,12 @@ export default function Home() {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      if (response.length > 0) {
-        setSelectedWarehouse(response[0]._id);
-        setSelectedHistoryWarehouse(response[0]._id);
+      const warehouses = response?.filter((warehouse) => warehouse.isActive);
+      if (warehouses.length > 0) {
+        setSelectedWarehouse(warehouses[0]._id);
+        setSelectedHistoryWarehouse(warehouses[0]._id);
       }
-      setWarehouseOptions(response);
+      setWarehouseOptions(warehouses);
     } catch (error) {
       toast.error("Error fetching warehouses!");
       console.error(error);
@@ -50,14 +51,16 @@ export default function Home() {
     setLoading(true);
     try {
       const prices = await getPricesByWarehouse(warehouseId);
-      const updatedItems = prices?.items?.map((item) => ({
-        ...item,
-        originalCompanyPrice: item?.companyPrice,
-        originalRackPrice: item?.rackPrice,
-        originalDepoPrice: item?.depoPrice,
-        originalPlantPrice: item?.plantPrice,
-        locked: true,
-      }));
+      const updatedItems = prices?.items
+        ?.filter((item) => item.item?.isActive)
+        ?.map((item) => ({
+          ...item,
+          originalCompanyPrice: item?.companyPrice,
+          originalRackPrice: item?.rackPrice,
+          originalDepoPrice: item?.depoPrice,
+          originalPlantPrice: item?.plantPrice,
+          locked: true,
+        }));
       setForm(updatedItems);
     } catch (error) {
       console.error("Error fetching prices:", error);

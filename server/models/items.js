@@ -54,6 +54,10 @@ const itemSchema = new mongoose.Schema({
         ref: "Organization",
         required: true,
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    }
 }, { timestamps: true });
 
 const Item = mongoose.model('Item', itemSchema);

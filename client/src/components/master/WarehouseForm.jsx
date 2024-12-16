@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Switch,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -115,6 +116,15 @@ const WarehouseForm = () => {
     }
   };
 
+  const toggleStatus = async (isActive, id) => {
+    try {
+      const response = await updateWarehouse({ isActive: !isActive }, id);
+      fetchWarehouses();
+    } catch (error) {
+      console.error("Error updating warehouse status:", error);
+    }
+  };
+
   const openDeleteModal = (warehouse) => {
     setWarehouseToDelete(warehouse);
     setConfirmationName("");
@@ -198,65 +208,159 @@ const WarehouseForm = () => {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {warehouses.length > 0 ? (
-            warehouses.map((warehouse) => (
-              <div
-                key={warehouse._id}
-                className="bg-white shadow-md rounded-md p-4 border"
-              >
-                <Typography variant="h6" className="font-bold">
-                  {warehouse.name}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  State: {warehouse.location?.state}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  City: {warehouse.location?.city}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Manager Name: {warehouse.warehouseManager?.name || "N/A"}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Manager Email: {warehouse.warehouseManager?.email || "N/A"}
-                </Typography>
-                {warehouse.googleMapsLink && (
-                  <Typography className="text-sm text-gray-600">
-                    <a
-                      href={warehouse.googleMapsLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      View on Maps
-                    </a>
-                  </Typography>
-                )}
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    color="blue"
-                    size="sm"
-                    onClick={() => openEditModal(warehouse)}
-                    className="flex items-center gap-1"
+        <div className="flex flex-col">
+          <h3 className="text-[1.2rem] font-[500]">Active Warehouses</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {warehouses?.filter((warehouse) => warehouse.isActive)?.length >
+            0 ? (
+              warehouses
+                ?.filter((warehouse) => warehouse.isActive)
+                ?.map((warehouse) => (
+                  <div
+                    key={warehouse._id}
+                    className="bg-white shadow-md rounded-md p-4 border"
                   >
-                    <AiOutlineEdit /> Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    size="sm"
-                    onClick={() => openDeleteModal(warehouse)}
-                    className="flex items-center gap-1"
+                    <Typography variant="h6" className="font-bold">
+                      {warehouse.name}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      State: {warehouse.location?.state}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      City: {warehouse.location?.city}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Manager Name: {warehouse.warehouseManager?.name || "N/A"}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Manager Email:{" "}
+                      {warehouse.warehouseManager?.email || "N/A"}
+                    </Typography>
+                    {warehouse.googleMapsLink && (
+                      <Typography className="text-sm text-gray-600">
+                        <a
+                          href={warehouse.googleMapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View on Maps
+                        </a>
+                      </Typography>
+                    )}
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={warehouse.isActive}
+                        onChange={() =>
+                          toggleStatus(warehouse.isActive, warehouse._id)
+                        }
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(warehouse)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => openDeleteModal(warehouse)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No warehouses available.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col mt-14">
+          <h3 className="text-[1.2rem] font-[500]">Deactive Warehouses</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {warehouses?.filter((warehouse) => !warehouse.isActive)?.length >
+            0 ? (
+              warehouses
+                ?.filter((warehouse) => !warehouse.isActive)
+                ?.map((warehouse) => (
+                  <div
+                    key={warehouse._id}
+                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <AiOutlineDelete /> Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
-              No warehouses available.
-            </p>
-          )}
+                    <Typography variant="h6" className="font-bold">
+                      {warehouse.name}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      State: {warehouse.location?.state}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      City: {warehouse.location?.city}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Manager Name: {warehouse.warehouseManager?.name || "N/A"}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Manager Email:{" "}
+                      {warehouse.warehouseManager?.email || "N/A"}
+                    </Typography>
+                    {warehouse.googleMapsLink && (
+                      <Typography className="text-sm text-gray-600">
+                        <a
+                          href={warehouse.googleMapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View on Maps
+                        </a>
+                      </Typography>
+                    )}
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Enable</span>
+                      <Switch
+                        checked={warehouse.isActive}
+                        onChange={() =>
+                          toggleStatus(warehouse.isActive, warehouse._id)
+                        }
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(warehouse)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => openDeleteModal(warehouse)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No warehouses available.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Switch,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -130,6 +131,15 @@ const BuyerForm = () => {
     }
   };
 
+  const toggleStatus = async (isActive, id) => {
+    try {
+      const response = await updateBuyer({ isActive: !isActive }, id);
+      fetchBuyers();
+    } catch (error) {
+      console.error("Error updating buyer status:", error);
+    }
+  };
+
   const handleDeleteClick = (buyer) => {
     setBuyerToDelete(buyer);
     setDeleteModalOpen(true);
@@ -219,60 +229,141 @@ const BuyerForm = () => {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {buyers.length > 0 ? (
-            buyers.map((buyer) => (
-              <div
-                key={buyer._id}
-                className="bg-white shadow-md rounded-md p-4 border"
-              >
-                <Typography variant="h6" className="font-bold">
-                  {buyer.buyer}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Company: {buyer.buyerCompany}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Contact: {buyer.buyerContact}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Email: {buyer.buyerEmail}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  GST: {buyer.buyerGstno}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
-                  {buyer.buyerdeliveryAddress?.addressLine2},{" "}
-                  {buyer.buyerdeliveryAddress?.city},{" "}
-                  {buyer.buyerdeliveryAddress?.state},{" "}
-                  {buyer.buyerdeliveryAddress?.pinCode}
-                </Typography>
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    color="blue"
-                    size="sm"
-                    onClick={() => openEditModal(buyer)}
-                    className="flex items-center gap-1"
+        <div className="flex flex-col">
+          <h3 className="text-[1.2rem] font-[500]">Active Buyers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {buyers?.filter((buyer) => buyer.isActive)?.length > 0 ? (
+              buyers
+                ?.filter((buyer) => buyer.isActive)
+                ?.map((buyer) => (
+                  <div
+                    key={buyer._id}
+                    className="bg-white shadow-md rounded-md p-4 border"
                   >
-                    <AiOutlineEdit /> Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    size="sm"
-                    onClick={() => handleDeleteClick(buyer)}
-                    className="flex items-center gap-1"
+                    <Typography variant="h6" className="font-bold">
+                      {buyer.buyer}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Company: {buyer.buyerCompany}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Contact: {buyer.buyerContact}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Email: {buyer.buyerEmail}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      GST: {buyer.buyerGstno}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                      {buyer.buyerdeliveryAddress?.addressLine2},{" "}
+                      {buyer.buyerdeliveryAddress?.city},{" "}
+                      {buyer.buyerdeliveryAddress?.state},{" "}
+                      {buyer.buyerdeliveryAddress?.pinCode}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={buyer.isActive}
+                        onChange={() => toggleStatus(buyer.isActive, buyer._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(buyer)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDeleteClick(buyer)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No buyers available.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col mt-14">
+          <h3 className="text-[1.2rem] font-[500]">Deactive Buyers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {buyers?.filter((buyer) => !buyer.isActive)?.length > 0 ? (
+              buyers
+                ?.filter((buyer) => !buyer.isActive)
+                ?.map((buyer) => (
+                  <div
+                    key={buyer._id}
+                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <AiOutlineDelete /> Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
-              No buyers available.
-            </p>
-          )}
+                    <Typography variant="h6" className="font-bold">
+                      {buyer.buyer}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Company: {buyer.buyerCompany}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Contact: {buyer.buyerContact}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Email: {buyer.buyerEmail}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      GST: {buyer.buyerGstno}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                      {buyer.buyerdeliveryAddress?.addressLine2},{" "}
+                      {buyer.buyerdeliveryAddress?.city},{" "}
+                      {buyer.buyerdeliveryAddress?.state},{" "}
+                      {buyer.buyerdeliveryAddress?.pinCode}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={buyer.isActive}
+                        onChange={() => toggleStatus(buyer.isActive, buyer._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(buyer)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDeleteClick(buyer)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No buyers available.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

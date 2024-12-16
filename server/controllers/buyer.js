@@ -64,6 +64,7 @@ const buyerController = {
         buyerEmail,
         buyerGstno,
         buyerGooglemaps,
+        isActive
       } = req.body;
 
       const buyerToUpdate = await Buyer.findById(req.params.id);
@@ -79,6 +80,7 @@ const buyerController = {
       if (buyerEmail) buyerToUpdate.buyerEmail = buyerEmail;
       if (buyerGstno) buyerToUpdate.buyerGstno = buyerGstno;
       if (buyerGooglemaps) buyerToUpdate.buyerGooglemaps = buyerGooglemaps;
+      if (typeof (isActive) === "boolean") buyerToUpdate.isActive = isActive;
 
       await buyerToUpdate.save();
       res.status(200).json({ message: "Buyer updated successfully", buyerToUpdate });

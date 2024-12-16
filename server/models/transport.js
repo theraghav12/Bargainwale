@@ -22,6 +22,10 @@ const transportSchema = new mongoose.Schema({
         ref: "Organization",
         required: true,
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    }
 });
 
 const Transport = mongoose.model('Transport', transportSchema);

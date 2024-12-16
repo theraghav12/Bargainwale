@@ -48,11 +48,13 @@ const CreateBooking = () => {
   const fetchItemsOptions = async () => {
     try {
       const response = await getItems();
-      setItemsOptions(response);
-      const formattedOptions = response.map((item) => ({
-        value: item._id,
-        label: item.materialdescription,
-      }));
+      setItemsOptions(response?.filter((item) => item.isActive));
+      const formattedOptions = response
+        ?.filter((item) => item.isActive)
+        ?.map((item) => ({
+          value: item._id,
+          label: item.materialdescription,
+        }));
       setSelectItemsOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching items!");
@@ -63,11 +65,13 @@ const CreateBooking = () => {
   const fetchBuyerOptions = async () => {
     try {
       const response = await getBuyer();
-      setBuyerOptions(response);
-      const formattedOptions = response.map((buyer) => ({
-        value: buyer._id,
-        label: buyer.buyer,
-      }));
+      setBuyerOptions(response?.filter((buyer) => buyer.isActive));
+      const formattedOptions = response
+        ?.filter((buyer) => buyer.isActive)
+        ?.map((buyer) => ({
+          value: buyer._id,
+          label: buyer.buyer,
+        }));
       setSelectBuyerOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching buyers!");
@@ -78,11 +82,13 @@ const CreateBooking = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      setWarehouseOptions(response);
-      const formattedOptions = response.map((warehouse) => ({
-        value: warehouse._id,
-        label: warehouse.name,
-      }));
+      setWarehouseOptions(response?.filter((warehouse) => warehouse.isActive));
+      const formattedOptions = response
+        ?.filter((warehouse) => warehouse.isActive)
+        ?.map((warehouse) => ({
+          value: warehouse._id,
+          label: warehouse.name,
+        }));
       setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");

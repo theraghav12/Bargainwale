@@ -48,11 +48,11 @@ const transportController = {
   // Update a transport by ID
   updateTransport: async (req, res) => {
     try {
-      const { transport, transportType, transportContact, transportAgency, organization } = req.body;
+      const { transport, transportType, transportContact, transportAgency, organization, isActive } = req.body;
 
       const updatedTransport = await Transport.findByIdAndUpdate(
         req.params.id,
-        { transport, transportType, transportContact, transportAgency, organization },
+        { transport, transportType, transportContact, transportAgency, organization, isActive },
         { new: true, runValidators: true }
       );
 

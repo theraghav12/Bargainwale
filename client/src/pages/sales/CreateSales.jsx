@@ -64,10 +64,12 @@ const CreateSales = () => {
   const fetchTransportOptions = async () => {
     try {
       const response = await getTransport();
-      const formattedOptions = response.map((item) => ({
-        value: item._id,
-        label: item.transport,
-      }));
+      const formattedOptions = response
+        ?.filter((transport) => transport.isActive)
+        ?.map((item) => ({
+          value: item._id,
+          label: item.transport,
+        }));
       setSelectTransportOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching transports!");
@@ -78,10 +80,12 @@ const CreateSales = () => {
   const fetchWarehouseOptions = async () => {
     try {
       const response = await getWarehouses();
-      const formattedOptions = response.map((item) => ({
-        value: item._id,
-        label: item.name,
-      }));
+      const formattedOptions = response
+        ?.filter((warehouse) => warehouse.isActive)
+        ?.map((item) => ({
+          value: item._id,
+          label: item.name,
+        }));
       setSelectWarehouseOptions(formattedOptions);
     } catch (error) {
       toast.error("Error fetching warehouses!");

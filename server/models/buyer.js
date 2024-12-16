@@ -46,6 +46,10 @@ const buyerSchema = new mongoose.Schema({
     ref: "Organization",
     required: true,
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 }, { timestamps: true });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);

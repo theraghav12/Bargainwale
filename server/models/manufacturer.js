@@ -47,6 +47,10 @@ const manufacturerSchema = new mongoose.Schema({
     ref: "Organization",
     required: true,
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 }, { timestamps: true });
 const Manufacturer = mongoose.model('Manufacturer', manufacturerSchema);
 export default Manufacturer;

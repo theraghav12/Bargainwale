@@ -74,6 +74,10 @@ const warehouseSchema = mongoose.Schema(
         },
       },
     ],
+    isActive: {
+      type: Boolean,
+      default: true
+    }
   },
   { timestamps: true }
 );

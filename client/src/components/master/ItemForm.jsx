@@ -9,6 +9,7 @@ import {
   DialogFooter,
   Select,
   Option,
+  Switch,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -149,6 +150,15 @@ const ItemForm = () => {
     }
   };
 
+  const toggleStatus = async (isActive, id) => {
+    try {
+      const response = await updateItem({ isActive: !isActive }, id);
+      fetchItems();
+    } catch (error) {
+      console.error("Error updating item status:", error);
+    }
+  };
+
   const openDeleteModal = (item) => {
     setItemToDelete(item);
     setConfirmationName("");
@@ -235,62 +245,146 @@ const ItemForm = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {items.length > 0 ? (
-            items.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white shadow-md rounded-md p-4 border"
-              >
-                <Typography variant="h6" className="font-bold">
-                  {item.materialdescription}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Flavor: {item.flavor}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Material: {item.material}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Net Weight: {item.netweight}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Gross Weight: {item.grossweight}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  GST: {item.gst}%
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Packaging: {item.packaging}
-                </Typography>
-                <Typography className="text-sm text-gray-600">
-                  Pack Size: {item.packsize}
-                </Typography>
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    color="blue"
-                    size="sm"
-                    onClick={() => openEditModal(item)}
-                    className="flex items-center gap-1"
+        <div className="flex flex-col">
+          <h3 className="text-[1.2rem] font-[500]">Active Items</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {items?.filter((item) => item.isActive)?.length > 0 ? (
+              items
+                ?.filter((item) => item.isActive)
+                ?.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white shadow-md rounded-md p-4 border"
                   >
-                    <AiOutlineEdit /> Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    size="sm"
-                    onClick={() => openDeleteModal(item)}
-                    className="flex items-center gap-1"
+                    <Typography variant="h6" className="font-bold">
+                      {item.materialdescription}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Flavor: {item.flavor}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Material: {item.material}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Net Weight: {item.netweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Gross Weight: {item.grossweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      GST: {item.gst}%
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Packaging: {item.packaging}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Pack Size: {item.packsize}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={item.isActive}
+                        onChange={() => toggleStatus(item.isActive, item._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => openDeleteModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No items available.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col mt-14">
+          <h3 className="text-[1.2rem] font-[500]">Deactive Items</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {items?.filter((item) => !item.isActive)?.length > 0 ? (
+              items
+                ?.filter((item) => !item.isActive)
+                ?.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <AiOutlineDelete /> Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
-              No items available.
-            </p>
-          )}
+                    <Typography variant="h6" className="font-bold">
+                      {item.materialdescription}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Flavor: {item.flavor}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Material: {item.material}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Net Weight: {item.netweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Gross Weight: {item.grossweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      GST: {item.gst}%
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Packaging: {item.packaging}
+                    </Typography>
+                    <Typography className="text-sm text-gray-600">
+                      Pack Size: {item.packsize}
+                    </Typography>
+                    <label className="flex items-center cursor-pointer mt-2">
+                      <span className="mr-2">Disable</span>
+                      <Switch
+                        checked={item.isActive}
+                        onChange={() => toggleStatus(item.isActive, item._id)}
+                        color="green"
+                      />
+                    </label>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        color="blue"
+                        size="sm"
+                        onClick={() => openEditModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineEdit /> Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        size="sm"
+                        onClick={() => openDeleteModal(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <AiOutlineDelete /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+                No items available.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

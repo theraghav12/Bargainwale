@@ -32,7 +32,6 @@ const warehouseController = {
       });
     }
   },
-
   getAllWarehouses: async (req, res) => {
     try {
       const warehouses = await Warehouse.find({ organization: req.params.orgId })
@@ -45,7 +44,6 @@ const warehouseController = {
       res.status(500).json({ message: "Error retrieving warehouses", error });
     }
   },
-
   getWarehouseByFilter: async (req, res) => {
     try {
       const { name, state, city, warehouseManagerName, warehouseManagerEmail } = req.query;
@@ -70,7 +68,6 @@ const warehouseController = {
       res.status(500).json({ message: "Error retrieving warehouses", error });
     }
   },
-
   getWarehouseById: async (req, res) => {
     try {
       const { id, orgId } = req.params;
@@ -88,11 +85,10 @@ const warehouseController = {
       res.status(500).json({ message: "Error retrieving warehouse", error });
     }
   },
-
   updateWarehouse: async (req, res) => {
     try {
       const { id } = req.params;
-      const { warehouseManager, name, state, city } = req.body;
+      const { warehouseManager, name, state, city, isActive } = req.body;
 
       // Validate warehouse ID
       if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -109,6 +105,7 @@ const warehouseController = {
       if (name) warehouse.name = name;
       if (state) warehouse.location.state = state;
       if (city) warehouse.location.city = city;
+      if (typeof (isActive) === "boolean") warehouse.isActive = isActive;
 
       // Ensure warehouseManager is an object
       if (warehouseManager) {
@@ -136,8 +133,6 @@ const warehouseController = {
       });
     }
   },
-
-
   deleteWarehouse: async (req, res) => {
     try {
       const warehouse = await Warehouse.findByIdAndDelete(req.params.id);

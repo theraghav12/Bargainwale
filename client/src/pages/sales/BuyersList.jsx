@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { AiOutlineSearch, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import {
+  AiOutlineSearch,
+  AiOutlineDelete,
+  AiOutlineEdit,
+} from "react-icons/ai";
 import { Tooltip, Typography } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import { getBookings } from "@/services/bookingService";
@@ -17,7 +21,7 @@ const BuyersList = () => {
     setIsLoading(true);
     try {
       const response = await getBuyer();
-      setBuyers(response);
+      setBuyers(response?.filter((buyer) => buyer.isActive));
     } catch (err) {
       console.error("Error fetching buyers:", err);
     } finally {
@@ -49,7 +53,10 @@ const BuyersList = () => {
 
   const indexOfLastBuyer = currentPage * buyersPerPage;
   const indexOfFirstBuyer = indexOfLastBuyer - buyersPerPage;
-  const currentBuyers = filteredBuyers.slice(indexOfFirstBuyer, indexOfLastBuyer);
+  const currentBuyers = filteredBuyers.slice(
+    indexOfFirstBuyer,
+    indexOfLastBuyer
+  );
 
   const totalPages = Math.ceil(filteredBuyers.length / buyersPerPage);
 
@@ -110,7 +117,8 @@ const BuyersList = () => {
                   <strong>GST No.:</strong> {buyer.buyerGstno || "N/A"}
                 </p>
                 <p className="text-sm">
-                  <strong>Bookings:</strong> {getBookingCountForBuyer(buyer._id)}
+                  <strong>Bookings:</strong>{" "}
+                  {getBookingCountForBuyer(buyer._id)}
                 </p>
                 <div className="flex justify-between items-center mt-4">
                   <Link

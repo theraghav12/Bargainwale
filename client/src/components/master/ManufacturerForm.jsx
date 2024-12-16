@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Switch,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -127,6 +128,15 @@ const ManufacturerForm = () => {
     }
   };
 
+  const toggleStatus = async (isActive, id) => {
+    try {
+      const response = await updateManufacturer({ isActive: !isActive }, id);
+      fetchManufacturers();
+    } catch (error) {
+      console.error("Error updating manufacturer status:", error);
+    }
+  };
+
   // Modified delete handling
   const openDeleteModal = (man) => {
     setManufacturerToDelete(man);
@@ -218,61 +228,143 @@ const ManufacturerForm = () => {
       </div>
 
       {/* Manufacturers List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {manufacturer.length > 0 ? (
-          manufacturer.map((man) => (
-            <div
-              key={man._id}
-              className="bg-white shadow-md rounded-md p-4 border border-gray-200"
-            >
-              <Typography variant="h6" className="font-bold mb-2">
-                {man.manufacturer}
-              </Typography>
-              <Typography className="text-gray-600">
-                <strong>Company:</strong> {man.manufacturerCompany}
-              </Typography>
-              <Typography className="text-gray-600">
-                <strong>Address:</strong>{" "}
-                {man.manufacturerdeliveryAddress?.addressLine1},{" "}
-                {man.manufacturerdeliveryAddress?.addressLine2},{" "}
-                {man.manufacturerdeliveryAddress?.city},{" "}
-                {man.manufacturerdeliveryAddress?.state},{" "}
-                {man.manufacturerdeliveryAddress?.pinCode}
-              </Typography>
-              <Typography className="text-gray-600">
-                <strong>Contact:</strong> {man.manufacturerContact}
-              </Typography>
-              <Typography className="text-gray-600">
-                <strong>Email:</strong> {man.manufacturerEmail}
-              </Typography>
-              <Typography className="text-gray-600">
-                <strong>GST:</strong> {man.manufacturerGstno}
-              </Typography>
-              <div className="flex justify-end mt-4 gap-2">
-                <Button
-                  color="blue"
-                  size="sm"
-                  onClick={() => openEditModal(man)}
-                  className="flex items-center gap-1"
+      <div className="flex flex-col">
+        <h3 className="text-[1.2rem] font-[500]">Active Manufacturers</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {manufacturer?.filter((man) => man.isActive)?.length > 0 ? (
+            manufacturer
+              ?.filter((man) => man.isActive)
+              ?.map((man) => (
+                <div
+                  key={man._id}
+                  className="bg-white shadow-md rounded-md p-4 border border-gray-200"
                 >
-                  <AiOutlineEdit /> Edit
-                </Button>
-                <Button
-                  color="red"
-                  size="sm"
-                  onClick={() => openDeleteModal(man)}
-                  className="flex items-center gap-1"
+                  <Typography variant="h6" className="font-bold mb-2">
+                    {man.manufacturer}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Company:</strong> {man.manufacturerCompany}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Address:</strong>{" "}
+                    {man.manufacturerdeliveryAddress?.addressLine1},{" "}
+                    {man.manufacturerdeliveryAddress?.addressLine2},{" "}
+                    {man.manufacturerdeliveryAddress?.city},{" "}
+                    {man.manufacturerdeliveryAddress?.state},{" "}
+                    {man.manufacturerdeliveryAddress?.pinCode}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Contact:</strong> {man.manufacturerContact}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Email:</strong> {man.manufacturerEmail}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>GST:</strong> {man.manufacturerGstno}
+                  </Typography>
+                  <label className="flex items-center cursor-pointer mt-2">
+                    <span className="mr-2">Disable</span>
+                    <Switch
+                      checked={man.isActive}
+                      onChange={() => toggleStatus(man.isActive, man._id)}
+                      color="green"
+                    />
+                  </label>
+                  <div className="flex justify-end mt-4 gap-2">
+                    <Button
+                      color="blue"
+                      size="sm"
+                      onClick={() => openEditModal(man)}
+                      className="flex items-center gap-1"
+                    >
+                      <AiOutlineEdit /> Edit
+                    </Button>
+                    <Button
+                      color="red"
+                      size="sm"
+                      onClick={() => openDeleteModal(man)}
+                      className="flex items-center gap-1"
+                    >
+                      <AiOutlineDelete /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No manufacturers available.
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col mt-14">
+        <h3 className="text-[1.2rem] font-[500]">Deactive Manufacturers</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {manufacturer?.filter((man) => !man.isActive)?.length > 0 ? (
+            manufacturer
+              ?.filter((man) => !man.isActive)
+              ?.map((man) => (
+                <div
+                  key={man._id}
+                  className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
                 >
-                  <AiOutlineDelete /> Delete
-                </Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
-            No manufacturers available.
-          </p>
-        )}
+                  <Typography variant="h6" className="font-bold mb-2">
+                    {man.manufacturer}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Company:</strong> {man.manufacturerCompany}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Address:</strong>{" "}
+                    {man.manufacturerdeliveryAddress?.addressLine1},{" "}
+                    {man.manufacturerdeliveryAddress?.addressLine2},{" "}
+                    {man.manufacturerdeliveryAddress?.city},{" "}
+                    {man.manufacturerdeliveryAddress?.state},{" "}
+                    {man.manufacturerdeliveryAddress?.pinCode}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Contact:</strong> {man.manufacturerContact}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>Email:</strong> {man.manufacturerEmail}
+                  </Typography>
+                  <Typography className="text-gray-600">
+                    <strong>GST:</strong> {man.manufacturerGstno}
+                  </Typography>
+                  <label className="flex items-center cursor-pointer mt-2">
+                    <span className="mr-2">Disable</span>
+                    <Switch
+                      checked={man.isActive}
+                      onChange={() => toggleStatus(man.isActive, man._id)}
+                      color="green"
+                    />
+                  </label>
+                  <div className="flex justify-end mt-4 gap-2">
+                    <Button
+                      color="blue"
+                      size="sm"
+                      onClick={() => openEditModal(man)}
+                      className="flex items-center gap-1"
+                    >
+                      <AiOutlineEdit /> Edit
+                    </Button>
+                    <Button
+                      color="red"
+                      size="sm"
+                      onClick={() => openDeleteModal(man)}
+                      className="flex items-center gap-1"
+                    >
+                      <AiOutlineDelete /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <p className="text-center text-gray-600 text-[1.1rem] col-span-full">
+              No manufacturers available.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Add Manufacturer Modal */}

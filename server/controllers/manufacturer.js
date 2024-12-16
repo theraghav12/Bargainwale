@@ -64,6 +64,7 @@ const manufacturerController = {
         manufacturerEmail,
         manufacturerGstno,
         manufacturerGooglemaps,
+        isActive
       } = req.body;
 
       const manufacturerToUpdate = await Manufacturer.findById(req.params.id);
@@ -81,6 +82,7 @@ const manufacturerController = {
       if (manufacturerGstno) manufacturerToUpdate.manufacturerGstno = manufacturerGstno;
       if (manufacturerGooglemaps)
         manufacturerToUpdate.manufacturerGooglemaps = manufacturerGooglemaps;
+      if (typeof (isActive) === "boolean") manufacturerToUpdate.isActive = isActive;
 
       await manufacturerToUpdate.save();
       res.status(200).json({ message: "Manufacturer updated successfully", manufacturerToUpdate });
