@@ -208,8 +208,14 @@ const purchaseController = {
       const purchases = await Purchase.find({ organization: req.params.orgId })
         .populate("warehouseId")
         .populate("transporterId")
-        .populate("orderId")
-        .populate("items.itemId");
+        .populate({
+          path: "orderId",
+          populate: [
+            { path: "manufacturer" }, // Populates the manufacturer field in orderId
+            { path: "warehouse" }, // Populates the warehouse field in orderId
+          ],
+        })
+        .populate("items.itemId"); // Populates the itemId field in items array
 
       res.status(200).json({
         success: true,

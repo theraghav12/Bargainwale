@@ -1,10 +1,12 @@
+import React, { useEffect, useState } from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { getPricesByWarehouse } from "@/services/itemService";
+import { formatDate, numberToWords, toTitleCase, roundOff } from "./helper.js";
 
 // Create styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
-    // backgroundColor: '#E4E4E4',
     alignItems: "flex-start",
     justifyContent: "center",
     padding: 10,
@@ -26,18 +28,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-// Font.register({family:'Times-Roman',src:""})
 
 const PurchaseInvoice = ({ purchase, organization }) => {
-  function formatDate(dateString) {
-    return new Date(dateString)
-      .toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-      .replace(/ /g, "-");
-  }
+  let totalTax = 0;
+  let grandTotal = 0;
+  const [prices, setPrices] = useState(null);
+
+  // Function to fetch prices
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const response = await getPricesByWarehouse(purchase.warehouseId._id);
+        setPrices(response);
+      } catch (error) {
+        console.error(
+          "Failed to fetch item prices for the given warehouse",
+          error
+        );
+      }
+    };
+    fetchPrices();
+  }, [purchase, organization]);
 
   return (
     <Document>
@@ -89,15 +100,13 @@ const PurchaseInvoice = ({ purchase, organization }) => {
               >
                 <Text style={{ fontSize: "10px" }}>Bill To:</Text>
                 <Text style={{ fontSize: "10px" }}>
-                  Aman Tiwar, B302 Ratan Orbit, Naramau, Kalyanpur, Kanpur
-                  Nagar, Uttar Pradesh, 208016
+                  {`${purchase.orderId.manufacturer.manufacturer}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.addressLine1}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.addressLine2}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.city}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.state}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.pinCode}`}
                 </Text>
               </View>
               <View style={{ padding: "5px" }}>
                 <Text style={{ fontSize: "10px" }}>Ship To:</Text>
                 <Text style={{ fontSize: "10px" }}>
-                  Aman Tiwar, B302 Ratan Orbit, Naramau, Kalyanpur, Kanpur
-                  Nagar, Uttar Pradesh, 208016
+                  {`${purchase.orderId.manufacturer.manufacturer}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.addressLine1}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.addressLine2}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.city}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.state}, ${purchase.orderId.manufacturer.manufacturerdeliveryAddress.pinCode}`}
                 </Text>
               </View>
             </View>
@@ -111,7 +120,14 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                 padding: "10px",
               }}
             >
-              <Text style={{ fontSize: "12px" }}>
+              <Text
+                style={{
+                  fontSize: "12px",
+                  whiteSpace: "nowrap", // Ensures text stays on one line
+                  overflow: "hidden", // Hides overflowed content
+                  textOverflow: "ellipsis", // Adds ellipsis for overflow
+                }}
+              >
                 Invoice No: {purchase.invoiceNumber}
               </Text>
               <Text style={{ fontSize: "12px" }}>
@@ -120,8 +136,15 @@ const PurchaseInvoice = ({ purchase, organization }) => {
               <Text style={{ fontSize: "12px" }}>
                 Transporter : {purchase.transporterId.transport}
               </Text>
-              <Text style={{ fontSize: "12px" }}>
-                Transaction No. : 890998778
+              <Text
+                style={{
+                  fontSize: "12px",
+                  whiteSpace: "nowrap", // Ensures text stays on one line
+                  overflow: "hidden", // Hides overflowed content
+                  textOverflow: "ellipsis", // Adds ellipsis for overflow
+                }}
+              >
+                Invoice No: {purchase.invoiceNumber}
               </Text>
             </View>
           </View>
@@ -248,170 +271,232 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                 </Text>
               </View>
             </View>
-            <View style={{ width: "100%", flexDirection: "row" }}>
-              <View
-                style={{
-                  width: "10%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  1
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "20%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  Shower with steel handle
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "15%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  342536756
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "10%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  2
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "10%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  900
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "15%",
-                  textAlign: "left",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  162.00 (9%+9%)
-                </Text>
-              </View>
-              <View style={{ width: "20%", textAlign: "left" }}>
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  1800.00
-                </Text>
-              </View>
+            <View style={{ flexDirection: "column" }}>
+              {(() => {
+                // Initialize accumulators
+                let subtotal = 0;
+
+                // Map through purchase items
+                const items = purchase.items.map((item, index) => {
+                  const pickup = item.pickup;
+                  const quantity = item.quantity;
+                  let itemPrice = 0;
+                  let taxPerUnit = 0;
+                  let totalAmount = 0;
+
+                  if (prices) {
+                    const priceObj = prices.items.find(
+                      (price) => price.item._id === item.itemId._id
+                    );
+                    if (priceObj) {
+                      // Determine item price based on pickup type
+                      if (pickup === "rack") itemPrice = priceObj.rackPrice;
+                      else if (pickup === "company")
+                        itemPrice = priceObj.companyPrice;
+                      else if (pickup === "plant")
+                        itemPrice = priceObj.plantPrice;
+                      else if (pickup === "depot")
+                        itemPrice = priceObj.depoPrice;
+
+                      taxPerUnit = (item.itemId.gst / 100) * itemPrice;
+                      totalAmount = quantity * (itemPrice + taxPerUnit);
+
+                      // Accumulate values
+                      subtotal += quantity * itemPrice;
+                      totalTax += quantity * taxPerUnit;
+                      grandTotal += totalAmount;
+                    }
+                  }
+
+                  // Render each item row
+                  return (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        borderBottom: "1px solid black",
+                      }}
+                      key={index}
+                    >
+                      <View
+                        style={{
+                          width: "10%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {index + 1}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "20%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {item.itemId.materialdescription || "N/A"}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "15%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {item.hsn || "N/A"}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "10%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {quantity || 0}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "10%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {itemPrice.toFixed(2)}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "15%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {taxPerUnit.toFixed(2)} ({item.itemId.gst}% GST)
+                        </Text>
+                      </View>
+                      <View style={{ width: "20%", textAlign: "left" }}>
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {totalAmount.toFixed(2)}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                });
+
+                // Render rows and accumulated totals
+                return (
+                  <>
+                    {items}
+                    {/* Subtotal Row */}
+                    <View
+                      style={{
+                        width: "100%",
+                        flexDirection: "row",
+                        borderTop: "1px solid black",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: "65%",
+                          textAlign: "right",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          Subtotal
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "15%",
+                          textAlign: "left",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {`${totalTax.toFixed(2)} (CGST + SGST)`}
+                        </Text>
+                      </View>
+                      <View style={{ width: "20%", textAlign: "left" }}>
+                        <Text
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            padding: "5px",
+                          }}
+                        >
+                          {grandTotal.toFixed(2)}
+                        </Text>
+                      </View>
+                    </View>
+                  </>
+                );
+              })()}
             </View>
-            {/* sub-total line */}
-            <View
-              style={{
-                width: "100%",
-                flexDirection: "row",
-                borderTop: "1px solid black",
-              }}
-            >
-              <View
-                style={{
-                  width: "65%",
-                  textAlign: "right",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  Subtotal
-                </Text>
-              </View>
-              <View style={{ width: "15%", textAlign: "left" }}>
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                    borderRight: "1px solid black",
-                  }}
-                >
-                  324.00 (CGST + SGST){" "}
-                </Text>
-              </View>
-              <View style={{ width: "20%", textAlign: "left" }}>
-                <Text
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  1800.00
-                </Text>
-              </View>
-            </View>
+            ;
           </View>
           <View
             style={{
@@ -421,6 +506,7 @@ const PurchaseInvoice = ({ purchase, organization }) => {
               flexDirection: "row",
             }}
           >
+            {/* Left Column: Bill Amount in Words */}
             <View style={{ width: "50%", borderRight: "1px solid black" }}>
               <View>
                 <Text
@@ -441,10 +527,12 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                     padding: "5px",
                   }}
                 >
-                  Three Thousand Six Hundred Only
+                  {"Rs. " + toTitleCase(numberToWords(roundOff(grandTotal))) + " Only"}
                 </Text>
               </View>
             </View>
+
+            {/* Right Column: Discount, GST, Round Off, and Grand Total */}
             <View style={{ width: "50%", flexDirection: "column" }}>
               <View
                 style={{
@@ -474,7 +562,7 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                       padding: "5px",
                     }}
                   >
-                    300.00
+                    {0}
                   </Text>
                 </View>
               </View>
@@ -506,7 +594,7 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                       padding: "5px",
                     }}
                   >
-                    324.00
+                    {totalTax.toFixed(2)}
                   </Text>
                 </View>
               </View>
@@ -517,32 +605,6 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                   borderBottom: "1px solid black",
                 }}
               >
-                <View style={{ width: "60%" }}>
-                  <Text
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                      textAlign: "right",
-                      padding: "5px",
-                      borderRight: "1px solid black",
-                    }}
-                  >
-                    Round Off
-                  </Text>
-                </View>
-                <View style={{ width: "40%" }}>
-                  <Text
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "black",
-                      padding: "5px",
-                    }}
-                  >
-                    1824.00
-                  </Text>
-                </View>
-              </View>
-              <View style={{ width: "100%", flexDirection: "row" }}>
                 <View style={{ width: "60%" }}>
                   <Text
                     style={{
@@ -564,12 +626,39 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                       padding: "5px",
                     }}
                   >
-                    1824.00
+                    {grandTotal.toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ width: "100%", flexDirection: "row" }}>
+                <View style={{ width: "60%" }}>
+                  <Text
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      textAlign: "right",
+                      padding: "5px",
+                      borderRight: "1px solid black",
+                    }}
+                  >
+                    Round Off
+                  </Text>
+                </View>
+                <View style={{ width: "40%" }}>
+                  <Text
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: "black",
+                      padding: "5px",
+                    }}
+                  >
+                    {roundOff(grandTotal)}
                   </Text>
                 </View>
               </View>
             </View>
           </View>
+          ;
           <View
             style={{
               width: "100%",
