@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { getPricesByWarehouse } from "@/services/itemService";
-import { formatDate, numberToWords, toTitleCase, roundOff } from "./helper.js";
+import {
+  formatDate,
+  numberToWords,
+  toTitleCase,
+  roundOff,
+} from "../../utils/helper.js";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -527,7 +532,9 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                     padding: "5px",
                   }}
                 >
-                  {"Rs. " + toTitleCase(numberToWords(roundOff(grandTotal))) + " Only"}
+                  {"Rs. " +
+                    toTitleCase(numberToWords(roundOff(grandTotal))) +
+                    " Only"}
                 </Text>
               </View>
             </View>

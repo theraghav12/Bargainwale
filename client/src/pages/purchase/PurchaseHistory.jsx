@@ -11,11 +11,10 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useOrganization } from "@clerk/clerk-react";
 
 // utils
-import PurchaseInvoice from "@/utils/PurchaseInvoice";
+import PurchaseInvoice from "@/components/purchase/PurchaseInvoice";
 
 // api services
 import { getPurchases } from "@/services/purchaseService";
-import { getPricesByWarehouse } from "@/services/itemService";
 // icons
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { FaDownload, FaFileExcel, FaFilter } from "react-icons/fa";
