@@ -245,6 +245,7 @@ const CreateBooking = () => {
           quantity: null,
           pickup: "",
           basePrice: null,
+          baseRate: null,
           discount: 0,
           taxpaidAmount: null,
           taxableAmount: null,
@@ -319,7 +320,10 @@ const CreateBooking = () => {
           form.warehouse
         );
         if (response.status === 200) {
-          const apiPrice = response.data[updatedItems[index].pickup + "Price"];
+          const apiPrice =
+            response.data.price[updatedItems[index].pickup + "Price"];
+
+          updatedItems[index].baseRate = apiPrice;
 
           if (updatedItems[index].basePrice > apiPrice) {
             toast.error(
@@ -966,17 +970,26 @@ const CreateBooking = () => {
                         />
                       </td>
                       <td className="py-4 px-2 text-center">
-                        <input
-                          type="number"
-                          name="basePrice"
-                          value={item.basePrice}
-                          onChange={(e) =>
-                            handleItemChange(index, "basePrice", e.target.value)
-                          }
-                          required
-                          placeholder="Base Rate"
-                          className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
-                        />
+                        <div className="flex gap-2 items-center w-[250px]">
+                          <input
+                            type="number"
+                            name="basePrice"
+                            value={item.basePrice}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "basePrice",
+                                e.target.value
+                              )
+                            }
+                            required
+                            placeholder="Base Rate"
+                            className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
+                          />
+                          <span className="text-[0.8rem]">
+                            (From Daily Price: {formatCurrency(item.baseRate)})
+                          </span>
+                        </div>
                       </td>
                       <td className="py-4 px-2 text-center">
                         <input

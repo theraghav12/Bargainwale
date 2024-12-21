@@ -267,14 +267,14 @@ const WarehouseForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(warehouse)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))
@@ -344,14 +344,14 @@ const WarehouseForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(warehouse)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))

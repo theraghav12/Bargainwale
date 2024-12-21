@@ -297,14 +297,14 @@ const ItemForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(item)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))
@@ -352,7 +352,7 @@ const ItemForm = () => {
                       Pack Size: {item.packsize}
                     </Typography>
                     <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Disable</span>
+                      <span className="mr-2">Enable</span>
                       <Switch
                         checked={item.isActive}
                         onChange={() => toggleStatus(item.isActive, item._id)}
@@ -368,14 +368,14 @@ const ItemForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(item)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))
