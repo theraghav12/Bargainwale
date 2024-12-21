@@ -21,14 +21,14 @@ export default function SignIn() {
       try {
         if (user) {
           const response = await axios.post(
-            `https://api.bargainwale.com/api/checkUser`,
+            `${API_BASE_URL}/checkUser`,
             {
-              clerkId: user.id,
+              clerkId: user?.id,
             }
           );
           if (response.status === 200) {
             toast.success("Signed In!", {
-              description: `Welcome ${user.fullName ? user.fullName : ""}`,
+              description: `Welcome ${user?.fullName ? user?.fullName : ""}`,
             });
           }
           if (organization !== null) {
@@ -39,8 +39,8 @@ export default function SignIn() {
         if (err.response && err.response.status === 404) {
           await axios.post(`${API_BASE_URL}/register`, {
             clerkId: user.id,
-            name: user.fullName || user.firstName,
-            email: user.emailAddresses[0].emailAddress,
+            name: user?.fullName || user?.firstName,
+            email: user?.emailAddresses[0]?.emailAddress,
           });
 
           toast.success("User registered successfully!");

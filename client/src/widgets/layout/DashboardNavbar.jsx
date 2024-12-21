@@ -5,8 +5,10 @@ import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import {
   OrganizationProfile,
   SignedIn,
+  useClerk,
   useOrganization,
   UserButton,
+  UserProfile,
   useUser,
 } from "@clerk/clerk-react";
 
@@ -27,21 +29,23 @@ import {
 } from "@heroicons/react/24/solid";
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
+import UserProfileDropdown from "./ProfileButton";
 
 export function DashboardNavbar() {
-  const [controller, dispatch] = useMaterialTailwindController();
-  const { openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
+  const [openUserProfile, setOpenUserProfile] = useState(false);
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { user, isSignedIn } = useUser();
+  const { signOut } = useClerk();
   const { organization } = useOrganization();
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
+  const handleOpenUserProfile = () => setOpenUserProfile(!openUserProfile);
   const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
   const handleSync = async () => {
@@ -185,8 +189,12 @@ export function DashboardNavbar() {
 
               {/* User Profile Button */}
               <div className="relative group">
-                <UserButton
-                  afterSignOutUrl="/auth/sign-in"
+                <UserProfileDropdown
+                  user={user}
+                  handleOnClick={handleOpenUserProfile}
+                  signOut={signOut}
+                />
+                {/* <UserButton
                   signOutCallback={handleSignOut}
                   appearance={{
                     elements: {
@@ -194,7 +202,7 @@ export function DashboardNavbar() {
                         "hover:scale-105 transition-transform duration-200",
                     },
                   }}
-                />
+                /> */}
               </div>
 
               {/* Enhanced Apps Menu */}
@@ -213,6 +221,14 @@ export function DashboardNavbar() {
         className="bg-white rounded-xl shadow-xl max-w-2xl mx-auto"
       >
         <OrganizationProfile />
+      </Dialog>
+
+      <Dialog
+        open={openUserProfile}
+        handler={handleOpenUserProfile}
+        className="bg-white rounded-xl shadow-xl max-w-2xl mx-auto"
+      >
+        <UserProfile />
       </Dialog>
     </>
   );

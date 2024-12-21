@@ -43,7 +43,6 @@ const CreateOrganizationPage = () => {
         clerkOrganizationId: organization.id,
         creatorId: user.id,
       });
-      console.log(response);
 
       if (response.status === 201) {
         toast.success("Organization created successfully!");
