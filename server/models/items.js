@@ -7,7 +7,7 @@ const itemSchema = new mongoose.Schema({
         required: true,
     },
     material: {
-        type: Number,
+        type: String,
         required: true,
     },
     materialdescription: {
