@@ -519,8 +519,9 @@ const CreateSales = () => {
                                             "Item Name",
                                             "Packaging",
                                             "Weight",
-                                            "Static Price (Rs.)",
+                                            "Base Price (Rs.)",
                                             "Booked Quantity",
+                                            "Quantity Available to Sales",
                                             "Quantity to Sales",
                                           ].map((header) => (
                                             <th
@@ -548,10 +549,14 @@ const CreateSales = () => {
                                               {item.item.netweight}
                                             </td>
                                             <td className="py-3 px-4 text-center">
-                                              {item.item.staticPrice}
+                                              {item.basePrice}
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                               {item.quantity}
+                                            </td>
+                                            <td className="py-3 px-4 text-center">
+                                              {item.quantity -
+                                                item.soldQuantity}
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                               <input
