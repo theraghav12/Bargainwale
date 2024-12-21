@@ -279,14 +279,14 @@ const ManufacturerForm = () => {
                     >
                       <AiOutlineEdit /> Edit
                     </Button>
-                    <Button
+                    {/* <Button
                       color="red"
                       size="sm"
                       onClick={() => openDeleteModal(man)}
                       className="flex items-center gap-1"
                     >
                       <AiOutlineDelete /> Delete
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               ))
@@ -332,7 +332,7 @@ const ManufacturerForm = () => {
                     <strong>GST:</strong> {man.manufacturerGstno}
                   </Typography>
                   <label className="flex items-center cursor-pointer mt-2">
-                    <span className="mr-2">Disable</span>
+                    <span className="mr-2">Enable</span>
                     <Switch
                       checked={man.isActive}
                       onChange={() => toggleStatus(man.isActive, man._id)}
@@ -348,14 +348,14 @@ const ManufacturerForm = () => {
                     >
                       <AiOutlineEdit /> Edit
                     </Button>
-                    <Button
+                    {/* <Button
                       color="red"
                       size="sm"
                       onClick={() => openDeleteModal(man)}
                       className="flex items-center gap-1"
                     >
                       <AiOutlineDelete /> Delete
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               ))

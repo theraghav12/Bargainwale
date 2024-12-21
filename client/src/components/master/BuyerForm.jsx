@@ -279,14 +279,14 @@ const BuyerForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => handleDeleteClick(buyer)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))
@@ -331,7 +331,7 @@ const BuyerForm = () => {
                       {buyer.buyerdeliveryAddress?.pinCode}
                     </Typography>
                     <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Disable</span>
+                      <span className="mr-2">Enable</span>
                       <Switch
                         checked={buyer.isActive}
                         onChange={() => toggleStatus(buyer.isActive, buyer._id)}
@@ -347,14 +347,14 @@ const BuyerForm = () => {
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
-                      <Button
+                      {/* <Button
                         color="red"
                         size="sm"
                         onClick={() => handleDeleteClick(buyer)}
                         className="flex items-center gap-1"
                       >
                         <AiOutlineDelete /> Delete
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))
