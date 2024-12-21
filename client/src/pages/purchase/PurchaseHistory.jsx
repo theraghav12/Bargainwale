@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Typography,
   IconButton,
@@ -12,6 +12,7 @@ import { useOrganization } from "@clerk/clerk-react";
 
 // utils
 import PurchaseInvoice from "@/components/purchase/PurchaseInvoice";
+import Invoice from "@/components/purchase/Invoice";
 
 // api services
 import { getPurchases } from "@/services/purchaseService";
@@ -32,6 +33,9 @@ export default function PurchaseHistory() {
   });
   const [selectedTransporter, setSelectedTransporter] = useState("All");
   const [selectedWarehouse, setSelectedWarehouse] = useState("All");
+  const [showInvoice, setShowInvoice] = useState(false); 
+
+  const invoiceRef = useRef();
 
   const fetchPurchases = async () => {
     try {
@@ -53,6 +57,14 @@ export default function PurchaseHistory() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadClick = () => {
+    setShowInvoice(true);
+    if (invoiceRef.current) {
+      invoiceRef.current.handleDownloadPDF();
+    }
+    setShowInvoice(false); 
   };
 
   const applyFilters = () => {
@@ -308,7 +320,7 @@ export default function PurchaseHistory() {
                             </IconButton>
                           </Tooltip>
                           <Tooltip content="Download Invoice">
-                            <PDFDownloadLink
+                            {/* <PDFDownloadLink
                               document={
                                 <PurchaseInvoice
                                   purchase={purchase}
@@ -318,7 +330,37 @@ export default function PurchaseHistory() {
                               fileName={`invoice_${purchase._id}.pdf`}
                             >
                               <FaDownload className="text-[1.4rem] cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200" />
-                            </PDFDownloadLink>
+                            </PDFDownloadLink> */}
+                            {/* <PDFDownloadLink
+                              document={
+                                <Invoice
+                                  purchase={purchase}
+                                  organization={organization}
+                                />
+                              }
+                              fileName={`invoice_${purchase._id}.pdf`}
+                            >
+                              <FaDownload className="icon-class" />
+                            </PDFDownloadLink>  */}
+                            <div>
+                              <button onClick={handleDownloadClick}>
+                                <FaDownload className="icon-class" />
+                              </button>
+                              <div
+                                style={{
+                                  visibility: "hidden",
+                                  position: "absolute",
+                                  top: "-9999px",
+                                  left: "-9999px",
+                                }}
+                              >
+                                <Invoice
+                                  ref={invoiceRef}
+                                  purchase={purchase}
+                                  organization={organization}
+                                />
+                              </div>
+                            </div>
                           </Tooltip>
                         </div>
                       </td>
