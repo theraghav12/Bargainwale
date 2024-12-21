@@ -50,13 +50,13 @@ const InventoryTable = ({
             <React.Fragment key={index}>
               <tr
                 className="hover:bg-gray-50 cursor-pointer transition-colors"
-                onClick={() => onItemClick(item.item._id)}
+                onClick={() => onItemClick(item.item?._id)}
               >
                 <td className="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-500">
-                  {item.item._id}
+                  {item.item?._id}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.item.materialdescription}
+                  {item.item?.materialdescription}
                 </td>
                 {selectedTab !== "billed" && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
