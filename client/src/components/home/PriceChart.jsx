@@ -21,30 +21,29 @@ ChartJS.register(
 );
 
 const PriceChart = ({ data }) => {
-  const [timeRange, setTimeRange] = useState("30"); // Default to last 30 days
-
+  const [timeRange, setTimeRange] = useState("30");
   const getFilteredData = () => {
     const now = new Date();
     let cutoffDate;
 
     switch (timeRange) {
-      case "1": // Last 1 day
+      case "1":
         cutoffDate = new Date();
         cutoffDate.setDate(now.getDate() - 1);
         break;
-      case "7": // Last 7 days
+      case "7":
         cutoffDate = new Date();
         cutoffDate.setDate(now.getDate() - 7);
         break;
-      case "30": // Last 30 days
+      case "30":
         cutoffDate = new Date();
         cutoffDate.setDate(now.getDate() - 30);
         break;
-      case "365": // Last 1 year
+      case "365":
         cutoffDate = new Date();
         cutoffDate.setFullYear(now.getFullYear() - 1);
         break;
-      default: // Maximum (no filter)
+      default:
         return data;
     }
 
@@ -60,7 +59,8 @@ const PriceChart = ({ data }) => {
     const year = String(date.getFullYear()).slice(-2);
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    const amPm = date.getHours() >= 12 ? "PM" : "AM";
+    return `${day}/${month}/${year} ${hours}:${minutes} ${amPm}`;
   });
 
   const chartData = {
@@ -108,7 +108,7 @@ const PriceChart = ({ data }) => {
 
   return (
     <div>
-      <div className="flex gap-5 items-center justify-end">
+      <div className="flex items-center">
         <label htmlFor="timeRange" className="mr-2">
           Select Time Range:
         </label>

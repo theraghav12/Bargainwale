@@ -74,7 +74,6 @@ export default function Home() {
   const fetchPricesForHistory = async (warehouseId) => {
     try {
       const response = await getItemPriceHistoryById(warehouseId);
-      console.log(response);
       setHistoryItems(
         response.priceHistory?.filter(
           (item) => item.warehouse?._id === warehouseId
@@ -175,6 +174,7 @@ export default function Home() {
         setSubmitLoading(false);
         toast.success("Prices updated successfully!");
         fetchPricesForWarehouse(selectedWarehouse);
+        fetchPricesForHistory(selectedWarehouse);
       } catch (error) {
         console.error("Error updating prices:", error);
         setSubmitLoading(false);
