@@ -15,7 +15,7 @@ const priceController = {
       }
   
       // Loop through Prices to Update or Add
-      for (const { itemId, companyPrice, rackPrice, plantPrice, depoPrice } of prices) {
+      for (const { itemId, companyPrice, rackPrice, plantPrice, depotPrice } of prices) {
         // Validate Item
         const item = await Item.findOne({ _id: itemId });
         if (!item) {
@@ -32,7 +32,7 @@ const priceController = {
             companyPrice: price.companyPrice,
             rackPrice: price.rackPrice,
             plantPrice: price.plantPrice,
-            depoPrice: price.depoPrice,
+            depotPrice: price.depotPrice,
             organization,
             effectiveDate: price.updatedAt,
           });
@@ -42,7 +42,7 @@ const priceController = {
           price.companyPrice = companyPrice;
           price.rackPrice = rackPrice;
           price.plantPrice = plantPrice;
-          price.depoPrice = depoPrice;
+          price.depotPrice = depotPrice;
           price.pricesUpdated = true;
           price.date = new Date();
           await price.save();
@@ -54,7 +54,7 @@ const priceController = {
             companyPrice,
             rackPrice,
             plantPrice,
-            depoPrice,
+            depotPrice,
             organization,
             pricesUpdated: true,
           });
@@ -67,7 +67,7 @@ const priceController = {
             companyPrice,
             rackPrice,
             plantPrice,
-            depoPrice,
+            depotPrice,
             organization,
           });
           await priceHistory.save();
@@ -105,7 +105,7 @@ const priceController = {
             companyPrice: price.companyPrice,
             rackPrice: price.rackPrice,
             plantPrice: price.plantPrice,
-            depoPrice: price.depoPrice,
+            depotPrice: price.depotPrice,
             pricesUpdated: price.pricesUpdated,
             date: price.date,
             message: "Price updated"

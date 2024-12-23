@@ -14,7 +14,7 @@ const priceHistorySchema = new mongoose.Schema({
   companyPrice: { type: Number, required: true },
   rackPrice: { type: Number, required: true },
   plantPrice: { type: Number, required: true },
-  depoPrice: { type: Number, required: true },
+  depotPrice: { type: Number, required: true },
   effectiveDate: { type: Date, default: Date.now }, 
   organization: {
     type: mongoose.Schema.Types.ObjectId,
