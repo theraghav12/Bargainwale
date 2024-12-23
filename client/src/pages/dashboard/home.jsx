@@ -59,7 +59,7 @@ export default function Home() {
           ...item,
           originalCompanyPrice: item?.companyPrice,
           originalRackPrice: item?.rackPrice,
-          originalDepoPrice: item?.depoPrice,
+          originalDepotPrice: item?.depotPrice,
           originalPlantPrice: item?.plantPrice,
           locked: true,
         }));
@@ -125,8 +125,8 @@ export default function Home() {
         String(item.companyPrice).trim() !== "" &&
         item.rackPrice &&
         String(item.rackPrice).trim() !== "" &&
-        item.depoPrice &&
-        String(item.depoPrice).trim() !== "" &&
+        item.depotPrice &&
+        String(item.depotPrice).trim() !== "" &&
         item.plantPrice &&
         String(item.plantPrice).trim() !== ""
     );
@@ -142,7 +142,7 @@ export default function Home() {
         (item) =>
           item.companyPrice !== item.originalCompanyPrice ||
           item.rackPrice !== item.originalRackPrice ||
-          item.depoPrice !== item.originalDepoPrice ||
+          item.depotPrice !== item.originalDepotPrice ||
           item.plantPrice !== item.originalPlantPrice
       );
 
@@ -164,7 +164,7 @@ export default function Home() {
             itemId: item.item?._id,
             companyPrice: item.companyPrice,
             rackPrice: item.rackPrice,
-            depoPrice: item.depoPrice,
+            depotPrice: item.depotPrice,
             plantPrice: item.plantPrice,
             pricesUpdated: true,
           })),
@@ -342,8 +342,8 @@ export default function Home() {
                         <td className="px-4 py-2 border-t border-gray-200">
                           <input
                             type="number"
-                            name="depoPrice"
-                            value={item.depoPrice}
+                            name="depotPrice"
+                            value={item.depotPrice}
                             onChange={(e) => handleInputChange(index, e)}
                             className="w-[80px] bg-gray-50 px-2 py-1 rounded-lg border border-gray-300"
                             placeholder="Depot Price"
@@ -449,7 +449,7 @@ export default function Home() {
                       <td className="px-4 py-2">{item.item?.material}</td>
                       <td className="px-4 py-2">{item.companyPrice}</td>
                       <td className="px-4 py-2">{item.rackPrice}</td>
-                      <td className="px-4 py-2">{item.depoPrice}</td>
+                      <td className="px-4 py-2">{item.depotPrice}</td>
                       <td className="px-4 py-2">{item.plantPrice}</td>
                     </tr>
                   ))}

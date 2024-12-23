@@ -6,6 +6,7 @@ import PriceHistory from "../models/pricehistory.js";
 const priceController = {
   addOrUpdatePrice: async (req, res) => {
     try {
+      console.log(".................",req.body);
       const { warehouseId, prices, organization } = req.body;
   
       // Validate Warehouse
