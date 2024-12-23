@@ -9,6 +9,7 @@ import {
   getPricesByWarehouse,
   addPrice,
   getItemHistoryById,
+  getItemPriceHistoryById,
 } from "@/services/itemService";
 
 // icons
@@ -25,6 +26,7 @@ export default function Home() {
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedHistoryWarehouse, setSelectedHistoryWarehouse] = useState("");
   const [historyItems, setHistoryItems] = useState([]);
+  const [historyItemsChart, setHistoryItemsChart] = useState([]);
   const [form, setForm] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -71,11 +73,17 @@ export default function Home() {
 
   const fetchPricesForHistory = async (warehouseId) => {
     try {
-      const response = await getItemHistoryById(warehouseId);
+      const response = await getItemPriceHistoryById(warehouseId);
+      console.log(response);
       setHistoryItems(
         response.priceHistory?.filter(
           (item) => item.warehouse?._id === warehouseId
         )
+      );
+      setHistoryItemsChart(
+        response.priceHistory
+          ?.filter((item) => item.warehouse?._id === warehouseId)
+          .reverse()
       );
     } catch (error) {
       console.error("Error fetching prices:", error);
@@ -246,7 +254,7 @@ export default function Home() {
 
       <div className="grid grid-cols-2 gap-6 mt-6">
         <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
-          <PriceChart />
+          <PriceChart data={historyItemsChart} />
         </div>
 
         <div className="flex flex-col bg-white rounded-lg shadow-lg border border-gray-300 p-6">
