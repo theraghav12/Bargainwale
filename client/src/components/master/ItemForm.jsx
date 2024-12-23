@@ -254,46 +254,68 @@ const ItemForm = () => {
                 ?.map((item) => (
                   <div
                     key={item._id}
-                    className="bg-white shadow-md rounded-md p-4 border"
+                    className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl transition duration-300"
                   >
-                    <Typography variant="h6" className="font-bold">
-                      {item.materialdescription}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Flavor: {item.flavor}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Material: {item.material}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Net Weight: {item.netweight}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Gross Weight: {item.grossweight}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      GST: {item.gst}%
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Packaging: {item.packaging}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Pack Size: {item.packsize}
-                    </Typography>
-                    <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Disable</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <Typography
+                        variant="h6"
+                        className="font-bold text-lg text-gray-800 tracking-wide"
+                      >
+                        {item.materialdescription}
+                      </Typography>
                       <Switch
                         checked={item.isActive}
                         onChange={() => toggleStatus(item.isActive, item._id)}
                         color="green"
+                        className="transform scale-125"
                       />
-                    </label>
-                    <div className="mt-4 flex gap-2">
+                    </div>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Flavor:
+                      </span>{" "}
+                      {item.flavor}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Material:
+                      </span>{" "}
+                      {item.material}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Net Weight:
+                      </span>{" "}
+                      {item.netweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Gross Weight:
+                      </span>{" "}
+                      {item.grossweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">GST:</span>{" "}
+                      {item.gst}%
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Packaging:
+                      </span>{" "}
+                      {item.packaging}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Pack Size:
+                      </span>{" "}
+                      {item.packsize}
+                    </Typography>
+                    <div className="mt-5 flex gap-4">
                       <Button
                         color="blue"
                         size="sm"
                         onClick={() => openEditModal(item)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
@@ -301,7 +323,7 @@ const ItemForm = () => {
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(item)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                       >
                         <AiOutlineDelete /> Delete
                       </Button> */}
@@ -325,46 +347,68 @@ const ItemForm = () => {
                 ?.map((item) => (
                   <div
                     key={item._id}
-                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
+                    className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <Typography variant="h6" className="font-bold">
-                      {item.materialdescription}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Flavor: {item.flavor}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Material: {item.material}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Net Weight: {item.netweight}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Gross Weight: {item.grossweight}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      GST: {item.gst}%
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Packaging: {item.packaging}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Pack Size: {item.packsize}
-                    </Typography>
-                    <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Enable</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <Typography
+                        variant="h6"
+                        className="font-bold text-lg text-gray-800 tracking-wide"
+                      >
+                        {item.materialdescription}
+                      </Typography>
                       <Switch
                         checked={item.isActive}
                         onChange={() => toggleStatus(item.isActive, item._id)}
                         color="green"
+                        className="transform scale-125"
                       />
-                    </label>
-                    <div className="mt-4 flex gap-2">
+                    </div>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Flavor:
+                      </span>{" "}
+                      {item.flavor}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Material:
+                      </span>{" "}
+                      {item.material}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Net Weight:
+                      </span>{" "}
+                      {item.netweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Gross Weight:
+                      </span>{" "}
+                      {item.grossweight}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">GST:</span>{" "}
+                      {item.gst}%
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Packaging:
+                      </span>{" "}
+                      {item.packaging}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Pack Size:
+                      </span>{" "}
+                      {item.packsize}
+                    </Typography>
+                    <div className="mt-5 flex gap-4">
                       <Button
                         color="blue"
                         size="sm"
                         onClick={() => openEditModal(item)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
@@ -372,7 +416,7 @@ const ItemForm = () => {
                         color="red"
                         size="sm"
                         onClick={() => openDeleteModal(item)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                       >
                         <AiOutlineDelete /> Delete
                       </Button> */}

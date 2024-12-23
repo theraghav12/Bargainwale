@@ -429,28 +429,41 @@ export default function Home() {
         <div className="p-6 overflow-x-auto">
           {selectedHistoryWarehouse ? (
             historyItems?.length > 0 ? (
-              <table className="w-full bg-white rounded-lg shadow-md">
+              <table className="w-full bg-white rounded-lg shadow-md overflow-hidden">
                 <thead>
-                  <tr className="bg-gray-200 text-gray-700 font-semibold text-center">
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Item</th>
-                    <th className="px-4 py-2">Company Price</th>
-                    <th className="px-4 py-2">Rack Price</th>
-                    <th className="px-4 py-2">Depot Price</th>
-                    <th className="px-4 py-2">Plant Price</th>
+                  <tr className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold text-center">
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Item</th>
+                    <th className="px-4 py-3">Company Price</th>
+                    <th className="px-4 py-3">Rack Price</th>
+                    <th className="px-4 py-3">Depot Price</th>
+                    <th className="px-4 py-3">Plant Price</th>
                   </tr>
                 </thead>
                 <tbody>
                   {historyItems?.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50 text-center">
-                      <td className="px-4 py-2">
+                    <tr
+                      key={item._id}
+                      className="border-b last:border-0 hover:bg-blue-50 text-center transition duration-300"
+                    >
+                      <td className="px-4 py-3 text-gray-700">
                         {formatDate(item.effectiveDate)}
                       </td>
-                      <td className="px-4 py-2">{item.item?.material}</td>
-                      <td className="px-4 py-2">{item.companyPrice}</td>
-                      <td className="px-4 py-2">{item.rackPrice}</td>
-                      <td className="px-4 py-2">{item.depoPrice}</td>
-                      <td className="px-4 py-2">{item.plantPrice}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.item?.material}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.companyPrice}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.rackPrice}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.depoPrice}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.plantPrice}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

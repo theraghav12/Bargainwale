@@ -33,16 +33,16 @@ export default function PurchaseHistory() {
     const day = date.getDate();
     const month = date.toLocaleString("default", { month: "long" });
     const year = date.getFullYear();
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-    const formattedHours = hours % 12 || 12;
+    // const hours = date.getHours();
+    // const minutes = date.getMinutes().toString().padStart(2, "0");
+    // const ampm = hours >= 12 ? "PM" : "AM";
+    // const formattedHours = hours % 12 || 12;
     const dayWithSuffix =
       day +
       ["th", "st", "nd", "rd"][
         day % 10 > 3 || ~~(day / 10) === 1 ? 0 : day % 10
       ];
-    return `${dayWithSuffix} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
+    return `${day} ${month} ${year}`;
   };
 
   function formatTimestamp(isoTimestamp) {

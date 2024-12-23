@@ -19,6 +19,7 @@ import {
   updateBuyer,
 } from "@/services/masterService";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import PhoneInput from "react-phone-number-input";
 
 const BuyerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -238,44 +239,64 @@ const BuyerForm = () => {
                 ?.map((buyer) => (
                   <div
                     key={buyer._id}
-                    className="bg-white shadow-md rounded-md p-4 border"
+                    className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl transition duration-300"
                   >
-                    <Typography variant="h6" className="font-bold">
-                      {buyer.buyer}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Company: {buyer.buyerCompany}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Contact: {buyer.buyerContact}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Email: {buyer.buyerEmail}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      GST: {buyer.buyerGstno}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
-                      {buyer.buyerdeliveryAddress?.addressLine2},{" "}
-                      {buyer.buyerdeliveryAddress?.city},{" "}
-                      {buyer.buyerdeliveryAddress?.state},{" "}
-                      {buyer.buyerdeliveryAddress?.pinCode}
-                    </Typography>
-                    <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Disable</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <Typography
+                        variant="h6"
+                        className="font-bold text-lg text-gray-800 tracking-wide"
+                      >
+                        {buyer.buyer}
+                      </Typography>
                       <Switch
                         checked={buyer.isActive}
                         onChange={() => toggleStatus(buyer.isActive, buyer._id)}
                         color="green"
+                        className="transform scale-125"
                       />
-                    </label>
-                    <div className="mt-4 flex gap-2">
+                    </div>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Company:
+                      </span>{" "}
+                      {buyer.buyerCompany}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Contact:
+                      </span>{" "}
+                      {buyer.buyerContact}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Email:
+                      </span>{" "}
+                      {buyer.buyerEmail}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">GST:</span>{" "}
+                      {buyer.buyerGstno}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Address:
+                      </span>{" "}
+                      {[
+                        buyer.buyerdeliveryAddress?.addressLine1,
+                        buyer.buyerdeliveryAddress?.addressLine2,
+                        buyer.buyerdeliveryAddress?.city,
+                        buyer.buyerdeliveryAddress?.state,
+                        buyer.buyerdeliveryAddress?.pinCode,
+                      ]
+                        .filter((part) => part)
+                        .join(", ")}
+                    </Typography>
+                    <div className="mt-5 flex gap-4">
                       <Button
                         color="blue"
                         size="sm"
                         onClick={() => openEditModal(buyer)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
@@ -283,7 +304,7 @@ const BuyerForm = () => {
                         color="red"
                         size="sm"
                         onClick={() => handleDeleteClick(buyer)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                       >
                         <AiOutlineDelete /> Delete
                       </Button> */}
@@ -306,44 +327,60 @@ const BuyerForm = () => {
                 ?.map((buyer) => (
                   <div
                     key={buyer._id}
-                    className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
+                    className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl opacity-50 hover:opacity-100 transition-opacity duration-300"
                   >
-                    <Typography variant="h6" className="font-bold">
-                      {buyer.buyer}
+                    <div className="flex items-center justify-between mb-4">
+                      <Typography
+                        variant="h6"
+                        className="font-bold text-lg text-gray-800 tracking-wide"
+                      >
+                        {buyer.buyer}
+                      </Typography>
+                      <Switch
+                        checked={buyer.isActive}
+                        onChange={() => toggleStatus(buyer.isActive, buyer._id)}
+                        color="green"
+                        className="transform scale-125"
+                      />
+                    </div>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Company:
+                      </span>{" "}
+                      {buyer.buyerCompany}
                     </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Company: {buyer.buyerCompany}
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Contact:
+                      </span>{" "}
+                      {buyer.buyerContact}
                     </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Contact: {buyer.buyerContact}
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Email:
+                      </span>{" "}
+                      {buyer.buyerEmail}
                     </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Email: {buyer.buyerEmail}
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">GST:</span>{" "}
+                      {buyer.buyerGstno}
                     </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      GST: {buyer.buyerGstno}
-                    </Typography>
-                    <Typography className="text-sm text-gray-600">
-                      Address: {buyer.buyerdeliveryAddress?.addressLine1},{" "}
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">
+                        Address:
+                      </span>{" "}
+                      {buyer.buyerdeliveryAddress?.addressLine1},{" "}
                       {buyer.buyerdeliveryAddress?.addressLine2},{" "}
                       {buyer.buyerdeliveryAddress?.city},{" "}
                       {buyer.buyerdeliveryAddress?.state},{" "}
                       {buyer.buyerdeliveryAddress?.pinCode}
                     </Typography>
-                    <label className="flex items-center cursor-pointer mt-2">
-                      <span className="mr-2">Enable</span>
-                      <Switch
-                        checked={buyer.isActive}
-                        onChange={() => toggleStatus(buyer.isActive, buyer._id)}
-                        color="green"
-                      />
-                    </label>
-                    <div className="mt-4 flex gap-2">
+                    <div className="mt-5 flex gap-4">
                       <Button
                         color="blue"
                         size="sm"
                         onClick={() => openEditModal(buyer)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                       >
                         <AiOutlineEdit /> Edit
                       </Button>
@@ -351,7 +388,7 @@ const BuyerForm = () => {
                         color="red"
                         size="sm"
                         onClick={() => handleDeleteClick(buyer)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                       >
                         <AiOutlineDelete /> Delete
                       </Button> */}
@@ -421,12 +458,16 @@ const BuyerForm = () => {
                 onChange={handleInputChange}
                 required
               />
-              <Input
+              <PhoneInput
                 name="buyerContact"
                 label="Contact"
                 value={form.buyerContact}
-                onChange={handleInputChange}
+                onChange={(value) =>
+                  handleInputChange({ target: { name: "buyerContact", value } })
+                }
                 required
+                international
+                defaultCountry="IN"
               />
               <Input
                 name="buyerEmail"
@@ -562,17 +603,19 @@ const BuyerForm = () => {
                     }))
                   }
                 />
-                <Input
+                <PhoneInput
                   name="buyerContact"
                   label="Contact"
                   value={editingBuyer.buyerContact}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setEditingBuyer((prev) => ({
                       ...prev,
-                      buyerContact: e.target.value,
+                      buyerContact: value,
                     }))
                   }
                   required
+                  international
+                  defaultCountry="IN"
                 />
                 <Input
                   name="buyerEmail"

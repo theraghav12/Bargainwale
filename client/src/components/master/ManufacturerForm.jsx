@@ -19,6 +19,7 @@ import {
   updateManufacturer,
 } from "@/services/masterService";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import PhoneInput from "react-phone-number-input";
 
 const ManufacturerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -230,52 +231,69 @@ const ManufacturerForm = () => {
       {/* Manufacturers List */}
       <div className="flex flex-col">
         <h3 className="text-[1.2rem] font-[500]">Active Manufacturers</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
           {manufacturer?.filter((man) => man.isActive)?.length > 0 ? (
             manufacturer
               ?.filter((man) => man.isActive)
               ?.map((man) => (
                 <div
                   key={man._id}
-                  className="bg-white shadow-md rounded-md p-4 border border-gray-200"
+                  className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl transition duration-300"
                 >
-                  <Typography variant="h6" className="font-bold mb-2">
-                    {man.manufacturer}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Company:</strong> {man.manufacturerCompany}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Address:</strong>{" "}
-                    {man.manufacturerdeliveryAddress?.addressLine1},{" "}
-                    {man.manufacturerdeliveryAddress?.addressLine2},{" "}
-                    {man.manufacturerdeliveryAddress?.city},{" "}
-                    {man.manufacturerdeliveryAddress?.state},{" "}
-                    {man.manufacturerdeliveryAddress?.pinCode}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Contact:</strong> {man.manufacturerContact}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Email:</strong> {man.manufacturerEmail}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>GST:</strong> {man.manufacturerGstno}
-                  </Typography>
-                  <label className="flex items-center cursor-pointer mt-2">
-                    <span className="mr-2">Disable</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <Typography
+                      variant="h6"
+                      className="font-bold text-lg text-gray-800 tracking-wide"
+                    >
+                      {man.manufacturer}
+                    </Typography>
                     <Switch
                       checked={man.isActive}
                       onChange={() => toggleStatus(man.isActive, man._id)}
                       color="green"
+                      className="transform scale-125"
                     />
-                  </label>
-                  <div className="flex justify-end mt-4 gap-2">
+                  </div>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Company:
+                    </span>{" "}
+                    {man.manufacturerCompany}
+                  </Typography>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Address:
+                    </span>{" "}
+                    {[
+                      man.manufacturerdeliveryAddress?.addressLine1,
+                      man.manufacturerdeliveryAddress?.addressLine2,
+                      man.manufacturerdeliveryAddress?.city,
+                      man.manufacturerdeliveryAddress?.state,
+                      man.manufacturerdeliveryAddress?.pinCode,
+                    ]
+                      .filter((part) => part)
+                      .join(", ")}
+                  </Typography>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Contact:
+                    </span>{" "}
+                    {man.manufacturerContact}
+                  </Typography>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">Email:</span>{" "}
+                    {man.manufacturerEmail}
+                  </Typography>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">GST:</span>{" "}
+                    {man.manufacturerGstno}
+                  </Typography>
+                  <div className="mt-5 flex gap-4">
                     <Button
                       color="blue"
                       size="sm"
                       onClick={() => openEditModal(man)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                     >
                       <AiOutlineEdit /> Edit
                     </Button>
@@ -283,7 +301,7 @@ const ManufacturerForm = () => {
                       color="red"
                       size="sm"
                       onClick={() => openDeleteModal(man)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                     >
                       <AiOutlineDelete /> Delete
                     </Button> */}
@@ -306,45 +324,58 @@ const ManufacturerForm = () => {
               ?.map((man) => (
                 <div
                   key={man._id}
-                  className="bg-white shadow-md rounded-md p-4 border opacity-50 hover:opacity-100 transition-opacity duration-300"
+                  className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 hover:shadow-xl opacity-50 hover:opacity-100 transition-opacity duration-300"
                 >
-                  <Typography variant="h6" className="font-bold mb-2">
-                    {man.manufacturer}
+                  <div className="flex items-center justify-between mb-4">
+                    <Typography
+                      variant="h6"
+                      className="font-bold text-lg text-gray-800 tracking-wide"
+                    >
+                      {man.manufacturer}
+                    </Typography>
+                    <Switch
+                      checked={man.isActive}
+                      onChange={() => toggleStatus(man.isActive, man._id)}
+                      color="green"
+                      className="transform scale-125"
+                    />
+                  </div>
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Company:
+                    </span>{" "}
+                    {man.manufacturerCompany}
                   </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Company:</strong> {man.manufacturerCompany}
-                  </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Address:</strong>{" "}
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Address:
+                    </span>{" "}
                     {man.manufacturerdeliveryAddress?.addressLine1},{" "}
                     {man.manufacturerdeliveryAddress?.addressLine2},{" "}
                     {man.manufacturerdeliveryAddress?.city},{" "}
                     {man.manufacturerdeliveryAddress?.state},{" "}
                     {man.manufacturerdeliveryAddress?.pinCode}
                   </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Contact:</strong> {man.manufacturerContact}
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">
+                      Contact:
+                    </span>{" "}
+                    {man.manufacturerContact}
                   </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>Email:</strong> {man.manufacturerEmail}
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">Email:</span>{" "}
+                    {man.manufacturerEmail}
                   </Typography>
-                  <Typography className="text-gray-600">
-                    <strong>GST:</strong> {man.manufacturerGstno}
+                  <Typography className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-600">GST:</span>{" "}
+                    {man.manufacturerGstno}
                   </Typography>
-                  <label className="flex items-center cursor-pointer mt-2">
-                    <span className="mr-2">Enable</span>
-                    <Switch
-                      checked={man.isActive}
-                      onChange={() => toggleStatus(man.isActive, man._id)}
-                      color="green"
-                    />
-                  </label>
-                  <div className="flex justify-end mt-4 gap-2">
+                  <div className="mt-5 flex gap-4">
                     <Button
                       color="blue"
                       size="sm"
                       onClick={() => openEditModal(man)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                     >
                       <AiOutlineEdit /> Edit
                     </Button>
@@ -352,7 +383,7 @@ const ManufacturerForm = () => {
                       color="red"
                       size="sm"
                       onClick={() => openDeleteModal(man)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
                     >
                       <AiOutlineDelete /> Delete
                     </Button> */}
@@ -421,12 +452,18 @@ const ManufacturerForm = () => {
                 onChange={handleInputChange}
                 required
               />
-              <Input
+              <PhoneInput
                 name="manufacturerContact"
                 label="Contact"
                 value={form.manufacturerContact}
-                onChange={handleInputChange}
+                onChange={(value) =>
+                  handleInputChange({
+                    target: { name: "manufacturerContact", value },
+                  })
+                }
                 required
+                international
+                defaultCountry="IN"
               />
               <Input
                 name="manufacturerEmail"
@@ -570,16 +607,19 @@ const ManufacturerForm = () => {
                     }))
                   }
                 />
-                <Input
+                <PhoneInput
                   name="manufacturerContact"
                   label="Contact"
-                  value={editingManufacturer.manufacturerContact}
-                  onChange={(e) =>
+                  value={form.manufacturerContact}
+                  onChange={(value) =>
                     setEditingManufacturer((prev) => ({
                       ...prev,
-                      manufacturerContact: e.target.value,
+                      manufacturerContact: value,
                     }))
                   }
+                  required
+                  international
+                  defaultCountry="IN"
                 />
                 <Input
                   name="manufacturerEmail"
