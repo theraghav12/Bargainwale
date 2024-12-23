@@ -38,7 +38,7 @@ const InventoryTable = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Quantity
             </th>
-            {type === "sold" && (
+            {type === "booked" && (
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Virtual Quantity
               </th>
@@ -67,7 +67,7 @@ const InventoryTable = ({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {item.quantity}
                 </td>
-                {type === "sold" && (
+                {type === "booked" && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item.virtualQuantity}
                   </td>
@@ -279,7 +279,7 @@ export function Inventory() {
           <div className="border-b border-gray-200">
             <div className="flex items-center justify-between px-4">
               <div className="flex space-x-4">
-                {["virtual", "billed", "sold"].map((tab) => (
+                {["virtual", "billed", "booked"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setSelectedTab(tab)}
