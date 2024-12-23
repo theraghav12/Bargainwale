@@ -140,7 +140,7 @@ const CreateSales = () => {
     );
   };
 
-  const handleOrderSelect = (orderId) => {
+  const handleOrderSelect = async (orderId) => {
     const { warehouseId, invoiceNumber, invoiceDate, transporterId } = form;
 
     if (!warehouseId || !invoiceNumber || !invoiceDate || !transporterId) {
@@ -161,18 +161,32 @@ const CreateSales = () => {
       return;
     }
 
-    setSelectedOrder((prevSelected) => {
-      if (prevSelected.includes(orderId)) {
-        return prevSelected.filter((id) => id !== orderId);
-      } else {
-        handleCreateSale(
+    const isAlreadySelected = selectedOrder.includes(orderId);
+
+    if (isAlreadySelected) {
+      setSelectedOrder((prevSelected) =>
+        prevSelected.filter((id) => id !== orderId)
+      );
+    } else {
+      try {
+        const response = await handleCreateSale(
           orderId,
           orders.find((order) => order._id === orderId).buyer?._id,
           orders.find((order) => order._id === orderId).items
         );
-        return [...prevSelected, orderId];
+        if (response?.status === 200 || response?.status === 201) {
+          setSelectedOrder((prevSelected) => [...prevSelected, orderId]);
+        } else {
+          console.error("Unexpected response status:", response?.status);
+        }
+      } catch (error) {
+        console.error("Failed to create sale:", error);
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to create sale. Please resolve the issue and try again."
+        );
       }
-    });
+    }
   };
 
   const handleCreateSale = async (bookingId, buyerId, orderItems) => {
@@ -204,11 +218,21 @@ const CreateSales = () => {
         invoiceNumber,
         invoiceDate,
       });
-      const newSaleId = saleResponse.data.data?._id;
-      setSalesIds((prevSales) => [...prevSales, newSaleId]);
-      toast.success("Sale created successfully!");
+      if (saleResponse.status === 201) {
+        const newSaleId = saleResponse.data.data?._id;
+        setSalesIds((prevSales) => [...prevSales, newSaleId]);
+        toast.success("Sale added successfully!");
+      } else {
+        toast.error("Failed to create sale. Please try again.");
+      }
+      return saleResponse;
     } catch (error) {
       console.error("Error creating sale:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "An unexpected error occurred. Please try again."
+      );
+      return error;
     }
   };
 
@@ -229,7 +253,7 @@ const CreateSales = () => {
         totalAmount: totalAmount,
       });
       setLoading(false);
-      toast.success("All sales finalized successfully!");
+      toast.success("Sales created successfully!");
     } catch (error) {
       console.error("Error finalizing sales:", error);
     }
@@ -239,8 +263,19 @@ const CreateSales = () => {
     itemId,
     bookingId,
     newQuantity,
-    taxpaidAmount
+    taxpaidAmount,
+    bookedQuantity,
+    soldQuantity
   ) => {
+    if (Number(newQuantity) > bookedQuantity - soldQuantity) {
+      toast.error(
+        `Quantity cannot exceed the available quantity of ${
+          bookedQuantity - soldQuantity
+        }`
+      );
+      return;
+    }
+
     setQuantityInputs((prevInputs) => {
       const existingBookingIndex = prevInputs.findIndex(
         (booking) => booking.bookingId === bookingId
@@ -583,7 +618,9 @@ const CreateSales = () => {
                                                     item.item._id,
                                                     order._id,
                                                     newQuantity,
-                                                    item.taxpaidAmount
+                                                    item.taxpaidAmount,
+                                                    item.quantity,
+                                                    item.soldQuantity
                                                   );
                                                 }}
                                                 className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
