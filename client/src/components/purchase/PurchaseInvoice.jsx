@@ -301,7 +301,7 @@ const PurchaseInvoice = ({ purchase, organization }) => {
                       else if (pickup === "plant")
                         itemPrice = priceObj.plantPrice;
                       else if (pickup === "depot")
-                        itemPrice = priceObj.depoPrice;
+                        itemPrice = priceObj.depotPrice;
 
                       taxPerUnit = (item.itemId.gst / 100) * itemPrice;
                       totalAmount = quantity * (itemPrice + taxPerUnit);

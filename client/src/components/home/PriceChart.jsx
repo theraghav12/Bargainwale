@@ -73,7 +73,7 @@ const PriceChart = ({ data }) => {
       },
       {
         label: "Depo Price",
-        data: filteredData.map((item) => item.depoPrice),
+        data: filteredData.map((item) => item.depotPrice),
         backgroundColor: "#36A2EB",
       },
       {
