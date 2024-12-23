@@ -56,7 +56,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
         if (pickup === "rack") itemPrice = priceObj.rackPrice;
         else if (pickup === "company") itemPrice = priceObj.companyPrice;
         else if (pickup === "plant") itemPrice = priceObj.plantPrice;
-        else if (pickup === "depot") itemPrice = priceObj.depoPrice;
+        else if (pickup === "depot") itemPrice = priceObj.depotPrice;
 
         taxPerUnit = (item.itemId.gst / 100) * itemPrice;
         totalAmount = quantity * (itemPrice + taxPerUnit);
