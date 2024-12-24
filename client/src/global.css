@@ -34,25 +34,25 @@ input[type="number"] {
 
 /* Custom horizontal scrollbar with invisible thumb when not interacting */
 .custom-scrollbar::-webkit-scrollbar {
-    height: 6px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(136, 136, 136, 0.5); /* Visible color */
-    border-radius: 4px;
-    opacity: 0; /* Invisible by default */
-    transition: opacity 0.3s;
-  }
-  
-  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    opacity: 1; /* Fully visible on hover */
-  }
-  
-  /* Style the scrollbar */
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.5); /* Visible color */
+  border-radius: 4px;
+  opacity: 0; /* Invisible by default */
+  transition: opacity 0.3s;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  opacity: 1; /* Fully visible on hover */
+}
+
+/* Style the scrollbar */
 ::-webkit-scrollbar {
   width: 8px; /* Width of the scrollbar */
   height: 8px; /* Height for horizontal scrollbar */
@@ -81,3 +81,13 @@ input[type="number"] {
   scrollbar-width: thin; /* Makes the scrollbar thinner */
 }
 
+/* Style for the input field inside PhoneInput */
+.PhoneInput input {
+  padding: 5px;
+  border: 2px solid #cbcdce;
+  border-radius: 8px;
+}
+
+.PhoneInput input:focus {
+  outline: none;
+}
