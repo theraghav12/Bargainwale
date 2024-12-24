@@ -4,6 +4,9 @@ import Warehouse from "../models/warehouse.js";
 import Item from "../models/items.js";
 import ItemHistory from '../models/itemHistory.js';
 
+import { generateOrderEmailContent } from '../utils/mailContent.js';
+import { sendEmailWithParams } from "./mail.js";
+
 const orderController = {
   createOrder: async (req, res) => {
     try {
@@ -133,6 +136,29 @@ const orderController = {
       }
 
       await warehouseDocument.save();
+
+      const { subject, body } = generateOrderEmailContent(order);
+
+      // Define recipient object
+      const recipient = {
+        email: "22148@iiitu.ac.in",
+        name: "Amrutansh Jha",
+      };
+
+      // Ensure the body is a valid HTML string and subject is a string
+      const emailDetails = {
+        body: body, // Make sure 'body' is a string (HTML content)
+        subject: subject, // Subject should be a string
+        recipient: recipient, // recipient should be an object with email and name
+        transactionDetails: {
+          transactionType: "order", // The type of transaction (order in this case)
+          transactionId: order._id, // Ensure this is the order ID (as a valid ObjectId)
+        },
+      };
+
+      // Send the email through the mailing service
+      await sendEmailWithParams(emailDetails);
+
       res.status(201).json({ message: "Order created successfully", order });
     } catch (error) {
       console.error("Error creating order:", error.message || error);
