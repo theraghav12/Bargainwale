@@ -141,7 +141,7 @@ const orderController = {
 
       // Define recipient object
       const recipient = {
-        email: "22148@iiitu.ac.in",
+        email: "22107@iiitu.ac.in",
         name: "Amrutansh Jha",
       };
 
