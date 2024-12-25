@@ -1,5 +1,5 @@
 import { Button, Spinner, Tooltip } from "@material-tailwind/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
 
@@ -319,6 +319,33 @@ const CreateOrder = () => {
       items: updatedItems,
     }));
   };
+
+  const selectRefs = useRef([]);
+  const baseRateRefs = useRef([]);
+
+  const setSelectRef = (index, ref) => {
+    selectRefs.current[index] = ref;
+  };
+
+  const setBaseRateRef = (index, ref) => {
+    baseRateRefs.current[index] = ref;
+  };
+
+  const handleTabKey = (e, index) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+
+      if (index === form.items.length - 1) {
+        handleAddItem();
+        setTimeout(() => {
+          selectRefs.current[index + 1]?.focus();
+        }, 0);
+      } else {
+        baseRateRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
   const calculateTotalQuantity = () => {
     return form?.items?.reduce((total, item) => {
       return total + (Number(item.quantity) || 0);
@@ -661,6 +688,7 @@ const CreateOrder = () => {
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[500px]">
                           <Select
+                            ref={(ref) => setSelectRef(index, ref)}
                             className="relative w-[500px] text-[0.9rem]"
                             options={selectItemsOptions}
                             value={
@@ -760,6 +788,7 @@ const CreateOrder = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <input
+                          ref={(ref) => setBaseRateRef(index, ref)}
                           type="number"
                           name="baseRate"
                           value={item.baseRate}
@@ -777,6 +806,7 @@ const CreateOrder = () => {
                             ) {
                               e.preventDefault();
                             }
+                            handleTabKey(e, index);
                           }}
                           required
                           placeholder="Base Rate"
