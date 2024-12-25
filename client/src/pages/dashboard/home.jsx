@@ -211,6 +211,9 @@ export default function Home() {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     }).format(date);
   };
 
@@ -432,7 +435,7 @@ export default function Home() {
               <table className="w-full bg-white rounded-lg shadow-md overflow-hidden">
                 <thead>
                   <tr className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold text-center">
-                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Date and Time</th>
                     <th className="px-4 py-3">Item</th>
                     <th className="px-4 py-3">Company Price</th>
                     <th className="px-4 py-3">Rack Price</th>
