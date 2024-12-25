@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Spinner, Switch, Typography } from "@material-tailwind/react";
 import { toast } from "sonner";
 import { useOrganization } from "@clerk/clerk-react";
+import * as XLSX from "xlsx";
 
 // api services
 import { getWarehouses } from "@/services/warehouseService";
@@ -16,6 +17,7 @@ import {
 import { TbTriangleInvertedFilled } from "react-icons/tb";
 import { FaLock } from "react-icons/fa";
 import { FaLockOpen } from "react-icons/fa";
+import excel from "../../assets/excel.svg";
 
 // components
 import StatisticsCards from "@/components/home/StatisticsCards";
@@ -231,6 +233,38 @@ export default function Home() {
     setForm(updatedForm);
   };
 
+  const handleDownloadExcel = () => {
+    const formattedData = historyItems.map((item) => ({
+      "Item Material": item.item?.material || "",
+      "Item Flavor": item.item?.flavor || "",
+      "Item ID": item._id,
+      "Company Price (₹)": item.companyPrice,
+      "Depot Price (₹)": item.depotPrice,
+      "Plant Price (₹)": item.plantPrice,
+      "Rack Price (₹)": item.rackPrice,
+      "Date and Time": formatDate(item.effectiveDate),
+      "Created At": formatDate(item.createdAt),
+      "Updated At": formatDate(item.updatedAt),
+      "Warehouse Name": item.warehouse?.name || "",
+      "Warehouse Location": [
+        item.warehouse?.location?.addressLine1,
+        item.warehouse?.location?.addressLine2,
+        item.warehouse?.location?.city,
+        item.warehouse?.location?.state,
+        item.warehouse?.location?.pinCode,
+      ]
+        .filter(Boolean)
+        .join(", "),
+      "Organization ID": item.organization,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+    XLSX.writeFile(workbook, "Data.xlsx");
+    toast.success("Data downloaded successfully!");
+  };
+
   return (
     <div className="mt-8 px-12">
       <div className="flex justify-between items-center bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-lg p-6 text-white">
@@ -411,21 +445,30 @@ export default function Home() {
           <Typography className="text-lg font-semibold text-gray-700">
             Price History
           </Typography>
-          <div className="relative w-full max-w-md">
-            <select
-              value={selectedHistoryWarehouse}
-              onChange={(e) => setSelectedHistoryWarehouse(e.target.value)}
-              className="appearance-none w-full bg-gray-100 border border-gray-400 text-gray-700 px-4 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          <div className="flex items-center justify-end gap-8 w-1/2">
+            <button
+              onClick={handleDownloadExcel}
+              className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
             >
-              <option value="">Select Warehouse</option>
-              {warehouseOptions.map((option) => (
-                <option key={option._id} value={option._id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              <TbTriangleInvertedFilled className="text-gray-500" />
+              <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
+              Download Excel
+            </button>
+            <div className="relative w-full max-w-md">
+              <select
+                value={selectedHistoryWarehouse}
+                onChange={(e) => setSelectedHistoryWarehouse(e.target.value)}
+                className="appearance-none w-full bg-gray-100 border border-gray-400 text-gray-700 px-4 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              >
+                <option value="">Select Warehouse</option>
+                {warehouseOptions.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <TbTriangleInvertedFilled className="text-gray-500" />
+              </div>
             </div>
           </div>
         </div>
