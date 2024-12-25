@@ -149,6 +149,24 @@ const saleController = {
       });
 
       await newSale.save();
+      const emailContent = generatePurchaseEmailContent(newSale);
+
+      const recipient = {
+        email: "22107@iiitu.ac.in", 
+        name: "Amrutansh Jha", 
+      };
+
+      const emailDetails = {
+        body: emailContent.body,
+        subject: emailContent.subject,
+        recipient: recipient,
+        transactionDetails: {
+          transactionType: "purchase",
+          transactionId: newSale._id,
+        },
+      };
+
+      await sendEmailWithParams(emailDetails);
 
       res.status(201).json({
         success: true,

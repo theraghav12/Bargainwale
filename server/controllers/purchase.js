@@ -3,6 +3,8 @@ import Warehouse from "../models/warehouse.js";
 import Order from "../models/orders.js";
 import Transport from "../models/transport.js";
 import ItemHistory from "../models/itemHistory.js";
+import { generatePurchaseEmailContent } from "../utils/mailContent.js";
+import { sendEmailWithParams } from "./mail.js";
 
 const purchaseController = {
   createPurchase: async (req, res) => {
@@ -189,6 +191,25 @@ const purchaseController = {
       // console.log(newPurchase);
 
       await newPurchase.save();
+
+      const emailContent = generatePurchaseEmailContent(newPurchase);
+
+      const recipient = {
+        email: "22107@iiitu.ac.in", 
+        name: "Amrutansh Jha", 
+      };
+
+      const emailDetails = {
+        body: emailContent.body,
+        subject: emailContent.subject,
+        recipient: recipient,
+        transactionDetails: {
+          transactionType: "purchase",
+          transactionId: newPurchase._id,
+        },
+      };
+
+      await sendEmailWithParams(emailDetails);
 
       res.status(201).json({
         success: true,

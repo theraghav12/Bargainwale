@@ -22,8 +22,7 @@ const orderController = {
         warehouse: warehouseId,
         manufacturer,
         paymentDays = 21,
-        reminderDays = [7, 3, 1],
-        totalAmount
+        reminderDays = [7, 3, 1]
       } = req.body;
 
       if (!Array.isArray(items)) {
@@ -31,7 +30,7 @@ const orderController = {
       }
 
       const orderItems = [];
-
+      let totalAmount=0;
       for (const {
         itemId,
         quantity,
@@ -67,6 +66,7 @@ const orderController = {
           taxableAmount,
           contNumber,
         });
+        totalAmount += taxpaidAmount;
       }
 
       const order = new Order({
@@ -139,24 +139,21 @@ const orderController = {
 
       const { subject, body } = generateOrderEmailContent(order);
 
-      // Define recipient object
       const recipient = {
         email: "22107@iiitu.ac.in",
         name: "Amrutansh Jha",
       };
 
-      // Ensure the body is a valid HTML string and subject is a string
       const emailDetails = {
-        body: body, // Make sure 'body' is a string (HTML content)
-        subject: subject, // Subject should be a string
-        recipient: recipient, // recipient should be an object with email and name
+        body: body,
+        subject: subject, 
+        recipient: recipient, 
         transactionDetails: {
-          transactionType: "order", // The type of transaction (order in this case)
-          transactionId: order._id, // Ensure this is the order ID (as a valid ObjectId)
+          transactionType: "order", 
+          transactionId: order._id, 
         },
       };
 
-      // Send the email through the mailing service
       await sendEmailWithParams(emailDetails);
 
       res.status(201).json({ message: "Order created successfully", order });
