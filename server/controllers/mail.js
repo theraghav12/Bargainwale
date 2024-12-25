@@ -4,6 +4,7 @@ import sender from "../config/emailConfig.js";
 // Function to send an email
 export const sendEmail = async (req, res) => {
   try {
+    // console.log(req.body);
     const { recipient, subject, body, transactionDetails } = req.body;
 
     if (
@@ -22,10 +23,10 @@ export const sendEmail = async (req, res) => {
     }
 
     const result = await sendEmailWithParams(
-      body,
+      {body,
       subject,
       recipient,
-      transactionDetails
+      transactionDetails}
     );
 
     return res.status(200).json({ message: "Email sent successfully", result });

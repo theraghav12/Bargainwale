@@ -24,6 +24,10 @@ const mailSchema = new mongoose.Schema(
     attempts: { type: Number, default: 0 },
     sentAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now },
+    backedUp: {
+      type: Boolean,
+      default: false
+    },
   },
   { timestamps: true }
 );

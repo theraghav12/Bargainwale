@@ -3,7 +3,13 @@ import sender from "../config/emailConfig.js";
 import orderController from "../controllers/order.js";
 import bookingController from "../controllers/booking.js";
 
+import backupData from "../backup/backup.js";
+
 const setUpJobs = () => {
+  cron.schedule("* 23 * * *", () => {
+    console.log("Starting backup process...");
+    backupData();
+  });
   cron.schedule("* 10 * * *", async () => {
     try {
       const ordersToNotify = await orderController.fetchPendingRemindersToday();
