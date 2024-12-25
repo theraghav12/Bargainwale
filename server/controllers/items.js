@@ -6,11 +6,12 @@ import Warehouse from "../models/warehouse.js";
     // Create a new item
     createItem: async (req, res) => {
       try {
-        const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, organization } = req.body;
+        const { flavor, hsnCode, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, organization } = req.body;
   
         // Create the new item
         const newItem = new Item({
           flavor,
+          hsnCode,
           material,
           materialdescription,
           netweight,
@@ -93,12 +94,13 @@ import Warehouse from "../models/warehouse.js";
 
   updateItem: async (req, res) => {
     try {
-      const { flavor, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, isActive } = req.body;
+      const { flavor, hsnCode, material, materialdescription, netweight, grossweight, gst, packaging, packsize, staticPrice, warehouses, isActive } = req.body;
 
       const updatedItem = await Item.findByIdAndUpdate(
         req.params.id,
         {
           flavor,
+          hsnCode,
           material,
           materialdescription,
           netweight,

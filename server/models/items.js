@@ -6,6 +6,9 @@ const itemSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    hsnCode: {
+        type: String,
+    },
     material: {
         type: String,
         required: true,

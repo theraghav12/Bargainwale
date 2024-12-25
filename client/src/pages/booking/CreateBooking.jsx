@@ -1,5 +1,5 @@
 import { Button, Spinner, Tooltip } from "@material-tailwind/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
 
@@ -309,37 +309,39 @@ const CreateBooking = () => {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
 
-    if (
-      updatedItems[index].item &&
-      updatedItems[index].pickup &&
-      form.warehouse
-    ) {
-      try {
-        const response = await getPricesById(
-          updatedItems[index].item,
-          form.warehouse
-        );
-        if (response.status === 200) {
-          const apiPrice =
-            response.data.price[updatedItems[index].pickup + "Price"];
+    if (["item", "pickup", "basePrice"].includes(field)) {
+      const { item, pickup } = updatedItems[index];
 
-          updatedItems[index].baseRate = apiPrice;
+      if (item && pickup && form.warehouse) {
+        try {
+          const response = await getPricesById(item, form.warehouse);
+          if (response.status === 200) {
+            const apiPrice = response.data.price[`${pickup}Price`];
+            updatedItems[index].baseRate = apiPrice;
 
-          if (updatedItems[index].basePrice > apiPrice) {
-            toast.error(
-              `Base price cannot be greater than ${formatCurrency(apiPrice)}`
-            );
-            updatedItems[index].basePrice = apiPrice;
-            return;
+            if (
+              field === "basePrice" &&
+              updatedItems[index].basePrice < apiPrice
+            ) {
+              toast.error(
+                `Base price cannot be lower than ${formatCurrency(apiPrice)}`
+              );
+              updatedItems[index].basePrice = baseRate;
+              return;
+            }
+
+            // Update base price if it's not set or if it's incorrect
+            if (
+              !updatedItems[index].basePrice ||
+              updatedItems[index].basePrice !== apiPrice
+            ) {
+              updatedItems[index].basePrice = apiPrice;
+            }
           }
-
-          if (!updatedItems[index].basePrice) {
-            updatedItems[index].basePrice = apiPrice;
+        } catch (err) {
+          if (err.response && err.response.status === 404) {
+            toast.error("Item price not found for the selected warehouse.");
           }
-        }
-      } catch (err) {
-        if (err.response && err.response.status === 404) {
-          toast.error("Item price not found for the selected warehouse.");
         }
       }
     }
@@ -376,6 +378,32 @@ const CreateBooking = () => {
       ...prevData,
       items: updatedItems,
     }));
+  };
+
+  const selectRefs = useRef([]);
+  const discountRefs = useRef([]);
+
+  const setSelectRef = (index, ref) => {
+    selectRefs.current[index] = ref;
+  };
+
+  const setDiscountRef = (index, ref) => {
+    discountRefs.current[index] = ref;
+  };
+
+  const handleTabKey = (e, index) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+
+      if (index === form.items.length - 1) {
+        handleAddItem();
+        setTimeout(() => {
+          selectRefs.current[index + 1]?.focus();
+        }, 0);
+      } else {
+        discountRefs.current[index + 1]?.focus();
+      }
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -894,6 +922,7 @@ const CreateBooking = () => {
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[500px] text-[0.9rem]">
                           <Select
+                            ref={(ref) => setSelectRef(index, ref)}
                             className="relative w-[500px]"
                             options={selectItemsOptions}
                             value={
@@ -919,12 +948,14 @@ const CreateBooking = () => {
                               { value: "rack", label: "Rack" },
                               { value: "depot", label: "Depot" },
                               { value: "plant", label: "Plant" },
+                              { value: "company", label: "Company" },
                             ]}
                             value={
                               [
                                 { value: "rack", label: "Rack" },
                                 { value: "depot", label: "Depot" },
                                 { value: "plant", label: "Plant" },
+                                { value: "company", label: "Company" },
                               ].find(
                                 (option) => option.value === item.pickup
                               ) || null
@@ -993,12 +1024,16 @@ const CreateBooking = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <input
+                          ref={(ref) => setDiscountRef(index, ref)}
                           type="number"
                           name="discount"
                           value={item.discount}
                           onChange={(e) =>
                             handleItemChange(index, "discount", e.target.value)
                           }
+                          onKeyDown={(e) => {
+                            handleTabKey(e, index);
+                          }}
                           required
                           placeholder="Discount %"
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
