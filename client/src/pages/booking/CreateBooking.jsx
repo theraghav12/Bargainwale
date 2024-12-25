@@ -1,5 +1,5 @@
 import { Button, Spinner, Tooltip } from "@material-tailwind/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
 
@@ -376,6 +376,32 @@ const CreateBooking = () => {
       ...prevData,
       items: updatedItems,
     }));
+  };
+
+  const selectRefs = useRef([]);
+  const discountRefs = useRef([]);
+
+  const setSelectRef = (index, ref) => {
+    selectRefs.current[index] = ref;
+  };
+
+  const setDiscountRef = (index, ref) => {
+    discountRefs.current[index] = ref;
+  };
+
+  const handleTabKey = (e, index) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+
+      if (index === form.items.length - 1) {
+        handleAddItem();
+        setTimeout(() => {
+          selectRefs.current[index + 1]?.focus();
+        }, 0);
+      } else {
+        discountRefs.current[index + 1]?.focus();
+      }
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -894,6 +920,7 @@ const CreateBooking = () => {
                       <td className="py-4 px-2 text-center">
                         <div className="relative w-[500px] text-[0.9rem]">
                           <Select
+                            ref={(ref) => setSelectRef(index, ref)}
                             className="relative w-[500px]"
                             options={selectItemsOptions}
                             value={
@@ -993,12 +1020,16 @@ const CreateBooking = () => {
                       </td>
                       <td className="py-4 px-2 text-center">
                         <input
+                          ref={(ref) => setDiscountRef(index, ref)}
                           type="number"
                           name="discount"
                           value={item.discount}
                           onChange={(e) =>
                             handleItemChange(index, "discount", e.target.value)
                           }
+                          onKeyDown={(e) => {
+                            handleTabKey(e, index);
+                          }}
                           required
                           placeholder="Discount %"
                           className="w-[150px] border-2 border-[#CBCDCE] px-2 py-1 rounded-md placeholder-[#737373]"
