@@ -6,7 +6,7 @@ import bookingController from "../controllers/booking.js";
 import backupData from "../backup/backup.js";
 
 const setUpJobs = () => {
-  cron.schedule("* 23 * * *", () => {
+  cron.schedule("0 23 * * *", () => {
     console.log("Starting backup process...");
     backupData();
   });
