@@ -39,6 +39,7 @@ const ItemForm = () => {
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [form, setForm] = useState({
     flavor: "",
+    hsnCode: "",
     material: "",
     materialdescription: "",
     netweight: "",
@@ -102,6 +103,7 @@ const ItemForm = () => {
       toast.success("Item added successfully!");
       setForm({
         flavor: "",
+        hsnCode: "",
         material: "",
         materialdescription: "",
         netweight: "",
@@ -204,6 +206,7 @@ const ItemForm = () => {
     const data = items.map((item) => ({
       "Item Name": item.materialdescription,
       Flavor: item.flavor,
+      HSN: item.hsnCode,
       Material: item.material,
       "Net Weight": item.netweight,
       "Gross Weight": item.grossweight,
@@ -275,6 +278,10 @@ const ItemForm = () => {
                         Flavor:
                       </span>{" "}
                       {item.flavor}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">HSN:</span>{" "}
+                      {item.hsnCode}
                     </Typography>
                     <Typography className="text-sm text-gray-500">
                       <span className="font-semibold text-gray-600">
@@ -370,6 +377,10 @@ const ItemForm = () => {
                       {item.flavor}
                     </Typography>
                     <Typography className="text-sm text-gray-500">
+                      <span className="font-semibold text-gray-600">HSN:</span>{" "}
+                      {item.hsnCode}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">
                       <span className="font-semibold text-gray-600">
                         Material:
                       </span>{" "}
@@ -451,6 +462,12 @@ const ItemForm = () => {
               name="flavor"
               label="Flavor"
               value={form.flavor}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="hsnCode"
+              label="HSN Code"
+              value={form.hsnCode}
               onChange={handleInputChange}
               required
             />
@@ -546,6 +563,17 @@ const ItemForm = () => {
                   }))
                 }
                 required
+              />
+              <Input
+                name="hsnCode"
+                label="HSN Code"
+                value={editingItem.hsnCode}
+                onChange={(e) =>
+                  setEditingItem((prev) => ({
+                    ...prev,
+                    hsnCode: e.target.value,
+                  }))
+                }
               />
               <Input
                 name="material"
