@@ -211,247 +211,233 @@ export function OrderHistory() {
   };
 
   return (
-    <div className="mt-8 mb-8 flex flex-col gap-12">
-      <div className="px-7">
-        <div className="flex flex-row justify-between items-center">
-          <button
-            onClick={handleDownloadExcel}
-            className="flex items-center bg-[#185C37] text-white font-medium rounded-lg px-8 py-2 border-2 border-[#999999] hover:bg-[#14522e] transition-colors"
+    <div className="p-8 bg-gray-50">
+      <div className="mb-4 flex justify-between items-center">
+        <button
+          onClick={handleDownloadExcel}
+          className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
+          Download Excel
+        </button>
+        <div className="flex gap-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border rounded px-3 py-2"
           >
-            <img className="w-5 mr-2" src={excel} alt="Download Excel" />
-            Download Excel
-          </button>
-
-          <div className="flex gap-4 items-center">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border-2 border-[#737373] rounded px-3 py-2 focus:outline-none"
-            >
-              <option value="All">All Statuses</option>
-              <option value="created">Created</option>
-              <option value="partially paid">Partially Paid</option>
-              <option value="billed">Billed</option>
-            </select>
-            <select
-              value={timePeriod}
-              onChange={(e) => setTimePeriod(e.target.value)}
-              className="border-2 border-[#737373] rounded px-3 py-2 focus:outline-none"
-            >
-              <option value="All">All Time</option>
-              <option value="last7Days">Last 7 Days</option>
-              <option value="last30Days">Last 30 Days</option>
-              <option value="custom">Custom</option>
-            </select>
-            {timePeriod === "custom" && (
-              <Datepicker
-                value={dateRange}
-                onChange={(newValue) => setDateRange(newValue)}
-                showShortcuts={true}
-                className="w-full max-w-xs"
-              />
-            )}
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by Bargain No."
-              className="border-2 border-[#737373] px-3 py-2 rounded-md placeholder-gray-500 focus:outline-none"
+            <option value="All">All Statuses</option>
+            <option value="created">Created</option>
+            <option value="partially paid">Partially Paid</option>
+            <option value="billed">Billed</option>
+          </select>
+          <select
+            value={timePeriod}
+            onChange={(e) => setTimePeriod(e.target.value)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="All">All Time</option>
+            <option value="last7Days">Last 7 Days</option>
+            <option value="last30Days">Last 30 Days</option>
+            <option value="custom">Custom</option>
+          </select>
+          {timePeriod === "custom" && (
+            <Datepicker
+              value={dateRange}
+              onChange={setDateRange}
+              className="w-full max-w-xs"
             />
-          </div>
-        </div>
-
-        <div className="overflow-x-auto mt-4">
-          {loading ? (
-            <Typography className="text-center text-gray-500">
-              Loading...
-            </Typography>
-          ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
-          ) : orders.length > 0 ? (
-            <div className="bg-white border-2 border-gray-300 shadow-md rounded-lg">
-              <table className="min-w-full border-collapse">
-                <thead className="bg-gray-100">
-                  <tr>
-                    {[
-                      "Created At",
-                      "Company Bargain No",
-                      "Company Bargain Date",
-                      "Manufacturer Name",
-                      "Manufacturer Company",
-                      "Manufacturer Contact",
-                      "Status",
-                      "Inco",
-                      "Actions",
-                    ].map((el) => (
-                      <th
-                        key={el}
-                        className="py-4 px-6 text-center font-semibold text-gray-700 border-b"
-                      >
-                        {el}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => {
-                    const isOpen = openOrder === order._id;
-                    return (
-                      <React.Fragment key={order._id}>
-                        <tr className="hover:bg-gray-50">
-                          <td className="py-4 px-6 text-center min-w-[180px]">
-                            {formatTimestamp(order.createdAt)}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {order.companyBargainNo}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {formatDate(order.companyBargainDate)}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {order.manufacturer?.manufacturer}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {order.manufacturer?.manufacturerCompany}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {order.manufacturer?.manufacturerContact}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <Chip
-                              variant="ghost"
-                              value={order.status}
-                              color={
-                                order.status === "created"
-                                  ? "blue"
-                                  : order.status === "partially paid"
-                                  ? "yellow"
-                                  : "green"
-                              }
-                              className="px-2 py-1 rounded-lg text-sm font-semibold"
-                            />
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {order.inco}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <div className="flex justify-center gap-4">
-                              <IconButton
-                                variant="text"
-                                onClick={() => handleToggleOrder(order._id)}
-                                className="bg-gray-200 hover:bg-gray-300 transition"
-                              >
-                                {isOpen ? (
-                                  <ChevronUpIcon className="h-5 w-5 text-gray-600" />
-                                ) : (
-                                  <ChevronDownIcon className="h-5 w-5 text-gray-600" />
-                                )}
-                              </IconButton>
-                              {!hasFutureBookings(order, bookings) && (
-                                <Tooltip content="Delete Order">
-                                  <span className="w-fit h-fit">
-                                    <MdDeleteOutline
-                                      onClick={() => handleDelete(order._id)}
-                                      className="text-red-700 text-[2.4rem] border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
-                                    />
-                                  </span>
-                                </Tooltip>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                        {isOpen && (
-                          <tr className="bg-gray-50">
-                            <td colSpan="9">
-                              <div className="p-4">
-                                <table className="w-full">
-                                  <thead className="bg-gray-200 rounded-md">
-                                    <tr>
-                                      {[
-                                        "Item Name",
-                                        "Packaging",
-                                        "Weight",
-                                        // "Cont. No.",
-                                        "Pickup",
-                                        "Quantity",
-                                        "Base Price (₹)",
-                                        "GST %",
-                                        "Tax Paid Amt.",
-                                      ].map((header) => (
-                                        <th
-                                          key={header}
-                                          className="py-3 px-4 text-center font-semibold text-gray-600 border-b"
-                                        >
-                                          {header}
-                                        </th>
-                                      ))}
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {order.items.map((item) => (
-                                      <tr
-                                        key={item._id}
-                                        className="hover:bg-gray-100"
-                                      >
-                                        <td className="py-3 px-4 text-center">
-                                          {item.item?.materialdescription}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          {String(item.item.packaging)
-                                            ?.charAt(0)
-                                            .toUpperCase() +
-                                            String(item.item.packaging).slice(
-                                              1
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          {item.item.netweight}
-                                        </td>
-                                        {/* <td className="py-3 px-4 text-center">
-                                          {item.contNumber}
-                                        </td> */}
-                                        <td className="py-3 px-4 text-center">
-                                          {String(item.pickup)
-                                            ?.charAt(0)
-                                            .toUpperCase() +
-                                            String(item.pickup).slice(1)}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          {item.quantity}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          ₹{item.baseRate?.toLocaleString()}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          {item.igst
-                                            ? `${item.igst}% (IGST)`
-                                            : `${item.cgst}% (CGST) + ${item.sgst}% (SGST)`}
-                                        </td>
-                                        <td className="py-3 px-4 text-center">
-                                          ₹
-                                          {item.taxpaidAmount?.toLocaleString()}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-center text-lg text-gray-500 mt-20">
-              No orders found!
-            </p>
           )}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Company Bargain No."
+            className="w-[280px] border-2 border-[#737373] px-3 py-2 rounded-md placeholder-gray-500 focus:outline-none"
+          />
         </div>
       </div>
+
+      {loading ? (
+        <Typography className="text-center text-gray-500">
+          Loading...
+        </Typography>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
+      ) : orders.length > 0 ? (
+        <div className="shadow overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                {[
+                  "Created At",
+                  "Company Bargain No",
+                  "Company Bargain Date",
+                  "Manufacturer Name",
+                  "Manufacturer Company",
+                  "Manufacturer Contact",
+                  "Status",
+                  "Inco",
+                  "Actions",
+                ].map((el) => (
+                  <th
+                    key={el}
+                    className="px-4 py-2 border-b font-medium text-center"
+                  >
+                    {el}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                const isOpen = openOrder === order._id;
+                return (
+                  <React.Fragment key={order._id}>
+                    <tr className="hover:bg-gray-50 border-b">
+                      <td className="px-4 py-2 text-center">
+                        {formatTimestamp(order.createdAt)}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {order.companyBargainNo}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {formatDate(order.companyBargainDate)}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {order.manufacturer?.manufacturer}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {order.manufacturer?.manufacturerCompany}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {order.manufacturer?.manufacturerContact}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <Chip
+                          value={order.status}
+                          color={
+                            order.status === "created"
+                              ? "blue"
+                              : order.status === "partially paid"
+                              ? "yellow"
+                              : "green"
+                          }
+                          className="px-2 py-1 rounded-lg text-sm font-semibold"
+                        />
+                      </td>
+                      <td className="px-4 py-2  text-center">{order.inco}</td>
+                      <td className="px-4 py-2 text-center">
+                        <div className="flex justify-center gap-4">
+                          <IconButton
+                            variant="text"
+                            onClick={() => handleToggleOrder(order._id)}
+                            className="bg-gray-200 hover:bg-gray-300 transition"
+                          >
+                            {isOpen ? (
+                              <ChevronUpIcon className="h-5 w-5 text-gray-600" />
+                            ) : (
+                              <ChevronDownIcon className="h-5 w-5 text-gray-600" />
+                            )}
+                          </IconButton>
+                          {!hasFutureBookings(order, bookings) && (
+                            <Tooltip content="Delete Order">
+                              <span className="w-fit h-fit">
+                                <MdDeleteOutline
+                                  onClick={() => handleDelete(order._id)}
+                                  className="text-red-700 text-[2.4rem] border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
+                                />
+                              </span>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="bg-gray-100">
+                        <td colSpan="9" className="p-4">
+                          <table className="min-w-full bg-gray-50">
+                            <thead>
+                              <tr>
+                                {[
+                                  "Item Name",
+                                  "Packaging",
+                                  "Weight",
+                                  // "Cont. No.",
+                                  "Pickup",
+                                  "Quantity",
+                                  "Base Price (₹)",
+                                  "GST %",
+                                  "Tax Paid Amt.",
+                                ].map((header) => (
+                                  <th
+                                    key={header}
+                                    className="px-2 py-1 font-semibold text-gray-700"
+                                  >
+                                    {header}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {order.items.map((item) => (
+                                <tr
+                                  key={item._id}
+                                  className="hover:bg-gray-100"
+                                >
+                                  <td className="px-2 py-1 text-center">
+                                    {item.item?.materialdescription}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {String(item.item.packaging)
+                                      ?.charAt(0)
+                                      .toUpperCase() +
+                                      String(item.item.packaging).slice(1)}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.item.netweight}
+                                  </td>
+                                  {/* <td className="py-3 px-4 text-center">
+                                          {item.contNumber}
+                                        </td> */}
+                                  <td className="px-2 py-1 text-center">
+                                    {String(item.pickup)
+                                      ?.charAt(0)
+                                      .toUpperCase() +
+                                      String(item.pickup).slice(1)}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.quantity}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    ₹{item.baseRate?.toLocaleString()}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    {item.igst
+                                      ? `${item.igst}% (IGST)`
+                                      : `${item.cgst}% (CGST) + ${item.sgst}% (SGST)`}
+                                  </td>
+                                  <td className="px-2 py-1 text-center">
+                                    ₹{item.taxpaidAmount?.toLocaleString()}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-center text-lg text-gray-500 mt-20">
+          No orders found!
+        </p>
+      )}
     </div>
   );
 }

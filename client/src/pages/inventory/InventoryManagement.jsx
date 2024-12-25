@@ -150,7 +150,7 @@ export function Inventory() {
     const fetchData = async () => {
       try {
         const warehousesData = await getWarehouses();
-        setWarehouses(warehousesData);
+        setWarehouses(warehousesData.filter((warehouse) => warehouse.isActive));
 
         const uniqueCities = [
           ...new Set(
@@ -160,8 +160,12 @@ export function Inventory() {
         setCities(uniqueCities);
 
         // Automatically select the first warehouse if available
-        if (warehousesData.length > 0) {
-          setSelectedWarehouse(warehousesData[0]._id);
+        if (
+          warehousesData.filter((warehouse) => warehouse.isActive).length > 0
+        ) {
+          setSelectedWarehouse(
+            warehousesData.filter((warehouse) => warehouse.isActive)[0]._id
+          );
           const warehouse = await getWarehouseById(warehousesData[0]._id);
           setCurrentWarehouse(warehouse);
         }
@@ -253,21 +257,19 @@ export function Inventory() {
         <div className="mb-4">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Warehouses</h2>
           <div className="space-y-2">
-            {filteredWarehouses
-              ?.filter((warehouse) => warehouse.isActive)
-              ?.map((warehouse) => (
-                <button
-                  key={warehouse._id}
-                  onClick={() => setSelectedWarehouse(warehouse._id)}
-                  className={`w-full px-3 py-2 text-left rounded-md shadow-sm ${
-                    selectedWarehouse === warehouse._id
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {warehouse.name}
-                </button>
-              ))}
+            {filteredWarehouses?.map((warehouse) => (
+              <button
+                key={warehouse._id}
+                onClick={() => setSelectedWarehouse(warehouse._id)}
+                className={`w-full px-3 py-2 text-left rounded-md shadow-sm ${
+                  selectedWarehouse === warehouse._id
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {warehouse.name}
+              </button>
+            ))}
           </div>
         </div>
       </div>

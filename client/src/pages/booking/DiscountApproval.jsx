@@ -51,8 +51,14 @@ const DiscountApprovalPage = () => {
   const fetchBookings = async () => {
     try {
       const response = await getBookings();
+      let filteredBookings = response.map((booking) => {
+        const isDiscounted = booking.items?.some((item) => item.discount > 0);
+        return { ...booking, isDiscountRequested: isDiscounted };
+      });
       setBookings(
-        response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        filteredBookings
+          ?.filter((booking) => booking.isDiscountRequested)
+          ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       );
     } catch (err) {
       console.log("Error:", err);

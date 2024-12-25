@@ -1,5 +1,5 @@
 import { Button, Chip, Spinner } from "@material-tailwind/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
 
@@ -11,6 +11,7 @@ import { createPurchase } from "@/services/purchaseService";
 
 // icons
 import { LuAsterisk } from "react-icons/lu";
+import { AiOutlineSearch } from "react-icons/ai";
 
 const CreatePurchase = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ const CreatePurchase = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [quantityInputs, setQuantityInputs] = useState([]);
   const [inputQuantityInputs, setInputQuantityInputs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [form, setForm] = useState({
     warehouseId: "",
@@ -50,6 +52,21 @@ const CreatePurchase = () => {
       setLoading(false);
     }
   };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesBargainNo = order.companyBargainNo
+        ?.toLowerCase()
+        ?.includes(searchQuery.toLowerCase());
+      const matchesItemName = order.items?.some((item) =>
+        item.item?.materialdescription
+          ?.toLowerCase()
+          ?.includes(searchQuery.toLowerCase())
+      );
+
+      return matchesBargainNo || matchesItemName;
+    });
+  }, [orders, searchQuery]);
 
   const fetchTransportOptions = async () => {
     try {
@@ -357,6 +374,17 @@ const CreatePurchase = () => {
               </div>
             </div>
           </form>
+
+          <div className="relative w-full max-w-lg mb-6">
+            <AiOutlineSearch className="absolute top-3 left-3 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search bookings by Company Bargain No. or Item name"
+              className="w-full pl-10 pr-4 py-2 rounded-lg shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            />
+          </div>
 
           <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
             {orders.length > 0 ? (

@@ -127,7 +127,7 @@ const BuyersList = () => {
                   >
                     Create Sales
                   </Link>
-                  <div className="flex gap-2">
+                  {/* <div className="flex gap-2">
                     <Tooltip content="Edit Buyer" placement="top">
                       <button className="text-gray-500 hover:text-blue-500">
                         <AiOutlineEdit size={20} />
@@ -138,7 +138,7 @@ const BuyersList = () => {
                         <AiOutlineDelete size={20} />
                       </button>
                     </Tooltip>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             ))}

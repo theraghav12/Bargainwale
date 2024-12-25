@@ -6,15 +6,14 @@ import PriceHistory from "../models/pricehistory.js";
 const priceController = {
   addOrUpdatePrice: async (req, res) => {
     try {
-      console.log(".................",req.body);
       const { warehouseId, prices, organization } = req.body;
-  
+
       // Validate Warehouse
       const warehouse = await Warehouse.findOne({ _id: warehouseId });
       if (!warehouse) {
         return res.status(404).json({ message: "Warehouse not found or does not belong to the organization" });
       }
-  
+
       // Loop through Prices to Update or Add
       for (const { itemId, companyPrice, rackPrice, plantPrice, depotPrice } of prices) {
         // Validate Item
@@ -22,10 +21,10 @@ const priceController = {
         if (!item) {
           return res.status(404).json({ message: `Item not found for ID: ${itemId}` });
         }
-  
+
         // Find existing price record
         let price = await Price.findOne({ warehouse: warehouseId, item: itemId });
-  
+
         if (price) {
           const priceHistory = new PriceHistory({
             warehouse: warehouseId,
@@ -38,7 +37,7 @@ const priceController = {
             effectiveDate: price.updatedAt,
           });
           await priceHistory.save();
-  
+
           // Update Existing Price
           price.companyPrice = companyPrice;
           price.rackPrice = rackPrice;
@@ -60,7 +59,7 @@ const priceController = {
             pricesUpdated: true,
           });
           await price.save();
-  
+
           // Log New Price in History
           const priceHistory = new PriceHistory({
             warehouse: warehouseId,
@@ -74,32 +73,32 @@ const priceController = {
           await priceHistory.save();
         }
       }
-  
+
       res.status(200).json({ message: "Prices updated successfully" });
     } catch (error) {
       console.error("Error adding or updating price:", error);
       res.status(500).json({ message: "Server error", error });
     }
   },
-  
+
 
   getPricesByWarehouse: async (req, res) => {
     try {
       const { warehouseId } = req.params;
-  
-     
+
+
       const items = await Item.find({ warehouses: { $in: [warehouseId] } });
-  
+
       if (!items.length) {
         return res.status(404).json({ message: "No items found for the specified warehouse" });
       }
-  
+
       const result = [];
-  
-    
+
+
       for (const item of items) {
         const price = await Price.findOne({ warehouse: warehouseId, item: item._id });
-  
+
         if (price) {
           result.push({
             item,
@@ -118,18 +117,18 @@ const priceController = {
           });
         }
       }
-  
+
       if (!result.length) {
         return res.status(404).json({ message: "No prices found for the specified warehouse" });
       }
-  
+
       res.status(200).json({ message: "Prices retrieved successfully", items: result });
     } catch (error) {
       console.error("Error retrieving prices by warehouse:", error);
       res.status(500).json({ message: "Server error", error });
     }
   },
-  
+
 
   getAllPrices: async (req, res) => {
     try {
@@ -173,39 +172,32 @@ const priceController = {
     try {
       const { orgId, warehouseId } = req.params;
       const { itemId } = req.query;
-  
-      console.log("getPriceHistory called with:", req.params, req.query);
-  
+
       // Base query
       const query = { warehouse: warehouseId, organization: orgId };
       if (itemId) {
         query.item = itemId; // Filter by item if itemId is provided
       }
-  
-      console.log("Constructed Query:", query);
-  
+
       // Fetch price history
       const priceHistory = await PriceHistory.find(query)
         .populate("item", "flavor material")
         .populate("warehouse", "name location")
         .sort({ effectiveDate: -1 });
-  
+
       if (!priceHistory.length) {
-        console.log("No price history found for query:", query);
         return res
           .status(404)
           .json({ message: "No price history found for the specified warehouse and/or item" });
       }
-  
-      console.log("Price history retrieved successfully:", priceHistory);
-  
+
       res.status(200).json({ message: "Price history retrieved successfully", priceHistory });
     } catch (error) {
       console.error("Error retrieving price history:", error);
       res.status(500).json({ message: "Server error", error });
     }
   },
-  
+
 };
 
 

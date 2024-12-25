@@ -28,6 +28,7 @@ export function BookingHistory() {
     startDate: null,
     endDate: null,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -64,6 +65,12 @@ export function BookingHistory() {
           );
         }
 
+        if (searchQuery) {
+          filteredBookings = filteredBookings.filter((booking) =>
+            booking.BargainNo.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
         setBookings(
           filteredBookings.sort((a, b) => {
             const bargainDateComparison =
@@ -81,7 +88,7 @@ export function BookingHistory() {
       }
     };
     fetchBookings();
-  }, [statusFilter, timePeriod, dateRange]);
+  }, [statusFilter, timePeriod, dateRange, searchQuery]);
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -138,8 +145,7 @@ export function BookingHistory() {
         "Base Price": item.basePrice,
         Discount: item.discount,
         GST: item.gst,
-        "Taxable Amount": item.taxableAmount,
-        "Tax Paid Amount": item.taxpaidAmount,
+        "Total Amount (₹)": b.totalAmount,
       }))
     );
 
@@ -203,6 +209,13 @@ export function BookingHistory() {
               className="w-full max-w-xs"
             />
           )}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Bargain No."
+            className="w-[200px] border-2 border-[#737373] px-3 py-2 rounded-md placeholder-gray-500 focus:outline-none"
+          />
         </div>
       </div>
 
@@ -212,7 +225,7 @@ export function BookingHistory() {
         </Typography>
       ) : error ? (
         <Typography className="text-center text-red-500">{error}</Typography>
-      ) : (
+      ) : bookings.length > 0 ? (
         <div className="shadow overflow-x-auto">
           <table className="min-w-full bg-white">
             <thead>
@@ -240,21 +253,20 @@ export function BookingHistory() {
                 const isOpen = openBooking === b._id;
                 return (
                   <React.Fragment key={b._id}>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b text-center">
+                    <tr className="hover:bg-gray-50 border-b">
+                      <td className="px-4 py-2 text-center">
                         {formatTimestamp(b.createdAt)}
                       </td>
-                      <td className="px-4 py-2 border-b text-center">
-                        {b.BargainNo}
-                      </td>
-                      <td className="px-4 py-2 border-b text-center">
+                      <td className="px-4 py-2 text-center">{b.BargainNo}</td>
+                      <td className="px-4 py-2 text-center">
                         {formatDate(b.BargainDate)}
                       </td>
-                      <td className="px-4 py-2 border-b text-center">
+                      <td className="px-4 py-2 text-center">
                         {b.buyer?.buyer}
                       </td>
-                      <td className="py-2 border-b text-center flex justify-center gap-2">
-                        {b.discountStatus === "pending" ? (
+                      <td className="py-2 text-center flex justify-center gap-2">
+                        {b.discountStatus === "pending" &&
+                        b.isDiscountRequested ? (
                           <Chip
                             className="w-fit"
                             value="Approval Pending"
@@ -276,10 +288,10 @@ export function BookingHistory() {
                             />
                           )}
                       </td>
-                      <td className="px-4 py-2 border-b text-center">
+                      <td className="px-4 py-2 text-center">
                         {b.deliveryOption}
                       </td>
-                      <td className="px-4 py-2 border-b text-center flex justify-center items-center gap-2">
+                      <td className="px-4 py-2 text-center flex justify-center items-center gap-2">
                         <IconButton
                           variant="text"
                           onClick={() => setOpenBooking(isOpen ? null : b._id)}
@@ -291,14 +303,14 @@ export function BookingHistory() {
                             <ChevronDownIcon className="h-5 w-5 text-gray-600" />
                           )}
                         </IconButton>
-                        {b.status === "created" && (
+                        {/* {b.status === "created" && (
                           <Tooltip content="Delete Booking">
                             <MdDeleteOutline
                               onClick={() => handleDelete(b._id)}
                               className="text-red-700 text-[2.4rem] border-2 border-red-700 rounded-lg p-1 hover:bg-red-700 hover:text-white transition-all cursor-pointer"
                             />
                           </Tooltip>
-                        )}
+                        )} */}
                       </td>
                     </tr>
                     {isOpen && (
@@ -327,7 +339,10 @@ export function BookingHistory() {
                             </thead>
                             <tbody>
                               {b.items.map((item) => (
-                                <tr key={item._id}>
+                                <tr
+                                  key={item._id}
+                                  className="hover:bg-gray-100"
+                                >
                                   <td className="px-2 py-1 text-center">
                                     {item.item.materialdescription}
                                   </td>
@@ -368,6 +383,10 @@ export function BookingHistory() {
             </tbody>
           </table>
         </div>
+      ) : (
+        <p className="text-center text-lg text-gray-500 mt-20">
+          No bookings found!
+        </p>
       )}
     </div>
   );

@@ -261,7 +261,10 @@ export default function Home() {
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-    XLSX.writeFile(workbook, "Data.xlsx");
+    XLSX.writeFile(
+      workbook,
+      `Item Price History_${formatDate(Date.now())}.xlsx`
+    );
     toast.success("Data downloaded successfully!");
   };
 

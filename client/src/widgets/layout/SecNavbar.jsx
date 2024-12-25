@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Percent,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const NavItem = ({ label, links, icon: Icon }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,27 +25,25 @@ const NavItem = ({ label, links, icon: Icon }) => {
   const isActive = links.some((link) => link.to === location.pathname);
   const hasDropdownLinks = links.length > 1;
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+  const handleMouseEnter = () => {
+    if (hasDropdownLinks) {
+      setIsOpen(true);
     }
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
+  const handleMouseLeave = () => {
+    setIsOpen(false);
+  };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div
+      className="relative"
+      ref={dropdownRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {hasDropdownLinks ? (
         <button
-          onClick={() => setIsOpen(!isOpen)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
             isActive
               ? "bg-blue-50 text-blue-600"
@@ -54,7 +53,7 @@ const NavItem = ({ label, links, icon: Icon }) => {
           <Icon className="w-4 h-4" />
           <span className="text-sm font-medium">{label}</span>
           <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${
+            className={`w-4 h-4 transition-transform duration-[350ms] ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -75,27 +74,37 @@ const NavItem = ({ label, links, icon: Icon }) => {
         </NavLink>
       )}
 
-      {isOpen && hasDropdownLinks && (
-        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`
-              }
-            >
-              {link.icon && <link.icon className="w-4 h-4" />}
-              <span>{link.name}</span>
-            </NavLink>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && hasDropdownLinks && (
+          <motion.div
+            className="absolute"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="relative top-2 left-0 mt w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+              {links.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
+                      isActive
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  {link.icon && <link.icon className="w-4 h-4" />}
+                  <span>{link.name}</span>
+                </NavLink>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
