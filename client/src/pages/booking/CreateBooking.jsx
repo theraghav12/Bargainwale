@@ -309,37 +309,39 @@ const CreateBooking = () => {
       updatedItems[index] = { ...updatedItems[index], [field]: value };
     }
 
-    if (
-      updatedItems[index].item &&
-      updatedItems[index].pickup &&
-      form.warehouse
-    ) {
-      try {
-        const response = await getPricesById(
-          updatedItems[index].item,
-          form.warehouse
-        );
-        if (response.status === 200) {
-          const apiPrice =
-            response.data.price[updatedItems[index].pickup + "Price"];
+    if (["item", "pickup", "basePrice"].includes(field)) {
+      const { item, pickup } = updatedItems[index];
 
-          updatedItems[index].baseRate = apiPrice;
+      if (item && pickup && form.warehouse) {
+        try {
+          const response = await getPricesById(item, form.warehouse);
+          if (response.status === 200) {
+            const apiPrice = response.data.price[`${pickup}Price`];
+            updatedItems[index].baseRate = apiPrice;
 
-          if (updatedItems[index].basePrice > apiPrice) {
-            toast.error(
-              `Base price cannot be greater than ${formatCurrency(apiPrice)}`
-            );
-            updatedItems[index].basePrice = apiPrice;
-            return;
+            if (
+              field === "basePrice" &&
+              updatedItems[index].basePrice < apiPrice
+            ) {
+              toast.error(
+                `Base price cannot be lower than ${formatCurrency(apiPrice)}`
+              );
+              updatedItems[index].basePrice = baseRate;
+              return;
+            }
+
+            // Update base price if it's not set or if it's incorrect
+            if (
+              !updatedItems[index].basePrice ||
+              updatedItems[index].basePrice !== apiPrice
+            ) {
+              updatedItems[index].basePrice = apiPrice;
+            }
           }
-
-          if (!updatedItems[index].basePrice) {
-            updatedItems[index].basePrice = apiPrice;
+        } catch (err) {
+          if (err.response && err.response.status === 404) {
+            toast.error("Item price not found for the selected warehouse.");
           }
-        }
-      } catch (err) {
-        if (err.response && err.response.status === 404) {
-          toast.error("Item price not found for the selected warehouse.");
         }
       }
     }
@@ -946,12 +948,14 @@ const CreateBooking = () => {
                               { value: "rack", label: "Rack" },
                               { value: "depot", label: "Depot" },
                               { value: "plant", label: "Plant" },
+                              { value: "company", label: "Company" },
                             ]}
                             value={
                               [
                                 { value: "rack", label: "Rack" },
                                 { value: "depot", label: "Depot" },
                                 { value: "plant", label: "Plant" },
+                                { value: "company", label: "Company" },
                               ].find(
                                 (option) => option.value === item.pickup
                               ) || null
