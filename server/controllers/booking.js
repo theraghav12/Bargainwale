@@ -4,6 +4,8 @@ import Warehouse from "../models/warehouse.js";
 import Buyer from "../models/buyer.js";
 import Item from "../models/items.js";
 import ItemHistory from "../models/itemHistory.js";
+import { generateBookingEmailContent } from "../utils/mailContent.js";
+import { sendEmailWithParams } from "./mail.js";
 
 const bookingController = {
   createBooking: async (req, res) => {
@@ -154,6 +156,25 @@ const bookingController = {
         }
         await warehouseDocument.save();
         booking.discountStatus = "approved";
+
+        const emailContent = generateBookingEmailContent(booking);
+        console.log(emailContent);
+        const recipient = {
+          email: "22107@iiitu.ac.in", 
+          name: "Amrutansh Jha", 
+        };
+  
+        const emailDetails = {
+          body: emailContent.body,
+          subject: emailContent.subject,
+          recipient: recipient,
+          transactionDetails: {
+            transactionType: "booking",
+            transactionId: booking._id,
+          },
+        };
+  
+        await sendEmailWithParams(emailDetails);
       }
       await booking.save();
       res
@@ -343,6 +364,24 @@ const bookingController = {
         booking.discountStatus = "partially approved";
       }
       await booking.save();
+      const emailContent = generateBookingEmailContent(booking);
+
+      const recipient = {
+        email: "22107@iiitu.ac.in",
+        name: "Amrutansh Jha",
+      };
+
+      const emailDetails = {
+        body: emailContent.body,
+        subject: emailContent.subject,
+        recipient: recipient,
+        transactionDetails: {
+          transactionType: "booking",
+          transactionId: booking._id,
+        },
+      };
+
+      await sendEmailWithParams(emailDetails);
       res
         .status(200)
         .json({ message: "Booking updated successfully", booking });

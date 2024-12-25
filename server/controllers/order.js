@@ -4,6 +4,9 @@ import Warehouse from "../models/warehouse.js";
 import Item from "../models/items.js";
 import ItemHistory from '../models/itemHistory.js';
 
+import { generateOrderEmailContent } from '../utils/mailContent.js';
+import { sendEmailWithParams } from "./mail.js";
+
 const orderController = {
   createOrder: async (req, res) => {
     try {
@@ -19,8 +22,7 @@ const orderController = {
         warehouse: warehouseId,
         manufacturer,
         paymentDays = 21,
-        reminderDays = [7, 3, 1],
-        totalAmount
+        reminderDays = [7, 3, 1]
       } = req.body;
 
       if (!Array.isArray(items)) {
@@ -28,7 +30,7 @@ const orderController = {
       }
 
       const orderItems = [];
-
+      let totalAmount=0;
       for (const {
         itemId,
         quantity,
@@ -64,6 +66,7 @@ const orderController = {
           taxableAmount,
           contNumber,
         });
+        totalAmount += taxpaidAmount;
       }
 
       const order = new Order({
@@ -133,6 +136,26 @@ const orderController = {
       }
 
       await warehouseDocument.save();
+
+      const { subject, body } = generateOrderEmailContent(order);
+
+      const recipient = {
+        email: "22107@iiitu.ac.in",
+        name: "Amrutansh Jha",
+      };
+
+      const emailDetails = {
+        body: body,
+        subject: subject, 
+        recipient: recipient, 
+        transactionDetails: {
+          transactionType: "order", 
+          transactionId: order._id, 
+        },
+      };
+
+      await sendEmailWithParams(emailDetails);
+
       res.status(201).json({ message: "Order created successfully", order });
     } catch (error) {
       console.error("Error creating order:", error.message || error);
