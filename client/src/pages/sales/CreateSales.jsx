@@ -5,10 +5,11 @@ import {
   Spinner,
   Tooltip,
 } from "@material-tailwind/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import Select from "react-select";
+import { useParams } from "react-router-dom";
 
 // API services
 import { getTransport } from "@/services/masterService";
@@ -19,6 +20,7 @@ import { API_BASE_URL } from "@/services/api";
 // Icons
 import { LuAsterisk } from "react-icons/lu";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import { AiOutlineSearch } from "react-icons/ai";
 
 const CreateSales = () => {
   const [loading, setLoading] = useState(false);
@@ -30,6 +32,8 @@ const CreateSales = () => {
   const [quantityInputs, setQuantityInputs] = useState([]);
   const [salesIds, setSalesIds] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { id } = useParams();
 
   const [form, setForm] = useState({
     warehouseId: "",
@@ -53,7 +57,7 @@ const CreateSales = () => {
         }
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-      setOrders(filteredOrders);
+      setOrders(filteredOrders.filter((order) => order.buyer?._id === id));
     } catch (error) {
       console.log(error);
     } finally {
@@ -332,6 +336,21 @@ const CreateSales = () => {
     }
   };
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesBargainNo = order.BargainNo.toLowerCase().includes(
+        searchQuery.toLowerCase()
+      );
+      const matchesItemName = order.items.some((item) =>
+        item.item.materialdescription
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      );
+
+      return matchesBargainNo || matchesItemName;
+    });
+  }, [orders, searchQuery]);
+
   return (
     <div className="w-full mt-8 mb-8 flex flex-col gap-12">
       <div className="px-7">
@@ -443,8 +462,19 @@ const CreateSales = () => {
             </div>
           </form>
 
+          <div className="relative w-full max-w-lg mb-6">
+            <AiOutlineSearch className="absolute top-3 left-3 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search bookings by Bargain No. or Item name"
+              className="w-full pl-10 pr-4 py-2 rounded-lg shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            />
+          </div>
+
           <div className="overflow-x-scroll px-0 pt-0 pb-2 mt-2">
-            {orders.length > 0 ? (
+            {filteredOrders?.length > 0 ? (
               <div className="flex flex-col gap-4 mt-4 mb-5 bg-white border-[2px] border-[#737373] rounded-lg shadow-md">
                 <div className="overflow-x-auto">
                   <table className="min-w-full table-auto border-collapse">
@@ -470,7 +500,7 @@ const CreateSales = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => {
+                      {filteredOrders?.map((order) => {
                         const isOpen = openOrders.includes(order._id);
                         const isChecked = selectedOrder.includes(order._id);
                         const isSoldOut = order.status === "fully sold";
