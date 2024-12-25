@@ -88,6 +88,7 @@ const NavItem = ({ label, links, icon: Icon }) => {
                 <NavLink
                   key={link.to}
                   to={link.to}
+                  onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200 ${
                       isActive
