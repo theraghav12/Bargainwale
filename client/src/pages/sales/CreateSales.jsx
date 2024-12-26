@@ -38,10 +38,8 @@ const CreateSales = () => {
   const [form, setForm] = useState({
     warehouseId: "",
     transporterId: "",
-    bookingIds: [],
     invoiceNumber: "",
     invoiceDate: "",
-    items: [],
     organization: localStorage.getItem("organizationId"),
   });
 
@@ -584,7 +582,7 @@ const CreateSales = () => {
                                             "Item Name",
                                             "Packaging",
                                             "Weight",
-                                            "Base Price (Rs.)",
+                                            "Base Price",
                                             "Booked Quantity",
                                             "Quantity Available to Sales",
                                             "Quantity to Sales",
@@ -608,13 +606,18 @@ const CreateSales = () => {
                                               {item.item.materialdescription}
                                             </td>
                                             <td className="py-3 px-4 text-center">
-                                              {item.item.packaging}
+                                              {String(item.item.packaging)
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                                String(
+                                                  item.item.packaging
+                                                ).slice(1)}
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                               {item.item.netweight}
                                             </td>
                                             <td className="py-3 px-4 text-center">
-                                              {item.basePrice}
+                                              ₹{item.basePrice}
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                               {item.quantity}
