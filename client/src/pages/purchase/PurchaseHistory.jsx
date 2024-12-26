@@ -16,9 +16,11 @@ import Invoice from "@/components/purchase/Invoice";
 
 // api services
 import { getPurchases } from "@/services/purchaseService";
+
 // icons
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { FaDownload, FaFileExcel, FaFilter } from "react-icons/fa";
+import excel from "../../assets/excel.svg";
 
 export default function PurchaseHistory() {
   const [purchases, setPurchases] = useState([]);
@@ -160,6 +162,7 @@ export default function PurchaseHistory() {
   const uniqueTransporters = [
     ...new Set(purchases.map((p) => p.transporterId?.transport)),
   ];
+
   const uniqueWarehouses = [
     ...new Set(purchases.map((p) => p.warehouseId?.name)),
   ];
@@ -176,9 +179,9 @@ export default function PurchaseHistory() {
           </div>
           <button
             onClick={handleDownloadExcel}
-            className="bg-green-500 py-2 px-4 text-white text-lg font-medium rounded-lg flex items-center gap-2 shadow-md hover:bg-green-600 transition duration-200"
+            className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
           >
-            <FaFileExcel className="text-2xl" />
+            <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
             Download Excel
           </button>
         </div>
@@ -254,73 +257,72 @@ export default function PurchaseHistory() {
             {error}
           </Typography>
         ) : filteredPurchases?.length > 0 ? (
-          <table className="min-w-full table-auto border-collapse">
-            <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
-              <tr>
-                {[
-                  "Created At",
-                  "Invoice Number",
-                  "Invoice Date",
-                  "Order ID",
-                  "Warehouse",
-                  "Transporter",
-                  "Actions",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="py-4 text-center text-gray-700 font-semibold"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPurchases.map((purchase) => {
-                const isOpen = openPurchase === purchase._id;
-                return (
-                  <React.Fragment key={purchase._id}>
-                    <tr
-                      className={`border-t ${
-                        isOpen ? "bg-gray-50" : "hover:bg-gray-100"
-                      } transition-colors duration-200`}
+          <div className="shadow overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
+                <tr>
+                  {[
+                    "Created At",
+                    "Invoice Number",
+                    "Invoice Date",
+                    "Order Company Bargain No.",
+                    "Warehouse",
+                    "Transporter",
+                    "Actions",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="py-4 text-center text-gray-800 font-semibold"
                     >
-                      <td className="py-3 px-4 text-center">
-                        {formatTimestamp(purchase.createdAt)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {purchase.invoiceNumber}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {formatDate(purchase.invoiceDate)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {purchase.orderId?.companyBargainNo}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {purchase.warehouseId?.name}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {purchase.transporterId?.transport}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <div className="flex justify-center gap-4">
-                          <Tooltip
-                            content={isOpen ? "Hide Details" : "View Details"}
-                          >
-                            <IconButton
-                              variant="text"
-                              onClick={() => handleTogglePurchase(purchase._id)}
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPurchases.map((purchase) => {
+                  const isOpen = openPurchase === purchase._id;
+                  return (
+                    <React.Fragment key={purchase._id}>
+                      <tr className="hover:bg-gray-50 border-b">
+                        <td className="px-4 py-2 text-center">
+                          {formatTimestamp(purchase.createdAt)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {purchase.invoiceNumber}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {formatDate(purchase.invoiceDate)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {purchase.orderId?.companyBargainNo}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {purchase.warehouseId?.name}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {purchase.transporterId?.transport}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <div className="flex justify-center gap-4">
+                            <Tooltip
+                              content={isOpen ? "Hide Details" : "View Details"}
                             >
-                              {isOpen ? (
-                                <ChevronUpIcon className="h-5 w-5 text-gray-500" />
-                              ) : (
-                                <ChevronDownIcon className="h-5 w-5 text-gray-500" />
-                              )}
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip content="Download Invoice">
-                            {/* <PDFDownloadLink
+                              <IconButton
+                                variant="text"
+                                onClick={() =>
+                                  handleTogglePurchase(purchase._id)
+                                }
+                              >
+                                {isOpen ? (
+                                  <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                  <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Download Invoice">
+                              {/* <PDFDownloadLink
                               document={
                                 <PurchaseInvoice
                                   purchase={purchase}
@@ -331,7 +333,7 @@ export default function PurchaseHistory() {
                             >
                               <FaDownload className="text-[1.4rem] cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200" />
                             </PDFDownloadLink> */}
-                            {/* <PDFDownloadLink
+                              {/* <PDFDownloadLink
                               document={
                                 <Invoice
                                   purchase={purchase}
@@ -342,44 +344,40 @@ export default function PurchaseHistory() {
                             >
                               <FaDownload className="icon-class" />
                             </PDFDownloadLink>  */}
-                            <div className="flex items-center justify-center">
-                              <button onClick={handleDownloadClick}>
-                                <FaDownload className="text-[1.2rem]" />
-                              </button>
-                              <div
-                                style={{
-                                  visibility: "hidden",
-                                  position: "absolute",
-                                  top: "-9999px",
-                                  left: "-9999px",
-                                }}
-                              >
-                                <Invoice
-                                  ref={invoiceRef}
-                                  purchase={purchase}
-                                  organization={organization}
-                                />
+                              <div className="flex items-center justify-center">
+                                <button onClick={handleDownloadClick}>
+                                  <FaDownload className="text-[1.2rem]" />
+                                </button>
+                                <div
+                                  style={{
+                                    visibility: "hidden",
+                                    position: "absolute",
+                                    top: "-9999px",
+                                    left: "-9999px",
+                                  }}
+                                >
+                                  <Invoice
+                                    ref={invoiceRef}
+                                    purchase={purchase}
+                                    organization={organization}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          </Tooltip>
-                        </div>
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr>
-                        <td colSpan="7" className="p-4 bg-gray-50 rounded-b-lg">
-                          <div className="p-4 border rounded bg-white shadow-md">
-                            <Typography variant="h6" className="mb-3">
-                              Items
-                            </Typography>
-                            <table className="w-full table-auto">
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                      {isOpen && (
+                        <tr className="bg-gray-100">
+                          <td colSpan="7" className="p-4">
+                            <table className="min-w-full bg-gray-50">
                               <thead className="bg-gray-200">
                                 <tr>
                                   {["Item Name", "Quantity", "Pickup"].map(
                                     (header) => (
                                       <th
                                         key={header}
-                                        className="py-2 px-4 text-center font-semibold"
+                                        className="px-2 py-1 font-semibold text-gray-700"
                                       >
                                         {header}
                                       </th>
@@ -391,15 +389,15 @@ export default function PurchaseHistory() {
                                 {purchase.items.map((item) => (
                                   <tr
                                     key={item._id}
-                                    className="bg-white border-b last:border-none"
+                                    className="hover:bg-gray-100"
                                   >
-                                    <td className="py-2 px-4 text-center">
+                                    <td className="px-2 py-1 text-center">
                                       {item.itemId?.materialdescription}
                                     </td>
-                                    <td className="py-2 px-4 text-center">
+                                    <td className="px-2 py-1 text-center">
                                       {item.quantity}
                                     </td>
-                                    <td className="py-2 px-4 text-center">
+                                    <td className="px-2 py-1 text-center">
                                       {String(item.pickup)
                                         ?.charAt(0)
                                         .toUpperCase() +
@@ -409,15 +407,15 @@ export default function PurchaseHistory() {
                                 ))}
                               </tbody>
                             </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <Typography className="text-center text-gray-500 py-8">
             No Purchases Found
