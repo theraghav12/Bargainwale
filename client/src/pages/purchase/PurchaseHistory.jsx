@@ -33,7 +33,7 @@ export default function PurchaseHistory() {
   });
   const [selectedTransporter, setSelectedTransporter] = useState("All");
   const [selectedWarehouse, setSelectedWarehouse] = useState("All");
-  const [showInvoice, setShowInvoice] = useState(false); 
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const invoiceRef = useRef();
 
@@ -64,7 +64,7 @@ export default function PurchaseHistory() {
     if (invoiceRef.current) {
       invoiceRef.current.handleDownloadPDF();
     }
-    setShowInvoice(false); 
+    setShowInvoice(false);
   };
 
   const applyFilters = () => {
@@ -342,9 +342,9 @@ export default function PurchaseHistory() {
                             >
                               <FaDownload className="icon-class" />
                             </PDFDownloadLink>  */}
-                            <div>
+                            <div className="flex items-center justify-center">
                               <button onClick={handleDownloadClick}>
-                                <FaDownload className="icon-class" />
+                                <FaDownload className="text-[1.2rem]" />
                               </button>
                               <div
                                 style={{
@@ -367,7 +367,7 @@ export default function PurchaseHistory() {
                     </tr>
                     {isOpen && (
                       <tr>
-                        <td colSpan="6" className="p-4 bg-gray-50 rounded-b-lg">
+                        <td colSpan="7" className="p-4 bg-gray-50 rounded-b-lg">
                           <div className="p-4 border rounded bg-white shadow-md">
                             <Typography variant="h6" className="mb-3">
                               Items
@@ -400,7 +400,10 @@ export default function PurchaseHistory() {
                                       {item.quantity}
                                     </td>
                                     <td className="py-2 px-4 text-center">
-                                      {item.pickup}
+                                      {String(item.pickup)
+                                        ?.charAt(0)
+                                        .toUpperCase() +
+                                        String(item.pickup).slice(1)}
                                     </td>
                                   </tr>
                                 ))}
