@@ -22,7 +22,10 @@ const orgController = {
     getOrganizationByClerkId: async (req, res) => {
         try {
             const organization = await Organization.find({ clerkOrganizationId: req.params.clerkOrgId });
-            res.status(200).json(organization);
+            if (!organization) {
+                return res.status(404).json({ message: 'Organization not found' });
+            }
+            return res.status(200).json(organization);
         } catch (error) {
             res.status(500).json({ message: 'Error retrieving organizations', error });
         }
