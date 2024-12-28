@@ -3,7 +3,7 @@ import {
   Typography,
   IconButton,
   Tooltip,
-  Button,
+  Card,
 } from "@material-tailwind/react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { toast } from "sonner";
@@ -14,12 +14,14 @@ import { HiOutlineDocumentDownload } from "react-icons/hi";
 import excel from "../../assets/excel.svg";
 import { deleteBooking, getBookings } from "@/services/bookingService";
 import { getSales } from "@/services/salesService";
+import { FaFilter } from "react-icons/fa";
 
 export default function PurchaseHistory() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSale, setOpenSale] = useState(null);
+  const [timePeriod, setTimePeriod] = useState("All");
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
@@ -37,11 +39,11 @@ export default function PurchaseHistory() {
     // const minutes = date.getMinutes().toString().padStart(2, "0");
     // const ampm = hours >= 12 ? "PM" : "AM";
     // const formattedHours = hours % 12 || 12;
-    const dayWithSuffix =
-      day +
-      ["th", "st", "nd", "rd"][
-        day % 10 > 3 || ~~(day / 10) === 1 ? 0 : day % 10
-      ];
+    // const dayWithSuffix =
+    //   day +
+    //   ["th", "st", "nd", "rd"][
+    //     day % 10 > 3 || ~~(day / 10) === 1 ? 0 : day % 10
+    //   ];
     return `${day} ${month} ${year}`;
   };
 
@@ -59,14 +61,10 @@ export default function PurchaseHistory() {
     try {
       const response = await getSales();
       const sortedData = response.data?.sort((a, b) => {
-        const invoiceDateComparison =
-          new Date(b.invoiceDate) - new Date(a.invoiceDate);
-        if (invoiceDateComparison !== 0) {
-          return invoiceDateComparison;
-        }
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
       setSales(sortedData);
+      console.log(sortedData)
     } catch (error) {
       setError("Failed to fetch sales");
     } finally {
@@ -82,6 +80,7 @@ export default function PurchaseHistory() {
     "All",
     ...new Set(sales.map((sale) => sale.warehouseId?.name).filter(Boolean)),
   ];
+
   const transporters = [
     "All",
     ...new Set(
@@ -149,65 +148,84 @@ export default function PurchaseHistory() {
 
   return (
     <div className="mt-8 mb-8 flex flex-col gap-8 px-7">
-      {/* Filter Section */}
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 shadow-md rounded-lg p-6 mb-6 border border-gray-300">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Filter Sales
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <select
-            value={warehouseFilter}
-            onChange={(e) => setWarehouseFilter(e.target.value)}
-            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
-          >
-            {warehouses.map((warehouse) => (
-              <option key={warehouse} value={warehouse}>
-                {warehouse}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={transporterFilter}
-            onChange={(e) => setTransporterFilter(e.target.value)}
-            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
-          >
-            {transporters.map((transporter) => (
-              <option key={transporter} value={transporter}>
-                {transporter}
-              </option>
-            ))}
-          </select>
-
-          <Datepicker
-            value={dateRange}
-            onChange={(newValue) => setDateRange(newValue)}
-            showShortcuts
-            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
-          />
-
-          <input
-            type="text"
-            placeholder="Search by Item Name"
-            value={itemFilter}
-            onChange={(e) => setItemFilter(e.target.value)}
-            className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring focus:ring-blue-200"
-          />
-        </div>
-
-        <div className="mt-6">
-          <Button
+      <Card className="p-6 shadow-lg rounded-lg bg-white border">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4 mb-4">
+            <FaFilter className="text-xl text-gray-700" />
+            <Typography variant="h5" className="text-gray-700 font-semibold">
+              Filter Sales
+            </Typography>
+          </div>
+          <button
             onClick={handleDownloadExcel}
-            className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-600 hover:to-green-600 text-white rounded-lg px-6 py-2 shadow-md"
+            className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
           >
-            <HiOutlineDocumentDownload className="w-5 h-5" />
-            Download as Excel
-          </Button>
+            <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
+            Download Excel
+          </button>
         </div>
-      </div>
+
+        <div className="flex flex-wrap gap-6 mb-6">
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Time Period</label>
+            <select
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
+            >
+              <option value="All">All Time</option>
+              <option value="last7Days">Last 7 Days</option>
+              <option value="last30Days">Last 30 Days</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Transporter</label>
+            <select
+              value={transporterFilter}
+              onChange={(e) => setTransporterFilter(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
+            >
+              {transporters.map((transporter) => (
+                <option key={transporter} value={transporter}>
+                  {transporter}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full md:w-1/3">
+            <label className="block mb-2 text-gray-600">Warehouse</label>
+            <select
+              value={warehouseFilter}
+              onChange={(e) => setWarehouseFilter(e.target.value)}
+              className="border-2 border-gray-300 rounded px-4 py-2 w-full text-gray-700 focus:outline-none shadow-sm"
+            >
+              {warehouses.map((warehouse) => (
+                <option key={warehouse} value={warehouse}>
+                  {warehouse}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {timePeriod === "custom" && (
+            <div className="w-full md:w-1/3">
+              <label className="block mb-2 text-gray-600">Date Range</label>
+              <Datepicker
+                value={dateRange}
+                onChange={(newValue) => setDateRange(newValue)}
+                showShortcuts
+                className="w-full shadow-md"
+              />
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* Sales Table */}
-      <div className="overflow-x-auto bg-white shadow-lg rounded-lg p-6 border border-gray-300">
+      <div className="overflow-x-auto bg-white shadow-lg rounded-lg mt-6">
         {loading ? (
           <Typography className="text-center text-blue-gray-600">
             Loading...
@@ -215,121 +233,121 @@ export default function PurchaseHistory() {
         ) : error ? (
           <Typography className="text-center text-red-600">{error}</Typography>
         ) : filteredSales.length > 0 ? (
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr className="bg-gradient-to-r from-teal-100 to-blue-100">
-                {[
-                  "Created At",
-                  "Invoice Number",
-                  "Invoice Date",
-                  "Booking ID",
-                  "Warehouse",
-                  "Transporter",
-                  "Actions",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="py-3 px-5 text-gray-800 font-semibold text-center border-b border-gray-300"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSales.map((sale) => {
-                const isOpen = openSale === sale._id;
-                return (
-                  <React.Fragment key={sale._id}>
-                    <tr className="hover:bg-gray-50 transition border-b border-gray-200">
-                      <td className="py-3 px-5 text-center">
-                        {formatTimestamp(sale.createdAt)}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        {sale.invoiceNumber}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        {formatDate(sale.invoiceDate)}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        {sale.bookingId?._id}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        {sale.warehouseId?.name}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        {sale.transporterId?.transport}
-                      </td>
-                      <td className="py-3 px-5 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <IconButton
-                            onClick={() => handleToggleSale(sale._id)}
-                            className="bg-gray-200 hover:bg-teal-300 rounded-full p-2 transition"
-                          >
-                            {isOpen ? (
-                              <ChevronUpIcon className="w-5 h-5 text-teal-700" />
-                            ) : (
-                              <ChevronDownIcon className="w-5 h-5 text-teal-700" />
-                            )}
-                          </IconButton>
-                          <Tooltip content="Delete Sale">
-                            <span>
-                              <MdDeleteOutline
-                                onClick={() => handleDelete(sale._id)}
-                                className="text-2xl text-red-600 hover:text-white hover:bg-red-600 p-1 rounded transition"
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                      </td>
-                    </tr>
-
-                    {isOpen && (
-                      <tr className="bg-gray-50">
-                        <td colSpan="6">
-                          <div className="p-4 border-t border-gray-200">
-                            <Typography
-                              variant="h6"
-                              className="mb-4 text-gray-700"
+          <div className="shadow overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
+                <tr>
+                  {[
+                    "Created At",
+                    // "Invoice Number",
+                    "Invoice Date",
+                    "Booking Bargain No.",
+                    "Warehouse",
+                    "Transporter",
+                    "Actions",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="py-4 text-center text-gray-800 font-semibold"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSales.map((sale) => {
+                  const isOpen = openSale === sale._id;
+                  return (
+                    <React.Fragment key={sale._id}>
+                      <tr className="hover:bg-gray-50 border-b">
+                        <td className="px-4 py-2 text-center">
+                          {formatTimestamp(sale.createdAt)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {sale.invoiceNumber}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {formatDate(sale.invoiceDate)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {sale.bookingId?.BargainNo}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {sale.warehouseId?.name}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {sale.transporterId?.transport}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <div className="flex justify-center gap-4">
+                            <Tooltip
+                              content={isOpen ? "Hide Details" : "View Details"}
                             >
-                              Items
-                            </Typography>
-                            <table className="w-full text-sm text-gray-700">
-                              <thead>
+                              <IconButton
+                                variant="text"
+                                onClick={() => handleToggleSale(sale._id)}
+                              >
+                                {isOpen ? (
+                                  <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                  <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                            {/* <Tooltip content="Delete Sale">
+                              <span>
+                                <MdDeleteOutline
+                                  onClick={() => handleDelete(sale._id)}
+                                  className="text-2xl text-red-600 hover:text-white hover:bg-red-600 p-1 rounded transition"
+                                />
+                              </span>
+                            </Tooltip> */}
+                          </div>
+                        </td>
+                      </tr>
+
+                      {isOpen && (
+                        <tr className="bg-gray-100">
+                          <td colSpan="7" className="p-4">
+                            <table className="min-w-full bg-gray-50">
+                              <thead className="bg-gray-200">
                                 <tr>
-                                  <th className="py-2 px-4 text-left font-semibold">
-                                    Item Name
-                                  </th>
-                                  <th className="py-2 px-4 text-left font-semibold">
-                                    Quantity
-                                  </th>
+                                  {["Item Name", "Quantity"].map((header) => (
+                                    <th
+                                      key={header}
+                                      className="px-2 py-1 font-semibold text-gray-700"
+                                    >
+                                      {header}
+                                    </th>
+                                  ))}
                                 </tr>
                               </thead>
                               <tbody>
                                 {sale.items.map((item) => (
                                   <tr
                                     key={item._id}
-                                    className="border-t border-gray-200"
+                                    className="hover:bg-gray-100"
                                   >
-                                    <td className="py-2 px-4">
+                                    <td className="px-2 py-1 text-center">
                                       {item.itemId?.materialdescription}
                                     </td>
-                                    <td className="py-2 px-4">
+                                    <td className="px-2 py-1 text-center">
                                       {item.quantity}
                                     </td>
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <Typography className="text-center text-blue-gray-600 mt-8">
             No Sales found

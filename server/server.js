@@ -18,6 +18,7 @@ import itempriceRoutes from "./routes/itemprice.js";
 import totalSaleRoutes from "./routes/totalsale.js";
 import itemHistoryRoutes from "./routes/itemHistory.js";
 import mailRoutes from "./routes/mail.js";
+import uploadRoutes from "./routes/excelUpload.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -60,6 +61,8 @@ app.use(totalSaleRoutes);
 app.use(itemHistoryRoutes);
 
 app.use(mailRoutes);
+
+app.use(uploadRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server listening to PORT ${PORT}`);
