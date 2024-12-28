@@ -289,7 +289,7 @@ const WarehouseForm = () => {
               onClick={() => setUploadModalOpen(true)}
               className="flex items-center gap-2"
             >
-              <img src={excel} alt="Download as Excel" className="w-5 mr-2" />
+              <img src={excel} alt="Import from Excel" className="w-5 mr-2" />
               Import Excel
             </Button>
           </div>

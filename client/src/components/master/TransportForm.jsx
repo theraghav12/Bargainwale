@@ -20,6 +20,18 @@ import {
 } from "@/services/masterService";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import PhoneInput from "react-phone-number-input";
+import excel from "../../assets/excel.svg";
+import transportImage from "../../assets/transport.png";
+import axios from "axios";
+import { API_BASE_URL } from "@/services/api";
+import FileUploadModal from "./FileUploadModal";
+
+const requiredColumns = [
+  "Transport",
+  "TransportType",
+  "TransportContact",
+  "TransportAgency",
+];
 
 const TransportForm = () => {
   const [loading, setLoading] = useState(false);
@@ -34,6 +46,9 @@ const TransportForm = () => {
   const [editingTransport, setEditingTransport] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
   useEffect(() => {
     fetchTransport();
@@ -111,6 +126,67 @@ const TransportForm = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    setProgress(0);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error("Select file!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("organization", localStorage.getItem("organizationId"));
+    setProgress(0);
+
+    // Simulate progress bar
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100 || prev >= 200) {
+          clearInterval(interval);
+          return prev >= 200 ? 200 : 100;
+        }
+        return prev + 10;
+      });
+    }, 500);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/upload/transport`,
+        formData
+      );
+
+      if (response.status === 200) {
+        setProgress(100);
+        toast.success("File uploaded successfully");
+        setFile(null);
+        fetchTransport();
+      } else {
+        setProgress(200);
+        toast.error("Error uploading file");
+      }
+    } catch (error) {
+      setProgress(200);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message;
+
+        if (errorMessage.includes("Missing required columns")) {
+          toast.error(`${errorMessage}`);
+        } else {
+          toast.error("An error occurred during the upload");
+        }
+      } else {
+        toast.error("An error occurred during the upload");
+      }
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await deleteTransport(id);
@@ -182,8 +258,30 @@ const TransportForm = () => {
             >
               + Add Transport
             </Button>
+            <Button
+              color="green"
+              onClick={() => setUploadModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <img src={excel} alt="Import from Excel" className="w-5 mr-2" />
+              Import Excel
+            </Button>
           </div>
         </div>
+
+        <FileUploadModal
+          open={uploadModalOpen}
+          setOpen={setUploadModalOpen}
+          handleFileChange={handleFileChange}
+          handleUpload={handleUpload}
+          file={file}
+          setFile={setFile}
+          progress={progress}
+          setProgress={setProgress}
+          columns={requiredColumns}
+          image={transportImage}
+        />
+
         <div className="flex flex-col">
           <h3 className="text-[1.2rem] font-[500]">Active Transports</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
