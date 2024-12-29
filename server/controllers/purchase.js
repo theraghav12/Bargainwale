@@ -40,7 +40,7 @@ const purchaseController = {
           success: false,
           message: "Purchase cannot be created for a fully billed order",
         });
-      } 
+      }
 
       // Retrieve all previous purchases for this order
       // const previousPurchases = await Purchase.find({ orderId });
@@ -80,7 +80,7 @@ const purchaseController = {
         // Calculate the total quantity purchased so far for this item
 
         // const totalPurchasedQuantity = (previousPurchaseQuantities[itemId] || 0) + quantity;
-        let totalPurchasedQuantity =(orderItem.purchaseQuantity || 0) + quantity;
+        let totalPurchasedQuantity = (orderItem.purchaseQuantity || 0) + quantity;
 
         // Check if the purchase quantity exceeds the order quantity
         if (totalPurchasedQuantity > orderItem.quantity) {
@@ -112,25 +112,27 @@ const purchaseController = {
 
         if (virtualInventoryItem) {
           // if (virtualInventoryItem.quantity >= quantity) {
-            virtualInventoryItem.quantity -= quantity;
+          virtualInventoryItem.quantity -= quantity;
 
-            if (billedInventoryItem) {
-              billedInventoryItem.quantity += quantity;
-            } else {
-              warehouseDocument.billedInventory.push({
-                item: itemId,
-                quantity,
-              });
-            }
-            await ItemHistory.create({
+          if (billedInventoryItem) {
+            billedInventoryItem.quantity += quantity;
+          } else {
+            warehouseDocument.billedInventory.push({
               item: itemId,
-              sourceModel: "Order",
-              source: orderId,
-              destinationModel: "Warehouse",
-              destination: warehouseId,
               quantity,
-              organization,
             });
+          }
+          await ItemHistory.create({
+            item: itemId,
+            pickup,
+            sourceModel: "Order",
+            source: orderId,
+            destinationModel: "Warehouse",
+            destination: warehouseId,
+            quantity,
+            organization,
+            inventoryType: "Billed"
+          });
           // } else {
           //   return res.status(400).json({
           //     success: false,
@@ -195,8 +197,8 @@ const purchaseController = {
       const emailContent = generatePurchaseEmailContent(newPurchase);
 
       const recipient = {
-        email: "22107@iiitu.ac.in", 
-        name: "Amrutansh Jha", 
+        email: "22107@iiitu.ac.in",
+        name: "Amrutansh Jha",
       };
 
       const emailDetails = {
@@ -255,10 +257,10 @@ const purchaseController = {
     try {
       const { id, orgId } = req.params;
       const purchase = await Purchase.findOne({ _id: id, organization: orgId })
-        .populate("warehouseId") 
-        .populate("transporterId") 
+        .populate("warehouseId")
+        .populate("transporterId")
         .populate("orderId")
-        .populate("items"); 
+        .populate("items");
 
       if (!purchase) {
         return res.status(404).json({
@@ -280,7 +282,7 @@ const purchaseController = {
     }
   },
 
-  getPurchasesBetweenDates : async (req, res) => {
+  getPurchasesBetweenDates: async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
 

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { getWarehouseById, getWarehouses } from "@/services/warehouseService";
 import { getItemHistoryById } from "@/services/itemService";
 import { ChevronDown, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const InventoryTable = ({
   selectedTab,
   data,
   type,
   onItemClick,
-  expandedItem,
+  // expandedItem,
   itemHistory,
 }) => {
   if (!data?.length) {
@@ -43,14 +44,15 @@ const InventoryTable = ({
                 Virtual Quantity
               </th>
             )}
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item, index) => (
             <React.Fragment key={index}>
               <tr
-                className="hover:bg-gray-50 cursor-pointer transition-colors"
-                onClick={() => onItemClick(item.item?._id)}
+                className="hover:bg-gray-50 cursor-pointer transition-colors group"
+                // onClick={() => onItemClick(item.item?._id)}
               >
                 <td className="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-500">
                   {item.item?._id}
@@ -72,8 +74,22 @@ const InventoryTable = ({
                     {item.virtualQuantity}
                   </td>
                 )}
+                <td>
+                  <Link
+                    to={`/${item.item?._id}/${
+                      selectedTab === "booked" ? "sold" : selectedTab
+                    }${
+                      selectedTab === "virtual" || selectedTab === "booked"
+                        ? `/${item.pickup}`
+                        : ""
+                    }`}
+                    className="relative right-6 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
+                  >
+                    View History
+                  </Link>
+                </td>
               </tr>
-              {expandedItem === item.item?._id && (
+              {/* {expandedItem === item.item?._id && (
                 <tr>
                   <td colSpan={4} className="px-6 py-4">
                     <div className="bg-gray-50 rounded-lg p-4">
@@ -125,7 +141,7 @@ const InventoryTable = ({
                     </div>
                   </td>
                 </tr>
-              )}
+              )} */}
             </React.Fragment>
           ))}
         </tbody>
@@ -141,7 +157,7 @@ export function Inventory() {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [pickupFilter, setPickupFilter] = useState("all");
-  const [expandedItem, setExpandedItem] = useState(null);
+  // const [expandedItem, setExpandedItem] = useState(null);
   const [itemHistory, setItemHistory] = useState([]);
   const [cityFilter, setCityFilter] = useState("all");
   const [cities, setCities] = useState([]);
@@ -194,20 +210,20 @@ export function Inventory() {
     fetchWarehouseData();
   }, [selectedWarehouse]);
 
-  const handleItemClick = async (itemId) => {
-    if (expandedItem === itemId) {
-      setExpandedItem(null);
-      setItemHistory([]);
-    } else {
-      setExpandedItem(itemId);
-      try {
-        const history = await getItemHistoryById(itemId);
-        setItemHistory(history.data);
-      } catch (error) {
-        console.error("Failed to fetch item history", error);
-      }
-    }
-  };
+  // const handleItemClick = async (itemId) => {
+  //   if (expandedItem === itemId) {
+  //     setExpandedItem(null);
+  //     setItemHistory([]);
+  //   } else {
+  //     setExpandedItem(itemId);
+  //     try {
+  //       const history = await getItemHistoryById(itemId);
+  //       setItemHistory(history.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch item history", error);
+  //     }
+  //   }
+  // };
 
   const getFilteredInventory = (type) => {
     if (!currentWarehouse) return [];
@@ -330,8 +346,8 @@ export function Inventory() {
                   selectedTab={selectedTab}
                   data={getFilteredInventory(selectedTab)}
                   type={selectedTab}
-                  onItemClick={handleItemClick}
-                  expandedItem={expandedItem}
+                  // onItemClick={handleItemClick}
+                  // expandedItem={expandedItem}
                   itemHistory={itemHistory}
                 />
               </div>

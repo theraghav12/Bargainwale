@@ -146,12 +146,14 @@ const bookingController = {
 
           await ItemHistory.create({
             item: itemId,
+            pickup,
             sourceModel: "Warehouse",
             source: warehouseId,
             destinationModel: "Buyer",
             destination: buyer,
             quantity,
             organization,
+            inventoryType: "Virtual"
           });
         }
         await warehouseDocument.save();
@@ -160,10 +162,10 @@ const bookingController = {
         const emailContent = generateBookingEmailContent(booking);
         console.log(emailContent);
         const recipient = {
-          email: "22107@iiitu.ac.in", 
-          name: "Amrutansh Jha", 
+          email: "22107@iiitu.ac.in",
+          name: "Amrutansh Jha",
         };
-  
+
         const emailDetails = {
           body: emailContent.body,
           subject: emailContent.subject,
@@ -173,7 +175,7 @@ const bookingController = {
             transactionId: booking._id,
           },
         };
-  
+
         await sendEmailWithParams(emailDetails);
       }
       await booking.save();
@@ -349,12 +351,14 @@ const bookingController = {
         }
         await ItemHistory.create({
           item: itemId,
+          pickup,
           sourceModel: "Warehouse",
           source: warehouseId,
           destinationModel: "Buyer",
           destination: booking.buyer,
           quantity,
           organization: booking.organization,
+          inventoryType: "Virtual"
         });
       }
       await warehouseDocument.save();
