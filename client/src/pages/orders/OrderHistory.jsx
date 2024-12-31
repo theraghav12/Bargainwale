@@ -366,7 +366,7 @@ export function OrderHistory() {
                                   // "Cont. No.",
                                   "Pickup",
                                   "Quantity",
-                                  "Base Price (₹)",
+                                  "Base Price",
                                   "GST %",
                                   "Tax Paid Amt.",
                                 ].map((header) => (

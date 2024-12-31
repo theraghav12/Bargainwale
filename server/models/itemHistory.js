@@ -6,10 +6,13 @@ const itemHistorySchema = new mongoose.Schema({
         ref: "Item",
         required: true
     },
+    pickup: {
+        type: String,
+    },
     sourceModel: {
         type: String,
         required: true,
-        enum: ["Manufacturer", "Order", "Warehouse"]
+        enum: ["Manufacturer", "Order", "Warehouse", "Booking"]
     },
     source: {
         type: mongoose.Schema.Types.ObjectId,
@@ -35,6 +38,9 @@ const itemHistorySchema = new mongoose.Schema({
         ref: "Organization",
         required: true,
     },
+    inventoryType: {
+        type: String
+    }
 }, { timestamps: true });
 
 const ItemHistory = mongoose.model("ItemHistory", itemHistorySchema);

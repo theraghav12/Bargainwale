@@ -30,7 +30,7 @@ const orderController = {
       }
 
       const orderItems = [];
-      let totalAmount=0;
+      let totalAmount = 0;
       for (const {
         itemId,
         quantity,
@@ -126,12 +126,14 @@ const orderController = {
 
         await ItemHistory.create({
           item: itemId,
+          pickup,
           sourceModel: "Manufacturer",
           source: manufacturer,
           destinationModel: "Warehouse",
           destination: warehouseId,
           quantity,
           organization,
+          inventoryType: "Virtual"
         });
       }
 
@@ -146,11 +148,11 @@ const orderController = {
 
       const emailDetails = {
         body: body,
-        subject: subject, 
-        recipient: recipient, 
+        subject: subject,
+        recipient: recipient,
         transactionDetails: {
-          transactionType: "order", 
-          transactionId: order._id, 
+          transactionType: "order",
+          transactionId: order._id,
         },
       };
 

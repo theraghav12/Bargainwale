@@ -14,6 +14,9 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import FileUploadModal from "./FileUploadModal";
+import axios from "axios";
+import { API_BASE_URL } from "@/services/api";
 
 // API services
 import {
@@ -26,6 +29,20 @@ import {
 // Icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { getWarehouses } from "@/services/warehouseService";
+import excel from "../../assets/excel.svg";
+import item from "../../assets/item.png";
+
+const requiredColumns = [
+  "Flavor",
+  "HSNCode",
+  "Material",
+  "MaterialDescription",
+  "NetWeight",
+  "GrossWeight",
+  "GST",
+  "Packaging",
+  "PackSize",
+];
 
 const ItemForm = () => {
   const [loading, setLoading] = useState(false);
@@ -37,6 +54,9 @@ const ItemForm = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
   const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [form, setForm] = useState({
     flavor: "",
     hsnCode: "",
@@ -161,6 +181,67 @@ const ItemForm = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    setProgress(0);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error("Select file!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("organization", localStorage.getItem("organizationId"));
+    setProgress(0);
+
+    // Simulate progress bar
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100 || prev >= 200) {
+          clearInterval(interval);
+          return prev >= 200 ? 200 : 100;
+        }
+        return prev + 10;
+      });
+    }, 500);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/upload/item`,
+        formData
+      );
+
+      if (response.status === 200) {
+        setProgress(100);
+        toast.success("File uploaded successfully");
+        setFile(null);
+        fetchItems();
+      } else {
+        setProgress(200);
+        toast.error("Error uploading file");
+      }
+    } catch (error) {
+      setProgress(200);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message;
+
+        if (errorMessage.includes("Missing required columns")) {
+          toast.error(`${errorMessage}`);
+        } else {
+          toast.error("An error occurred during the upload");
+        }
+      } else {
+        toast.error("An error occurred during the upload");
+      }
+    }
+  };
+
   const openDeleteModal = (item) => {
     setItemToDelete(item);
     setConfirmationName("");
@@ -245,8 +326,29 @@ const ItemForm = () => {
             >
               + Add Item
             </Button>
+            <Button
+              color="green"
+              onClick={() => setUploadModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <img src={excel} alt="Import from Excel" className="w-5 mr-2" />
+              Import Excel
+            </Button>
           </div>
         </div>
+
+        <FileUploadModal
+          open={uploadModalOpen}
+          setOpen={setUploadModalOpen}
+          handleFileChange={handleFileChange}
+          handleUpload={handleUpload}
+          file={file}
+          setFile={setFile}
+          progress={progress}
+          setProgress={setProgress}
+          columns={requiredColumns}
+          image={item}
+        />
 
         <div className="flex flex-col">
           <h3 className="text-[1.2rem] font-[500]">Active Items</h3>

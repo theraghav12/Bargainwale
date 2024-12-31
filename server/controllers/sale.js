@@ -25,7 +25,7 @@ const saleController = {
       const bookingDocument = await Booking.findById(bookingId).populate(
         "items.item"
       );
-      const booking = await Booking.findById(bookingId);
+      const booking = await Booking.findById(bookingId).populate("buyer");
 
       if (!bookingDocument) {
         return res.status(404).json({ message: "Booking not found" });
@@ -115,6 +115,17 @@ const saleController = {
           // isFullySold = false;
           bookingItem.soldQuantity = totalSoldQuantity;
         }
+        await ItemHistory.create({
+          item: itemId,
+          pickup,
+          sourceModel: "Booking",
+          source: bookingId,
+          destinationModel: "Buyer",
+          destination: booking.buyer._id,
+          quantity,
+          organization,
+          inventoryType: "Sold"
+        });
       }
 
       let isFullySold = true;
@@ -152,8 +163,8 @@ const saleController = {
       const emailContent = generatePurchaseEmailContent(newSale);
 
       const recipient = {
-        email: "22107@iiitu.ac.in", 
-        name: "Amrutansh Jha", 
+        email: "22107@iiitu.ac.in",
+        name: "Amrutansh Jha",
       };
 
       const emailDetails = {

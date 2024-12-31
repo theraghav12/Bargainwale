@@ -25,6 +25,7 @@ import { useUser } from "@clerk/clerk-react";
 import Documentation from "@/components/documentation/Documentation"; // Import the Documentation component
 import DiscountApprovalPage from "./pages/booking/DiscountApproval";
 import "react-phone-number-input/style.css";
+import Timeline from "./components/inventory/Timeline";
 
 const App = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);
@@ -75,6 +76,8 @@ const App = () => {
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/master" element={<Master />} />
                 <Route path="/inventory" element={<Inventory />} />
+                <Route path="/:id/:inventory" element={<Timeline />} />
+                <Route path="/:id/:inventory/:pickup" element={<Timeline />} />
                 <Route path="/orders/create" element={<CreateOrder />} />
                 <Route path="/orders/history" element={<OrderHistory />} />
                 <Route path="/orders/analytics" element={<OrderAnalytics />} />

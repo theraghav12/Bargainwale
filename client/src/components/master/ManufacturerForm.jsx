@@ -20,6 +20,25 @@ import {
 } from "@/services/masterService";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import PhoneInput from "react-phone-number-input";
+import excel from "../../assets/excel.svg";
+import manufacturerImage from "../../assets/manufacturer.png";
+import axios from "axios";
+import { API_BASE_URL } from "@/services/api";
+import FileUploadModal from "./FileUploadModal";
+
+const requiredColumns = [
+  "Manufacturer",
+  "ManufacturerCompany",
+  "ManufacturerContact",
+  "ManufacturerEmail",
+  "ManufacturerGstno",
+  "AddressLine1",
+  "AddressLine2",
+  "City",
+  "State",
+  "PinCode",
+  "ManufacturerGooglemaps",
+];
 
 const ManufacturerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -43,6 +62,9 @@ const ManufacturerForm = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [manufacturerToDelete, setManufacturerToDelete] = useState(null);
   const [confirmationName, setConfirmationName] = useState("");
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
   useEffect(() => {
     fetchManufacturers();
@@ -138,6 +160,67 @@ const ManufacturerForm = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    setProgress(0);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error("Select file!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("organization", localStorage.getItem("organizationId"));
+    setProgress(0);
+
+    // Simulate progress bar
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100 || prev >= 200) {
+          clearInterval(interval);
+          return prev >= 200 ? 200 : 100;
+        }
+        return prev + 10;
+      });
+    }, 500);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/upload/manufacturer`,
+        formData
+      );
+
+      if (response.status === 200) {
+        setProgress(100);
+        toast.success("File uploaded successfully");
+        setFile(null);
+        fetchManufacturers();
+      } else {
+        setProgress(200);
+        toast.error("Error uploading file");
+      }
+    } catch (error) {
+      setProgress(200);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message;
+
+        if (errorMessage.includes("Missing required columns")) {
+          toast.error(`${errorMessage}`);
+        } else {
+          toast.error("An error occurred during the upload");
+        }
+      } else {
+        toast.error("An error occurred during the upload");
+      }
+    }
+  };
+
   // Modified delete handling
   const openDeleteModal = (man) => {
     setManufacturerToDelete(man);
@@ -225,8 +308,29 @@ const ManufacturerForm = () => {
           >
             + Add Manufacturer
           </Button>
+          <Button
+            color="green"
+            onClick={() => setUploadModalOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <img src={excel} alt="Import from Excel" className="w-5 mr-2" />
+            Import Excel
+          </Button>
         </div>
       </div>
+
+      <FileUploadModal
+        open={uploadModalOpen}
+        setOpen={setUploadModalOpen}
+        handleFileChange={handleFileChange}
+        handleUpload={handleUpload}
+        file={file}
+        setFile={setFile}
+        progress={progress}
+        setProgress={setProgress}
+        columns={requiredColumns}
+        image={manufacturerImage}
+      />
 
       {/* Manufacturers List */}
       <div className="flex flex-col">
