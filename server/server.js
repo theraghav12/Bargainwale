@@ -20,8 +20,6 @@ const numCPUs = os.cpus().length;
 if (cluster.isPrimary) {
     console.log(`Master process is running. Spawning ${numCPUs} worker processes...`);
 
-    connectDB();
-
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
@@ -31,6 +29,7 @@ if (cluster.isPrimary) {
     });
 } else {
     const app = express();
+    connectDB();
     app.use(express.json());
 
     app.use(cors({
