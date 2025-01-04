@@ -25,23 +25,13 @@ const saleSchema = new mongoose.Schema(
       required: true,
       ref: "Warehouse",
     },
-    transporterId: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Transport",
-    },
+
     bookingId: {
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: "Booking",
     },
-    invoiceNumber: {
-      type: String,
-      unique: true,
-    },
-    invoiceDate: {
-      type: Date,
-      default: Date.now,
-    },
+
     items: [soldItemSchema],
     organization: {
       type: mongoose.Schema.ObjectId,

@@ -5,7 +5,7 @@ const totalSaleController = {
   // Create a new TotalSale or update an existing one by adding sales
   createOrUpdateTotalSale: async (req, res) => {
     try {
-      const { saleIds, organization,totalAmount } = req.body;
+      const { saleIds, organization,totalAmount,invoiceDate,invoiceNumber,transporterId } = req.body;
 
       // Validate the sales exist
       const sales = await Sale.find({ _id: { $in: saleIds } });
@@ -25,6 +25,8 @@ const totalSaleController = {
           sales: saleIds,
           organization,
           totalAmount,
+          invoiceDate,invoiceNumber,
+          transporterId
         });
       } else {
         // If a total sale exists, add new sales to the array

@@ -5,6 +5,18 @@ const totalSaleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sale',
   }],
+  invoiceNumber: {
+    type: String,
+    unique: true,
+  },
+  invoiceDate: {
+    type: Date,
+    default: Date.now,
+  },
+  transporterId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Transport",
+  },
   organization: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',

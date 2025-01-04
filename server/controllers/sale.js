@@ -9,11 +9,11 @@ const saleController = {
     try {
       const {
         warehouseId,
-        transporterId,
+        
         bookingId,
         items,
         organization,
-        invoiceDate,
+        
       } = req.body;
 
       // Fetch the warehouse and booking documents
@@ -152,10 +152,10 @@ const saleController = {
 
       const newSale = new Sale({
         warehouseId,
-        transporterId,
+        
         bookingId,
         items,
-        invoiceDate,
+        
         organization,
       });
 
