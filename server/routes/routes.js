@@ -14,7 +14,7 @@ import totalSaleRoutes from "./totalsale.js";
 import itemHistoryRoutes from "./itemHistory.js";
 import mailRoutes from "./mail.js";
 import uploadRoutes from "./excelUpload.js";
-
+import CreditNoteRoutes from"./creditnote.js"
 export const routes = {
     userRoutes,
     orderRoutes,
@@ -32,4 +32,5 @@ export const routes = {
     itemHistoryRoutes,
     mailRoutes,
     uploadRoutes,
+    CreditNoteRoutes
 };
