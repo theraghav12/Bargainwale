@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { getPricesByWarehouse } from "@/services/itemService";
+// import { getPricesByWarehouse } from "@/services/itemService";
 import {
   formatDate,
   numberToWords,
@@ -15,62 +15,61 @@ import {
 } from "../../utils/helper.js";
 
 const Invoice = forwardRef(({ purchase, organization }, ref) => {
-  const [prices, setPrices] = useState(null);
+  // console.log(purchase);
+  // const [prices, setPrices] = useState(null);
 
   // Fetch item prices based on the warehouse ID
-  useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const response = await getPricesByWarehouse(purchase.warehouseId._id);
-        setPrices(response); 
-      } catch (error) {
-        console.error(
-          "Failed to fetch item prices for the given warehouse",
-          error
-        );
-      }
-    };
-    fetchPrices();
-  }, [purchase]);
+  // useEffect(() => {
+  //   const fetchPrices = async () => {
+  //     try {
+  //       const response = await getPricesByWarehouse(purchase.warehouseId._id);
+  //       setPrices(response); 
+  //     } catch (error) {
+  //       console.error(
+  //         "Failed to fetch item prices for the given warehouse",
+  //         error
+  //       );
+  //     }
+  //   };
+  //   fetchPrices();
+  // }, [purchase]);
 
   // Calculate totals
   let subtotal = 0;
   let totalTax = 0;
-  let totalCGST = 0;
-  let totalSGST = 0;
   let grandTotal = 0;
 
   const items = purchase.items.map((item, index) => {
-    const pickup = item.pickup;
     const quantity = item.quantity;
     let itemPrice = 0;
     let taxPerUnit = 0;
     let totalAmount = 0;
 
-    if (prices) {
-      const priceObj = prices.items.find(
-        (price) => price.item._id === item.itemId._id
-      );
-      if (priceObj) {
-        // Determine item price based on pickup type
-        if (pickup === "rack") itemPrice = priceObj.rackPrice;
-        else if (pickup === "company") itemPrice = priceObj.companyPrice;
-        else if (pickup === "plant") itemPrice = priceObj.plantPrice;
-        else if (pickup === "depot") itemPrice = priceObj.depotPrice;
-
+    for(const orderItem of purchase.orderId.items){
+      if(orderItem.item==item.itemId._id){
+        itemPrice=orderItem.baseRate;
         taxPerUnit = (item.itemId.gst / 100) * itemPrice;
-        totalAmount = quantity * (itemPrice + taxPerUnit);
-
-        // Accumulate values
-        subtotal += quantity * itemPrice;
-        totalTax += quantity * taxPerUnit;
-        grandTotal += totalAmount;
-
-        // CGST and SGST calculations
-        totalCGST += quantity * (taxPerUnit / 2); // Assuming equal CGST and SGST
-        totalSGST += quantity * (taxPerUnit / 2);
+        totalAmount= quantity * (itemPrice + taxPerUnit);
       }
     }
+
+    // if (prices) {
+    //   const priceObj = prices.items.find(
+    //     (price) => price.item._id === item.itemId._id
+    //   );
+    //   if (priceObj) {
+    //     // Determine item price based on pickup type
+    //     if (pickup === "rack") itemPrice = priceObj.rackPrice;
+    //     else if (pickup === "company") itemPrice = priceObj.companyPrice;
+    //     else if (pickup === "plant") itemPrice = priceObj.plantPrice;
+    //     else if (pickup === "depot") itemPrice = priceObj.depotPrice;
+
+    //     taxPerUnit = (item.itemId.gst / 100) * itemPrice;
+    //     totalAmount = quantity * (itemPrice + taxPerUnit);
+
+    subtotal += quantity * itemPrice;
+    totalTax += quantity * taxPerUnit;
+    grandTotal += totalAmount;
 
     return {
       index: index + 1,
@@ -143,7 +142,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
               Ack No.: <strong>{purchase.ackNumber || "N/A"}</strong>
             </p>
             <p>
-              Ack Date: <strong>{purchase.ackDate || "N/A"}</strong>
+              Ack Date: <strong>{formatDate(purchase.invoiceDate) || "N/A"}</strong>
             </p>
           </div>
           <div className="text-center">
@@ -192,13 +191,17 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
                   <h3 className="font-semibold text-lg">
                     {party.charAt(0).toUpperCase() + party.slice(1)}
                   </h3>
-                  <p>{purchase[party]?.name || "N/A"}</p>
+                  {/* <p>{purchase[party]?.name || "N/A"}</p>
                   <p>{purchase[party]?.address || "N/A"}</p>
                   <p>GSTIN/UIN: {purchase[party]?.gstin || "N/A"}</p>
                   <p>
                     State: {purchase[party]?.state || "N/A"}, Code:{" "}
                     {purchase[party]?.stateCode || "N/A"}
-                  </p>
+                  </p> */}
+                  <p>{"Need Org Details " + purchase.organization}</p>
+                  <p>{"Data Unknown"}</p>
+                  <p>{"Data Unknown"}</p>
+                  <p>{"Data Unknown"}</p>
                 </div>
               ))}
             </section>

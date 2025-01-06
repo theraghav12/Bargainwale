@@ -3,6 +3,8 @@ import Order from "../models/orders.js";
 import Warehouse from "../models/warehouse.js";
 import Item from "../models/items.js";
 import ItemHistory from '../models/itemHistory.js';
+import Organization from '../models/organization.js';
+import User from '../models/user.js';
 
 import { generateOrderEmailContent } from '../utils/mailContent.js';
 import { sendEmailWithParams } from "./mail.js";
@@ -22,7 +24,7 @@ const orderController = {
         warehouse: warehouseId,
         manufacturer,
         paymentDays = 21,
-        reminderDays = [7, 3, 1]
+        reminderDays = [7, 3, 1],
       } = req.body;
 
       if (!Array.isArray(items)) {
@@ -141,9 +143,14 @@ const orderController = {
 
       const { subject, body } = generateOrderEmailContent(order);
 
+      const org = await Organization.findById(organization);
+      // console.log("----------------------------------",org);
+      const user = await User.findById(org.users);
+      // console.log("---------------------------------",user);
+
       const recipient = {
-        email: "22107@iiitu.ac.in",
-        name: "Amrutansh Jha",
+        email: "22107@iiitu.ac.in", //is hard coded because we still need organization email
+        name: "Amru",
       };
 
       const emailDetails = {

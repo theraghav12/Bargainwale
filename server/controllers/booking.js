@@ -160,10 +160,14 @@ const bookingController = {
         booking.discountStatus = "approved";
 
         const emailContent = generateBookingEmailContent(booking);
-        console.log(emailContent);
+        // console.log(emailContent);
+
+        const buyerDetails = await Buyer.findById(buyer);
+        // console.log("..........",buyerDetails);
+
         const recipient = {
-          email: "22107@iiitu.ac.in",
-          name: "Amrutansh Jha",
+          email: buyerDetails.buyerEmail,
+          name: buyerDetails.buyer,
         };
 
         const emailDetails = {

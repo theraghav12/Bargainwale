@@ -230,7 +230,7 @@ export const generateBookingEmailContent =  (booking) => {
     buyer,
     deliveryAddress,
   } = booking;
-
+  console.log('...', booking);
   const bookingItemsHTML = items
     .map((item) => {
       return `
@@ -346,9 +346,7 @@ export const generateBookingEmailContent =  (booking) => {
         </tbody>
       </table>
 
-      <p class="total-amount"><strong>Total Amount:</strong> ${totalAmount.toFixed(
-        2
-      )}</p>
+      <p class="total-amount"><strong>Total Amount:</strong> ${totalAmount}</p>
     </div>
   `;
 
