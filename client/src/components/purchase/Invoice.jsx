@@ -23,7 +23,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
   // console.log(organization);
   // console.log(orgId, response.data);
   organization=response.data;
-  console.log(organization);
+  // console.log(organization);
   // const [prices, setPrices] = useState(null);
 
   // Fetch item prices based on the warehouse ID
