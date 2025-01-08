@@ -6,6 +6,7 @@ import React, {
 } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import axios from "axios";
 // import { getPricesByWarehouse } from "@/services/itemService";
 import {
   formatDate,
@@ -13,9 +14,16 @@ import {
   toTitleCase,
   roundOff,
 } from "../../utils/helper.js";
+import { API_BASE_URL } from "@/services/api";  
+
+const orgId=localStorage.getItem("organizationId");
+const response = await axios.get(`${API_BASE_URL}/organization/${orgId}`);
 
 const Invoice = forwardRef(({ purchase, organization }, ref) => {
-  // console.log(purchase);
+  // console.log(organization);
+  // console.log(orgId, response.data);
+  organization=response.data;
+  console.log(organization);
   // const [prices, setPrices] = useState(null);
 
   // Fetch item prices based on the warehouse ID
@@ -74,7 +82,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
     return {
       index: index + 1,
       description: item.itemId.materialdescription || "N/A",
-      hsn: item.hsn || "N/A",
+      hsnCode: item.hsnCode || "N/A",
       quantity,
       price: itemPrice.toFixed(2),
       gst: item.itemId.gst || 0,
@@ -142,10 +150,11 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
               Ack No.: <strong>{purchase.ackNumber || "N/A"}</strong>
             </p>
             <p>
-              Ack Date: <strong>{formatDate(purchase.invoiceDate) || "N/A"}</strong>
+              Ack Date:{" "}
+              <strong>{formatDate(purchase.invoiceDate) || "N/A"}</strong>
             </p>
           </div>
-          <div className="text-center">
+          {/* <div className="text-center">
             <p className="font-semibold">e-Invoice</p>
             <div className="qr-code mt-2">
               <img
@@ -154,7 +163,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
                 className="w-24 h-24 bg-gray-300"
               />
             </div>
-          </div>
+          </div> */}
         </header>
         <div className="flex justify-between border-2 px-4 mb-6">
           <section className="flex-2 pr-4">
@@ -198,10 +207,10 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
                     State: {purchase[party]?.state || "N/A"}, Code:{" "}
                     {purchase[party]?.stateCode || "N/A"}
                   </p> */}
-                  <p>{"Need Org Details " + purchase.organization}</p>
-                  <p>{"Data Unknown"}</p>
-                  <p>{"Data Unknown"}</p>
-                  <p>{"Data Unknown"}</p>
+                  <p> {organization.address.line1},</p>
+                  <p> {organization.address.line2},</p>
+                  <p><strong>GSTIN:</strong> {organization.gstin}</p>
+                  <p> {organization.address.city}, {organization.address.state}, {organization.address.pincode}</p>
                 </div>
               ))}
             </section>
@@ -274,7 +283,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
               <tr key={index}>
                 <td className="border px-4 py-2">{item.index}</td>
                 <td className="border px-4 py-2">{item.description}</td>
-                <td className="border px-4 py-2">{item.hsn}</td>
+                <td className="border px-4 py-2">{item.hsnCode}</td>
                 <td className="border px-4 py-2">{item.quantity}</td>
                 <td className="border px-4 py-2">{item.price}</td>
                 <td className="border px-4 py-2">{item.gst}%</td>
@@ -328,7 +337,7 @@ const Invoice = forwardRef(({ purchase, organization }, ref) => {
             above are true.
           </p>
           <p>
-            <strong>Company's PAN:</strong> {purchase.companyPan || "N/A"}
+            <strong>Company's PAN:</strong> {organization.fssai || "N/A"}
           </p>
           <p className="italic">
             This is a computer-generated invoice. Date & Time of Printing:{" "}
