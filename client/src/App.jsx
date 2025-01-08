@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import CreatePurchase from "./pages/purchase/CreatePurchase";
 import { DashboardNavbar } from "./widgets/layout";
 import SecondNavbar from "./widgets/layout/SecNavbar";
@@ -30,6 +30,8 @@ import Timeline from "./components/inventory/Timeline";
 const App = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1250);
   const { isSignedIn } = useUser();
+  const location = useLocation();
+  const hideNavbars = location.pathname === "/auth/create-organization";
 
   useEffect(() => {
     function handleResize() {
@@ -62,9 +64,9 @@ const App = () => {
     <div className="min-h-screen bg-blue-gray-50/50 flex flex-col">
       {isSignedIn ? (
         <>
-          <DashboardNavbar />
-          <SecondNavbar />
-          <div className="flex flex-1 mt-28">
+          {!hideNavbars && <DashboardNavbar />}
+          {!hideNavbars && <SecondNavbar />}
+          <div className={`flex flex-1 ${!hideNavbars && "mt-28"}`}>
             <div className="flex-1">
               <Routes>
                 <Route path="/auth/sign-in" element={<SignIn />} />

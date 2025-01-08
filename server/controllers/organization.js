@@ -48,7 +48,7 @@ const orgController = {
     },
     updateOrganization: async (req, res) => {
         try {
-            const organization = await Organization.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('users').populate('inventory');
+            const organization = await Organization.findByIdAndUpdate(req.params.id, req.body, { new: true });
             if (!organization) {
                 return res.status(404).json({ message: 'Organization not found' });
             }

@@ -30,11 +30,14 @@ import {
 import axios from "axios";
 import { API_BASE_URL } from "@/services/api";
 import UserProfileDropdown from "./ProfileButton";
+import { BuildingIcon } from "lucide-react";
+import ManageOrganizationProfile from "@/pages/auth/OrganizationProfile";
 
 export function DashboardNavbar() {
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [openOrgProfile, setOpenOrgProfile] = useState(false);
+  const [openOrgProf, setOpenOrgProf] = useState(false);
   const [openUserProfile, setOpenUserProfile] = useState(false);
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(0);
@@ -45,6 +48,7 @@ export function DashboardNavbar() {
   const navigate = useNavigate();
 
   const handleOpenOrgProfile = () => setOpenOrgProfile(!openOrgProfile);
+  const handleOpenOrgProf = () => setOpenOrgProf(!openOrgProf);
   const handleOpenUserProfile = () => setOpenUserProfile(!openUserProfile);
   const toggleAppMenu = () => setShowAppMenu(!showAppMenu);
 
@@ -185,6 +189,7 @@ export function DashboardNavbar() {
                 toggleFullScreen={toggleFullScreen}
                 toggleAppMenu={toggleAppMenu}
                 handleOpenOrgProfile={handleOpenOrgProfile}
+                handleOpenOrgProf={handleOpenOrgProf}
               />
 
               {/* User Profile Button */}
@@ -224,6 +229,14 @@ export function DashboardNavbar() {
       </Dialog>
 
       <Dialog
+        open={openOrgProf}
+        handler={handleOpenOrgProf}
+        className="bg-white rounded-xl shadow-xl max-w-2xl mx-auto"
+      >
+        <ManageOrganizationProfile setOpen={setOpenOrgProf} />
+      </Dialog>
+
+      <Dialog
         open={openUserProfile}
         handler={handleOpenUserProfile}
         className="bg-white rounded-xl shadow-xl max-w-2xl mx-auto"
@@ -255,6 +268,7 @@ const ActionButtons = ({
   toggleFullScreen,
   toggleAppMenu,
   handleOpenOrgProfile,
+  handleOpenOrgProf,
 }) => {
   const buttons = [
     {
@@ -271,6 +285,11 @@ const ActionButtons = ({
       icon: <BuildingOfficeIcon className="h-5 w-5" />,
       onClick: handleOpenOrgProfile,
       tooltip: "Organization Settings",
+    },
+    {
+      icon: <BuildingIcon className="h-5 w-5" />,
+      onClick: handleOpenOrgProf,
+      tooltip: "Organization Profile",
     },
   ];
 
