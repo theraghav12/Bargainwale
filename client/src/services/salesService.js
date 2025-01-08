@@ -5,7 +5,7 @@ const orgId = localStorage.getItem("organizationId");
 
 export const getSales = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/${orgId}/sale`);
+        const response = await axios.get(`${API_BASE_URL}/totalsales/${orgId}`);
         return response.data;
     } catch (error) {
         console.log(error);

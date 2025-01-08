@@ -47,6 +47,18 @@ export default function PurchaseHistory() {
     return `${day} ${month} ${year}`;
   };
 
+  const formatDateWithTime = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
   function formatTimestamp(isoTimestamp) {
     const date = new Date(isoTimestamp);
     const day = String(date.getDate()).padStart(2, "0");
@@ -64,7 +76,6 @@ export default function PurchaseHistory() {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
       setSales(sortedData);
-      console.log(sortedData)
     } catch (error) {
       setError("Failed to fetch sales");
     } finally {
@@ -238,13 +249,11 @@ export default function PurchaseHistory() {
               <thead className="bg-gradient-to-r from-blue-100 to-green-100 border-b border-gray-300">
                 <tr>
                   {[
-                    "Created At",
-                    // "Invoice Number",
+                    "Sale Id",
                     "Invoice Date",
-                    "Booking Bargain No.",
-                    "Warehouse",
-                    "Transporter",
-                    "Actions",
+                    "Created At",
+                    "Total Amount",
+                    "Sales Details",
                   ].map((header) => (
                     <th
                       key={header}
@@ -256,33 +265,27 @@ export default function PurchaseHistory() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSales.map((sale) => {
+                {sales.map((sale) => {
                   const isOpen = openSale === sale._id;
                   return (
                     <React.Fragment key={sale._id}>
                       <tr className="hover:bg-gray-50 border-b">
-                        <td className="px-4 py-2 text-center">
-                          {formatTimestamp(sale.createdAt)}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          {sale.invoiceNumber}
-                        </td>
+                        <td className="px-4 py-2 text-center">{sale._id}</td>
                         <td className="px-4 py-2 text-center">
                           {formatDate(sale.invoiceDate)}
                         </td>
                         <td className="px-4 py-2 text-center">
-                          {sale.bookingId?.BargainNo}
+                          {formatDateWithTime(sale.createdAt)}
                         </td>
                         <td className="px-4 py-2 text-center">
-                          {sale.warehouseId?.name}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          {sale.transporterId?.transport}
+                          ₹{sale.totalAmount}
                         </td>
                         <td className="px-4 py-2 text-center">
                           <div className="flex justify-center gap-4">
                             <Tooltip
-                              content={isOpen ? "Hide Details" : "View Details"}
+                              content={
+                                isOpen ? "Hide Details" : "View Sales Details"
+                              }
                             >
                               <IconButton
                                 variant="text"
@@ -295,25 +298,32 @@ export default function PurchaseHistory() {
                                 )}
                               </IconButton>
                             </Tooltip>
-                            {/* <Tooltip content="Delete Sale">
-                              <span>
-                                <MdDeleteOutline
-                                  onClick={() => handleDelete(sale._id)}
-                                  className="text-2xl text-red-600 hover:text-white hover:bg-red-600 p-1 rounded transition"
-                                />
-                              </span>
-                            </Tooltip> */}
                           </div>
                         </td>
+                        {/* <td className="px-4 py-2 text-center">
+                          <Tooltip content="Delete Sale">
+                            <span>
+                              <MdDeleteOutline
+                                onClick={() => handleDelete(sale._id)}
+                                className="text-2xl text-red-600 hover:text-white hover:bg-red-600 p-1 rounded transition"
+                              />
+                            </span>
+                          </Tooltip>
+                        </td> */}
                       </tr>
 
                       {isOpen && (
                         <tr className="bg-gray-100">
-                          <td colSpan="7" className="p-4">
+                          <td colSpan="5" className="p-4">
                             <table className="min-w-full bg-gray-50">
                               <thead className="bg-gray-200">
                                 <tr>
-                                  {["Item Name", "Quantity"].map((header) => (
+                                  {[
+                                    "Booking ID",
+                                    "Item ID",
+                                    "Pickup",
+                                    "Quantity",
+                                  ].map((header) => (
                                     <th
                                       key={header}
                                       className="px-2 py-1 font-semibold text-gray-700"
@@ -324,18 +334,31 @@ export default function PurchaseHistory() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {sale.items.map((item) => (
-                                  <tr
-                                    key={item._id}
-                                    className="hover:bg-gray-100"
-                                  >
-                                    <td className="px-2 py-1 text-center">
-                                      {item.itemId?.materialdescription}
-                                    </td>
-                                    <td className="px-2 py-1 text-center">
-                                      {item.quantity}
-                                    </td>
-                                  </tr>
+                                {sale.sales.map((saleItem) => (
+                                  <React.Fragment key={saleItem.bookingId}>
+                                    {saleItem.items.map((item) => (
+                                      <tr
+                                        key={item._id}
+                                        className="hover:bg-gray-100"
+                                      >
+                                        <td className="px-2 py-1 text-center">
+                                          {saleItem.bookingId}
+                                        </td>
+                                        <td className="px-2 py-1 text-center">
+                                          {item.itemId}
+                                        </td>
+                                        <td className="px-2 py-1 text-center">
+                                          {String(item.pickup)
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                            String(item.pickup).slice(1)}
+                                        </td>
+                                        <td className="px-2 py-1 text-center">
+                                          {item.quantity}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </React.Fragment>
                                 ))}
                               </tbody>
                             </table>
@@ -349,7 +372,7 @@ export default function PurchaseHistory() {
             </table>
           </div>
         ) : (
-          <Typography className="text-center text-blue-gray-600 mt-8">
+          <Typography className="text-center text-gray-500 py-8">
             No Sales found
           </Typography>
         )}

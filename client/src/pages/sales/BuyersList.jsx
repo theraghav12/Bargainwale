@@ -150,7 +150,7 @@ const BuyersList = () => {
             </Typography>
             <p className="mt-2">
               Try adjusting your search or{" "}
-              <Link to="/add-buyer" className="text-blue-500 underline">
+              <Link to="/master" className="text-blue-500 underline">
                 add a new buyer.
               </Link>
             </p>

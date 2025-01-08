@@ -211,7 +211,7 @@ export function OrderHistory() {
   };
 
   return (
-    <div className="p-8 bg-gray-50">
+    <div className="p-8 bg-gray-50 min-h-full">
       <div className="mb-4 flex justify-between items-center">
         <button
           onClick={handleDownloadExcel}
