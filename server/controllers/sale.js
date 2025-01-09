@@ -178,11 +178,29 @@ const saleController = {
   getAllSales: async (req, res) => {
     try {
       const sales = await Sale.find({ organization: req.params.orgId })
-        .populate("warehouseId")
-        .populate("transporterId")
-        .populate("bookingId")
-        .populate("items.itemId");
-
+        .populate({
+          path: "warehouseId",
+          populate: {
+            path: "manager", 
+          },
+        })
+        .populate({
+          path: "bookingId",
+          populate: [
+            {
+              path: "items.item", 
+            },
+            {
+              path: "buyer",
+            },
+          ],
+        })
+        .populate({
+          path: "items.itemId", 
+          select: "name material flavor weights", 
+        })
+        .populate("transporterId");
+  
       res.status(200).json({
         success: true,
         data: sales,
@@ -195,23 +213,42 @@ const saleController = {
       });
     }
   },
+  
 
   getSaleById: async (req, res) => {
     try {
       const { id, orgId } = req.params;
       const sale = await Sale.findOne({ _id: id, organization: orgId })
-        .populate("warehouseId")
-        .populate("transporterId")
-        .populate("bookingId")
-        .populate("items");
-
+        .populate({
+          path: "warehouseId",
+          populate: {
+            path: "manager", 
+          },
+        })
+        .populate({
+          path: "bookingId",
+          populate: [
+            {
+              path: "items.item", 
+            },
+            {
+              path: "buyer", 
+            },
+          ],
+        })
+        .populate({
+          path: "items.itemId",
+          select: "name material flavor weights",
+        })
+        .populate("transporterId"); 
+  
       if (!sale) {
         return res.status(404).json({
           success: false,
           message: "Sale not found",
         });
       }
-
+  
       res.status(200).json({
         success: true,
         data: sale,
@@ -224,6 +261,7 @@ const saleController = {
       });
     }
   },
+  
 
   getSalesBetweenDates: async (req, res) => {
     try {
