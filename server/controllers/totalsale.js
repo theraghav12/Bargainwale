@@ -49,12 +49,39 @@ const totalSaleController = {
     }
   },
 
-  // Get all TotalSales
   getAllTotalSales: async (req, res) => {
     try {
       const totalSales = await TotalSale.find({ organization: req.params.orgId })
-        .populate("sales");
-
+        .populate({
+          path: "sales",
+          populate: [
+            {
+              path: "warehouseId",
+              populate: {
+                path: "manager", 
+              },
+            },
+            {
+              path: "bookingId",
+              populate: [
+                {
+                  path: "items.item", 
+                },
+                {
+                  path: "buyer", 
+                },
+              ],
+            },
+            {
+              path: "items.itemId", 
+              select: "name material flavor weights",
+            },
+            {
+              path: "transporterId", 
+            },
+          ],
+        });
+  
       res.status(200).json({
         success: true,
         data: totalSales,
@@ -67,20 +94,48 @@ const totalSaleController = {
       });
     }
   },
+  
 
-  // Get TotalSale by ID
   getTotalSaleById: async (req, res) => {
     try {
       const totalSale = await TotalSale.findById(req.params.id)
-        .populate("sales");
-
+        .populate({
+          path: "sales",
+          populate: [
+            {
+              path: "warehouseId",
+              populate: {
+                path: "manager", 
+              },
+            },
+            {
+              path: "bookingId",
+              populate: [
+                {
+                  path: "items.item",
+                },
+                {
+                  path: "buyer",
+                },
+              ],
+            },
+            {
+              path: "items.itemId",
+              select: "name material flavor weights",
+            },
+            {
+              path: "transporterId",
+            },
+          ],
+        });
+  
       if (!totalSale) {
         return res.status(404).json({
           success: false,
           message: "Total sale not found",
         });
       }
-
+  
       res.status(200).json({
         success: true,
         data: totalSale,
@@ -93,8 +148,8 @@ const totalSaleController = {
       });
     }
   },
+  
 
-  // Delete TotalSale by ID
   deleteTotalSale: async (req, res) => {
     try {
       const totalSale = await TotalSale.findById(req.params.id);
