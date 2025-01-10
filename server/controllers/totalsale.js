@@ -58,7 +58,7 @@ const totalSaleController = {
             {
               path: "warehouseId",
               populate: {
-                path: "manager", 
+                path: "warehouseManager", 
               },
             },
             {
@@ -75,12 +75,10 @@ const totalSaleController = {
             {
               path: "items.itemId", 
               select: "name material flavor weights",
-            },
-            {
-              path: "transporterId", 
-            },
+            }
           ],
-        });
+        })
+        .populate("transporterId");
   
       res.status(200).json({
         success: true,
@@ -105,7 +103,7 @@ const totalSaleController = {
             {
               path: "warehouseId",
               populate: {
-                path: "manager", 
+                path: "warehouseManager", 
               },
             },
             {
@@ -122,12 +120,12 @@ const totalSaleController = {
             {
               path: "items.itemId",
               select: "name material flavor weights",
-            },
-            {
-              path: "transporterId",
-            },
+            }
+           
           ],
-        });
+        })
+        .populate("transporterId");
+        
   
       if (!totalSale) {
         return res.status(404).json({
