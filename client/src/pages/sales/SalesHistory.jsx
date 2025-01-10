@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Typography,
   IconButton,
@@ -14,7 +14,8 @@ import { HiOutlineDocumentDownload } from "react-icons/hi";
 import excel from "../../assets/excel.svg";
 import { deleteBooking, getBookings } from "@/services/bookingService";
 import { getSales } from "@/services/salesService";
-import { FaFilter } from "react-icons/fa";
+import { FaFilter, FaDownload } from "react-icons/fa";
+import Invoice from "@/components/sales/SalesInvoice";
 
 export default function PurchaseHistory() {
   const [sales, setSales] = useState([]);
@@ -29,6 +30,9 @@ export default function PurchaseHistory() {
   const [warehouseFilter, setWarehouseFilter] = useState("All");
   const [transporterFilter, setTransporterFilter] = useState("All");
   const [itemFilter, setItemFilter] = useState("");
+  const [showInvoice, setShowInvoice] = useState(false);
+
+  const invoiceRef = useRef();
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -157,7 +161,13 @@ export default function PurchaseHistory() {
     setOpenSale(openSale === saleId ? null : saleId);
   };
 
-  console.log(sales);
+  const handleDownloadClick = () => {
+    setShowInvoice(true);
+    if (invoiceRef.current) {
+      invoiceRef.current.handleDownloadPDF();
+    }
+    setShowInvoice(false);
+  };
 
   return (
     <div className="mt-8 mb-8 flex flex-col gap-8 px-7">
@@ -299,6 +309,26 @@ export default function PurchaseHistory() {
                                   <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                                 )}
                               </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Download Invoice">
+                              <div className="flex items-center justify-center">
+                                <button onClick={handleDownloadClick}>
+                                  <FaDownload className="text-[1.2rem]" />
+                                </button>
+                                <div
+                                  style={{
+                                    visibility: "hidden",
+                                    position: "absolute",
+                                    top: "-9999px",
+                                    left: "-9999px",
+                                  }}
+                                >
+                                  <Invoice
+                                    ref={invoiceRef}
+                                    sale={sale}
+                                  />
+                                </div>
+                              </div>
                             </Tooltip>
                           </div>
                         </td>

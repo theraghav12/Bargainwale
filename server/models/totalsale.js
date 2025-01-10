@@ -7,7 +7,6 @@ const totalSaleSchema = new mongoose.Schema({
   }],
   invoiceNumber: {
     type: String,
-    unique: true,
   },
   invoiceDate: {
     type: Date,

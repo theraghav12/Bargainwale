@@ -47,31 +47,34 @@ const totalSaleController = {
   
   getAllTotalSales: async (req, res) => {
     try {
-      const totalSales = await TotalSale.find({ organization: req.params.orgId })
+      const totalSales = await TotalSale.find({
+        organization: req.params.orgId,
+      })
         .populate({
           path: "sales",
           populate: [
             {
               path: "warehouseId",
               populate: {
-                path: "warehouseManager", 
+                path: "warehouseManager",
               },
             },
             {
               path: "bookingId",
               populate: [
                 {
-                  path: "items.item", 
+                  path: "items.item",
                 },
                 {
-                  path: "buyer", 
+                  path: "buyer",
                 },
               ],
             },
             {
-              path: "items.itemId", 
-              select: "name material flavor weights",
-            }
+              path: "items.itemId",
+              select:
+                "name material flavor weights hsnCode materialdescription gst",
+            },
           ],
         })
         .populate("transporterId");
