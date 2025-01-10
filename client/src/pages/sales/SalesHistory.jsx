@@ -335,7 +335,7 @@ export default function PurchaseHistory() {
                               </thead>
                               <tbody>
                                 {sale.sales.map((saleItem) => (
-                                  <React.Fragment key={saleItem.bookingId}>
+                                  <React.Fragment key={saleItem._id}>
                                     {saleItem.items.map((item) => (
                                       <tr
                                         key={item._id}
