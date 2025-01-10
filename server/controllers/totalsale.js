@@ -3,10 +3,10 @@ import Sale from "../models/sale.js";
 
 const totalSaleController = {
   // Create a new TotalSale or update an existing one by adding sales
-  createOrUpdateTotalSale: async (req, res) => {
+  createTotalSale: async (req, res) => {
     try {
-      const { saleIds, organization,totalAmount,invoiceDate,invoiceNumber,transporterId } = req.body;
-
+      const { saleIds, organization, totalAmount, invoiceDate, invoiceNumber, transporterId } = req.body;
+  
       // Validate the sales exist
       const sales = await Sale.find({ _id: { $in: saleIds } });
       if (sales.length !== saleIds.length) {
@@ -15,46 +15,67 @@ const totalSaleController = {
           message: "Some sales do not exist",
         });
       }
-
-      // Check if a TotalSale exists for this organization
-      let totalSale = await TotalSale.findOne({ organization });
-
-      if (!totalSale) {
-        // If no total sale exists, create a new one
-        totalSale = new TotalSale({
-          sales: saleIds,
-          organization,
-          totalAmount,
-          invoiceDate,invoiceNumber,
-          transporterId
-        });
-      } else {
-        // If a total sale exists, add new sales to the array
-        totalSale.sales.push(...saleIds);
-      }
-
+  
+      // Ensure no TotalSale exists for this organization already
+      
+  
+      // Create a new TotalSale
+      const totalSale = new TotalSale({
+        sales: saleIds,
+        organization,
+        totalAmount,
+        invoiceDate,
+        invoiceNumber,
+        transporterId,
+      });
+  
       await totalSale.save();
-
+  
       res.status(201).json({
         success: true,
-        message: "Total sale created/updated successfully",
+        message: "Total sale created successfully",
         data: totalSale,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: "Failed to create/update total sale",
+        message: "Failed to create total sale",
         error: error.message,
       });
     }
   },
-
-  // Get all TotalSales
+  
   getAllTotalSales: async (req, res) => {
     try {
       const totalSales = await TotalSale.find({ organization: req.params.orgId })
-        .populate("sales");
-
+        .populate({
+          path: "sales",
+          populate: [
+            {
+              path: "warehouseId",
+              populate: {
+                path: "warehouseManager", 
+              },
+            },
+            {
+              path: "bookingId",
+              populate: [
+                {
+                  path: "items.item", 
+                },
+                {
+                  path: "buyer", 
+                },
+              ],
+            },
+            {
+              path: "items.itemId", 
+              select: "name material flavor weights",
+            }
+          ],
+        })
+        .populate("transporterId");
+  
       res.status(200).json({
         success: true,
         data: totalSales,
@@ -67,20 +88,48 @@ const totalSaleController = {
       });
     }
   },
+  
 
-  // Get TotalSale by ID
   getTotalSaleById: async (req, res) => {
     try {
       const totalSale = await TotalSale.findById(req.params.id)
-        .populate("sales");
-
+        .populate({
+          path: "sales",
+          populate: [
+            {
+              path: "warehouseId",
+              populate: {
+                path: "warehouseManager", 
+              },
+            },
+            {
+              path: "bookingId",
+              populate: [
+                {
+                  path: "items.item",
+                },
+                {
+                  path: "buyer",
+                },
+              ],
+            },
+            {
+              path: "items.itemId",
+              select: "name material flavor weights",
+            }
+           
+          ],
+        })
+        .populate("transporterId");
+        
+  
       if (!totalSale) {
         return res.status(404).json({
           success: false,
           message: "Total sale not found",
         });
       }
-
+  
       res.status(200).json({
         success: true,
         data: totalSale,
@@ -93,8 +142,8 @@ const totalSaleController = {
       });
     }
   },
+  
 
-  // Delete TotalSale by ID
   deleteTotalSale: async (req, res) => {
     try {
       const totalSale = await TotalSale.findById(req.params.id);

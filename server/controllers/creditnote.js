@@ -8,8 +8,7 @@ const creditNoteController = {
   
   createCreditNote: async (req, res) => {
     try {
-      const { totalSaleId, items, reason, organization, invoiceDate, transporterId } = req.body;
-
+      const { totalSaleId, items, organization, invoiceDate, transporterId } = req.body;
      
       const totalSale = await TotalSale.findById(totalSaleId).populate("sales");
       if (!totalSale) {
@@ -21,7 +20,7 @@ const creditNoteController = {
 
       const creditItems = [];
       for (const item of items) {
-        const { itemId, quantity } = item;
+        const { itemId, quantity, reason } = item;
         let totalQuantitySold = 0;
 
      

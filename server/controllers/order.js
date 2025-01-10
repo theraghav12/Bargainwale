@@ -144,13 +144,11 @@ const orderController = {
       const { subject, body } = generateOrderEmailContent(order);
 
       const org = await Organization.findById(organization);
-      // console.log("----------------------------------",org);
-      const user = await User.findById(org.users);
-      // console.log("---------------------------------",user);
+      console.log("----------------------------------",org);
 
       const recipient = {
-        email: "22107@iiitu.ac.in", //is hard coded because we still need organization email
-        name: "Amru",
+        email: org.email, 
+        name: org.name,
       };
 
       const emailDetails = {

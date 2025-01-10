@@ -2,6 +2,7 @@ import Purchase from "../models/purchase.js";
 import Warehouse from "../models/warehouse.js";
 import Order from "../models/orders.js";
 import Transport from "../models/transport.js";
+import Organization from "../models/organization.js";
 import ItemHistory from "../models/itemHistory.js";
 import { generatePurchaseEmailContent } from "../utils/mailContent.js";
 import { sendEmailWithParams } from "./mail.js";
@@ -196,9 +197,12 @@ const purchaseController = {
 
       const emailContent = generatePurchaseEmailContent(newPurchase);
 
+      const org = await Organization.findById(organization);
+      console.log("----------------------------------", org);
+
       const recipient = {
-        email: "22107@iiitu.ac.in",
-        name: "Amrutansh Jha",
+        email: org.email,
+        name: org.name,
       };
 
       const emailDetails = {
