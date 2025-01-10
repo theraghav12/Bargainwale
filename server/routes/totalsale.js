@@ -4,7 +4,7 @@ import totalSaleController from '../controllers/totalsale.js';
 const router = express.Router();
 
 
-router.post('/api/totalsales', totalSaleController.createOrUpdateTotalSale);
+router.post('/api/totalsales', totalSaleController.createTotalSale);
 
 
 router.get('/api/totalsales/:orgId', totalSaleController.getAllTotalSales);

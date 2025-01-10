@@ -58,7 +58,6 @@ export const sendEmailWithParams = async (
       transactionDetails,
     });
     await email.save();
-
     // Send the email using the configured sender
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -66,6 +65,7 @@ export const sendEmailWithParams = async (
       subject,
       html: body,
     };
+    console.log(sender);
 
     await sender.sendMail(mailOptions);
 

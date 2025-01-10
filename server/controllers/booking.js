@@ -179,7 +179,7 @@ const bookingController = {
             transactionId: booking._id,
           },
         };
-
+        console.log("waw",emailDetails);
         await sendEmailWithParams(emailDetails);
       }
       await booking.save();
