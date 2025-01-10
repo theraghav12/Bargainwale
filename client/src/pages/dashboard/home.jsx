@@ -354,7 +354,7 @@ export default function Home() {
                   {form?.length > 0 &&
                     form?.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 border-t border-gray-200">
+                        <td className="px-4 py-2 border-t border-gray-200 break-all">
                           {item.item?.materialdescription || "Unknown Item"}
                         </td>
                         <td className="px-4 py-2 border-t border-gray-200">
@@ -404,22 +404,16 @@ export default function Home() {
                         <td className="px-4 py-2 border-t border-gray-200">
                           <button
                             onClick={() => handleLockToggle(index)}
-                            className={`w-[100px] px-3 py-1 rounded-lg text-white ${
+                            className={`w-fit px-3 py-2 rounded-lg text-white ${
                               item.locked
                                 ? "bg-green-500 hover:bg-green-600"
                                 : "bg-red-500 hover:bg-red-600"
                             }`}
                           >
                             {item.locked ? (
-                              <span className="flex flex-row items-center gap-2">
-                                <FaLock className="text-[1rem]" />
-                                Unlock
-                              </span>
+                              <FaLock className="text-[1rem]" />
                             ) : (
-                              <span className="flex flex-row items-center gap-2">
-                                <FaLockOpen className="text-[1rem]" />
-                                Lock
-                              </span>
+                              <FaLockOpen className="text-[1rem]" />
                             )}
                           </button>
                         </td>
