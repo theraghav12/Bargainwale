@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   IconButton,
@@ -14,9 +14,7 @@ import { HiOutlineDocumentDownload } from "react-icons/hi";
 import excel from "../../assets/excel.svg";
 import { deleteBooking, getBookings } from "@/services/bookingService";
 import { getSales } from "@/services/salesService";
-import { FaDownload, FaFileExcel, FaFilter } from "react-icons/fa";
-
-import Invoice from "@/components/sales/SalesInvoice";
+import { FaFilter } from "react-icons/fa";
 
 export default function PurchaseHistory() {
   const [sales, setSales] = useState([]);
@@ -31,8 +29,6 @@ export default function PurchaseHistory() {
   const [warehouseFilter, setWarehouseFilter] = useState("All");
   const [transporterFilter, setTransporterFilter] = useState("All");
   const [itemFilter, setItemFilter] = useState("");
-
-  const invoiceRef = useRef();
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -302,23 +298,6 @@ export default function PurchaseHistory() {
                                 )}
                               </IconButton>
                             </Tooltip>
-                            <Tooltip content="Download Invoice">
-                              <div className="flex items-center justify-center">
-                                <button onClick={console.log("waw222")}>
-                                  <FaDownload className="text-[1.2rem]" />
-                                </button>
-                                <div
-                                  // style={{
-                                  //   visibility: "hidden",
-                                  //   position: "absolute",
-                                  //   top: "-9999px",
-                                  //   left: "-9999px",
-                                  // }}
-                                >
-                                  <Invoice ref={invoiceRef} sales={sales} />
-                                </div>
-                              </div>
-                            </Tooltip>
                           </div>
                         </td>
                         {/* <td className="px-4 py-2 text-center">
@@ -356,7 +335,7 @@ export default function PurchaseHistory() {
                               </thead>
                               <tbody>
                                 {sale.sales.map((saleItem) => (
-                                  <React.Fragment key={saleItem.bookingId}>
+                                  <React.Fragment key={saleItem._id}>
                                     {saleItem.items.map((item) => (
                                       <tr
                                         key={item._id}
