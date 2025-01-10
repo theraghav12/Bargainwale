@@ -181,7 +181,7 @@ const saleController = {
         .populate({
           path: "warehouseId",
           populate: {
-            path: "manager", 
+            path: "warehouseManager", 
           },
         })
         .populate({
@@ -198,8 +198,8 @@ const saleController = {
         .populate({
           path: "items.itemId", 
           select: "name material flavor weights", 
-        })
-        .populate("transporterId");
+        });
+       
   
       res.status(200).json({
         success: true,
@@ -222,7 +222,7 @@ const saleController = {
         .populate({
           path: "warehouseId",
           populate: {
-            path: "manager", 
+            path: "warehouseManager", 
           },
         })
         .populate({
@@ -239,8 +239,8 @@ const saleController = {
         .populate({
           path: "items.itemId",
           select: "name material flavor weights",
-        })
-        .populate("transporterId"); 
+        });
+       
   
       if (!sale) {
         return res.status(404).json({
