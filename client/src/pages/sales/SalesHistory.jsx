@@ -157,6 +157,8 @@ export default function PurchaseHistory() {
     setOpenSale(openSale === saleId ? null : saleId);
   };
 
+  console.log(sales);
+
   return (
     <div className="mt-8 mb-8 flex flex-col gap-8 px-7">
       <Card className="p-6 shadow-lg rounded-lg bg-white border">
@@ -342,10 +344,10 @@ export default function PurchaseHistory() {
                                         className="hover:bg-gray-100"
                                       >
                                         <td className="px-2 py-1 text-center">
-                                          {saleItem.bookingId}
+                                          {saleItem.bookingId.BargainNo}
                                         </td>
                                         <td className="px-2 py-1 text-center">
-                                          {item.itemId}
+                                          {item.itemId._id}
                                         </td>
                                         <td className="px-2 py-1 text-center">
                                           {String(item.pickup)
